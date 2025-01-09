@@ -1,0 +1,38 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('elections', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('group_id')->constrained('groups');
+            $table->string('title');
+            $table->string('slug')->unique()->nullable();
+            $table->tinyInteger('status')->default(0);
+            $table->tinyInteger('type')->default(0);
+            $table->integer('normal_stock_count')->default(0);
+            $table->integer('prefered_stock_count')->default(0);
+            $table->integer('prefered_stock_weight')->default(0);
+            $table->integer('main_memeber_count')->default(1);
+            $table->integer('substitute_member_count')->default(0);
+            $table->timestamps();
+            $table->softDeletes();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('elections');
+    }
+};
