@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\OtpController;
 use Illuminate\Support\Facades\Route;
 
 
