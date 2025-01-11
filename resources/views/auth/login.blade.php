@@ -1,75 +1,76 @@
-<html lang="fa" class="js">
+
+<!DOCTYPE html>
+<html lang="en" dir="rtl">
 
 <head>
-    <base href="../../../">
-    <meta charset="utf-8">
-    <meta name="author" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <!-- Fav Icon  -->
-    <link rel="shortcut icon" href="./images/favicon.png">
-    <!-- Page Title  -->
-    <title>سامانه انتخابات - ورود به حساب کاربری</title>
-    <!-- StyleSheets  -->
-    <link rel="stylesheet" href="{{ asset('assets/css/dashlite-rtl.css') }}">
-    <link id="skin-default" rel="stylesheet" href="./assets/css/theme.css">
+    <meta charset="utf-8" />
+    <title>ورود | آسن - دشبرد مدیریتی بوت سترپ 5</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
+    <meta content="Coderthemes" name="author" />
+
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="assets/images/favicon.ico">
+
+    <!-- Theme Config Js -->
+    <script src="assets/js/config.js"></script>
+
+    <!-- Vendor css -->
+    <link href="assets/css/vendor.min.css" rel="stylesheet" type="text/css" />
+
+    <!-- App css -->
+    <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" id="app-style" />
+
+    <!-- Icons css -->
+    <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
 </head>
 
-<body class="has-rtl nk-body bg-white npc-general pg-auth no-touch nk-nio-theme" dir="rtl">
-    <div class="nk-app-root">
-        <!-- main @s -->
-        <div class="nk-main">
-            <!-- wrap @s -->
-            <div class="nk-wrap nk-wrap-nosidebar">
-                <!-- content @s -->
-                <div class="nk-content">
-                    <div class="nk-block nk-block-middle nk-auth-body wide-xs">
-                        <div class="card card-bordered">
-                            <div class="card-inner card-inner-lg">
-                                <div class="nk-block-head">
-                                    <div class="nk-block-head-content">
-                                        <h4 class="nk-block-title">ورود</h4>
-                                        <div class="nk-block-des">
-                                        </div>
-                                    </div>
-                                </div>
-                                <form action="" method="post">
-                                    <div class="form-group">
-                                        <div class="form-label-group">
-                                            <label class="form-label" for="default-01">شماره تلفن خود را وارد نمایید</label>
-                                        </div>
-                                        <div class="form-control-wrap">
-                                            <input type="text" style="direction: ltr;" class="form-control form-control-lg" id="default-01" placeholder="9111235566">
-                                        </div>
-                                    </div>
-                                    <!-- <div class="form-group">
-                                        <div class="form-label-group">
-                                            <label class="form-label" for="password">رمز عبور</label>
-                                            <a class="link link-primary link-sm" href="html/pages/auths/auth-reset-v2.html">رمز عبور را فراموش کردید؟</a>
-                                        </div>
-                                        <div class="form-control-wrap">
-                                            <a href="#" class="form-icon form-icon-right passcode-switch lg" data-target="password">
-                                                <em class="passcode-icon icon-show icon ni ni-eye"></em>
-                                                <em class="passcode-icon icon-hide icon ni ni-eye-off"></em>
-                                            </a>
-                                            <input type="password" class="form-control form-control-lg" id="password" placeholder="رمز عبور خود را وارد کنید">
-                                        </div>
-                                    </div> -->
-                                    <div class="form-group">
-                                        <button class="btn btn-lg btn-primary btn-block">ورود</button>
-                                    </div>
-                                </form>
-                            </div>
+<body>
+
+    <div class="auth-bg d-flex min-vh-100 justify-content-center align-items-center">
+        <div class="row g-0 justify-content-center w-100 m-xxl-5 px-xxl-4 m-3">
+            <div class="col-xl-4 col-lg-5 col-md-6">
+                <div class="card overflow-hidden text-center h-100 p-xxl-4 p-3 mb-0">
+
+                    <h3 class="fw-semibold mb-2">اطلاعات حساب خود را وارد کنید</h3>
+
+                    <p class="text-muted mb-4">خوش آمدید</p>
+
+                    <form action="index.html" class="text-start mb-3">
+                        <div class="mb-3">
+                            <label class="form-label" for="example-email">شماره تلفن</label>
+                            <input type="email" id="example-email" name="example-email" class="form-control" placeholder="شماره تلفن خود را وارد کنید">
                         </div>
-                    </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="example-password">رمز</label>
+                            <input type="password" id="example-password" class="form-control" placeholder="رمز ورود خود را وارد کنید">
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-3">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="checkbox-signin">
+                                <label class="form-check-label" for="checkbox-signin">من را به یاد بیاورید</label>
+                            </div>
+
+                            <a href="auth-recoverpw.html" class="text-muted border-bottom border-dashed">فراموشی رمز عبور</a>
+                        </div>
+
+                        <div class="d-grid">
+                            <button class="btn btn-primary" type="submit">ورود</button>
+                        </div>
+                    </form>
                 </div>
-                <!-- wrap @e -->
             </div>
-            <!-- content @e -->
         </div>
-        <!-- main @e -->
     </div>
-    <!-- app-root @e -->
+
+    <!-- Vendor js -->
+    <script src="assets/js/vendor.min.js"></script>
+
+    <!-- App js -->
+    <script src="assets/js/app.js"></script>
+
 </body>
 
 </html>
