@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\DTOs\Auth\LoginDTO;
+use App\Enums\UserStatus;
+use App\Exceptions\Auth\UserHasBeenBlockedException;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -18,13 +20,20 @@ class LoginService
             return false;
         }
 
+        $this->checkUserStatus($user);
+
         return Auth::attempt([
             $identifier_field => $loginDTO->identifier,
             'password' => $loginDTO->password
         ], $loginDTO->remember);
     }
 
-    public function loginWithOtp(LoginDTO $loginDTO) {
-        
+    public function loginWithOtp(LoginDTO $loginDTO) {}
+
+    protected function checkUserStatus(User $user)
+    {
+        if ($user->status === UserStatus::BLOCK) {
+            throw new UserHasBeenBlockedException;
+        }
     }
 }

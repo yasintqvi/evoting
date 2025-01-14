@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\TwoFactorType;
+use App\Enums\UserStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -22,11 +23,10 @@ return new class extends Migration
             $table->timestamp('phone_verified_at')->nullable();
             $table->string('password')->nullable();
             $table->string('avatar')->nullable();
-            $table->tinyInteger('status')->default(0);
+            $table->tinyInteger('status')->default(UserStatus::ACTIVE);
             $table->tinyInteger('has_two_factor_type')->default(0);
             $table->tinyInteger('two_factor_type')->default(TwoFactorType::SMS);
             $table->string('google2fa_secret')->nullable();
-            $table->text('meta')->nullable();
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

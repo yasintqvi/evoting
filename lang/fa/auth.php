@@ -46,4 +46,5 @@ return [
     'confirm' => 'تایید',
     'confirm-password.title' => 'تایید کلمه عبور',
     'confirm-password.message' => 'لطفاً قبل از ادامه رمز عبور خود را تأیید کنید.',
+    'user_has_been_blocked' => 'حساب کاربر مسدود شده است.',
 ];

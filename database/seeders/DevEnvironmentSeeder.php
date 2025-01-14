@@ -27,7 +27,7 @@ class DevEnvironmentSeeder extends Seeder
             'title' => 'Evoting Test Group',
             'description' => 'this is the test group in the evoting system',
             'owner_id' => $adminUser->id,
-            'status' => GroupStatus::ENABLE
+            'status' => GroupStatus::ENABLE,
         ]);
         
         $users = User::factory(10)->create();

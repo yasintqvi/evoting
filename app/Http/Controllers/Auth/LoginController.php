@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Enums\AuthType;
+use App\Exceptions\Auth\UserHasBeenBlockedException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use Exception;
@@ -37,6 +38,10 @@ class LoginController extends Controller
             }
 
             return to_route('app.index');
+        } catch (UserHasBeenBlockedException $e) {
+            return to_route('login.form')->withErrors([
+                'password' => $e->getMessage()
+            ]);
         } catch (Exception $e) {
 
             Log::error("The login operation encountered a system error. message : {$e->getMessage()}", ['trace' => $e->getTrace()]);
@@ -47,10 +52,7 @@ class LoginController extends Controller
         }
     }
 
-    public function otpForm()
-    {
-        
-    }
+    public function otpForm() {}
 
     public function logout(): RedirectResponse
     {
