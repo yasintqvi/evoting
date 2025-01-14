@@ -116,7 +116,7 @@ return [
 
     'constants' => [
         'sms_expire_minutes' => 5,
-        'new_sms_expire_minutes' => 2,
+        'new_sms_expire_minutes' => 3,
         'code_length' => 5,
         'password_minimum_length' => 6,
     ],

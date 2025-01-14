@@ -136,7 +136,7 @@ return [
         'g-recaptcha-response'  =>  [
             'required'    =>     "گزینه من ربات نیستم را تایید کنید"
         ],
-    ],  
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -242,18 +242,19 @@ return [
         'response'        =>   'پاسخ',
         'position'        =>   'موقعیت',
         'investor_task'   =>   'آورده سرمایه گذار',
-        'municipality_task'=>  'آورده شهرداری',
+        'municipality_task' =>  'آورده شهرداری',
         'postal_code'      => 'کد پستی',
-        'main_st'          => 'خیابان اصلی', 
+        'main_st'          => 'خیابان اصلی',
         'subject'         => 'موضوع',
         'auxiliary_st'    => 'خیابان فرعی',
         'alley'           => 'کوچه',
         'deadend'         => 'بن بست',
-        'builing_name'    => 'نام مجتمع',    
+        'builing_name'    => 'نام مجتمع',
         'answer'          => 'پاسخ',
         'max-file-size'   => 'حداکثر حجم فایل',
         'max-files'       => 'حداکثر تعداد فایل',
         'allowed-extensions' => 'پسوند های مجاز',
         'identifier' => 'شناسه کاربری',
+        'otp' => 'کد یکبار مصرف',
     ],
 ];

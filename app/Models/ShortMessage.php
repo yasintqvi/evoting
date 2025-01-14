@@ -10,6 +10,21 @@ class ShortMessage extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'to',
+        'content',
+        'handler',
+        'pattern',
+        'meta'
+    ];
+
+    public function casts()
+    {
+        return [
+            'meta' => 'object'
+        ];
+    }
+
     public const UPDATED_AT = null;
 
     public function scopeHasValidationCode(Builder $query, string $phone)
