@@ -26,6 +26,7 @@ return new class extends Migration
             $table->tinyInteger('has_two_factor_type')->default(0);
             $table->tinyInteger('two_factor_type')->default(TwoFactorType::SMS);
             $table->string('google2fa_secret')->nullable();
+            $table->text('meta')->nullable();
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

@@ -24,5 +24,7 @@ class LoginService
         ], $loginDTO->remember);
     }
 
-    public function loginWithOtp(LoginDTO $loginDTO) {}
+    public function loginWithOtp(LoginDTO $loginDTO) {
+        
+    }
 }

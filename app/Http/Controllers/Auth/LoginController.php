@@ -6,6 +6,7 @@ use App\Enums\AuthType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -18,7 +19,7 @@ class LoginController extends Controller
         return view('auth.login');
     }
 
-    public function login(LoginRequest $request)
+    public function login(LoginRequest $request): RedirectResponse
     {
         $loginDto = $request->toDTO();
 
@@ -46,7 +47,12 @@ class LoginController extends Controller
         }
     }
 
-    public function logout()
+    public function otpForm()
+    {
+        
+    }
+
+    public function logout(): RedirectResponse
     {
         Auth::logout();
 
