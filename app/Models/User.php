@@ -32,6 +32,8 @@ class User extends Authenticatable
         'status',
         'status',
         'password',
+        'google2fa_secret',
+        'two_factor_type'
     ];
 
     /**
@@ -73,5 +75,10 @@ class User extends Authenticatable
     public function settings(): HasMany
     {
         return $this->hasMany(Setting::class);
+    }
+
+    public function getFullNameAttribute()
+    {
+        return $this->first_name . " " . $this->last_name;
     }
 }

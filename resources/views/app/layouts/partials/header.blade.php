@@ -207,10 +207,9 @@
             <div class="topbar-item nav-user">
                 <div class="dropdown">
                     <a class="topbar-link dropdown-toggle drop-arrow-none px-2" data-bs-toggle="dropdown" data-bs-offset="0,19" type="button" aria-haspopup="false" aria-expanded="false">
-                        <img src="{{ asset('assets/img/profile.png') }}" width="32" class="rounded-circle me-lg-2 d-flex" alt="user-image">
+                        <img src="{{ asset(user()->avatar ?? 'assets/img/profile.png') }}" width="32" class="rounded-circle me-lg-2 d-flex" alt="user-image">
                         <span class="d-lg-flex flex-column gap-1 d-none">
-                            <h5 class="my-0">دنی کیو</h5>
-                            <h6 class="my-0 fw-normal">پریمیوم</h6>
+                            <h5 class="my-0">{{ user()->full_name }}</h5>
                         </span>
                         <i class="ti ti-chevron-down d-none d-lg-block align-middle ms-2"></i>
                     </a>
@@ -221,36 +220,12 @@
                         </div>
 
                         <!-- item-->
-                        <a href="javascript:void(0);" class="dropdown-item">
+                        <a href="{{ route('profile.show') }}" class="dropdown-item">
                             <i class="ti ti-user-hexagon me-1 fs-17 align-middle"></i>
-                            <span class="align-middle">اکانت من</span>
-                        </a>
-
-                        <!-- item-->
-                        <a href="javascript:void(0);" class="dropdown-item">
-                            <i class="ti ti-wallet me-1 fs-17 align-middle"></i>
-                            <span class="align-middle">کیف پول :<span class="fw-semibold">985.25 تومان</span></span>
-                        </a>
-
-                        <!-- item-->
-                        <a href="javascript:void(0);" class="dropdown-item">
-                            <i class="ti ti-settings me-1 fs-17 align-middle"></i>
-                            <span class="align-middle">تنظیمات</span>
-                        </a>
-
-                        <!-- item-->
-                        <a href="javascript:void(0);" class="dropdown-item">
-                            <i class="ti ti-lifebuoy me-1 fs-17 align-middle"></i>
-                            <span class="align-middle">پشتیبانی</span>
+                            <span class="align-middle">پروفایل من</span>
                         </a>
 
                         <div class="dropdown-divider"></div>
-
-                        <!-- item-->
-                        <a href="javascript:void(0);" class="dropdown-item">
-                            <i class="ti ti-lock-square-rounded me-1 fs-17 align-middle"></i>
-                            <span class="align-middle">قفل صفحه</span>
-                        </a>
 
                         <!-- item-->
                         <a href="{{ route('logout') }}" class="dropdown-item active fw-semibold text-danger">
