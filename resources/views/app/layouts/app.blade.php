@@ -10,8 +10,11 @@
     <!-- Begin page -->
     <div class="wrapper">
 
-        @include('app.layouts.partials.top-nav')
-
+        @if (request()->route('group'))
+        @include('app.layouts.partials.group-sidebar')
+        @else
+        @include('app.layouts.partials.dashboard-sidebar')
+        @endif
 
         @include('app.layouts.partials.header')
 

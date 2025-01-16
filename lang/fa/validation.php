@@ -256,5 +256,6 @@ return [
         'allowed-extensions' => 'پسوند های مجاز',
         'identifier' => 'شناسه کاربری',
         'otp' => 'کد یکبار مصرف',
+        'logo' => 'لوگو',
     ],
 ];

@@ -3,19 +3,6 @@
     <div class="page-container topbar-menu">
         <div class="d-flex align-items-center gap-2">
 
-            <!-- Brand Logo -->
-            <a href="index.html" class="logo">
-                <span class="logo-light">
-                    <span class="logo-lg"><img src="assets/images/logo.png" alt="logo"></span>
-                    <span class="logo-sm"><img src="assets/images/logo-sm.png" alt="small logo"></span>
-                </span>
-
-                <span class="logo-dark">
-                    <span class="logo-lg"><img src="assets/images/logo-dark.png" alt="dark logo"></span>
-                    <span class="logo-sm"><img src="assets/images/logo-sm.png" alt="small logo"></span>
-                </span>
-            </a>
-
             <!-- Sidebar Menu Toggle Button -->
             <button class="sidenav-toggle-button px-2">
                 <i class="ti ti-menu-deep fs-24"></i>
@@ -25,14 +12,6 @@
             <button class="topnav-toggle-button px-2" data-bs-toggle="collapse" data-bs-target="#topnav-menu-content">
                 <i class="ti ti-menu-deep fs-22"></i>
             </button>
-            <!-- Mega Menu Dropdown -->
-            <div class="topbar-item d-none d-md-flex">
-                <div class="dropdown">
-                    <a href="" class="topbar-link btn btn-link px-2 dropdown-toggle drop-arrow-none fw-medium" data-bs-toggle="dropdown" data-bs-trigger="hover" data-bs-offset="0,17" aria-haspopup="false" aria-expanded="false">
-                        گروه ها<i class="ti ti-chevron-down ms-1"></i>
-                    </a>
-                </div> <!-- .dropdown-->
-            </div> <!-- end topbar-item -->
         </div>
 
         <div class="d-flex align-items-center gap-2">

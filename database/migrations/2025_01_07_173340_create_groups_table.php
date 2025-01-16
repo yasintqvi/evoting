@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('groups', function (Blueprint $table) {
             $table->id();
             $table->string('title');
+            $table->string('slug')->unique();
+            $table->string('logo')->nullable();
             $table->text('description')->nullable();
             $table->foreignId('owner_id')->constrained('users');
             $table->tinyInteger('status')->default(0);

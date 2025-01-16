@@ -22,7 +22,7 @@ if (! function_exists('user')) {
             return null;
         }
 
-        return Auth::user()->refresh();
+        return Auth::user();
     }
 }
 
@@ -73,34 +73,9 @@ if (! function_exists('format_phone')) {
         $phone = preg_replace('/^\+98/', '0', $phone);
 
         if (! preg_match('/^0/', $phone)) {
-            $phone = '0'.$phone;
+            $phone = '0' . $phone;
         }
 
         return ed($phone);
-    }
-}
-
-if (! function_exists('setting')) {
-    /**
-     * @param  mixed  $slug
-     * @param  array  $payload
-     * @return array|bool
-     */
-    function setting(string $slug, ?string $key = null, $default = null)
-    {
-        $setting = SettingHelper::get($slug);
-        if (empty($setting)) {
-            if (empty($key)) {
-                return empty($default) ? config("setting.defaults.$slug") : $default;
-            } else {
-                return empty($default) ? config("setting.defaults.$slug.$key") : $default;
-            }
-        }
-
-        if ($key !== null) {
-            return $setting->payload[$key] ?? $default ?? config("setting.defaults.$slug.$key");
-        }
-
-        return $setting;
     }
 }
