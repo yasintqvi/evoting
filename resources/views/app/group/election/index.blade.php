@@ -23,7 +23,7 @@
             <div class="card-header d-flex align-items-center justify-content-between border-bottom border-light">
                 <h4 class="header-title">لیست انتخابات</h4>
                 <div>
-                    <a href="apps-hospital-add-doctors.html" class="btn btn-success bg-gradient"><i class="ti ti-plus me-1"></i>ایجاد همه پرسی</a>
+                    <a href="{{route('elections.create', $group->slug)}}" class="btn btn-success bg-gradient"><i class="ti ti-plus me-1"></i>ایجاد همه پرسی</a>
                 </div>
             </div>
             <div class="table-responsive">
@@ -34,55 +34,22 @@
                                 <input type="checkbox" class="form-check-input" id="customCheck1">
                             </th>
                             <th>عنوان</th>
-                            <th>نوع</th>
                             <th>وضعیت</th>
-                            <th>تعداد سهام عادی</th>
-                            <th>تعداد سهام ممتاز</th>
-                            <th>وزن سهام ممتاز</th>
-                            <th>تعداد عضو هیت مدیره</th>
-                            <th>تعداد عضو علی البدل هیت مدیره</th>
-                            <th>تعداد عضو بازرس </th>
-                            <th>تعداد عضو علی البدل بازرس</th>
-                            <th> تاریخ ایجاد</th>
                             <th class="text-center" style="width: 120px;">فعالیت</th>
                         </tr>
                     </thead><!-- end thead -->
 
                     <tbody>
+                        @forelse ($elections as $election)
                         <tr>
                             <td class="ps-3">
                                 <input type="checkbox" class="form-check-input" id="customCheck2">
                             </td>
                             <td>
-                                <a href="apps-hospital-doctor-details.html" class="text-dark fw-medium">انتخابات هیت مدیره سال ۱۴۰۲-۱۴۰۳</a>
+                                <a href="{{ route('elections.show', $group->slug, $election->id) }}" class="text-dark fw-medium">انتخابات هیت مدیره سال ۱۴۰۲-۱۴۰۳</a>
                             </td>
-                            <td>انتخابی</td>
                             <td>
                                 <span class="badge badge-soft-success">در حال برگزاری</span>
-                            </td>
-                            <td>
-                                ۱۰
-                            </td>
-                            <td>
-                                ۵
-                            </td>
-                            <td>
-                                ۲
-                            </td>
-                            <td>
-                                ۳
-                            </td>
-                            <td>
-                                ۲
-                            </td>
-                            <td>
-                                ۱
-                            </td>
-                            <td>
-                                ۱
-                            </td>
-                            <td>
-                                ۱۴۰۴-۰۱-۰۱
                             </td>
                             <td class="pe-3">
                                 <div class="hstack gap-1 justify-content-end">
@@ -92,6 +59,11 @@
                                 </div>
                             </td>
                         </tr>
+                        @empty
+                        <tr>
+                            <td class="text-muted">هنوز هیچ انتخاباتی برگزار نشده است.</td>
+                        </tr>
+                        @endforelse
 
                     </tbody><!-- end tbody -->
                 </table><!-- end table -->

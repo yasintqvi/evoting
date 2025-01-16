@@ -2,21 +2,17 @@
  <div class="sidenav-menu">
 
      <!-- Brand Logo -->
-     <div class="m-2">
-         <div class="btn-group mb-2">
-             <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                 <span class="menu-icon"><img src="{{asset($group->logo ?? 'assets/img/group.jpg') }}" class="rounded-circle me-lg-2 d-flex object-fit-cover" width="20" height="20" alt="{{$group->title}}"></span>
-                 {{ $group->title }}
-             </button>
-             @isset (user()->groups)
-             <div class="dropdown-menu" data-popper-placement="bottom-end" style="position: absolute; inset: 0px 0px auto auto; margin: 0px; transform: translate(0px, 40px);">
-                 @foreach (user()->groups->except($group->id) as $otherGroup)
-                 <a class="dropdown-item" href="{{ route("groups.index", $otherGroup->slug) }}">{{ $otherGroup->title }}</a>
-                 @endforeach
-             </div>
-             @endif
-         </div>
-     </div>
+     <a href="/" class="logo">
+         <span class="logo-light">
+             <span class="logo-lg"><img src="/assets/img/logo.webp" alt="logo" style="width: 3rem; height: 3rem"></span>
+             <span class="logo-sm"><img src="/assets/img/logo.webp" alt="small logo" style="width: 3rem; height: 3rem"></span>
+         </span>
+
+         <span class="logo-dark">
+             <span class="logo-lg"><img src="/assets/img/logo.webp" alt="dark logo" style="width: 3rem; height: 3rem"></span>
+             <span class="logo-sm"><img src="/assets/img/logo.webp" alt="small logo" style="width: 3rem; height: 3rem"></span>
+         </span>
+     </a>
 
      <!-- Sidebar Hover Menu Toggle Button -->
      <button class="button-sm-hover">
@@ -33,7 +29,7 @@
          <!--- Sidenav Menu -->
          <ul class="side-nav">
              <li class="side-nav-item">
-                 <a href="apps-chat.html" class="side-nav-link">
+                 <a href="{{route('elections.index', $group->slug)}}" class="side-nav-link">
                      <span class="menu-icon">
                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                              <path fill="currentColor" d="m17.578 4.432l-2-1.05C13.822 2.461 12.944 2 12 2s-1.822.46-3.578 1.382l-.321.169l8.923 5.099l4.016-2.01c-.646-.732-1.688-1.279-3.462-2.21m4.17 3.534l-3.998 2V13a.75.75 0 0 1-1.5 0v-2.286l-3.5 1.75v9.44c.718-.179 1.535-.607 2.828-1.286l2-1.05c2.151-1.129 3.227-1.693 3.825-2.708c.597-1.014.597-2.277.597-4.8v-.117c0-1.893 0-3.076-.252-3.978M11.25 21.904v-9.44l-8.998-4.5C2 8.866 2 10.05 2 11.941v.117c0 2.525 0 3.788.597 4.802c.598 1.015 1.674 1.58 3.825 2.709l2 1.049c1.293.679 2.11 1.107 2.828 1.286M2.96 6.641l9.04 4.52l3.411-1.705l-8.886-5.078l-.103.054c-1.773.93-2.816 1.477-3.462 2.21" />

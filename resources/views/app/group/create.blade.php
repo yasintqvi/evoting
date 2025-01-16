@@ -58,7 +58,7 @@
                 </div>
                 <div class="card-footer">
                     <div class="text-end mb-3">
-                        <button type="submit" class="btn btn-primary">ایجاد گروه</ذ>
+                        <button type="submit" class="btn btn-primary">ایجاد</ذ>
                     </div>
                 </div>
             </form>

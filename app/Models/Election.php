@@ -23,7 +23,7 @@ class Election extends Model
     {
         return $this->belongsTo(Group::class);
     }
-    
+
     public function rounds()
     {
         return $this->hasMany(Election::class);

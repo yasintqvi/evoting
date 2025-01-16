@@ -1,6 +1,24 @@
 <!-- Topbar Start -->
 <header class="app-topbar">
     <div class="page-container topbar-menu">
+        @if (request()->route('group'))
+        <!-- Brand Logo -->
+        <div style="margin-top: 1rem;">
+            <div class="btn-group mb-2">
+                <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <span class="menu-icon"><img src="{{asset($group->logo ?? 'assets/img/group.jpg') }}" class="rounded-circle me-lg-2 d-flex object-fit-cover" width="20" height="20" alt="{{$group->title}}"></span>
+                    {{ $group->title }}
+                </button>
+                @isset (user()->groups)
+                <div class="dropdown-menu" data-popper-placement="bottom-end" style="position: absolute; inset: 0px 0px auto auto; margin: 0px; transform: translate(0px, 40px);">
+                    @foreach (user()->groups->except($group->id) as $otherGroup)
+                    <a class="dropdown-item" href="{{ route("groups.index", $otherGroup->slug) }}">{{ $otherGroup->title }}</a>
+                    @endforeach
+                </div>
+                @endif
+            </div>
+        </div>
+        @endif
         <div class="d-flex align-items-center gap-2">
 
             <!-- Sidebar Menu Toggle Button -->

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\ElectionController;
 use App\Http\Controllers\GroupController;
 use Illuminate\Support\Facades\Route;
 
@@ -32,16 +33,18 @@ Route::middleware('auth')->group(function () {
 
 
     Route::prefix('{group:slug}')->group(function () {
+
         Route::get('/', [GroupController::class, 'index'])->name('groups.index');
-    });
 
-    Route::prefix('elections')->group(function () {
-        Route::get('/', fn() => view('app.election.index'));
+        Route::prefix('elections')->group(function () {
 
-        Route::get('/details', fn() => view('app.election.details'));
+            Route::get('/', [ElectionController::class, 'index'])->name('elections.index');
 
-        Route::get('/create', fn() => view('app.election.create'));
+            Route::get('/create', [ElectionController::class, 'create'])->name('elections.create');
 
-        Route::get('/candidates', fn() => view('app.election.candidate.index'));
+            Route::get('/details/{election}', [ElectionController::class, 'details'])->name('election.show');
+
+            Route::get('/candidates', fn() => view('app.election.candidate.index'));
+        });
     });
 });
