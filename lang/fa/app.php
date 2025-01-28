@@ -12,5 +12,6 @@ return [
     '500.title'         =>  "500 خطای سرور داخلی",
     '503.title'         =>  "503 سرویس در دسترس نیست",
     '504.title'         =>  "504 مهلت زمانی دروازه",
-
+    'sms' => "SMS",
+    "google_authenticator" => 'Google Authenticator',
 ];

@@ -4,6 +4,9 @@
 <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
 <meta content="Coderthemes" name="author" />
 
+
+<link rel="stylesheet" href="{{ asset('assets/vendor/dropzone/min/dropzone.min.css') }}" type="text/css" />
+
 <!-- App favicon -->
 <link rel="shortcut icon" href="assets/images/favicon.ico">
 

@@ -87,11 +87,4 @@ class AuthController extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-
-    public function logout(): RedirectResponse
-    {
-        Auth::logout();
-
-        return to_route('login');
-    }
 }
