@@ -47,9 +47,11 @@ Route::middleware('auth')->group(function () {
 
             Route::get('/', [ElectionController::class, 'index'])->name('elections.index');
 
-            Route::get('/create', [ElectionController::class, 'create'])->name('elections.create');
+            Route::get('/create/{electionType}', [ElectionController::class, 'create'])->name('elections.create');
 
-            Route::get('/details/{election}', [ElectionController::class, 'details'])->name('election.show');
+            Route::post('/create/{electionType}', [ElectionController::class, 'store'])->name('elections.store');
+
+            Route::get('/details/{election}', [ElectionController::class, 'details'])->name('elections.show');
 
             Route::get('/candidates', fn() => view('app.election.candidate.index'));
         });

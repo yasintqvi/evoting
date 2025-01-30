@@ -10,4 +10,3 @@
  <!-- Projects Analytics Dashboard App js -->
  <script src="{{ asset('assets/js/pages/dashboard-sales.js') }}"></script>
 
- <script src="{{ asset('assets/js/pages/chart-apex-pie.js') }}"></script>

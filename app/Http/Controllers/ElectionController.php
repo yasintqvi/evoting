@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ElectionType;
 use App\Http\Requests\Election\StoreElectionRequest;
 use App\Http\Requests\Election\UpdateElectionRequest;
 use App\Models\Election;
@@ -16,16 +17,26 @@ class ElectionController extends Controller
         return view('app.group.election.index', compact('group', 'elections'));
     }
 
-    public function create(Group $group)
+    public function create(Group $group, ElectionType $electionType)
     {
         return view('app.group.election.create', compact('group'));
     }
 
-    public function store(StoreElectionRequest $request) {}
+    public function store(StoreElectionRequest $request, Group $group, ElectionType $electionType)
+    {
+        $data = $request->validated();
+
+        $group->elections()->create([
+            ...$data,
+            'type' => $electionType
+        ]);
+
+        return to_route('elections.index', $group->slug);
+    }
 
     public function details(Group $group, Election $election)
     {
-        return view('app.group.election.details', compact('group', 'election'));
+        return view('app.group.election.show', compact('group', 'election'));
     }
 
     public function edit(Group $group, Election $election) {}

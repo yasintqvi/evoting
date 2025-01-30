@@ -72,6 +72,11 @@ class User extends Authenticatable
         return $this->hasMany(Group::class, 'owner_id');
     }
 
+    public function participants()
+    {
+        return $this->hasMany(Participant::class);
+    }
+
     public function settings(): HasMany
     {
         return $this->hasMany(Setting::class);
@@ -80,5 +85,10 @@ class User extends Authenticatable
     public function getFullNameAttribute()
     {
         return $this->first_name . " " . $this->last_name;
+    }
+
+    public function getAvatarAttribute()
+    {
+        return $this->avatar ?? asset('assets/img/profile.png');
     }
 }

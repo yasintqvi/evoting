@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('participants', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('elction_id')->constrained('elections');
+            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('election_id')->constrained('elections');
             $table->integer('normal_stock_count')->default(0);
             $table->integer('prefered_stock_count')->default(0);
             $table->timestamps();

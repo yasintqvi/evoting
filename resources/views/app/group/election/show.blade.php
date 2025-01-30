@@ -31,13 +31,13 @@
                                         <td>
                                             <p class="mb-0">عنوان انتخابات: </p>
                                         </td>
-                                        <td class="px-2 text-dark fw-medium fs-14">انتخابات هیئت مدیره ۱۴۰۳-۱۴۰۴</td>
+                                        <td class="px-2 text-dark fw-medium fs-14">{{ $election->title }}</td>
                                     </tr>
                                     <tr>
                                         <td>
                                             <p class="mb-0">نوع: </p>
                                         </td>
-                                        <td class="px-2 text-dark fw-medium fs-14">تک انتخابی</td>
+                                        <td class="px-2 text-dark fw-medium fs-14">{{ $election->type->toFa() }}</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -51,25 +51,25 @@
                                         <td>
                                             <p class="mb-0">تعداد عضو اصلی: </p>
                                         </td>
-                                        <td class="px-2 text-dark fw-medium fs-14">۲</td>
+                                        <td class="px-2 text-dark fw-medium fs-14">{{ $election->main_member_count }}</td>
                                     </tr>
                                     <tr>
                                         <td>
                                             <p class="mb-0">تعداد عضو علی البدل: </p>
                                         </td>
-                                        <td class="px-2 text-dark fw-medium fs-14"> ۱</td>
+                                        <td class="px-2 text-dark fw-medium fs-14"> {{ $election->substitute_member_count }}</td>
                                     </tr>
                                     <tr>
                                         <td>
                                             <p class="mb-0">تعداد عضو اصلی بازرس: </p>
                                         </td>
-                                        <td class="px-2 text-dark fw-medium fs-14">۲</td>
+                                        <td class="px-2 text-dark fw-medium fs-14">{{ $election->incpector_main_memeber_count }}</td>
                                     </tr>
                                     <tr>
                                         <td>
                                             <p class="mb-0">تعداد عضو علی البدل بازرس: </p>
                                         </td>
-                                        <td class="px-2 text-dark fw-medium fs-14">۴</td>
+                                        <td class="px-2 text-dark fw-medium fs-14">{{ $election->incpector_substitute_member_count }}</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -87,7 +87,7 @@
                         <h4 class="card-title">میزان مشارکت ها:</h4>
 
                         <div dir="ltr" class="mt-5">
-                            <div id="simple-pie" class="apex-charts" data-colors="#0acf97,#ccc"></div>
+                            <canvas id="myChart"></canvas>
                         </div>
                     </div>
                     <!-- end card body-->
@@ -170,4 +170,73 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<!-- Apex Chart js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const ctx = document.getElementById('myChart');
+
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['مشارکت', 'عدم مشارکت'],
+            datasets: [{
+                label: '# میزان مشارکت',
+                data: ["{{$election->participants->count() }}", "{{$group->users->count() - $election->participants->count() }}"],
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.8)', // رنگ سبز برای مشارکت
+                    'rgba(255, 99, 132, 0.8)' // رنگ قرمز برای عدم مشارکت
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)', // رنگ حاشیه سبز
+                    'rgba(255, 99, 132, 1)' // رنگ حاشیه قرمز
+                ],
+                borderWidth: 2,
+                hoverOffset: 20, // افزایش فاصله هنگام هاور
+                hoverBorderColor: 'rgba(0, 0, 0, 0.8)' // رنگ حاشیه هنگام هاور
+            }]
+        },
+        options: {
+            responsive: true, // چارت واکنش‌گرا باشد
+            maintainAspectRatio: false, // نسبت ابعاد ثابت نباشد
+            plugins: {
+                legend: {
+                    position: 'top', // موقعیت توضیحات (legend)
+                    labels: {
+                        font: {
+                            size: 14, // اندازه فونت توضیحات
+                            family: 'Tahoma' // نوع فونت
+                        },
+                        color: '#333' // رنگ متن توضیحات
+                    }
+                },
+                tooltip: {
+                    enabled: true,
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)', // رنگ پس‌زمینه tooltip
+                    titleFont: {
+                        size: 16 // اندازه فونت عنوان tooltip
+                    },
+                    bodyFont: {
+                        size: 14 // اندازه فونت متن tooltip
+                    },
+                    footerFont: {
+                        size: 12 // اندازه فونت پاورقی tooltip
+                    }
+                }
+            },
+            animation: {
+                duration: 2000, // مدت زمان انیمیشن (۲ ثانیه)
+                easing: 'easeInOutQuart', // نوع انیمیشن
+                animateRotate: true, // چرخش انیمیشن فعال باشد
+                animateScale: true // بزرگ‌نمایی انیمیشن فعال باشد
+            }
+        }
+    });
+</script>
+
+
+
 @endsection

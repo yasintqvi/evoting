@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ElectionType;
 use Illuminate\Database\Eloquent\Model;
 
 class Election extends Model
@@ -16,8 +17,17 @@ class Election extends Model
         'prefered_stock_count',
         'prefered_stock_weight',
         'main_member_count',
-        'substitute_member_count'
+        'substitute_member_count',
+        'incpector_main_member_count',
+        'incpector_substitute_member_count'
     ];
+
+    public function casts()
+    {
+        return [
+            'type' => ElectionType::class
+        ];
+    }
 
     public function group()
     {
@@ -27,5 +37,10 @@ class Election extends Model
     public function rounds()
     {
         return $this->hasMany(Election::class);
+    }
+
+    public function participants()
+    {
+        return $this->hasMany(Participant::class);
     }
 }
