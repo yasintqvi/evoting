@@ -2,10 +2,13 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ElectionController;
+use App\Http\Controllers\ElectionUserController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserExcelController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-
 
 
 Route::middleware('guest')->group(function () {
@@ -38,6 +41,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/create', [GroupController::class, 'store'])->name('groups.store');
     });
 
+    Route::resource('users', UserController::class);
+  
+    Route::post('uplode-users', [UserExcelController::class , 'uplodeExcel'])->name('uplode-users');
 
     Route::prefix('{group:slug}')->group(function () {
 
@@ -54,6 +60,8 @@ Route::middleware('auth')->group(function () {
             Route::get('/details/{election}', [ElectionController::class, 'details'])->name('elections.show');
 
             Route::get('/candidates', fn() => view('app.election.candidate.index'));
+          
+            Route::resource('/election-users', ElectionUserController::class);
         });
     });
 });

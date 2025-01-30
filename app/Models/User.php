@@ -86,7 +86,7 @@ class User extends Authenticatable
     {
         return $this->first_name . " " . $this->last_name;
     }
-
+  
     public function getAvatarAttribute()
     {
         return $this->avatar ?? asset('assets/img/profile.png');
