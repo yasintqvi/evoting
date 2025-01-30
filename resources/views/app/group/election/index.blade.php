@@ -23,6 +23,7 @@
             <div class="card-header d-flex align-items-center justify-content-between border-bottom border-light">
                 <h4 class="header-title">لیست انتخابات</h4>
                 <div>
+
                     <div class="btn-group mb-2">
                         <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">ایجاد همه پرسی</button>
                         <div class="dropdown-menu">
@@ -49,7 +50,6 @@
                     <tbody>
                         @forelse ($elections as $election)
                         <tr>
-                            </td>
                             <td class="ps-3">
                             </td>
                             <td>

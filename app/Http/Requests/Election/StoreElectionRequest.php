@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Election;
 
+
 use App\Enums\ElectionType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
