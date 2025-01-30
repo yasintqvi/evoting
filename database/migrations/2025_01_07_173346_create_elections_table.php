@@ -24,7 +24,7 @@ return new class extends Migration
             $table->integer('prefered_stock_weight')->default(0);
             $table->integer('main_member_count')->default(1);
             $table->integer('substitute_member_count')->default(0);
-            $table->integer('incpector_main_memeber_count')->default(1);
+            $table->integer('incpector_main_member_count')->default(1);
             $table->integer('incpector_substitute_member_count')->default(0);
             $table->timestamps();
             $table->softDeletes();

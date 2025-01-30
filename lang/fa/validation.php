@@ -265,5 +265,9 @@ return [
         'logo' => 'لوگو',
         'current_password' => 'کلمه عبور فعلی',
         'two_factor_type' => 'نوع احراز هویت دو مرحله ای',
+        'main_member_count' => 'تعداد عضو هیت مدیره',
+        'substitute_member_count' => 'تعداد عضو علی البدل هیت مدیره',
+        'incpector_main_member_count' => 'تعداد عضو اصلی بازرس',
+        'incpector_substitute_member_count' => 'تعداد عضو علی البدل بازرس',
     ],
 ];

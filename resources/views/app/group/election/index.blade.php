@@ -53,10 +53,13 @@
                             <td class="ps-3">
                             </td>
                             <td>
-                                <a href="{{ route('elections.show', [$group->slug, $election->id]) }}" class="text-dark fw-medium">انتخابات هیت مدیره سال ۱۴۰۲-۱۴۰۳</a>
+                                <a href="{{ route('elections.show', [$group->slug, $election->id]) }}" class="text-dark fw-medium">{{ $election->title }}</a>
                             </td>
                             <td>
                                 <div class="avatar-group">
+                                    @if($election->participants->count() === 0)
+                                    <b>-</b>
+                                    @endif
                                     @foreach ($election->participants->take(10) as $participant)
                                     <div class="avatar" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-secondary" data-bs-placement="top" aria-label="Vicki" data-bs-original-title="{{ $participant->user->full_name }}">
                                         <img src="{{ $participant->user->avatar }}" alt="" class="rounded-circle avatar-sm">
@@ -79,7 +82,7 @@
                             </td>
                             <td class="pe-3">
                                 <div class="hstack gap-1 justify-content-end">
-                                    <a href="javascript:void(0);" class="btn btn-soft-primary btn-icon btn-sm rounded-circle"> <i class="ti ti-eye"></i></a>
+                                    <a href="{{ route('elections.show', [$group->slug, $election->id]) }}" class="btn btn-soft-primary btn-icon btn-sm rounded-circle"> <i class="ti ti-eye"></i></a>
                                     <a href="javascript:void(0);" class="btn btn-soft-success btn-icon btn-sm rounded-circle"> <i class="ti ti-edit fs-16"></i></a>
                                     <a href="javascript:void(0);" class="btn btn-soft-danger btn-icon btn-sm rounded-circle"> <i class="ti ti-trash"></i></a>
                                 </div>
