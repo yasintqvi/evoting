@@ -7,9 +7,9 @@ use App\Http\Controllers\GroupController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserExcelController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Auth::loginUsingId(1);;
 
 Route::middleware('guest')->group(function () {
 
@@ -19,9 +19,6 @@ Route::middleware('guest')->group(function () {
 
     Route::post('/login', [AuthController::class, 'login'])->name('login');
 });
-
-Route::match(['get', 'post'], '/logout', [AuthController::class, 'logout'])->name('logout');
-
 
 Route::post('/otp/send', [AuthController::class, 'sendOtp'])->name('otp.send');
 
@@ -45,6 +42,7 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::resource('users', UserController::class);
+  
     Route::post('uplode-users', [UserExcelController::class , 'uplodeExcel'])->name('uplode-users');
 
     Route::prefix('{group:slug}')->group(function () {
@@ -55,14 +53,15 @@ Route::middleware('auth')->group(function () {
 
             Route::get('/', [ElectionController::class, 'index'])->name('elections.index');
 
-            Route::get('/create', [ElectionController::class, 'create'])->name('elections.create');
+            Route::get('/create/{electionType}', [ElectionController::class, 'create'])->name('elections.create');
 
-            Route::get('/details', [ElectionController::class, 'details'])->name('election.show');
+            Route::post('/create/{electionType}', [ElectionController::class, 'store'])->name('elections.store');
+
+            Route::get('/details/{election}', [ElectionController::class, 'details'])->name('elections.show');
 
             Route::get('/candidates', fn() => view('app.election.candidate.index'));
-
+          
             Route::resource('/election-users', ElectionUserController::class);
-
         });
     });
 });

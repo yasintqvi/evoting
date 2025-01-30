@@ -10,9 +10,15 @@ class Participant extends Model
 {
     protected $fillable = [
         'election_id',
+        'user_id',
         'normal_stock_count',
         'prefered_stock_count',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function election():BelongsTo
     {
