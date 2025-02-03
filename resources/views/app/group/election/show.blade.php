@@ -63,7 +63,7 @@
                                         <td>
                                             <p class="mb-0">تعداد عضو اصلی بازرس: </p>
                                         </td>
-                                        <td class="px-2 text-dark fw-medium fs-14">{{ $election->incpector_main_memeber_count }}</td>
+                                        <td class="px-2 text-dark fw-medium fs-14">{{ $election->incpector_main_member_count }}</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -185,53 +185,53 @@
             labels: ['مشارکت', 'عدم مشارکت'],
             datasets: [{
                 label: '# میزان مشارکت',
-                data: ["{{$election->participants->count() }}", "{{$group->users->count() - $election->participants->count() }}"],
+                data: ["{{$election->precentParticipants()->count() }}", "{{$group->users->count() - $election->precentParticipants()->count() }}"],
                 backgroundColor: [
-                    'rgba(75, 192, 192, 0.8)', // رنگ سبز برای مشارکت
-                    'rgba(255, 99, 132, 0.8)' // رنگ قرمز برای عدم مشارکت
+                    'rgba(75, 192, 192, 0.8)', 
+                    'rgba(255, 99, 132, 0.8)' 
                 ],
                 borderColor: [
-                    'rgba(75, 192, 192, 1)', // رنگ حاشیه سبز
-                    'rgba(255, 99, 132, 1)' // رنگ حاشیه قرمز
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(255, 99, 132, 1)'
                 ],
                 borderWidth: 2,
-                hoverOffset: 20, // افزایش فاصله هنگام هاور
-                hoverBorderColor: 'rgba(0, 0, 0, 0.8)' // رنگ حاشیه هنگام هاور
+                hoverOffset: 20,
+                hoverBorderColor: 'rgba(0, 0, 0, 0.8)'
             }]
         },
         options: {
-            responsive: true, // چارت واکنش‌گرا باشد
-            maintainAspectRatio: false, // نسبت ابعاد ثابت نباشد
+            responsive: true, 
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'top', // موقعیت توضیحات (legend)
+                    position: 'top',
                     labels: {
                         font: {
-                            size: 14, // اندازه فونت توضیحات
-                            family: 'Tahoma' // نوع فونت
+                            size: 14, 
+                            family: 'Tahoma'
                         },
-                        color: '#333' // رنگ متن توضیحات
+                        color: '#333'
                     }
                 },
                 tooltip: {
                     enabled: true,
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)', // رنگ پس‌زمینه tooltip
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
                     titleFont: {
-                        size: 16 // اندازه فونت عنوان tooltip
+                        size: 16
                     },
                     bodyFont: {
-                        size: 14 // اندازه فونت متن tooltip
+                        size: 14 
                     },
                     footerFont: {
-                        size: 12 // اندازه فونت پاورقی tooltip
+                        size: 12
                     }
                 }
             },
             animation: {
-                duration: 2000, // مدت زمان انیمیشن (۲ ثانیه)
-                easing: 'easeInOutQuart', // نوع انیمیشن
-                animateRotate: true, // چرخش انیمیشن فعال باشد
-                animateScale: true // بزرگ‌نمایی انیمیشن فعال باشد
+                duration: 2000, 
+                easing: 'easeInOutQuart', 
+                animateRotate: true, 
+                animateScale: true 
             }
         }
     });

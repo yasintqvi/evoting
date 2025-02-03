@@ -152,22 +152,6 @@
     <div class="col-md-6">
         <div class="card">
             <div class="card-header d-flex align-items-center justify-content-between border-bottom border-light">
-                <h4 class="header-title">نتایج آرای انتخابات هیت مدیره </h4>
-                <div>
-                </div>
-            </div>
-            <div class="card-body">
-                <div dir="ltr">
-                    <div id="basic-bar" class="apex-charts" data-colors="#0acf97,#ccc"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between border-bottom border-light">
                 <h4 class="header-title">نامزد های هیت مدیره</h4>
                 <div>
                 </div>
@@ -288,23 +272,8 @@
                                 رئیس هیت مدیره
                             </td>
                         </tr>
-
                     </tbody><!-- end tbody -->
                 </table><!-- end table -->
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between border-bottom border-light">
-                <h4 class="header-title">نتایج آرای انتخابات هیت مدیره </h4>
-                <div>
-                </div>
-            </div>
-            <div class="card-body">
-                <div dir="ltr">
-                    <div id="basic-bar" class="apex-charts" data-colors="#0acf97,#ccc"></div>
-                </div>
             </div>
         </div>
     </div>

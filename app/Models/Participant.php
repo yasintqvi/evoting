@@ -13,14 +13,22 @@ class Participant extends Model
         'user_id',
         'normal_stock_count',
         'prefered_stock_count',
+        'is_present'
     ];
 
-    public function user()
+    public function casts(): array
+    {
+        return [
+            'is_present' => 'boolean'
+        ];
+    }
+
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function election():BelongsTo
+    public function election(): BelongsTo
     {
         return $this->belongsTo(Election::class);
     }

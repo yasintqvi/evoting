@@ -2,14 +2,12 @@
 
 namespace App\Http\Requests\Election;
 
-
 use App\Enums\ElectionType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class StoreElectionRequest extends FormRequest
 {
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -19,14 +17,15 @@ class StoreElectionRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255', 'min:2'],
-            'type' => ['nullable', Rule::in(array_map(fn($case) => $case->value, ElectionType::cases()))],
-            'normal_stock_count' => ['nullable', 'numeric'],
-            'prefered_stock_count' => ['nullable', 'numeric'],
-            'prefered_stock_weight' => ['nullable', 'numeric'],
-            'main_member_count' => ['required', 'numeric'],
-            'substitute_member_count' => ['required', 'numeric'],
-            'incpector_main_member_count' => ['required', 'numeric'],
-            'incpector_substitute_member_count' => ['required', 'numeric'],
-        ]; 
+            'type' => ['required', Rule::in(array_map(fn($case) => $case->value, ElectionType::cases()))],
+            'quorum_required' => ['nullable', 'in:0,1'],
+            'prefered_stock_weight' => ['nullable', Rule::requiredIf(fn() => in_array($this->type, [ElectionType::PRIVATE_JOINT->value, ElectionType::PRIVATE_JOINT_WITH_88->value])), 'integer'],
+            'prefered_stock_count' => ['nullable', Rule::requiredIf(fn() => in_array($this->type, [ElectionType::PRIVATE_JOINT->value, ElectionType::PRIVATE_JOINT_WITH_88->value])), 'integer', 'min:1'],
+            'main_member_count' => ['required', 'integer', 'min:1'],
+            'normal_stock_count' => ['required', 'integer', 'min:1'],
+            'substitute_member_count' => ['required', 'integer', 'min:0'],
+            'incpector_main_member_count' => ['required', 'integer', $this->type == ElectionType::PUBLIC_JOINT->value ? 'min:0' : 'min:1'],
+            'incpector_substitute_member_count' => ['required', 'integer', 'min:0'],
+        ];
     }
 }

@@ -1,8 +1,9 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\ElectionCandidateController;
 use App\Http\Controllers\ElectionController;
-use App\Http\Controllers\ElectionUserController;
+use App\Http\Controllers\ElectionParticipantController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\GroupUserController;
 use App\Http\Controllers\ProfileController;
@@ -43,8 +44,8 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::resource('users', UserController::class);
-  
-    Route::post('uplode-users', [UserExcelController::class , 'uplodeExcel'])->name('uplode-users');
+
+    Route::post('uplode-users', [UserExcelController::class, 'uplodeExcel'])->name('uplode-users');
 
     Route::prefix('{group:slug}')->group(function () {
 
@@ -54,11 +55,15 @@ Route::middleware('auth')->group(function () {
 
             Route::get('/', [ElectionController::class, 'index'])->name('elections.index');
 
-            Route::get('/create/{electionType}', [ElectionController::class, 'create'])->name('elections.create');
+            Route::get('/create', [ElectionController::class, 'create'])->name('elections.create');
 
-            Route::post('/create/{electionType}', [ElectionController::class, 'store'])->name('elections.store');
+            Route::post('/create', [ElectionController::class, 'store'])->name('elections.store');
 
-            Route::get('/details/{election}', [ElectionController::class, 'details'])->name('elections.show');
+            Route::get('/show/{election}', [ElectionController::class, 'show'])->name('elections.show');
+
+            Route::resource('{election}/candidates', ElectionCandidateController::class);
+
+            Route::resource('{election}/participants', ElectionParticipantController::class);
 
             Route::get('/candidates', fn() => view('app.election.candidate.index'));
           
