@@ -17,7 +17,7 @@
     </div>
 </div>
 
-<form action="{{ route('elections.store', ['group' => $group->slug, "electionType" => App\Enums\ElectionType::PUBLIC_JOINT]) }}" method="post">
+<form action="{{ route('elections.store', $group->slug) }}" method="post">
     @csrf
     <div class="card col-lg-6">
         <div class="card-header border-bottom border-dashed">
@@ -36,47 +36,49 @@
                         @enderror
                     </div>
                 </div>
-                <!-- <div class="col-12">
+                <div class="col-lg-12">
                     <div class="mb-3">
                         <label for="election_type" class="form-label">نوع همه پرسی</label>
-                        <select name="election_type" id="election_type" class="form-control">
+                        <select name="type" onchange="checkElectionType(event)" id="election_type" class="form-control">
                             <option value="">یک نوع همه پرسی را انتخاب نمایید</option>
-                            <option value="{{ App\Enums\ElectionType::PUBLIC_JOINT->value }}"> تعاونی (هر عضو یک رای)</option>
-                            <option value="{{ App\Enums\ElectionType::PRIVATE_JOINT_WITH_88->value }}">سهامی خاص با ماده ۸۸</option>
-                            <option value="{{ App\Enums\ElectionType::PRIVATE_JOINT->value }}">سهامی خاص بدون ماده ۸۸</option>
+                            <option @selected(old('type')==App\Enums\ElectionType::PUBLIC_JOINT->value) value="{{ App\Enums\ElectionType::PUBLIC_JOINT->value }}">انتخابات تعاونی</option>
+                            <option @selected(old('type')==App\Enums\ElectionType::PRIVATE_JOINT_WITH_88->value) value="{{ App\Enums\ElectionType::PRIVATE_JOINT_WITH_88->value }}">سهامی خاص با ماده ۸۸</option>
+                            <option @selected(old('type')==App\Enums\ElectionType::PRIVATE_JOINT->value) value="{{ App\Enums\ElectionType::PRIVATE_JOINT->value }}">سهامی خاص بدون ماده ۸۸</option>
                         </select>
-                        @error('election_type')
+                        @error('type')
                         <span class="strong text-danger font-weight-bold">{{ $message }}</span>
                         @enderror
                     </div>
-                </div> -->
-                <!-- <div class="col-lg-6">
-                    <div class="mb-3">
-                        <label for="normal_stock_count" class="form-label">تعداد سهام عادی</label>
-                        <input type="number" class="form-control" name="normal_stock_count" value="{{ old('normal_stock_count') }}" id="normal_stock_count">
-                        @error('normal_stock_count')
+                </div>
+                <div id="prefered_stock_weight" class="row m-0 p-0 d-none">
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label for="normal_stock_count" class="form-label">تعداد سهام عادی</label>
+                            <input type="number" class="form-control" name="normal_stock_count" value="{{ old('normal_stock_count') }}" id="normal_stock_count">
+                            @error('normal_stock_count')
                             <span class="strong text-danger font-weight-bold">{{ $message }}</span>
-                        @enderror
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label for="prefered_stock_count" class="form-label">تعداد سهام ممتاز</label>
+                            <input type="number" class="form-control" name="prefered_stock_count" value="{{ old('prefered_stock_count') }}" id="prefered_stock_count">
+                            @error('prefered_stock_count')
+                            <span class="strong text-danger font-weight-bold">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label for="prefered_stock_weight" class="form-label">وزن سهام ممتاز</label>
+                            <input type="number" class="form-control" name="prefered_stock_weight" value="{{ old('prefered_stock_weight') }}" id="prefered_stock_weight">
+                            @error('prefered_stock_weight')
+                            <span class="strong text-danger font-weight-bold">{{ $message }}</span>
+                            @enderror
+                        </div>
                     </div>
                 </div>
-                <div class="col-lg-6">
-                    <div class="mb-3">
-                        <label for="prefered_stock_count" class="form-label">تعداد سهام ممتاز</label>
-                        <input type="number" class="form-control" name="prefered_stock_count" id="prefered_stock_count">
-                        @error('prefered_stock_count')
-                            <span class="strong text-danger font-weight-bold">{{ $message }}</span>
-                        @enderror
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="mb-3">
-                        <label for="prefered_stock_weight" class="form-label">وزن سهام ممتاز</label>
-                        <input type="number" class="form-control" value="{{ old('prefered_stock_weight') }}" id="prefered_stock_weight">
-                        @error('prefered_stock_weight')
-                            <span class="strong text-danger font-weight-bold">{{ $message }}</span>
-                        @enderror
-                    </div>
-                </div> -->
                 <div class="col-lg-6">
                     <div class="mb-3">
                         <label for="main_member_count" class="form-label">تعداد عضو اصلی هیت مدیره</label>
@@ -114,6 +116,18 @@
                         @enderror
                     </div>
                 </div>
+                <div class="col-lg-6">
+                    <div class="form-check">
+                        <label for="quorum_required" class="form-label">فعال سازی قانون حدنصاب اعضا</label>
+                        <input type="checkbox" class="form-check-input" value="1" name="quorum_required" value="{{ old('quorum_required') }}" id="quorum_required">
+                        @error('quorum_required')
+                        <span class="strong text-danger font-weight-bold">{{ $message }}</span>
+                        @enderror
+                    </div>
+                    <small class="text-muted">
+                        برای برگزاری انتخابات، حضور حداقل نصف به علاوه یک اعضا الزامی است. در صورتی که این تعداد محقق نشود، انتخابات نمی‌تواند برگزار شود.
+                    </small>
+                </div>
             </div>
         </div>
         <div class="card-footer">
@@ -124,4 +138,24 @@
     </div>
 </form>
 
+@endsection
+
+@section('scripts')
+
+<script>
+    function checkElectionType(event) {
+        const privateJoint = "{{ App\Enums\ElectionType::PRIVATE_JOINT->value }}";
+        const privateJointWith88 = "{{ App\Enums\ElectionType::PRIVATE_JOINT_WITH_88->value }}";
+
+        const selectedValue = event.target.value;
+
+        const preferredStockWeightField = document.getElementById('prefered_stock_weight');
+
+        if (selectedValue === privateJoint || selectedValue === privateJointWith88) {
+            preferredStockWeightField.classList.remove('d-none');
+        } else {
+            preferredStockWeightField.classList.add('d-none');
+        }
+    }
+</script>
 @endsection

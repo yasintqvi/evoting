@@ -23,14 +23,7 @@
             <div class="card-header d-flex align-items-center justify-content-between border-bottom border-light">
                 <h4 class="header-title">لیست انتخابات</h4>
                 <div>
-
-                    <div class="btn-group mb-2">
-                        <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">ایجاد همه پرسی</button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="{{ route('elections.create', ['group' => $group->slug, 'electionType' => \App\Enums\ElectionType::PUBLIC_JOINT]) }}">انتخابات تعاونی</a>
-                            <a class="dropdown-item" href="#">انتخابات سهامی عام</a>
-                        </div>
-                    </div>
+                    <a href="{{route('elections.create', $group->slug)}}" class="btn btn-success bg-gradient"><i class="ti ti-plus me-1"></i>ایجاد همه پرسی</a>
                 </div>
             </div>
             <div class="table-responsive">
@@ -42,6 +35,7 @@
                             <th>عنوان</th>
                             <th>افراد حاضر</th>
                             <th>درصد افراد حاضر</th>
+                            <th>نوع همه پرسی</th>
                             <th>وضعیت</th>
                             <th class="text-center" style="width: 120px;">فعالیت</th>
                         </tr>
@@ -57,10 +51,10 @@
                             </td>
                             <td>
                                 <div class="avatar-group">
-                                    @if($election->participants->count() === 0)
+                                    @if($election->precentParticipants()->count() === 0)
                                     <b>-</b>
                                     @endif
-                                    @foreach ($election->participants->take(10) as $participant)
+                                    @foreach ($election->precentParticipants()->take(10) as $participant)
                                     <div class="avatar" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-secondary" data-bs-placement="top" aria-label="Vicki" data-bs-original-title="{{ $participant->user->full_name }}">
                                         <img src="{{ $participant->user->avatar }}" alt="" class="rounded-circle avatar-sm">
                                     </div>
@@ -75,15 +69,36 @@
                                 </div>
                             </td>
                             <td>
-                                % {{ 100 * ($election->participants->count() / $group->users->count()) }}
+                                % {{ (int) (100 * ($election->precentParticipants()->count() / $group->users->count())) }}
                             </td>
                             <td>
-                                <span class="badge badge-soft-success">در حال برگزاری</span>
+                                <small>{{ $election->type->toFa() }}</small>
+                            </td>
+                            <td>
+                                <span class="badge badge-soft-success">{{ $election->status->toFa() }}</span>
+                                &nbsp; &nbsp;
+                                @switch($election->status)
+                                @case(App\Enums\ElectionStatus::CREATED)
+                                <a href="{{ route('candidates.create', [$group->slug, $election->id]) }}" class="btn btn-primary btn-sm">تعیین نامزد ها</a>
+                                @break
+
+                                @case(App\Enums\ElectionStatus::PARTICIPANTS_PENDING)
+                                <a href="{{ route('participants.create', [$group->slug, $election->id]) }}" class="btn btn-primary btn-sm">تعیین مشارکت کنندگان</a>
+                                @break
+
+                                @case(App\Enums\ElectionStatus::PARTICIPANTS_ATTENDEES)
+                                @break
+
+                                @case(App\Enums\ElectionStatus::ONGOING)
+                                <a href="" class="btn btn-primary btn-sm">شرکت در همه پرسی</a>
+                                @break
+
+                                @endswitch
                             </td>
                             <td class="pe-3">
                                 <div class="hstack gap-1 justify-content-end">
                                     <a href="{{ route('elections.show', [$group->slug, $election->id]) }}" class="btn btn-soft-primary btn-icon btn-sm rounded-circle"> <i class="ti ti-eye"></i></a>
-                                    <a href="javascript:void(0);" class="btn btn-soft-success btn-icon btn-sm rounded-circle"> <i class="ti ti-edit fs-16"></i></a>
+                                    <a href="" class="btn btn-soft-success btn-icon btn-sm rounded-circle"> <i class="ti ti-edit fs-16"></i></a>
                                     <a href="javascript:void(0);" class="btn btn-soft-danger btn-icon btn-sm rounded-circle"> <i class="ti ti-trash"></i></a>
                                 </div>
                             </td>

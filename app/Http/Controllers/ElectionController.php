@@ -17,24 +17,30 @@ class ElectionController extends Controller
         return view('app.group.election.index', compact('group', 'elections'));
     }
 
-    public function create(Group $group, ElectionType $electionType)
+    public function create(Group $group)
     {
         return view('app.group.election.create', compact('group'));
     }
 
-    public function store(StoreElectionRequest $request, Group $group, ElectionType $electionType)
+    public function store(StoreElectionRequest $request, Group $group)
     {
-        $data = $request->validated();
+        $data = [];
+
+        if ($request->input('type') == ElectionType::PUBLIC_JOINT->value) {
+            $data = $request->except('prefered_stock_weight', 'prefered_stock_count', 'normal_stock_count');
+        } else {
+            $data = $request->validated();
+        }
 
         $group->elections()->create([
             ...$data,
-            'type' => $electionType
+            'user_id' => user()->id
         ]);
 
         return to_route('elections.index', $group->slug);
     }
 
-    public function details(Group $group, Election $election)
+    public function show(Group $group, Election $election)
     {
         return view('app.group.election.show', compact('group', 'election'));
     }

@@ -269,5 +269,11 @@ return [
         'substitute_member_count' => 'تعداد عضو علی البدل هیت مدیره',
         'incpector_main_member_count' => 'تعداد عضو اصلی بازرس',
         'incpector_substitute_member_count' => 'تعداد عضو علی البدل بازرس',
+        'group_ids' => 'گروه',
+        'normal_stock_count' => 'تعداد سهام عادی',
+        'prefered_stock_count' => 'تعداد سهام ممتاز',
+        'prefered_stock_weight' => 'وزن سهام ممتاز',
+        'main_candidates_ids' => 'تعداد کاندیدای هیت میره',
+        'incpector_candidates_ids' => 'تعداد کاندیدای بازرس',
     ],
 ];
