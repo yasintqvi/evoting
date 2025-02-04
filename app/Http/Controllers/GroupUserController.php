@@ -6,7 +6,7 @@ use App\Models\Group;
 use App\Models\User;
 use Illuminate\Http\Request;
 
-class ElectionUserController extends Controller
+class GroupUserController extends Controller
 {
     /**
      * Display a listing of the resource.
