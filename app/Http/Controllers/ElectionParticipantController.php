@@ -6,6 +6,7 @@ use App\Enums\ElectionStatus;
 use App\Http\Requests\Election\StoreParticipantRequest;
 use App\Models\Election;
 use App\Models\Group;
+use App\Models\Participant;
 use Illuminate\Http\Request;
 
 class ElectionParticipantController extends Controller
@@ -56,20 +57,28 @@ class ElectionParticipantController extends Controller
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Group $group, Election $election, Participant $participant)
     {
-        //
+        if ($election->status === ElectionStatus::PARTICIPANTS_ATTENDEES && !$participant->is_present) {
+            $participant->update([
+                'is_present' => true
+            ]);
+
+            if ((int) (100 * ($election->precentParticipants()->count() / $group->users->count())) > 50) {
+                $election->status = ElectionStatus::ONGOING;
+                $election->save();
+
+                $election->rounds()->create([
+                    'is_active' => true
+                ]);
+            }
+        }
+
+        return back();
     }
 
     /**

@@ -275,5 +275,8 @@ return [
         'prefered_stock_weight' => 'وزن سهام ممتاز',
         'main_candidates_ids' => 'تعداد کاندیدای هیت میره',
         'incpector_candidates_ids' => 'تعداد کاندیدای بازرس',
+        'participants.*.user_id' => "مشارکت کننده",
+        'participants.*.normal_stock_count' => "تعدا سهام عادی",
+        'participants.*.prefered_stock_count' => "تعداد سهام ممتاز",
     ],
 ];

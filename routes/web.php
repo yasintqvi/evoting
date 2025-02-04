@@ -64,6 +64,10 @@ Route::middleware('auth')->group(function () {
 
             Route::resource('{election}/participants', ElectionParticipantController::class);
 
+            Route::prefix("{election}/voting")->group(function () {
+                // Route::get('/', [])
+            });
+
             Route::resource('/election-users', ElectionUserController::class);
         });
     });

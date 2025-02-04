@@ -74,7 +74,7 @@
                             <td>
                                 <small>{{ $election->type->toFa() }}</small>
                             </td>
-                            <td>
+                            <td class="d-flex align-items-center">
                                 <span class="badge badge-soft-success">{{ $election->status->toFa() }}</span>
                                 &nbsp; &nbsp;
                                 @switch($election->status)
@@ -87,6 +87,17 @@
                                 @break
 
                                 @case(App\Enums\ElectionStatus::PARTICIPANTS_ATTENDEES)
+                                @if ($participant = $election->participants()->where('user_id', user()->id)->first())
+
+                                <form action="{{ route('participants.update', [$group->slug, $election->id, $participant->id]) }}" method="post">
+                                    @method('PUT')
+                                    @csrf
+                                    @if (!$participant->is_present)
+                                    <button class="btn btn-primary btn-sm d-inline">اعلام حضور</button>
+                                    @endif
+                                </form>
+                                @endif
+
                                 @break
 
                                 @case(App\Enums\ElectionStatus::ONGOING)
