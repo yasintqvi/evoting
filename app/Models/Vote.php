@@ -11,6 +11,7 @@ class Vote extends Model
         'election_round_id',
         'participant_id',
         'candidate_id',
+        'vote_count',
     ];
 
     public function round(): BelongsTo

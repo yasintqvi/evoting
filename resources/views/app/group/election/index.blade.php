@@ -79,6 +79,9 @@
                             </td>
                             <td class="pe-3">
                                 <div class="hstack gap-1 justify-content-end">
+                                    @php
+                                    $participant = $election->participants()->where('user_id', user()->id)->first()
+                                    @endphp
                                     @switch($election->status)
                                     @case(App\Enums\ElectionStatus::CREATED)
                                     <a href="{{ route('candidates.create', [$group->slug, $election->id]) }}" class="btn btn-primary btn-sm">تعیین نامزد ها</a>
@@ -89,8 +92,7 @@
                                     @break
 
                                     @case(App\Enums\ElectionStatus::PARTICIPANTS_ATTENDEES)
-                                    @if ($participant = $election->participants()->where('user_id', user()->id)->first())
-
+                                    @if ($participant)
                                     <form action="{{ route('participants.update', [$group->slug, $election->id, $participant->id]) }}" method="post">
                                         @method('PUT')
                                         @csrf
@@ -112,7 +114,25 @@
                                     @break
 
                                     @case(App\Enums\ElectionStatus::ONGOING)
-                                    <a href="" class="btn btn-primary btn-sm">شرکت در همه پرسی</a>
+                                    @if ($election->rounds()->where('is_active', true)->exists())
+                                    @if($participant?->votes?->isNotEmpty())
+                                    <small class="text-muted">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                            <g fill="none">
+                                                <path fill="currentColor" d="M4.565 12.407a.75.75 0 1 0-1.13.986zM7.143 16.5l-.565.493a.75.75 0 0 0 1.13 0zm8.422-8.507a.75.75 0 1 0-1.13-.986zm-5.059 3.514a.75.75 0 0 0 1.13.986zm-.834 3.236a.75.75 0 1 0-1.13-.986zm-6.237-1.35l3.143 3.6l1.13-.986l-3.143-3.6zm4.273 3.6l1.964-2.25l-1.13-.986l-1.964 2.25zm3.928-4.5l1.965-2.25l-1.13-.986l-1.965 2.25zm1.965-2.25l1.964-2.25l-1.13-.986l-1.964 2.25z" />
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m20 7.563l-4.286 4.5M11 16l.429.563l2.143-2.25" />
+                                            </g>
+                                        </svg>
+                                        مشارکت صورت گرفت
+                                    </small>
+                                    @else
+                                    <a href="{{ route('voting.create', [$group->slug, $election->id]) }}" class="btn btn-primary btn-sm">شرکت در همه پرسی</a>
+                                    @endif
+                                    <form action="{{ route('voting.terminate', [$group->slug, $election->id]) }}" method="post">
+                                        @csrf
+                                        <button class="btn btn-danger btn-sm">خاتمه دادن به انتخابات</button>
+                                    </form>
+                                    @endif
                                     @break
 
                                     @endswitch

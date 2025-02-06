@@ -37,4 +37,9 @@ class Participant extends Model
     {
         return $this->hasMany(Vote::class);
     }
+
+    public function getTotalStockAttribute()
+    {
+        return (int) ($this->normal_stock_count + ($this->prefered_stock_count * $this->election->prefered_stock_weight));
+    }
 }

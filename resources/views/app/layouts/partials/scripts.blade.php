@@ -10,3 +10,4 @@
  <!-- Projects Analytics Dashboard App js -->
  <script src="{{ asset('assets/js/pages/dashboard-sales.js') }}"></script>
 
+ <script src="{{ asset('assets/js/sweetalert2.js') }}"></script>
