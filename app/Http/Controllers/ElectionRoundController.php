@@ -54,10 +54,13 @@ class ElectionRoundController extends Controller
      */
     public function show(Group $group, Election $election, ElectionRound $electionRound)
     {
-        $votes = $electionRound->votes;
+        $electionRound = $election->rounds()->where('id', $electionRound->id)->first();
 
-        $directorVotes = $votes->where('candidate.candidate_type', CandidateType::DIRECTOR->value);
-        $inspectorVotes = $votes->where('candidate.candidate_type', CandidateType::INSPECTOR->value);
+        $votes = $electionRound?->votes;
+
+
+        $directorVotes = $votes ? $votes->where('candidate.candidate_type', CandidateType::DIRECTOR->value) : collect([]);
+        $inspectorVotes = $votes ? $votes->where('candidate.candidate_type', CandidateType::INSPECTOR->value) : collect([]);
 
         $directorCandidates = [];
         $directorVoteCounts = [];
