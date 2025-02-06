@@ -10,6 +10,7 @@ class ElectionRound extends Model
         'election_id',
         'start_date',
         'end_date',
+        'is_active'
     ];
 
     public function election()

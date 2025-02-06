@@ -74,29 +74,48 @@
                             <td>
                                 <small>{{ $election->type->toFa() }}</small>
                             </td>
-                            <td>
+                            <td class="d-flex align-items-center">
                                 <span class="badge badge-soft-success">{{ $election->status->toFa() }}</span>
-                                &nbsp; &nbsp;
-                                @switch($election->status)
-                                @case(App\Enums\ElectionStatus::CREATED)
-                                <a href="{{ route('candidates.create', [$group->slug, $election->id]) }}" class="btn btn-primary btn-sm">تعیین نامزد ها</a>
-                                @break
-
-                                @case(App\Enums\ElectionStatus::PARTICIPANTS_PENDING)
-                                <a href="{{ route('participants.create', [$group->slug, $election->id]) }}" class="btn btn-primary btn-sm">تعیین مشارکت کنندگان</a>
-                                @break
-
-                                @case(App\Enums\ElectionStatus::PARTICIPANTS_ATTENDEES)
-                                @break
-
-                                @case(App\Enums\ElectionStatus::ONGOING)
-                                <a href="" class="btn btn-primary btn-sm">شرکت در همه پرسی</a>
-                                @break
-
-                                @endswitch
                             </td>
                             <td class="pe-3">
                                 <div class="hstack gap-1 justify-content-end">
+                                    @switch($election->status)
+                                    @case(App\Enums\ElectionStatus::CREATED)
+                                    <a href="{{ route('candidates.create', [$group->slug, $election->id]) }}" class="btn btn-primary btn-sm">تعیین نامزد ها</a>
+                                    @break
+
+                                    @case(App\Enums\ElectionStatus::PARTICIPANTS_PENDING)
+                                    <a href="{{ route('participants.create', [$group->slug, $election->id]) }}" class="btn btn-primary btn-sm">تعیین مشارکت کنندگان</a>
+                                    @break
+
+                                    @case(App\Enums\ElectionStatus::PARTICIPANTS_ATTENDEES)
+                                    @if ($participant = $election->participants()->where('user_id', user()->id)->first())
+
+                                    <form action="{{ route('participants.update', [$group->slug, $election->id, $participant->id]) }}" method="post">
+                                        @method('PUT')
+                                        @csrf
+                                        @if (!$participant->is_present)
+                                        <button class="btn btn-primary btn-sm d-inline">اعلام حضور</button>
+                                        @endif
+                                    </form>
+                                    @endif
+                                    @break
+
+                                    @case(App\Enums\ElectionStatus::WAITING_TO_START)
+                                    @if (!$election->rounds()->where('is_active', true)->first())
+
+                                    <form action="{{ route('election-rounds.store', [$group->slug, $election->id]) }}" method="post">
+                                        @csrf
+                                        <button class="btn btn-primary btn-sm d-inline">شروع انتخابات</button>
+                                    </form>
+                                    @endif
+                                    @break
+
+                                    @case(App\Enums\ElectionStatus::ONGOING)
+                                    <a href="" class="btn btn-primary btn-sm">شرکت در همه پرسی</a>
+                                    @break
+
+                                    @endswitch
                                     <a href="{{ route('elections.show', [$group->slug, $election->id]) }}" class="btn btn-soft-primary btn-icon btn-sm rounded-circle"> <i class="ti ti-eye"></i></a>
                                     <a href="" class="btn btn-soft-success btn-icon btn-sm rounded-circle"> <i class="ti ti-edit fs-16"></i></a>
                                     <a href="javascript:void(0);" class="btn btn-soft-danger btn-icon btn-sm rounded-circle"> <i class="ti ti-trash"></i></a>

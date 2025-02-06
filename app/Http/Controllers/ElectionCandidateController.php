@@ -36,6 +36,11 @@ class ElectionCandidateController extends Controller
      */
     public function store(StoreCandidateRequest $request, Group $group, Election $election)
     {
+        if ($election->status != ElectionStatus::CREATED) {
+            return back();
+        }
+
+
         $data = $request->validated();
 
         $election->candidates()->delete();

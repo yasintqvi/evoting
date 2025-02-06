@@ -6,6 +6,7 @@ use App\Enums\ElectionStatus;
 use App\Http\Requests\Election\StoreParticipantRequest;
 use App\Models\Election;
 use App\Models\Group;
+use App\Models\Participant;
 use Illuminate\Http\Request;
 
 class ElectionParticipantController extends Controller
@@ -31,6 +32,10 @@ class ElectionParticipantController extends Controller
      */
     public function store(StoreParticipantRequest $request, Group $group, Election $election)
     {
+        if ($election->status != ElectionStatus::PARTICIPANTS_PENDING) {
+            return back();
+        }
+        
         $participants = $request->validated('participants');
 
         foreach ($participants as $participant) {
@@ -41,7 +46,7 @@ class ElectionParticipantController extends Controller
             ]);
         }
 
-        $election->status = $election->quorum_required ?  ElectionStatus::PARTICIPANTS_ATTENDEES : ElectionStatus::ONGOING;
+        $election->status = $election->quorum_required ?  ElectionStatus::PARTICIPANTS_ATTENDEES : ElectionStatus::WAITING_TO_START;
 
         $election->save();
 
@@ -56,20 +61,28 @@ class ElectionParticipantController extends Controller
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Group $group, Election $election, Participant $participant)
     {
-        //
+        if ($election->status === ElectionStatus::PARTICIPANTS_ATTENDEES && !$participant->is_present) {
+            $participant->update([
+                'is_present' => true
+            ]);
+
+            if ((int) (100 * ($election->precentParticipants()->count() / $group->users->count())) > 50) {
+                $election->status = ElectionStatus::ONGOING;
+                $election->save();
+
+                $election->rounds()->create([
+                    'is_active' => true
+                ]);
+            }
+        }
+
+        return back();
     }
 
     /**
