@@ -99,76 +99,25 @@
 </div>
 
 <div class="row">
+    @foreach ($election->rounds as $key => $electionRound)
     <div class="col-lg-12">
         <div class="card">
-            <div class="card-header border-bottom border-dashed">
-                <h4 class="card-title mb-0">دوره های انتخاباتی</h4>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-nowrap mb-0">
-                        <thead class="bg-light bg-opacity-25">
-                            <tr>
-                                <th class="ps-3" style="width: 50px;">
-                                    <input type="checkbox" class="form-check-input" id="customCheck1">
-                                </th>
-                                <th>دور انتخاباتی</th>
-                                <th>میزان مشارکت</th>
-                                <th>تاریخ شروع</th>
-                                <th>تاریخ پایان</th>
-                                <th class="text-center" style="width: 125px;">فعالیت</th>
-                            </tr>
-                        </thead><!-- end thead -->
-                        <tbody>
-                            <tr>
-                                <td class="ps-3">
-                                    <input type="checkbox" class="form-check-input" id="customCheck2">
-                                </td>
-                                <td>
-                                    ۱
-                                </td>
-                                <td>۴۵٪</td>
-                                <td>
-                                    9:00 صبح
-                                </td>
-                                <td>
-                                    12:00 عضر
-                                </td>
-                                <td class="pe-3">
-                                    <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-secondary">دیدن نتایج</button>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td class="ps-3">
-                                    <input type="checkbox" class="form-check-input" id="customCheck3">
-                                </td>
-                                <td>
-                                    ۲
-                                </td>
-                                <td>۲۸٪</td>
-                                <td>
-                                    ۱۵:۰۰ عصر
-                                </td>
-                                <td>
-                                    در حال برگزاری
-                                </td>
-                                <td class="pe-3">
-                                    <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-secondary">دیدن نتایج</button>
-                                        <button type="button" class="btn btn-success">شرکت در همه پرسی</button>
-                                    </div>
-                                </td>
-                            </tr>
-
-                        </tbody><!-- end tbody -->
-                    </table><!-- end table -->
+            <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0">دور {{ $key + 1 }} انتخابات</h4>
+                <div class="d-flex align-items-center">
+                    <a href="{{ route('election-rounds.show', [$group->slug, $election->id, $electionRound->id]) }}" class="btn btn-outline-success mx-2">دیدن نتایج</a>
+                    @if ($election->rounds()->where('is_active', true)->exists())
+                    <form action="{{ route('voting.terminate', [$group->slug, $election->id]) }}" class="p-0 m-0" method="post">
+                        @csrf
+                        <button class="btn btn-danger">خاتمه دادن</a>
+                    </form>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
+    @endforeach
+
 </div>
 @endsection
 
@@ -187,8 +136,8 @@
                 label: '# میزان مشارکت',
                 data: ["{{$election->precentParticipants()->count() }}", "{{$group->users->count() - $election->precentParticipants()->count() }}"],
                 backgroundColor: [
-                    'rgba(75, 192, 192, 0.8)', 
-                    'rgba(255, 99, 132, 0.8)' 
+                    'rgba(75, 192, 192, 0.8)',
+                    'rgba(255, 99, 132, 0.8)'
                 ],
                 borderColor: [
                     'rgba(75, 192, 192, 1)',
@@ -200,14 +149,14 @@
             }]
         },
         options: {
-            responsive: true, 
+            responsive: true,
             maintainAspectRatio: false,
             plugins: {
                 legend: {
                     position: 'top',
                     labels: {
                         font: {
-                            size: 14, 
+                            size: 14,
                             family: 'Tahoma'
                         },
                         color: '#333'
@@ -220,7 +169,7 @@
                         size: 16
                     },
                     bodyFont: {
-                        size: 14 
+                        size: 14
                     },
                     footerFont: {
                         size: 12
@@ -228,10 +177,10 @@
                 }
             },
             animation: {
-                duration: 2000, 
-                easing: 'easeInOutQuart', 
-                animateRotate: true, 
-                animateScale: true 
+                duration: 2000,
+                easing: 'easeInOutQuart',
+                animateRotate: true,
+                animateScale: true
             }
         }
     });

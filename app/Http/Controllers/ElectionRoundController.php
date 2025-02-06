@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\CandidateType;
 use App\Enums\ElectionStatus;
+use App\Models\Candidate;
 use App\Models\Election;
+use App\Models\ElectionRound;
 use App\Models\Group;
 use Illuminate\Http\Request;
 
@@ -49,9 +52,40 @@ class ElectionRoundController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Group $group, Election $election, ElectionRound $electionRound)
     {
-        //
+        $votes = $electionRound->votes;
+
+        $directorVotes = $votes->where('candidate.candidate_type', CandidateType::DIRECTOR->value);
+        $inspectorVotes = $votes->where('candidate.candidate_type', CandidateType::INSPECTOR->value);
+
+        $directorCandidates = [];
+        $directorVoteCounts = [];
+
+        foreach ($directorVotes->groupBy('candidate_id') as $candidateId => $voteData) {
+            $candidate = Candidate::find($candidateId);
+            $directorCandidates[] = $candidate->user->full_name;
+            $directorVoteCounts[] = $voteData->sum('vote_count');
+        }
+
+        $inspectorCandidates = [];
+        $inspectorVoteCounts = [];
+
+        foreach ($inspectorVotes->groupBy('candidate_id') as $candidateId => $voteData) {
+            $candidate = Candidate::find($candidateId);
+            $inspectorCandidates[] = $candidate->user->full_name;
+            $inspectorVoteCounts[] = $voteData->sum('vote_count');
+        }
+
+        return view('app.group.election.round.show', compact(
+            'group',
+            'election',
+            'electionRound',
+            'directorCandidates',
+            'directorVoteCounts',
+            'inspectorCandidates',
+            'inspectorVoteCounts'
+        ));
     }
 
     /**

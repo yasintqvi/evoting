@@ -35,7 +35,7 @@ class ElectionParticipantController extends Controller
         if ($election->status != ElectionStatus::PARTICIPANTS_PENDING) {
             return back();
         }
-        
+
         $participants = $request->validated('participants');
 
         foreach ($participants as $participant) {

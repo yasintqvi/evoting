@@ -11,6 +11,7 @@
                 </button>
                 @isset (user()->groups)
                 <div class="dropdown-menu" data-popper-placement="bottom-end" style="position: absolute; inset: 0px 0px auto auto; margin: 0px; transform: translate(0px, 40px);">
+                    <a class="dropdown-item" href="{{ route("app.index") }}">همه گروه ها</a>
                     @foreach (user()->groups->except($group->id) as $otherGroup)
                     <a class="dropdown-item" href="{{ route("groups.index", $otherGroup->slug) }}">{{ $otherGroup->title }}</a>
                     @endforeach

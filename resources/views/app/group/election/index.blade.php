@@ -105,7 +105,6 @@
 
                                     @case(App\Enums\ElectionStatus::WAITING_TO_START)
                                     @if (!$election->rounds()->where('is_active', true)->first())
-
                                     <form action="{{ route('election-rounds.store', [$group->slug, $election->id]) }}" method="post">
                                         @csrf
                                         <button class="btn btn-primary btn-sm d-inline">شروع انتخابات</button>
