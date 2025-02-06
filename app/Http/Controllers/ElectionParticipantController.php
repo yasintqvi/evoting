@@ -32,6 +32,10 @@ class ElectionParticipantController extends Controller
      */
     public function store(StoreParticipantRequest $request, Group $group, Election $election)
     {
+        if ($election->status != ElectionStatus::PARTICIPANTS_PENDING) {
+            return back();
+        }
+        
         $participants = $request->validated('participants');
 
         foreach ($participants as $participant) {
@@ -42,7 +46,7 @@ class ElectionParticipantController extends Controller
             ]);
         }
 
-        $election->status = $election->quorum_required ?  ElectionStatus::PARTICIPANTS_ATTENDEES : ElectionStatus::ONGOING;
+        $election->status = $election->quorum_required ?  ElectionStatus::PARTICIPANTS_ATTENDEES : ElectionStatus::WAITING_TO_START;
 
         $election->save();
 

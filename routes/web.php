@@ -4,14 +4,13 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ElectionCandidateController;
 use App\Http\Controllers\ElectionController;
 use App\Http\Controllers\ElectionParticipantController;
+use App\Http\Controllers\ElectionRoundController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\GroupUserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserExcelController;
 use Illuminate\Support\Facades\Route;
-
-Auth::loginUsingId(1);
 
 Route::middleware('guest')->group(function () {
 
@@ -65,8 +64,10 @@ Route::middleware('auth')->group(function () {
 
             Route::resource('{election}/participants', ElectionParticipantController::class);
 
+            Route::resource('{election}/election-rounds', ElectionRoundController::class);
+
             Route::get('/candidates', fn() => view('app.election.candidate.index'));
-          
+
             Route::resource('/election-users', GroupUserController::class);
         });
     });

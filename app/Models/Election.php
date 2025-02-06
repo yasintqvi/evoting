@@ -40,7 +40,7 @@ class Election extends Model
 
     public function rounds()
     {
-        return $this->hasMany(Election::class);
+        return $this->hasMany(ElectionRound::class);
     }
 
     public function participants()
