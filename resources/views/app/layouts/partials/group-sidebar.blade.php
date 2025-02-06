@@ -49,7 +49,7 @@
                  </a>
              </li>
              <li class="side-nav-item">
-                 <a href="{{ route('election-users.index' , $group->slug) }}" class="side-nav-link">
+                 <a href="{{ route('group.users.index' , $group->slug) }}" class="side-nav-link">
                      <span class="menu-icon">
                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                              <circle cx="15" cy="6" r="3" fill="currentColor" opacity="0.4" />
