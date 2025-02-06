@@ -17,6 +17,16 @@
 </div>
 
 <div class="row">
+    @if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
     <div class="card col-lg-6">
         <!-- بخش بالای فرم -->
         <div class="d-flex col-lg-12 align-items-center">
@@ -184,9 +194,9 @@
                         <label for="formFileMultiple" class="form-label">قایل مورد نظر را انتخاب کنید</label>
                         <input class="form-control" name="file"  type="file" id="formFileMultiple" >
                       </div>
-                      @error('file')
-                        <span class="text-danger">{{ $message }}</span>
-                      @enderror
+                      @if ($errors->has('file'))
+                      <span class="text-danger">{{ $errors->first('file') }}</span>
+                      @endif    
                     <!-- Preview -->
                 </div>
                 <div class="card-footer">

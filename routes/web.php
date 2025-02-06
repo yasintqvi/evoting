@@ -75,5 +75,14 @@ Route::middleware('auth')->group(function () {
 
             Route::resource('/election-users', GroupUserController::class);
         });
+
+        Route::resource('users', GroupUserController::class)->names([
+            'index' => 'group.users.index',
+            'create' => 'group.users.create',
+            'store' => 'group.users.store',
+            'edit' => 'group.users.edit',
+            'update' => 'group.users.update',
+        ]);  
+        
     });
 });

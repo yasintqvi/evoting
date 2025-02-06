@@ -38,7 +38,7 @@
         </div>
     
         <!-- فرم ایجاد کاربر -->
-        <form id="new-user-form" action="{{ route('election-users.store' , $group->slug)}}" method="post" style="display: block;">
+        <form id="new-user-form" action="{{ route('group.users.store' , $group->slug)}}" method="post" style="display: block;">
             @csrf
             <div class="card-body">
                 <div class="row">
@@ -69,29 +69,7 @@
                         @enderror
                         </div>
                     </div>
-                     <!-- انتخاب گروه -->
-                {{-- <div class="col-lg-12">
-                    <div class="mb-3">
-                        <label for="group1" class="form-label">افزودن به گروه</label>
-                        <select 
-                            class="form-select my-1 my-md-0 me-sm-3" 
-                            name="group_ids[]" 
-                            id="group1"
-                            data-toggle="select2"
-                            multiple>
-                            @foreach ($groups as $group)
-                                <option 
-                                    value="{{ $group->id }}" 
-                                    {{ collect(old('group_ids'))->contains($group->id) ? 'selected' : '' }}>
-                                    {{ $group->title }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('group_ids')
-                            <span class="text-danger">{{ $message }}</span>
-                        @enderror
-                    </div>
-                </div> --}}
+
                 </div>
             </div>
             <div class="card-footer">
@@ -102,7 +80,7 @@
         </form>
     
         <!-- فرم کاربران فعال -->
-        <form id="active-users-form" action="{{ route('election-users.store' , $group->slug) }}" method="post" style="display: none;">
+        <form id="active-users-form" action="{{ route('group.users.store' , $group->slug) }}" method="post" style="display: none;">
             @csrf
             <div class="card-body">
                 <!-- انتخاب کاربران -->
