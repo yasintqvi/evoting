@@ -56,7 +56,7 @@
                                     @endif
                                     @foreach ($election->precentParticipants()->take(10) as $participant)
                                     <div class="avatar" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-secondary" data-bs-placement="top" aria-label="Vicki" data-bs-original-title="{{ $participant->user->full_name }}">
-                                        <img src="{{ $participant->user->avatar }}" alt="" class="rounded-circle avatar-sm">
+                                        <img src="{{ asset($participant->user->profile_image) }}" alt="" class="rounded-circle avatar-sm">
                                     </div>
                                     @endforeach
                                     @if($election->participants->count() > 10)

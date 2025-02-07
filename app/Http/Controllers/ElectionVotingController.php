@@ -53,42 +53,44 @@ class ElectionVotingController extends Controller
     public function store(StoreVotingRequest $request, Group $group, Election $election)
     {
         $data = $request->validated();
-
-        $data['director_candidates'] = array_filter($data['director_candidates'], function ($value) {
-            return $value != 0;
-        });
-
-        $data['inspector_candidates'] = array_filter($data['inspector_candidates'], function ($value) {
-            return $value != 0;
-        });
-
-        if (count($data['director_candidates']) > $election->main_member_count) {
-            return back();
+        
+        if (!isset($data['director_candidates']) || empty($data['director_candidates'])) {
+            $data['director_candidates'] = [];
+            foreach ($election->candidates()->where('candidate_type', CandidateType::DIRECTOR)->get() as $candidate) {
+                $data['director_candidates'][$candidate->id] = 0; 
+            }
         }
 
-        if (count($data['inspector_candidates']) > $election->incpector_main_member_count) {
-            return back();
+        if (!isset($data['inspector_candidates']) || empty($data['inspector_candidates'])) {
+            $data['inspector_candidates'] = [];
+            foreach ($election->candidates()->where('candidate_type', CandidateType::INSPECTOR)->get() as $candidate) {
+                $data['inspector_candidates'][$candidate->id] = 0; 
+            }
+        }
+        
+        if (count(array_filter($data['director_candidates'], fn($item) => $item > 0)) > $election->main_member_count) {
+            return back()->withErrors(['director_candidates' => 'تعداد کاندیداهای مدیر بیش از حد مجاز است.']);
+        }
+
+        if (count(array_filter($data['inspector_candidates'], fn($item) => $item > 0)) > $election->incpector_main_member_count) {
+            return back()->withErrors(['inspector_candidates' => 'تعداد کاندیداهای بازرس بیش از حد مجاز است.']);
         }
 
         DB::transaction(function () use ($group, $election, $data) {
-
             $participant = $election->participants()->where('user_id', user()->id)->first();
 
             $activeRound = $election->rounds()->where('is_active', true)->first();
 
             if (!$activeRound) {
-                $activeRound = $election->rounds()->create();
+                $activeRound = $election->rounds()->create(['is_active' => true]);
             }
 
-            foreach ($data['director_candidates'] as $directorCandidateId => $voteCount) {
+            foreach ($election->candidates()->where('candidate_type', CandidateType::DIRECTOR)->get() as $candidate) {
+                $voteCount = $data['director_candidates'][$candidate->id] ?? 0;
 
                 if ($participant->total_stock < (int) $voteCount) {
-                    return back();
+                    return back()->withErrors(['director_candidates' => 'تعداد سهام شما کافی نیست.']);
                 }
-
-                $candidate = $election->candidates()
-                    ->where('candidate_type', CandidateType::DIRECTOR)
-                    ->where('id', $directorCandidateId)->firstOrFail();
 
                 $participant->votes()->create([
                     "election_round_id" => $activeRound->id,
@@ -97,15 +99,12 @@ class ElectionVotingController extends Controller
                 ]);
             }
 
-            foreach ($data['inspector_candidates'] as $inspectorCandidateId => $voteCount) {
+            foreach ($election->candidates()->where('candidate_type', CandidateType::INSPECTOR)->get() as $candidate) {
+                $voteCount = $data['inspector_candidates'][$candidate->id] ?? 0; 
 
                 if ($participant->total_stock < (int) $voteCount) {
-                    return back();
+                    return back()->withErrors(['inspector_candidates' => 'تعداد سهام شما کافی نیست.']);
                 }
-
-                $candidate = $election->candidates()
-                    ->where('candidate_type', CandidateType::INSPECTOR)
-                    ->where('id', $inspectorCandidateId)->firstOrFail();
 
                 $participant->votes()->create([
                     "election_round_id" => $activeRound->id,
@@ -119,8 +118,7 @@ class ElectionVotingController extends Controller
             ]);
         });
 
-
-        return to_route('elections.index', $group->slug);
+        return to_route('elections.index', $group->slug)->with('success', 'رای‌های شما با موفقیت ثبت شدند.');
     }
 
     /**

@@ -43,15 +43,19 @@
                         <h4 class="fs-15">اطلاعات انتخابات:</h4>
                         <div class="row mt-1 g-2">
                             <div class="col-lg-4 col-6">
-                                <h4 class="fw-medium mb-0">{{ $election->participants()->count() }}</h4>
-                                <p class="mb-0 text-muted lh-lg">تعداد کاندیدا </p>
+                                <h4 class="fw-medium mb-0">{{ $election->candidates()->where('candidate_type', App\Enums\CandidateType::DIRECTOR)->count() }}</h4>
+                                <p class="mb-0 text-muted lh-lg"> کاندیدای هیت مدیره </p>
                             </div>
                             <div class="col-lg-4 col-6">
-                                <h4 class="fw-medium mb-0">{{ $election->candidates()->count() }}</h4>
+                                <h4 class="fw-medium mb-0">{{ $election->candidates()->where('candidate_type', App\Enums\CandidateType::INSPECTOR)->count() }}</h4>
+                                <p class="mb-0 text-muted lh-lg"> کاندیدای بازرس </p>
+                            </div>
+                            <div class="col-lg-4 col-6">
+                                <h4 class="fw-medium mb-0">{{ $election->participants()->count() }}</h4>
                                 <p class="mb-0 text-muted lh-lg">تعداد مشارکت کنندگان</p>
                             </div>
                             <div class="col-lg-4 col-6">
-                                <h4 class="fw-medium mb-0">{{ $election->normal_stock_count + ($election->prefered_stock_count * $election->prefered_stock_weight) }}</h4>
+                                <h4 class="fw-medium mb-0">{{ $election->type == App\Enums\ElectionType::PUBLIC_JOINT ?  $election->participants()->count() :$election->normal_stock_count + ($election->prefered_stock_count * $election->prefered_stock_weight) }}</h4>
                                 <p class="mb-0 text-muted lh-lg">تعداد کل سهم ها</p>
                             </div>
                         </div>
@@ -59,6 +63,7 @@
                     <div class="mt-3">
                         <h4 class="fs-15">اطلاعات رای دهنده:</h4>
                         <div class="row mt-1 g-2">
+                            @if (in_array($election->type, [App\Enums\ElectionType::PRIVATE_JOINT, App\Enums\ElectionType::PRIVATE_JOINT_WITH_88]))
                             <div class="col-lg-4 col-6">
                                 <h4 class="fw-medium mb-0">{{ $participant->normal_stock_count }}</h4>
                                 <p class="mb-0 text-muted lh-lg">میزان سهم عادی</p>
@@ -71,6 +76,12 @@
                                 <h4 class="fw-medium mb-0">{{ $participant->normal_stock_count +  ($participant->prefered_stock_count * $election->prefered_stock_weight) }}</h4>
                                 <p class="mb-0 text-muted lh-lg">کل سهم</p>
                             </div>
+                            @else
+                            <div class="col-lg-4 col-6">
+                                <h4 class="fw-medium mb-0">1</h4>
+                                <p class="mb-0 text-muted lh-lg">کل سهم</p>
+                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -89,7 +100,7 @@
                                 <div class="card-body text-center">
                                     <div class="row justify-content-between mb-3">
                                         <div class="col-12">
-                                            <img src="{{ $candidate->user->avatar }}" alt="" class="avatar-xl rounded">
+                                            <img src="{{  asset($candidate->user->profile_image) }}" alt="" class="avatar-xl rounded">
                                         </div>
                                     </div>
                                     <h5>{{ $candidate->user->full_name }}</h5>
@@ -135,7 +146,7 @@
                                 <div class="card-body text-center">
                                     <div class="row justify-content-between mb-3">
                                         <div class="col-12">
-                                            <img src="{{ $candidate->user->avatar }}" alt="" class="avatar-xl rounded">
+                                            <img src="{{ asset($candidate->user->profile_image) }}" alt="" class="avatar-xl rounded">
                                         </div>
                                     </div>
                                     <h5>{{ $candidate->user->full_name }}</h5>

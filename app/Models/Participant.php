@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ElectionType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -40,6 +41,6 @@ class Participant extends Model
 
     public function getTotalStockAttribute()
     {
-        return (int) ($this->normal_stock_count + ($this->prefered_stock_count * $this->election->prefered_stock_weight));
+        return $this->election->type == ElectionType::PUBLIC_JOINT ?  1 : (int) ($this->normal_stock_count + ($this->prefered_stock_count * $this->election->prefered_stock_weight));
     }
 }

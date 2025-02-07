@@ -24,7 +24,6 @@
             <h4 class="card-title">اطلاعات مربوط به همه پرسی</h4>
             <p class="text-muted mb-0">شما در حال ایجاد همه پرسی جدید هستید</p>
         </div>
-
         <div class="card-body">
             <div class="row">
                 <div class="col-12">

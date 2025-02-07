@@ -56,28 +56,27 @@ class ElectionRoundController extends Controller
     {
         $electionRound = $election->rounds()->where('id', $electionRound->id)->first();
 
+        $candidates = $election->candidates;
+
+        $directorCandidatesQuery = $candidates->where('candidate_type', CandidateType::DIRECTOR->value);
+        $inspectorCandidatesQuery = $candidates->where('candidate_type', CandidateType::INSPECTOR->value);
+
+        $directorCandidates = $directorCandidatesQuery->pluck('user.full_name')->toArray();
+        $inspectorCandidates = $inspectorCandidatesQuery->pluck('user.full_name')->toArray();
+
         $votes = $electionRound?->votes;
 
-
-        $directorVotes = $votes ? $votes->where('candidate.candidate_type', CandidateType::DIRECTOR->value) : collect([]);
-        $inspectorVotes = $votes ? $votes->where('candidate.candidate_type', CandidateType::INSPECTOR->value) : collect([]);
-
-        $directorCandidates = [];
         $directorVoteCounts = [];
-
-        foreach ($directorVotes->groupBy('candidate_id') as $candidateId => $voteData) {
-            $candidate = Candidate::find($candidateId);
-            $directorCandidates[] = $candidate->user->full_name;
-            $directorVoteCounts[] = $voteData->sum('vote_count');
-        }
-
-        $inspectorCandidates = [];
         $inspectorVoteCounts = [];
 
-        foreach ($inspectorVotes->groupBy('candidate_id') as $candidateId => $voteData) {
-            $candidate = Candidate::find($candidateId);
-            $inspectorCandidates[] = $candidate->user->full_name;
-            $inspectorVoteCounts[] = $voteData->sum('vote_count');
+        if ($votes) {
+            foreach ($directorCandidatesQuery as $candidate) {
+                $directorVoteCounts[] = $votes->where('candidate_id', $candidate->id)->sum('vote_count');
+            }
+
+            foreach ($inspectorCandidatesQuery as $candidate) {
+                $inspectorVoteCounts[] = $votes->where('candidate_id', $candidate->id)->sum('vote_count');
+            }
         }
 
         return view('app.group.election.round.show', compact(
