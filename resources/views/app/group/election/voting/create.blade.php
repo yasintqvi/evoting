@@ -22,7 +22,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex align-items-center gap-2">
-                        <img src="{{ asset(user()->avatar) }}" alt="" class="avatar-xl rounded-circle border border-light border-2">
+                        <img src="{{ asset(user()->profile_image) }}" alt="" class="avatar-xl rounded-circle border border-light border-2">
                         <div>
                             <h4 class="text-dark fw-medium">{{ user()->full_name }}</h4>
                         </div>

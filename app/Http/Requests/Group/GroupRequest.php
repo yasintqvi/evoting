@@ -4,7 +4,7 @@ namespace App\Http\Requests\Group;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreGroupRequest extends FormRequest
+class GroupRequest extends FormRequest
 {
 
     /**

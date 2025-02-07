@@ -41,6 +41,10 @@ Route::middleware('auth')->group(function () {
     Route::prefix('groups')->group(function () {
         Route::get('/create', [GroupController::class, 'create'])->name('groups.create');
         Route::post('/create', [GroupController::class, 'store'])->name('groups.store');
+        Route::get('/edit/{group:slug}', [GroupController::class, 'edit'])->name('groups.edit');
+        Route::put('/edit/{group:slug}', [GroupController::class, 'update'])->name('groups.update');
+        Route::delete('/delete/{group:slug}', [GroupController::class, 'destroy'])->name('groups.delete');
+        Route::post('/leave/{group:slug}', [GroupController::class, 'leave'])->name('groups.leave');
     });
 
     Route::resource('users', UserController::class);

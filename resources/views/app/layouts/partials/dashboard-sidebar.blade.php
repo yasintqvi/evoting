@@ -40,11 +40,14 @@
              @empty
              <div class="d-flex justify-content-center align-items-center">
                  <div class="d-flex flex-column">
-                     <div class="my-2 side-nav-title"> هیچ گروهی یافت نشد.</div>
-                     <a href="{{ route('groups.create') }}" class="btn btn-primary btn-sm mx-auto">ایجاد</a>
+                     <div class="mt-2 side-nav-title"> هیچ گروهی یافت نشد.</div>
                  </div>
              </div>
              @endforelse
+
+             <div class="d-flex flex-column mt-3">
+                 <a href="{{ route('groups.create') }}" class="btn btn-primary btn-sm mx-auto">افزودن گروه</a>
+             </div>
 
              <li class="side-nav-title">مدیریت</li>
 

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Group\StoreGroupRequest;
+use App\Http\Requests\Group\GroupRequest;
 use App\Models\Group;
 use App\Services\Image\ImageService;
 
@@ -21,7 +21,7 @@ class GroupController extends Controller
         return view('app.group.create');
     }
 
-    public function store(StoreGroupRequest $request)
+    public function store(GroupRequest $request)
     {
         $validated = $request->validated();
 
@@ -37,5 +37,38 @@ class GroupController extends Controller
         $group->users()->attach(user()->id);
 
         return back()->with('success', __('messages.group_created'));
+    }
+
+    public function edit(Group $group)
+    {
+        return view('app.group.edit', compact('group'));
+    }
+
+    public function update(GroupRequest $request, Group $group)
+    {
+        $validated = $request->validated();
+
+        if ($request->hasFile('logo')) {
+            $validated['logo'] = $this->imageService
+                ->setImage($request->file('logo'))
+                ->setExclusiveDirectory('images/groups')
+                ->save();
+        }
+
+        $group = $group->update($validated);
+
+        return back()->with('success', __('messages.group_update'));
+    }
+
+    public function destroy(Group $group)
+    {
+        $group->delete();
+
+        return to_route('app.index');
+    }
+
+    public function leave(Group $group)
+    {
+
     }
 }

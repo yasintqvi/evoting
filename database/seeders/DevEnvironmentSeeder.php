@@ -21,17 +21,14 @@ class DevEnvironmentSeeder extends Seeder
             'password' => bcrypt('12345678')
         ]);
 
-        User::factory(10)->create();
-
         $testGroup = Group::create([
             'title' => 'Evoting Test Group',
             'description' => 'this is the test group in the evoting system',
             'owner_id' => $adminUser->id,
             'status' => GroupStatus::ENABLE,
+            'logo' => 'assets/img/group.jpg'
         ]);
-        
-        $users = User::factory(10)->create();
 
-        $testGroup->users()->sync($users);   
+        $testGroup->users()->attach($adminUser->id);
     }
 }
