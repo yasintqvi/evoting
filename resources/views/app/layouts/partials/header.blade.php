@@ -281,7 +281,10 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">انصراف</button>
-                <button type="submit" class="btn btn-danger">بله مطمئن هستم</button>
+                <form action="{{ route('groups.leave', $group->slug) }}" method="post">
+                    @csrf
+                    <button type="submit" class="btn btn-danger">بله مطمئن هستم</button>
+                </form>
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->

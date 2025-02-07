@@ -69,6 +69,8 @@ class GroupController extends Controller
 
     public function leave(Group $group)
     {
+        $group->users()->detach(user()->id);
 
+        return to_route('app.index');
     }
 }
