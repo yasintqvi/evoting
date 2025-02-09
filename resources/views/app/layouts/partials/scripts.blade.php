@@ -1,3 +1,5 @@
+@include('app.alerts.toastr.success')
+
  <!-- Vendor js -->
  <script src="{{ asset('assets/js/vendor.min.js') }}"></script>
 
@@ -11,3 +13,6 @@
  <script src="{{ asset('assets/js/pages/dashboard-sales.js') }}"></script>
 
  <script src="{{ asset('assets/js/sweetalert2.js') }}"></script>
+
+ <script src="{{ asset('assets/js/toastr.min.js') }}"></script>
+ 

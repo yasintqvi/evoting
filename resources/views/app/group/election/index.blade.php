@@ -154,3 +154,11 @@
     </div>
 </div>
 @endsection
+
+@section('scripts')
+<script src="/assets/samples/assets/irregular-data-series.js"></script>
+
+<script src="/assets/js/pages/chart-apex-bar.js"></script>
+@include('app.alerts.toastr.success')
+
+@endsection 

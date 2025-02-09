@@ -70,6 +70,8 @@ Route::middleware('auth')->group(function () {
             Route::resource('{election}/participants', ElectionParticipantController::class);
 
             Route::resource('{election}/election-rounds', ElectionRoundController::class);
+            // Route::get('{election}/election-rounds/{election_round}', [ElectionRoundController::class, 'getResults'])->name('election-rounds.results');
+
 
             Route::get('{election}/voting', [ElectionVotingController::class, 'create'])->name('voting.create');
 

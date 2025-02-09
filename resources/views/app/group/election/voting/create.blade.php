@@ -276,5 +276,6 @@
         updateRangeValue(initialRangeId, initialValueId);
     });
 </script>
+@include('app.alerts.toastr.success')
 
 @endsection

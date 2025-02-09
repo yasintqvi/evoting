@@ -63,7 +63,7 @@ class ElectionCandidateController extends Controller
 
         $election->save();
 
-        return to_route('elections.index', $group->slug);
+        return to_route('elections.index', $group->slug)->with('success','کاندید جدید اضافه شد');
     }
 
     /**

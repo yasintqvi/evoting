@@ -55,40 +55,41 @@ class ElectionRoundController extends Controller
     public function show(Group $group, Election $election, ElectionRound $electionRound)
     {
         $electionRound = $election->rounds()->where('id', $electionRound->id)->first();
-
         $candidates = $election->candidates;
-
+    
         $directorCandidatesQuery = $candidates->where('candidate_type', CandidateType::DIRECTOR->value);
         $inspectorCandidatesQuery = $candidates->where('candidate_type', CandidateType::INSPECTOR->value);
-
-        $directorCandidates = $directorCandidatesQuery->pluck('user.full_name')->toArray();
-        $inspectorCandidates = $inspectorCandidatesQuery->pluck('user.full_name')->toArray();
-
+    
         $votes = $electionRound?->votes;
-
-        $directorVoteCounts = [];
-        $inspectorVoteCounts = [];
-
+    
+        $directorCandidates = [];
+        $inspectorCandidates = [];
+    
         if ($votes) {
-            foreach ($directorCandidatesQuery as $candidate) {
-                $directorVoteCounts[] = $votes->where('candidate_id', $candidate->id)->sum('vote_count');
-            }
-
-            foreach ($inspectorCandidatesQuery as $candidate) {
-                $inspectorVoteCounts[] = $votes->where('candidate_id', $candidate->id)->sum('vote_count');
-            }
+            $directorCandidates = $directorCandidatesQuery->map(function ($candidate) use ($votes) {
+                return [
+                    'name' => $candidate->user->full_name,
+                    'votes' => $votes->where('candidate_id', $candidate->id)->sum('vote_count')
+                ];
+            })->sortByDesc('votes')->toArray(); 
+    
+            $inspectorCandidates = $inspectorCandidatesQuery->map(function ($candidate) use ($votes) {
+                return [
+                    'name' => $candidate->user->full_name,
+                    'votes' => $votes->where('candidate_id', $candidate->id)->sum('vote_count')
+                ];
+            })->sortByDesc('votes')->toArray();     
         }
-
+    
         return view('app.group.election.round.show', compact(
             'group',
             'election',
             'electionRound',
             'directorCandidates',
-            'directorVoteCounts',
-            'inspectorCandidates',
-            'inspectorVoteCounts'
+            'inspectorCandidates'
         ));
     }
+    
 
     /**
      * Show the form for editing the specified resource.

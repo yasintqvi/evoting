@@ -69,8 +69,7 @@
 
 @endsection
 
-@section('scripts')
-    <script>
-        
-    </script>
-@endsection
+    @section('scripts')
+        {{-- include alerts --}}
+        @include('app.alerts.toastr.success')
+    @endsection

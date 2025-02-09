@@ -83,6 +83,7 @@ class   UserController extends Controller
         $user->groups()->sync($groupIds);
     
         return redirect()->route('users.index')->with('success', 'اطلاعات کاربر با موفقیت به‌روزرسانی شد.');
+        
     }
     
 

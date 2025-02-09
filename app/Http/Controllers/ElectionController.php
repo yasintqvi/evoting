@@ -37,7 +37,7 @@ class ElectionController extends Controller
             'user_id' => user()->id
         ]);
 
-        return to_route('elections.index', $group->slug);
+        return to_route('elections.index', $group->slug)->with('success', 'انتخابات جدید اضافه شد');
     }
 
     public function show(Group $group, Election $election)

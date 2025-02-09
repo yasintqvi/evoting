@@ -41,6 +41,7 @@
     <!-- END wrapper -->
 
     @include('app.layouts.partials.scripts')
+    
     @yield('scripts')
 
 </body>

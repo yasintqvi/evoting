@@ -191,3 +191,7 @@
 
 @endsection
 
+@section('scripts')
+    {{-- include alerts --}}
+    @include('app.alerts.toastr.success')
+@endsection

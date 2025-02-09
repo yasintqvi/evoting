@@ -50,7 +50,7 @@ class ElectionParticipantController extends Controller
 
         $election->save();
 
-        return to_route('elections.index', $group->slug);
+        return to_route('elections.index', $group->slug)->with('success','شرکت کننده جدید اضافه شد');
     }
 
     /**
@@ -82,7 +82,7 @@ class ElectionParticipantController extends Controller
             }
         }
 
-        return back();
+        return back()->with('success' , 'شرکت کننده ویرایش شد');
     }
 
     /**

@@ -57,7 +57,7 @@ class GroupController extends Controller
 
         $group = $group->update($validated);
 
-        return back()->with('success', __('messages.group_update'));
+        return back()->with('success', __('messages.group_updated'));
     }
 
     public function destroy(Group $group)
