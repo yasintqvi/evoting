@@ -30,6 +30,7 @@ class UpdateGroupUserRequest extends FormRequest
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'phone' => 'required|string|unique:users,phone,' . $userId, 
+            'is_active' => 'sometimes|boolean',
         ];
     }
     

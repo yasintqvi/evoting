@@ -77,15 +77,21 @@ class ElectionCandidateController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Group $group, Election $election, Candidate $candidate)
     {
         //
+    }
+
+    public function editCandidate(Group $group, Election $election)
+    {
+        $group->load('users');
+        return view('app.group.election.candidate.edit', compact('group', 'election',));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Group $group, Election $election)
     {
         //
     }

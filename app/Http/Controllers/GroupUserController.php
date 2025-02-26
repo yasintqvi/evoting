@@ -16,7 +16,10 @@ class GroupUserController extends Controller
      */
     public function index(Group $group)
     {
-        $group = $group->load('users');
+        $group = $group->load(['users' => function ($query) {
+            $query->latest();
+        }]);
+
         return view('app.group.users.index' , compact('group' ));
     }
 

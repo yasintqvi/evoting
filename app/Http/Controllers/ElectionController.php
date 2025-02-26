@@ -45,9 +45,37 @@ class ElectionController extends Controller
         return view('app.group.election.show', compact('group', 'election'));
     }
 
-    public function edit(Group $group, Election $election) {}
+    public function edit(Group $group, Election $election) 
+    {
+        return view('app.group.election.edit' , compact('group' , 'election'));
+    }
 
-    public function update(UpdateElectionRequest $request, Group $group, Election $election) {}
+    public function update(UpdateElectionRequest $request, Group $group, Election $election)
+     {
+        $data = [];
+
+        $status = $election->status->value;
+
+       if($status == 'created'){
+            if ($request->input('type') == ElectionType::PUBLIC_JOINT->value) {
+                $data = $request->except('prefered_stock_weight', 'prefered_stock_count', 'normal_stock_count');
+            } else {
+                $data = $request->validated();
+            }
+
+            $data['quorum_required'] = $request->has('quorum_required') ? 1 : 0;
+
+            $election->update([
+                ...$data,
+                'user_id' => user()->id
+            ]);
+
+            return to_route('elections.index', $group->slug)->with('success', 'انتخابات ویرایش شد');
+       }
+       else{
+        return back()->with('error', 'امکان ویرایش وجود ندارد');
+       }
+    }
 
     public function destroy(Group $group, Election $election) {}
 }

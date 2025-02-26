@@ -6,6 +6,6 @@
             closeButton: true, 
             progressBar: true, 
         };
-        toastr.error("{{ $message }}", "موفقیت آمیز");
+        toastr.error("{{ $message }}", "ناموفق");
     </script>
 @endif

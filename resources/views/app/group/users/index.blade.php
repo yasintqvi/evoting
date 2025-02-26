@@ -32,6 +32,8 @@
                         <tr>
                           
                             <th ><span class="m-3">نام نام خانوادگی</span></th>
+                            <th ><span class="m-3">تلفن همراه</span></th>
+                            <th ><span class="m-3">وضعیت</span></th>
                             <th class="text-center" style="width: 120px;">فعالیت</th>
                         </tr>
                     </thead><!-- end thead -->
@@ -43,6 +45,16 @@
                             <td>
                                 <a href="#" class="text-dark fw-medium "><span class="m-3">{{ $user->fullName }}</span></a>
                             </td>
+                            <td>
+                                <span class="m-3">{{ $user->phone }}</span>
+                            </td>
+                            <td>
+                                @if ($user->is_active == 1)
+                                <a href="#" class="badge badge-soft-success"> فعال </a>
+                                @else
+                                <a href="#" class="badge badge-soft-warning"> غیر فعال </a>
+                            @endif
+                        </td>
                             <td class="pe-3">
                                 <div class="hstack gap-1 justify-content-end">
                                     <a href="{{ route('group.users.edit', ['group' => $group->slug, 'user' => $user->id]) }}" 

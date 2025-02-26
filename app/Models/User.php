@@ -30,7 +30,7 @@ class User extends Authenticatable
         'email',
         'avatar',
         'status',
-        'status',
+        'is_active',
         'password',
         'google2fa_secret',
         'two_factor_type'

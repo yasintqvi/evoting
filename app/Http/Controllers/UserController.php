@@ -41,6 +41,8 @@ class   UserController extends Controller
             }
             return redirect()->back()->with('success', 'کاربر جدید با موفقیت ایجاد و به گروه‌های انتخابی اضافه شد.');
         } else {
+
+            $request->mergeIfMissing(['is_active' => 0]);
             $inputs = $request->except('group_id');
             $user = User::create($inputs);
 
@@ -76,6 +78,7 @@ class   UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user)
     {
+        $request->mergeIfMissing(['is_active' => 0]);
         $inputs = $request->except('group_ids');
         $user->update($inputs);
     

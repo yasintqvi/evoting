@@ -31,6 +31,7 @@ class UpdateUserRequest extends FormRequest
             'phone' => 'required|string|max:15|unique:users,phone,' . $this->user->id,
             'group_ids' => 'nullable|array',
             'group_ids.*' => 'exists:groups,id',
+            'is_active' => 'sometimes|boolean',
         ];
     }
 }

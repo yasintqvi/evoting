@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ElectionStatus;
 use App\Imports\UsersImport;
-use Dotenv\Exception\ValidationException;
-use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\ParticipantsImport;
+use Illuminate\Http\Request;
+use App\Models\Election;
+use App\Models\Group;
 
 class UserExcelController extends Controller
 {
@@ -22,4 +25,29 @@ class UserExcelController extends Controller
             return redirect()->back()->withErrors($e->failures());
         }
     }
+
+    public function import(Request $request, Group $group, Election $election)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,csv',
+        ]);
+    
+        try
+        {
+        $import = new ParticipantsImport($group->id, $election->id);
+        Excel::import($import, $request->file('file'));
+    
+        $election->status = $election->quorum_required ?  ElectionStatus::PARTICIPANTS_ATTENDEES : ElectionStatus::WAITING_TO_START;
+
+        $election->save();
+    
+        return to_route('elections.index', $group->slug)
+            ->with('success', 'سهام‌داران با موفقیت وارد شدند.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error' , $e->getMessage());
+        }
+        
+    }
+    
+
 }

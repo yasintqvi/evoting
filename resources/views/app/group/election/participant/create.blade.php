@@ -11,19 +11,25 @@
             <li class="breadcrumb-item"><a href="javascript: void(0);">خانه</a></li>
             <li class="breadcrumb-item"><a href="javascript: void(0);">انتخابات</a></li>
             <li class="breadcrumb-item"><a href="javascript: void(0);">{{$election->title}}</a></li>
-            <li class="breadcrumb-item active">تعیین نامزد ها</li>
+            <li class="breadcrumb-item active">تعیین شرکت کنندگان</li>
         </ol>
     </div>
 </div>
 
-<form action="{{ route('participants.store', [$group->slug, $election->id]) }}" method="post">
+<form class="card col-lg-9" action="{{ route('participants.store', [$group->slug, $election->id]) }}" method="post">
     @csrf
-    <div class="card col-lg-9">
+    <div >
         <div class="card-header border-bottom border-dashed">
             <h4 class="card-title">اطلاعات مربوط به همه پرسی</h4>
             <p class="text-muted mb-0">شما در حال ایجاد همه پرسی جدید هستید</p>
         </div>
         <div class="card-body">
+            @if(session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             @if($errors->any())
             <ul class="alert alert-danger">
                 {!! implode('', $errors->all('<div>:message</div>')) !!}
@@ -96,6 +102,38 @@
         </div>
     </div>
 </form>
+
+    @if (in_array($election->type, [App\Enums\ElectionType::PRIVATE_JOINT, App\Enums\ElectionType::PRIVATE_JOINT_WITH_88]))
+    <form class="card col-lg-5" action="{{ route('participants.import' , [$group->slug, $election->id]) }}" method="POST" enctype="multipart/form-data">
+        @csrf   
+            <div >
+                <div class="card-header col-lg-12 border-bottom border-dashed d-flex align-items-center">
+                    <div class="col-lg-6">
+                        <h4 class="header-title">آپلود فایل اکسل کاربران</h4>
+                    </div>
+                    <div class="col-lg-6 text-end">
+                        <a href="{{ asset('assets/excel/نمونه اکسل شرکت کنندگان.xlsx') }}" download="" class="header-title" style="cursor: pointer">فایل نمونه اکسل</a>
+                    </div>
+                </div>
+        
+                <div class="card-body">
+                
+                    <div class="mb-3">
+                        <label for="formFileMultiple" class="form-label">قایل مورد نظر را انتخاب کنید</label>
+                        <input class="form-control" name="file" type="file" id="formFileMultiple">
+                    </div>
+                        
+                    <!-- Preview -->
+                </div>
+                <div class="card-footer">
+                    <div class="text-end mb-3">
+                        <button type="submit" class="btn btn-primary">  ایجاد مشارکت کننده با اکسل</button>
+                    </div>
+                </div>
+                <!-- end card-body -->
+            </div>
+    </form>
+    @endif
 
 @endsection
 

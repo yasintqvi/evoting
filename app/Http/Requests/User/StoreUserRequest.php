@@ -14,6 +14,7 @@ class StoreUserRequest extends FormRequest
         if ($this->has('phone')) {
             $this->merge([
                 'phone' => ed($this->input('phone')),
+                'is_active' => $this->has('is_active') ? 1 : 0,
             ]);
         }
     }
@@ -39,6 +40,7 @@ class StoreUserRequest extends FormRequest
                 'phone' => 'required|string|max:20|unique:users,phone',
                 'group_ids' => 'required|array|min:1',
                 'group_ids.*' => 'exists:groups,id',
+                'is_active' => 'sometimes|boolean',
             ];
         }
     }

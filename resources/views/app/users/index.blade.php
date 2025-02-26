@@ -37,7 +37,9 @@
                             <th class="ps-3" style="width: 50px;">
                             </th>
                             <th>نام نام خانوادگی</th>
+                            <th>تلفن همراه</th>
                             <th>گروه ها</th>
+                            <th>وضعیت</th>
                             <th class="text-center" style="width: 120px;">فعالیت</th>
                         </tr>
                     </thead><!-- end thead -->
@@ -51,11 +53,21 @@
                                 <a href="#" class="text-dark fw-medium">{{ $user->fullName }}</a>
                             </td>
                             <td>
+                                <a href="#" class="text-dark fw-medium">{{ $user->phone }}</a>
+                            </td>
+                            <td>
                                 @forelse($user->groups as $group)
                                     <span class="badge badge-soft-success">{{ $group->title }}</span>
                                 @empty
                                 <span class="badge badge-soft-danger">مطلعق به هیچ گروهی نیست</span>
                                 @endforelse
+                            </td>
+                            <td>
+                                    @if ($user->is_active == 1)
+                                <a href="#" class="badge badge-soft-success"> فعال </a>
+                                @else
+                                <a href="#" class="badge badge-soft-warning"> غیر فعال </a>
+                                @endif
                             </td>
                             <td class="pe-3">
                                 <div class="hstack gap-1 justify-content-end">

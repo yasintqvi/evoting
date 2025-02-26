@@ -58,6 +58,13 @@
                             @enderror
                         </div>
                     </div>
+                    <div class="col-lg-6">
+                        <label for="is_active" class="form-label">وضعیت</label>
+                        <div class="mt-1">
+                            <input type="checkbox" value="1" @checked(old('is_active', $user->is_active)) name="is_active" id="is_active" data-switch="primary" />
+                            <label for="is_active" data-on-label="فعال" data-off-label="غیر فعال"></label>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="card-footer">

@@ -74,7 +74,7 @@
                             <td>
                                 <small>{{ $election->type->toFa() }}</small>
                             </td>
-                            <td class="d-flex align-items-center">
+                            <td>
                                 <span class="badge badge-soft-success">{{ $election->status->toFa() }}</span>
                             </td>
                             <td class="pe-3">
@@ -84,7 +84,28 @@
                                     @endphp
                                     @switch($election->status)
                                     @case(App\Enums\ElectionStatus::CREATED)
-                                    <a href="{{ route('candidates.create', [$group->slug, $election->id]) }}" class="btn btn-primary btn-sm">تعیین نامزد ها</a>
+                                        <!-- دکمه برای باز کردن مودال -->
+                                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#confirmModal">
+                                            تعیین نامزد ها
+                                        </button>
+                                        <!-- مودال -->
+                                        <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="confirmModalLabel">تأیید عملیات</h5>
+                                                        
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        در صورت تعیین نامزد دیگر نمیتوانید انتخابات را ویرایش کنید برای ادامه مطمئن هستید؟
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">لغو</button>
+                                                        <a href="{{ route('candidates.create', [$group->slug, $election->id]) }}" class="btn btn-primary">تأیید</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     @break
 
                                     @case(App\Enums\ElectionStatus::PARTICIPANTS_PENDING)
@@ -136,7 +157,18 @@
 
                                     @endswitch
                                     <a href="{{ route('elections.show', [$group->slug, $election->id]) }}" class="btn btn-soft-primary btn-icon btn-sm rounded-circle"> <i class="ti ti-eye"></i></a>
-                                    <a href="" class="btn btn-soft-success btn-icon btn-sm rounded-circle"> <i class="ti ti-edit fs-16"></i></a>
+                                    @switch($election->status)
+                                    @case(app\Enums\ElectionStatus::CREATED)
+                                    <a href="{{ route('elections.edit' , [$group->slug , $election->id]) }}" class="btn btn-soft-success btn-icon btn-sm rounded-circle"> <i class="ti ti-edit fs-16"></i></a>
+                                    @break
+                                    {{-- @case(app\Enums\ElectionStatus::PARTICIPANTS_PENDING)
+                                        <a href="{{ route('candidates.edit-candidate', [$group->slug, $election->id]) }}" class="btn btn-soft-success btn-icon btn-sm rounded-circle">
+                                            <i class="ti ti-edit fs-16"></i>
+                                        </a>
+                                    @break --}}
+                                    @endswitch
+
+                                   
                                     <a href="javascript:void(0);" class="btn btn-soft-danger btn-icon btn-sm rounded-circle"> <i class="ti ti-trash"></i></a>
                                 </div>
                             </td>
@@ -157,6 +189,10 @@
 
 @section('scripts')
 <script src="/assets/samples/assets/irregular-data-series.js"></script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script src="/assets/js/pages/chart-apex-bar.js"></script>
 @include('app.alerts.toastr.success')

@@ -11,6 +11,7 @@ use App\Http\Controllers\GroupUserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserExcelController;
+use App\Imports\ParticipantsImport;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -63,15 +64,21 @@ Route::middleware('auth')->group(function () {
 
             Route::post('/create', [ElectionController::class, 'store'])->name('elections.store');
 
+            Route::get('/edit/{election}', [ElectionController::class, 'edit'])->name('elections.edit');
+
+            Route::put('/update/{election}', [ElectionController::class, 'update'])->name('elections.update');
+
             Route::get('/show/{election}', [ElectionController::class, 'show'])->name('elections.show');
 
             Route::resource('{election}/candidates', ElectionCandidateController::class);
+            Route::get('/edit-candidate', [ElectionCandidateController::class, 'editCandidate'])->name('candidates.edit-candidate');
+
 
             Route::resource('{election}/participants', ElectionParticipantController::class);
+            
+            Route::post('{election}/participants/import', [UserExcelController::class, 'import'])->name('participants.import');
 
             Route::resource('{election}/election-rounds', ElectionRoundController::class);
-            // Route::get('{election}/election-rounds/{election_round}', [ElectionRoundController::class, 'getResults'])->name('election-rounds.results');
-
 
             Route::get('{election}/voting', [ElectionVotingController::class, 'create'])->name('voting.create');
 

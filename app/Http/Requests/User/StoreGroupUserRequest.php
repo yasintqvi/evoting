@@ -14,6 +14,8 @@ class StoreGroupUserRequest extends FormRequest
         if ($this->has('phone')) {
             $this->merge([
                 'phone' => ed($this->input('phone')),
+                'is_active' => $this->has('is_active') ? 1 : 0,
+
             ]);
         }
     }
@@ -29,7 +31,8 @@ class StoreGroupUserRequest extends FormRequest
             return [
                 'first_name' => 'required|string|max:255',
                 'last_name' => 'required|string|max:255',
-                'phone' => 'required|string|unique:users,phone',
+                'phone' => 'required|numeric|digits:11|unique:users,phone',
+                'is_active' => 'sometimes|boolean',
             ];
         } else {
             return [
