@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Group extends Model
+class Company extends Model
 {
     use HasFactory;
     use Sluggable;
@@ -20,8 +20,9 @@ class Group extends Model
     protected $fillable = [
         'title',
         'description',
-        'company_type',
-        'sum_stock',
+        'type',
+        'normal_stock_count',
+        'prefered_stock_count',
         'prefered_stock_weight',
         'owner_id',
         'status',
@@ -51,7 +52,7 @@ class Group extends Model
 
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'user_group');
+        return $this->belongsToMany(User::class, 'user_company');
     }
 
     public function elections(): HasMany

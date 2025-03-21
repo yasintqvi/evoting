@@ -10,8 +10,8 @@
     <!-- Begin page -->
     <div class="wrapper">
 
-        @if (request()->route('group'))
-        @include('app.layouts.partials.group-sidebar')
+        @if (request()->route('company'))
+        @include('app.layouts.partials.company-sidebar')
         @else
         @include('app.layouts.partials.dashboard-sidebar')
         @endif

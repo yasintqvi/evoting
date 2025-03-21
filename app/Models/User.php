@@ -62,14 +62,14 @@ class User extends Authenticatable
         ];
     }
 
-    public function groups(): BelongsToMany
+    public function companies(): BelongsToMany
     {
-        return $this->belongsToMany(Group::class, 'user_group');
+        return $this->belongsToMany(Company::class, 'user_company');
     }
 
-    public function ownerGroups(): HasMany
+    public function ownerCompanies(): HasMany
     {
-        return $this->hasMany(Group::class, 'owner_id');
+        return $this->hasMany(Company::class, 'owner_id');
     }
 
     public function participants()

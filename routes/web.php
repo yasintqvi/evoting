@@ -6,7 +6,7 @@ use App\Http\Controllers\ElectionController;
 use App\Http\Controllers\ElectionParticipantController;
 use App\Http\Controllers\ElectionRoundController;
 use App\Http\Controllers\ElectionVotingController;
-use App\Http\Controllers\GroupController;
+use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\GroupUserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
@@ -39,22 +39,22 @@ Route::middleware('auth')->group(function () {
         Route::match(['get', 'post'], '/logout', [ProfileController::class, 'logout'])->name('logout');
     });
 
-    Route::prefix('groups')->group(function () {
-        Route::get('/create', [GroupController::class, 'create'])->name('groups.create');
-        Route::post('/create', [GroupController::class, 'store'])->name('groups.store');
-        Route::get('/edit/{group:slug}', [GroupController::class, 'edit'])->name('groups.edit');
-        Route::put('/edit/{group:slug}', [GroupController::class, 'update'])->name('groups.update');
-        Route::delete('/delete/{group:slug}', [GroupController::class, 'destroy'])->name('groups.delete');
-        Route::post('/leave/{group:slug}', [GroupController::class, 'leave'])->name('groups.leave');
+    Route::prefix('companies')->group(function () {
+        Route::get('/create', [CompanyController::class, 'create'])->name('companies.create');
+        Route::post('/create', [CompanyController::class, 'store'])->name('companies.store');
+        Route::get('/edit/{company:slug}', [CompanyController::class, 'edit'])->name('companies.edit');
+        Route::put('/edit/{company:slug}', [CompanyController::class, 'update'])->name('companies.update');
+        Route::delete('/delete/{company:slug}', [CompanyController::class, 'destroy'])->name('companies.delete');
+        Route::post('/leave/{company:slug}', [CompanyController::class, 'leave'])->name('companies.leave');
     });
 
     Route::resource('users', UserController::class);
 
     Route::post('uplode-users', [UserExcelController::class, 'uplodeExcel'])->name('uplode-users');
 
-    Route::prefix('{group:slug}')->group(function () {
+    Route::prefix('{company:slug}')->group(function () {
 
-        Route::get('/', [GroupController::class, 'index'])->name('groups.index');
+        Route::get('/', [CompanyController::class, 'index'])->name('companies.index');
 
         Route::prefix('elections')->group(function () {
 
@@ -95,7 +95,7 @@ Route::middleware('auth')->group(function () {
         });
 
         Route::resource('users', GroupUserController::class)->names([
-            'index' => 'group.users.index',
+            'index' => 'company.users.index',
             'create' => 'group.users.create',
             'store' => 'group.users.store',
             'edit' => 'group.users.edit',

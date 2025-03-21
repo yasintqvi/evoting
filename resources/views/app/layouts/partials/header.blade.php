@@ -1,22 +1,22 @@
 <!-- Topbar Start -->
 <header class="app-topbar">
     <div class="page-container topbar-menu">
-        @if (request()->route('group'))
+        @if (request()->route('company'))
         <!-- Brand Logo -->
         <div style="margin-top: 1rem;">
             <div class="btn-group mb-2">
                 <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                    <span class="menu-icon"><img src="{{asset($group->logo ?? 'assets/img/group.jpg') }}" class="rounded-circle me-lg-2 d-flex object-fit-cover" width="20" height="20" alt="{{$group->title}}"></span>
-                    {{ $group->title }}
+                    <span class="menu-icon"><img src="{{asset($company->logo ?? 'assets/img/company.jpg') }}" class="rounded-circle me-lg-2 d-flex object-fit-cover" width="20" height="20" alt="{{$company->title}}"></span>
+                    {{ $company->title }}
                 </button>
-                @isset (user()->groups)
+                @isset (user()->companies)
                 <div class="dropdown-menu" data-popper-placement="bottom-end" style="position: absolute; inset: 0px 0px auto auto; margin: 0px; transform: translate(0px, 40px);">
-                    @foreach (user()->groups->except($group->id) as $otherGroup)
-                    <a class="dropdown-item" href="{{ route("groups.index", $otherGroup->slug) }}">{{ $otherGroup->title }}</a>
+                    @foreach (user()->companies->except($company->id) as $otherCompany)
+                    <a class="dropdown-item" href="{{ route("companies.index", $otherCompany->slug) }}">{{ $otherCompany->title }}</a>
                     @endforeach
                     <hr>
                     <a class="dropdown-item" href="{{ route("app.index") }}">همه گروه ها</a>
-                    <a class="dropdown-item text-primary" href="{{ route("groups.edit", $group->slug) }}">ویرایش</a>
+                    <a class="dropdown-item text-primary" href="{{ route("companies.edit", $company->slug) }}">ویرایش</a>
                     <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#leave-group" href="#!">ترک کردن</a>
                     <a class="dropdown-item active fw-semibold text-danger" data-bs-toggle="modal" data-bs-target="#delete-group" href="#!">حذف گروه</a>
                 </div>
@@ -244,7 +244,7 @@
 </header>
 <!-- Topbar End -->
 
-@isset($group)
+@isset($company)
 <div id="delete-group" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -253,11 +253,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p> آیا از حذف گروه <b>{{ $group->title }}</b> مطمئن هستید ؟</p>
+                <p> آیا از حذف گروه <b>{{ $company->title }}</b> مطمئن هستید ؟</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">انصراف</button>
-                <form action="{{ route('groups.delete', $group->slug) }}" method="post">
+                <form action="{{ route('companies.delete', $company->slug) }}" method="post">
                     @csrf
                     @method("DELETE")
                     <button type="submit" class="btn btn-danger">بله مطمئن هستم</button>
@@ -277,11 +277,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p> آیا از ترک گروه <b>{{ $group->title }}</b> مطمئن هستید ؟</p>
+                <p> آیا از ترک گروه <b>{{ $company->title }}</b> مطمئن هستید ؟</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">انصراف</button>
-                <form action="{{ route('groups.leave', $group->slug) }}" method="post">
+                <form action="{{ route('companies.leave', $company->slug) }}" method="post">
                     @csrf
                     <button type="submit" class="btn btn-danger">بله مطمئن هستم</button>
                 </form>
