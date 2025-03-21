@@ -24,3 +24,5 @@
 <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
 
 <link rel="stylesheet" href="{{ asset('assets/css/toastr.min.css') }}" type="text/css">
+
+<link href="{{ asset('assets/vendor/gridjs/theme/mermaid.min.css') }}" rel="stylesheet" type="text/css" />

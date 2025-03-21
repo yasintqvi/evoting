@@ -6,6 +6,7 @@ use App\Enums\ElectionStatus;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ParticipantsImport;
 use App\Http\Requests\Election\StoreParticipantRequest;
+use App\Http\Requests\Election\StoreParticipaintTableRequest;
 use App\Models\Election;
 use App\Models\Group;
 use App\Models\Participant;
@@ -37,8 +38,39 @@ class ElectionParticipantController extends Controller
         if ($election->status != ElectionStatus::PARTICIPANTS_PENDING) {
             return back();
         }
-
+        
         $participants = $request->validated('participants');
+
+        foreach ($participants as $participant) {
+            $election->participants()->create([
+                'user_id' => $participant['user_id'],
+                'normal_stock_count' => $participant['normal_stock_count'] ?? 0,
+                'prefered_stock_count' => $participant['prefered_stock_count'] ?? 0
+            ]);
+        }
+
+        $election->status = $election->quorum_required ?  ElectionStatus::PARTICIPANTS_ATTENDEES : ElectionStatus::WAITING_TO_START;
+
+        $election->save();
+
+        return to_route('elections.index', $group->slug)->with('success','شرکت کننده جدید اضافه شد');
+    }
+
+    public function storeTableParticipent(StoreParticipaintTableRequest $request, Group $group, Election $election)
+    {
+        if ($election->status != ElectionStatus::PARTICIPANTS_PENDING) {
+            return back();
+        }
+    
+        $participants = collect($request->validated('participants'))
+        ->filter(function ($participant) {
+            return !empty($participant['normal_stock_count']) || !empty($participant['prefered_stock_count']);
+        })
+        ->map(function ($participant) {
+            $participant['normal_stock_count'] = $participant['normal_stock_count'] ?? 0;
+            $participant['prefered_stock_count'] = $participant['prefered_stock_count'] ?? 0;
+            return $participant;
+        });
 
         foreach ($participants as $participant) {
             $election->participants()->create([

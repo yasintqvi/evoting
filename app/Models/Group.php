@@ -20,6 +20,9 @@ class Group extends Model
     protected $fillable = [
         'title',
         'description',
+        'company_type',
+        'sum_stock',
+        'prefered_stock_weight',
         'owner_id',
         'status',
         'logo'

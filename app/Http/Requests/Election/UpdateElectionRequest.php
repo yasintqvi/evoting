@@ -23,7 +23,7 @@ class UpdateElectionRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'title' => ['required', 'string', 'max:255', 'min:2'],
             'type' => ['required', Rule::in(array_map(fn($case) => $case->value, ElectionType::cases()))],
             'quorum_required' => ['nullable', 'in:0,1'],
@@ -35,5 +35,11 @@ class UpdateElectionRequest extends FormRequest
             'incpector_main_member_count' => ['required', 'integer', $this->type == ElectionType::PUBLIC_JOINT->value ? 'min:0' : 'min:1'],
             'incpector_substitute_member_count' => ['required', 'integer', 'min:0'],
         ];
+
+        if ($this->input('type') == ElectionType::PUBLIC_JOINT->value) {
+            unset($rules['prefered_stock_weight'], $rules['prefered_stock_count'], $rules['normal_stock_count']);
+        }
+
+        return $rules;
     }
 }

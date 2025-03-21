@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Group\GroupRequest;
 use App\Models\Group;
 use App\Services\Image\ImageService;
+use Illuminate\Http\Request;
 
 class GroupController extends Controller
 {

@@ -161,11 +161,11 @@
                                     @case(app\Enums\ElectionStatus::CREATED)
                                     <a href="{{ route('elections.edit' , [$group->slug , $election->id]) }}" class="btn btn-soft-success btn-icon btn-sm rounded-circle"> <i class="ti ti-edit fs-16"></i></a>
                                     @break
-                                    {{-- @case(app\Enums\ElectionStatus::PARTICIPANTS_PENDING)
-                                        <a href="{{ route('candidates.edit-candidate', [$group->slug, $election->id]) }}" class="btn btn-soft-success btn-icon btn-sm rounded-circle">
+                                    @case(app\Enums\ElectionStatus::PARTICIPANTS_PENDING)
+                                        <a href="{{ route('candidates.edit', [$group->slug, $election->id]) }}" class="btn btn-soft-success btn-icon btn-sm rounded-circle">
                                             <i class="ti ti-edit fs-16"></i>
                                         </a>
-                                    @break --}}
+                                    @break
                                     @endswitch
 
                                    

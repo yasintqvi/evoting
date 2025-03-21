@@ -63,7 +63,7 @@ class ElectionCandidateController extends Controller
 
         $election->save();
 
-        return to_route('elections.index', $group->slug)->with('success','کاندید جدید اضافه شد');
+        return to_route('elections.index', $group->slug)->with('success', 'کاندید جدید اضافه شد');
     }
 
     /**
@@ -77,23 +77,46 @@ class ElectionCandidateController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Group $group, Election $election, Candidate $candidate)
-    {
-        //
-    }
-
-    public function editCandidate(Group $group, Election $election)
+    public function edit(Group $group, Election $election)
     {
         $group->load('users');
-        return view('app.group.election.candidate.edit', compact('group', 'election',));
+        return view('app.group.election.candidate.edit', compact('group', 'election', ));
     }
+
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Group $group, Election $election)
+    public function update(StoreCandidateRequest $request, Group $group, Election $election)
     {
-        //
+        if ($election->status != ElectionStatus::CREATED) {
+            return back()->with('error', 'امکان ویرایش در این وضعیت وجود ندارد.');
+        }
+
+        $data = $request->validated();
+
+        // حذف کاندیداهای قدیمی که دیگر در لیست جدید نیستند
+        $election->candidates()
+            ->whereNotIn('user_id', array_merge($data['main_candidates_ids'], $data['incpector_candidates_ids']))
+            ->delete();
+
+        // اضافه کردن کاندیداهای جدید برای مدیران
+        foreach ($data['main_candidates_ids'] as $mainCandidateId) {
+            $election->candidates()->updateOrCreate(
+                ['user_id' => $mainCandidateId],
+                ['candidate_type' => CandidateType::DIRECTOR]
+            );
+        }
+
+        // اضافه کردن کاندیداهای جدید برای بازرسین
+        foreach ($data['incpector_candidates_ids'] as $incpectorCandidateId) {
+            $election->candidates()->updateOrCreate(
+                ['user_id' => $incpectorCandidateId],
+                ['candidate_type' => CandidateType::INSPECTOR]
+            );
+        }
+
+        return to_route('elections.index', $group->slug)->with('success', 'کاندیدها با موفقیت به‌روزرسانی شدند.');
     }
 
     /**

@@ -45,20 +45,25 @@ class ElectionController extends Controller
         return view('app.group.election.show', compact('group', 'election'));
     }
 
-    public function edit(Group $group, Election $election) 
+    public function edit(Group $group, Election $election)
     {
-        return view('app.group.election.edit' , compact('group' , 'election'));
+        return view('app.group.election.edit', compact('group', 'election'));
     }
 
     public function update(UpdateElectionRequest $request, Group $group, Election $election)
-     {
+    {
         $data = [];
 
         $status = $election->status->value;
 
-       if($status == 'created'){
+        if ($status == 'created') {
             if ($request->input('type') == ElectionType::PUBLIC_JOINT->value) {
                 $data = $request->except('prefered_stock_weight', 'prefered_stock_count', 'normal_stock_count');
+                $data = array_merge($data, [
+                    'prefered_stock_weight' => 0,
+                    'prefered_stock_count' => 0,
+                    'normal_stock_count' => 0,
+                ]);
             } else {
                 $data = $request->validated();
             }
@@ -71,11 +76,12 @@ class ElectionController extends Controller
             ]);
 
             return to_route('elections.index', $group->slug)->with('success', 'انتخابات ویرایش شد');
-       }
-       else{
-        return back()->with('error', 'امکان ویرایش وجود ندارد');
-       }
+        } else {
+            return back()->with('error', 'امکان ویرایش وجود ندارد');
+        }
     }
 
-    public function destroy(Group $group, Election $election) {}
+    public function destroy(Group $group, Election $election)
+    {
+    }
 }

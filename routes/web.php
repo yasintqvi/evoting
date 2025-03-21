@@ -70,11 +70,16 @@ Route::middleware('auth')->group(function () {
 
             Route::get('/show/{election}', [ElectionController::class, 'show'])->name('elections.show');
 
-            Route::resource('{election}/candidates', ElectionCandidateController::class);
-            Route::get('/edit-candidate', [ElectionCandidateController::class, 'editCandidate'])->name('candidates.edit-candidate');
+            Route::resource('{election}/candidates', ElectionCandidateController::class)->except('edit' , 'update');
+
+            Route::get('{election}/edit', [ElectionCandidateController::class, 'edit'])->name('candidates.edit');
+
+            Route::put('{election}/update', [ElectionCandidateController::class, 'update'])->name('candidates.update');
 
 
             Route::resource('{election}/participants', ElectionParticipantController::class);
+
+            Route::post('{election}/participants/store-table-participent', [ElectionParticipantController::class, 'storeTableParticipent'])->name('participants.store-table-participen');
             
             Route::post('{election}/participants/import', [UserExcelController::class, 'import'])->name('participants.import');
 

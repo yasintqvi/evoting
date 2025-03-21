@@ -15,6 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->string('slug')->unique();
+            $table->string('company_type');
+            $table->string('sum_stock')->nullable();
+            $table->string('prefered_stock_weight')->nullable();
             $table->string('logo')->nullable();
             $table->text('description')->nullable();
             $table->foreignId('owner_id')->constrained('users');

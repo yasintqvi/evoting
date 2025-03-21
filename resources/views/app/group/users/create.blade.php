@@ -70,6 +70,25 @@
                         @enderror
                         </div>
                     </div>
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <label for="nationalcode" class="form-label">کد ملی کاربر</label>
+                            <input type="text" name="nationalcode" class="form-control" id="phone" value="{{ old('nationalcode') }}">
+                            @error('nationalcode')
+                            <span class="text-danger">{{ $message }}</span>
+                        @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <label for="nationalcode" class="form-label">تعداد سهام عادی</label>
+                            <input type="text" name="nationalcode" class="form-control" id="phone" value="{{ old('nationalcode') }}">
+                            @error('nationalcode')
+                            <span class="text-danger">{{ $message }}</span>
+                        @enderror
+                        </div>
+                    </div>
 
                     <div class="col-lg-6">
                         <label for="is_active" class="form-label">وضعیت</label>
