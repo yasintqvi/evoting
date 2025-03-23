@@ -7,8 +7,8 @@ use App\Enums\ElectionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Election\StoreCandidateRequest;
 use App\Models\Candidate;
+use App\Models\Company;
 use App\Models\Election;
-use App\Models\Group;
 use Illuminate\Http\Request;
 
 class ElectionCandidateController extends Controller
@@ -16,25 +16,25 @@ class ElectionCandidateController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Group $group, Election $election)
+    public function index(Company $company, Election $election)
     {
-        return view('app.group.election.candidate.index', compact('group', 'election'));
+        return view('app.company.election.candidate.index', compact('company', 'election'));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Group $group, Election $election)
+    public function create(Company $company, Election $election)
     {
-        $group->load('users');
+        $company->load('users');
 
-        return view('app.group.election.candidate.create', compact('group', 'election'));
+        return view('app.company.election.candidate.create', compact('company', 'election'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreCandidateRequest $request, Group $group, Election $election)
+    public function store(StoreCandidateRequest $request, Company $company, Election $election)
     {
         if ($election->status != ElectionStatus::CREATED) {
             return back();
@@ -63,7 +63,7 @@ class ElectionCandidateController extends Controller
 
         $election->save();
 
-        return to_route('elections.index', $group->slug)->with('success', 'کاندید جدید اضافه شد');
+        return to_route('elections.index', $company->slug)->with('success', 'کاندید جدید اضافه شد');
     }
 
     /**
@@ -77,17 +77,17 @@ class ElectionCandidateController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Group $group, Election $election)
+    public function edit(Company $company, Election $election)
     {
-        $group->load('users');
-        return view('app.group.election.candidate.edit', compact('group', 'election', ));
+        $company->load('users');
+        return view('app.company.election.candidate.edit', compact('company', 'election',));
     }
 
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(StoreCandidateRequest $request, Group $group, Election $election)
+    public function update(StoreCandidateRequest $request, Company $company, Election $election)
     {
         if ($election->status != ElectionStatus::CREATED) {
             return back()->with('error', 'امکان ویرایش در این وضعیت وجود ندارد.');
@@ -95,12 +95,10 @@ class ElectionCandidateController extends Controller
 
         $data = $request->validated();
 
-        // حذف کاندیداهای قدیمی که دیگر در لیست جدید نیستند
         $election->candidates()
             ->whereNotIn('user_id', array_merge($data['main_candidates_ids'], $data['incpector_candidates_ids']))
             ->delete();
 
-        // اضافه کردن کاندیداهای جدید برای مدیران
         foreach ($data['main_candidates_ids'] as $mainCandidateId) {
             $election->candidates()->updateOrCreate(
                 ['user_id' => $mainCandidateId],
@@ -108,7 +106,6 @@ class ElectionCandidateController extends Controller
             );
         }
 
-        // اضافه کردن کاندیداهای جدید برای بازرسین
         foreach ($data['incpector_candidates_ids'] as $incpectorCandidateId) {
             $election->candidates()->updateOrCreate(
                 ['user_id' => $incpectorCandidateId],
@@ -116,7 +113,7 @@ class ElectionCandidateController extends Controller
             );
         }
 
-        return to_route('elections.index', $group->slug)->with('success', 'کاندیدها با موفقیت به‌روزرسانی شدند.');
+        return to_route('elections.index', $company->slug)->with('success', 'کاندیدها با موفقیت به‌روزرسانی شدند.');
     }
 
     /**

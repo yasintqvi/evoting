@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Enums\CompanyStatus;
 use App\Enums\GroupStatus;
+use App\Models\Company;
 use App\Models\Group;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -21,11 +23,11 @@ class DevEnvironmentSeeder extends Seeder
             'password' => bcrypt('12345678')
         ]);
 
-        $testGroup = Group::create([
+        $testGroup = Company::create([
             'title' => 'Evoting Test Group',
             'description' => 'this is the test group in the evoting system',
             'owner_id' => $adminUser->id,
-            'status' => GroupStatus::ENABLE,
+            'status' => CompanyStatus::ENABLE,
             'logo' => 'assets/img/group.jpg'
         ]);
 

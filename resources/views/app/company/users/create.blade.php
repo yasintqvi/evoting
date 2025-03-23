@@ -26,19 +26,18 @@
             </div>
             <div class="col-lg-6 text-start p-2">
                 <div class="form-check form-checkbox-success mb-2">
-                    <input 
-                        type="checkbox" 
-                        class="form-check-input" 
-                        id="customCheckcolor2" 
-                        onchange="toggleFormFields()"
-                    >
+                    <input
+                        type="checkbox"
+                        class="form-check-input"
+                        id="customCheckcolor2"
+                        onchange="toggleFormFields()">
                     <label class="form-check-label" for="customCheckcolor2">کاربران موجود</label>
                 </div>
             </div>
         </div>
-    
+
         <!-- فرم ایجاد کاربر -->
-        <form id="new-user-form" action="{{ route('group.users.store' , $group->slug)}}" method="post" style="display: block;">
+        <form id="new-user-form" action="{{ route('company.users.store' , $company->slug)}}" method="post" style="display: block;">
             @csrf
             <div class="card-body">
                 <div class="row">
@@ -47,7 +46,7 @@
                             <label for="productName" class="form-label">نام </label>
                             <input type="text" name="first_name" class="form-control" id="productName" value="{{ old('first_name') }}">
                             @error('first_name')
-                                <span class="text-danger">{{ $message }}</span>
+                            <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
                     </div>
@@ -57,17 +56,17 @@
                             <input type="text" name="last_name" class="form-control" id="lastName" value="{{ old('last_name') }}">
                             @error('last_name')
                             <span class="text-danger">{{ $message }}</span>
-                        @enderror
+                            @enderror
                         </div>
                     </div>
-                    
+
                     <div class="col-lg-6">
                         <div class="mb-3">
                             <label for="phone" class="form-label">تلفن همراه کاربر</label>
                             <input type="text" name="phone" class="form-control" id="phone" value="{{ old('phone') }}">
                             @error('phone')
                             <span class="text-danger">{{ $message }}</span>
-                        @enderror
+                            @enderror
                         </div>
                     </div>
                     <div class="col-lg-6">
@@ -76,7 +75,7 @@
                             <input type="text" name="nationalcode" class="form-control" id="phone" value="{{ old('nationalcode') }}">
                             @error('nationalcode')
                             <span class="text-danger">{{ $message }}</span>
-                        @enderror
+                            @enderror
                         </div>
                     </div>
 
@@ -86,7 +85,7 @@
                             <input type="text" name="nationalcode" class="form-control" id="phone" value="{{ old('nationalcode') }}">
                             @error('nationalcode')
                             <span class="text-danger">{{ $message }}</span>
-                        @enderror
+                            @enderror
                         </div>
                     </div>
 
@@ -105,95 +104,95 @@
                 </div>
             </div>
         </form>
-    
+
         <!-- فرم کاربران فعال -->
-        <form id="active-users-form" action="{{ route('group.users.store' , $group->slug) }}" method="post" style="display: none;">
+        <form id="active-users-form" action="{{ route('company.users.store' , $company->slug) }}" method="post" style="display: none;">
             @csrf
             <div class="card-body">
                 <!-- انتخاب کاربران -->
                 <div class="col-lg-12">
                     <div class="mb-3">
                         <label for="users" class="form-label">انتخاب کاربران</label>
-                        <select 
-                            class="form-select my-1 my-md-0 me-sm-3" 
-                            name="user_ids[]" 
-                            id="users" 
-                            data-toggle="select2" 
+                        <select
+                            class="form-select my-1 my-md-0 me-sm-3"
+                            name="user_ids[]"
+                            id="users"
+                            data-toggle="select2"
                             multiple>
                             @foreach ($users as $user)
-                                <option 
-                                    value="{{ $user->id }}" 
-                                    {{ collect(old('user_ids'))->contains($user->id) ? 'selected' : '' }}>
-                                    {{ $user->fullName }}
-                                </option>
+                            <option
+                                value="{{ $user->id }}"
+                                {{ collect(old('user_ids'))->contains($user->id) ? 'selected' : '' }}>
+                                {{ $user->fullName }}
+                            </option>
                             @endforeach
                         </select>
                         @error('user_ids')
-                            <span class="text-danger">{{ $message }}</span>
+                        <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
                 </div>
-                
+
                 <!-- انتخاب گروه -->
                 {{-- <div class="col-lg-12">
                     <div class="mb-3">
                         <label for="group" class="form-label">افزودن به گروه</label>
                         <select 
                             class="form-select my-1 my-md-0 me-sm-3" 
-                            name="group_ids[]" 
+                            name="company_ids[]" 
                             id="group"
                             data-toggle="select2"
                             multiple>
-                            @foreach ($groups as $group)
+                            @foreach ($companies as $company)
                                 <option 
-                                    value="{{ $group->id }}" 
-                                    {{ collect(old('group_ids'))->contains($group->id) ? 'selected' : '' }}>
-                                    {{ $group->title }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('group_ids')
-                            <span class="text-danger">{{ $message }}</span>
-                        @enderror
-                    </div>
-                </div> --}}
-                
+                                    value="{{ $company->id }}"
+                {{ collect(old('company_ids'))->contains($company->id) ? 'selected' : '' }}>
+                {{ $company->title }}
+                </option>
+                @endforeach
+                </select>
+                @error('company_ids')
+                <span class="text-danger">{{ $message }}</span>
+                @enderror
             </div>
-        
-            <div class="card-footer">
-                <div class="text-end mb-3">
-                    <button type="submit" class="btn btn-success">افزودن کاربران به گروه</button>
-                </div>
-            </div>
-        </form>
-    </div>
-    
-   
+    </div> --}}
+
 </div>
 
-   
+<div class="card-footer">
+    <div class="text-end mb-3">
+        <button type="submit" class="btn btn-success">افزودن کاربران به گروه</button>
+    </div>
+</div>
+</form>
+</div>
+
+
+</div>
+
+
 
 <script>
-    window.onload = function () {
-        const hasErrors = @json($errors->any()); 
-        const errorKeys = @json($errors->keys()); 
+    window.onload = function() {
+        const hasErrors = @json($errors->any());
+        const errorKeys = @json($errors->keys());
         const activeUsersForm = document.getElementById('active-users-form');
         const newUserForm = document.getElementById('new-user-form');
         const checkbox = document.getElementById('customCheckcolor2');
 
         if (hasErrors) {
-            if (errorKeys.some(key => key.startsWith('user_ids') || key === 'group_id')) {
+            if (errorKeys.some(key => key.startsWith('user_ids') || key === 'company_id')) {
                 activeUsersForm.style.display = 'block';
                 newUserForm.style.display = 'none';
-                checkbox.checked = true; 
+                checkbox.checked = true;
             } else if (errorKeys.some(key => key === 'first_name' || key === 'last_name' || key === 'phone')) {
                 newUserForm.style.display = 'block';
                 activeUsersForm.style.display = 'none';
-                checkbox.checked = false; 
+                checkbox.checked = false;
             }
         }
 
-        checkbox.addEventListener('change', function () {
+        checkbox.addEventListener('change', function() {
             toggleFormFields(checkbox.checked);
         });
     };
@@ -219,6 +218,6 @@
 @endsection
 
 @section('scripts')
-    {{-- include alerts --}}
-    @include('app.alerts.toastr.success')
+{{-- include alerts --}}
+@include('app.alerts.toastr.success')
 @endsection

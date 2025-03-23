@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\GroupStatus;
+use App\Enums\CompanyStatus;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -41,7 +41,7 @@ class Company extends Model
     protected function casts()
     {
         return [
-            'status' => GroupStatus::class
+            'status' => CompanyStatus::class
         ];
     }
 

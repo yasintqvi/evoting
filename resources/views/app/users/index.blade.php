@@ -56,14 +56,14 @@
                                 <a href="#" class="text-dark fw-medium">{{ $user->phone }}</a>
                             </td>
                             <td>
-                                @forelse($user->groups as $group)
-                                    <span class="badge badge-soft-success">{{ $group->title }}</span>
+                                @forelse($user->companies as $company)
+                                <span class="badge badge-soft-success">{{ $company->title }}</span>
                                 @empty
                                 <span class="badge badge-soft-danger">مطلعق به هیچ گروهی نیست</span>
                                 @endforelse
                             </td>
                             <td>
-                                    @if ($user->is_active == 1)
+                                @if ($user->is_active == 1)
                                 <a href="#" class="badge badge-soft-success"> فعال </a>
                                 @else
                                 <a href="#" class="badge badge-soft-warning"> غیر فعال </a>
@@ -71,7 +71,7 @@
                             </td>
                             <td class="pe-3">
                                 <div class="hstack gap-1 justify-content-end">
-                                    <a href="{{ route('users.edit' , $user->id) }}" class="btn btn-soft-success btn-icon btn-sm rounded-circle"> <i class="ti ti-edit fs-16"></i></a>
+                                    <a href="{{ route('users.edit' , [$company->slug, $user->id]) }}" class="btn btn-soft-success btn-icon btn-sm rounded-circle"> <i class="ti ti-edit fs-16"></i></a>
                                 </div>
                             </td>
                         </tr>
@@ -83,7 +83,7 @@
 
                     </tbody>
 
-                    
+
                     <!-- end tbody -->
                 </table><!-- end table -->
             </div>
@@ -94,6 +94,6 @@
 @endsection
 
 @section('scripts')
-    {{-- include alerts --}}
-    @include('app.alerts.toastr.success')
+{{-- include alerts --}}
+@include('app.alerts.toastr.success')
 @endsection

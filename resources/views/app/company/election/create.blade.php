@@ -17,7 +17,7 @@
     </div>
 </div>
 
-<form action="{{ route('elections.store', $group->slug) }}" method="post">
+<form action="{{ route('elections.store', $company->slug) }}" method="post">
     @csrf
     <div class="card col-lg-6">
         <div class="card-header border-bottom border-dashed">
@@ -160,4 +160,3 @@
 @include('app.alerts.toastr.success')
 
 @endsection
-

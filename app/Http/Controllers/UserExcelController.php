@@ -8,7 +8,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ParticipantsImport;
 use Illuminate\Http\Request;
 use App\Models\Election;
-use App\Models\Group;
+use App\Models\Company;
 
 class UserExcelController extends Controller
 {
@@ -17,7 +17,7 @@ class UserExcelController extends Controller
         $request->validate([
             'file' => 'required|mimes:xlsx,xls'
         ]);
-    
+
         try {
             Excel::import(new UsersImport, $request->file('file'));
             return redirect()->back()->with('success', 'کاربران با موفقیت وارد شدند.');
@@ -26,28 +26,24 @@ class UserExcelController extends Controller
         }
     }
 
-    public function import(Request $request, Group $group, Election $election)
+    public function import(Request $request, Company $company, Election $election)
     {
         $request->validate([
             'file' => 'required|mimes:xlsx,csv',
         ]);
-    
-        try
-        {
-        $import = new ParticipantsImport($group->id, $election->id);
-        Excel::import($import, $request->file('file'));
-    
-        $election->status = $election->quorum_required ?  ElectionStatus::PARTICIPANTS_ATTENDEES : ElectionStatus::WAITING_TO_START;
 
-        $election->save();
-    
-        return to_route('elections.index', $group->slug)
-            ->with('success', 'سهام‌داران با موفقیت وارد شدند.');
+        try {
+            $import = new ParticipantsImport($company->id, $election->id);
+            Excel::import($import, $request->file('file'));
+
+            $election->status = $election->quorum_required ?  ElectionStatus::PARTICIPANTS_ATTENDEES : ElectionStatus::WAITING_TO_START;
+
+            $election->save();
+
+            return to_route('elections.index', $company->slug)
+                ->with('success', 'سهام‌داران با موفقیت وارد شدند.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error' , $e->getMessage());
+            return redirect()->back()->with('error', $e->getMessage());
         }
-        
     }
-    
-
 }

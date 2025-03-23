@@ -19,7 +19,7 @@
     </div>
 </div>
 
-<form action="{{ route('candidates.store', [$group->slug, $election->id]) }}" method="post">
+<form action="{{ route('candidates.store', [$company->slug, $election->id]) }}" method="post">
     @csrf
     <div class="card col-lg-6">
         <div class="card-header border-bottom border-dashed">
@@ -38,7 +38,7 @@
                             id="main_candidates"
                             data-toggle="select2"
                             multiple>
-                            @foreach ($group->users as $user)
+                            @foreach ($company->users as $user)
                             <option
                                 value="{{ $user->id }}"
                                 {{ collect(old('main_candidates_ids', $election->candidates()->where('candidate_type', App\Enums\CandidateType::DIRECTOR)->get()->pluck('user_id')->toArray()))->contains($user->id) ? 'selected' : '' }}>
@@ -61,7 +61,7 @@
                             id="incpector_candidates"
                             data-toggle="select2"
                             multiple>
-                            @foreach ($group->users as $user)
+                            @foreach ($company->users as $user)
                             <option
                                 value="{{ $user->id }}"
                                 {{ collect(old('incpector_candidates_ids', $election->candidates()->where('candidate_type', App\Enums\CandidateType::INSPECTOR)->get()->pluck('user_id')->toArray()))->contains($user->id) ? 'selected' : '' }}>

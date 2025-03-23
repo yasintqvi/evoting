@@ -5,11 +5,13 @@ namespace App\Models;
 use App\Enums\ElectionStatus;
 use App\Enums\ElectionType;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Election extends Model
 {
     protected $fillable = [
-        'group_id',
+        'company_id',
         'user_id',
         'title',
         'slug',
@@ -33,22 +35,22 @@ class Election extends Model
         ];
     }
 
-    public function group()
+    public function group(): BelongsTo
     {
-        return $this->belongsTo(Group::class);
+        return $this->belongsTo(Company::class);
     }
 
-    public function rounds()
+    public function rounds(): HasMany
     {
         return $this->hasMany(ElectionRound::class);
     }
 
-    public function participants()
+    public function participants(): HasMany
     {
         return $this->hasMany(Participant::class);
     }
 
-    public function candidates()
+    public function candidates(): HasMany
     {
         return $this->hasMany(Candidate::class);
     }

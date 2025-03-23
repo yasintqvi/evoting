@@ -12,14 +12,14 @@ use App\Models\Election;
 
 class ParticipantsImport implements ToCollection, WithHeadingRow
 {
-    protected $groupId;
+    protected $companyId;
     protected $election;
     protected $participants = [];
 
-    public function __construct($groupId, $electionId)
+    public function __construct($companyId, $electionId)
     {
-        $this->groupId = $groupId;
-        $this->election = Election::findOrFail($electionId); 
+        $this->companyId = $companyId;
+        $this->election = Election::findOrFail($electionId);
     }
 
     public function collection(Collection $rows)
@@ -28,14 +28,14 @@ class ParticipantsImport implements ToCollection, WithHeadingRow
         $totalPreferedStock = 0;
         $sumTotal = 0;
         $this->participants = [];
-        $uniquePhones = []; 
+        $uniquePhones = [];
 
         foreach ($rows as $row) {
             if ($row->filter()->isEmpty()) {
-                continue; 
+                continue;
             }
 
-            $row = $row->toArray(); 
+            $row = $row->toArray();
 
             if (!isset($row['phone']) || empty($row['phone'])) {
                 throw new \Exception("تکمیل گزینه تلفن الزامی است.");
@@ -47,7 +47,7 @@ class ParticipantsImport implements ToCollection, WithHeadingRow
                 throw new \Exception("شماره تلفن '$phone' در فایل اکسل تکراری است.");
             }
 
-            $uniquePhones[] = $phone; 
+            $uniquePhones[] = $phone;
 
             $validator = Validator::make($row, [
                 'phone' => [
@@ -74,7 +74,7 @@ class ParticipantsImport implements ToCollection, WithHeadingRow
             if ($user) {
                 $this->participants[] = [
                     'user_id' => $user->id,
-                    'group_id' => $this->groupId,
+                    'company_id' => $this->companyId,
                     'election_id' => $this->election->id,
                     'normal_stock_count' => $row['normal_stock_count'],
                     'prefered_stock_count' => $row['prefered_stock_count'],
@@ -85,11 +85,11 @@ class ParticipantsImport implements ToCollection, WithHeadingRow
                 $sumTotal = $totalNormalStock + $totalPreferedStock;
             }
         }
-        if ($sumTotal > $this->election->normal_stock_count + $this->election->prefered_stock_count ) {
+        if ($sumTotal > $this->election->normal_stock_count + $this->election->prefered_stock_count) {
             throw new \Exception('تعداد سهام عادی وارد شده با تعداد کل سهام عادی برابر نیست.');
         }
 
-        if ($sumTotal < $this->election->normal_stock_count + $this->election->prefered_stock_count ) {
+        if ($sumTotal < $this->election->normal_stock_count + $this->election->prefered_stock_count) {
             throw new \Exception('تعداد سهام عادی وارد شده با تعداد کل سهام عادی برابر نیست.');
         }
 

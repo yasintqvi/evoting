@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
-use App\Models\Group;
+use App\Models\Company;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -16,17 +16,17 @@ class   UserController extends Controller
     public function index(User $user)
     {
         $users = $user->latest()->get();
-        return view("app.users.index" , compact('users'));
-    }   
+        return view("app.users.index", compact('users'));
+    }
 
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        $groups = Group::all();
+        $companies = Company::all();
         $users = User::all();
-        return view("app.users.create" , compact("groups", "users"));
+        return view("app.users.create", compact("companies", "users"));
     }
 
     /**
@@ -35,20 +35,20 @@ class   UserController extends Controller
     public function store(StoreUserRequest $request)
     {
         if ($request->has('user_ids')) {
-            foreach ($request->input('group_ids') as $groupId) {
-                $group = Group::findOrFail($groupId);
-                $group->users()->syncWithoutDetaching($request->input('user_ids'));
+            foreach ($request->input('company_ids') as $companyId) {
+                $company = Company::findOrFail($companyId);
+                $company->users()->syncWithoutDetaching($request->input('user_ids'));
             }
             return redirect()->back()->with('success', 'کاربر جدید با موفقیت ایجاد و به گروه‌های انتخابی اضافه شد.');
         } else {
 
             $request->mergeIfMissing(['is_active' => 0]);
-            $inputs = $request->except('group_id');
+            $inputs = $request->except('company_id');
             $user = User::create($inputs);
 
-            $groupIds = $request->input('group_ids', []); 
-            $user->groups()->sync($groupIds);
-    
+            $companyIds = $request->input('company_ids', []);
+            $user->companies()->sync($companyIds);
+
 
             return redirect()->back()->with('success', 'کاربر جدید با موفقیت ایجاد و به گروه‌های انتخابی اضافه شد.');
         }
@@ -67,10 +67,10 @@ class   UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(User $user  , Group $group)
+    public function edit(User $user, Company $company)
     {
-        $groups = $group->get();
-        return view('app.users.edit' , compact('user' , 'groups'));
+        $companies = $company->get();
+        return view('app.users.edit', compact('user', 'companies'));
     }
 
     /**
@@ -79,16 +79,15 @@ class   UserController extends Controller
     public function update(UpdateUserRequest $request, User $user)
     {
         $request->mergeIfMissing(['is_active' => 0]);
-        $inputs = $request->except('group_ids');
+        $inputs = $request->except('company_ids');
         $user->update($inputs);
-    
-        $groupIds = $request->input('group_ids', []); 
-        $user->groups()->sync($groupIds);
-    
+
+        $companyIds = $request->input('company_ids', []);
+        $user->companies()->sync($companyIds);
+
         return redirect()->route('users.index')->with('success', 'اطلاعات کاربر با موفقیت به‌روزرسانی شد.');
-        
     }
-    
+
 
     /**
      * Remove the specified resource from storage.

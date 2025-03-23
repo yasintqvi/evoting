@@ -24,7 +24,7 @@
                 <p class="text-muted mb-0">شما در حال ویرایش اطلاعات کاربر هستید</p>
             </div>
         </div>
-    
+
         <!-- فرم ویرایش کاربر -->
         <form id="edit-user-form" action="{{ route('users.update', $user->id) }}" method="post" style="display: block;">
             @csrf
@@ -36,7 +36,7 @@
                             <label for="first_name" class="form-label">نام </label>
                             <input type="text" name="first_name" class="form-control" id="first_name" value="{{ old('first_name', $user->first_name) }}">
                             @error('first_name')
-                                <span class="text-danger">{{ $message }}</span>
+                            <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
                     </div>
@@ -45,7 +45,7 @@
                             <label for="last_name" class="form-label">نام خانوادگی</label>
                             <input type="text" name="last_name" class="form-control" id="last_name" value="{{ old('last_name', $user->last_name) }}">
                             @error('last_name')
-                                <span class="text-danger">{{ $message }}</span>
+                            <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
                     </div>
@@ -54,7 +54,7 @@
                             <label for="phone" class="form-label">تلفن همراه کاربر</label>
                             <input type="text" name="phone" class="form-control" id="phone" value="{{ old('phone', $user->phone) }}">
                             @error('phone')
-                                <span class="text-danger">{{ $message }}</span>
+                            <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
                     </div>
@@ -68,29 +68,27 @@
                     <div class="col-lg-12">
                         <div class="mb-3">
                             <label for="group" class="form-label">افزودن به گروه</label>
-                            <select 
-                                class="form-select my-1 my-md-0 me-sm-3" 
-                                name="group_ids[]" 
+                            <select
+                                class="form-select my-1 my-md-0 me-sm-3"
+                                name="company_ids[]"
                                 id="group"
-                                data-toggle="select2" 
-                                multiple
-                            >
+                                data-toggle="select2"
+                                multiple>
                                 <option value="">وضعیت را انتخاب کنید</option>
-                                @foreach ($groups as $group)
-                                    <option 
-                                        value="{{ $group->id }}" 
-                                        {{ (old('group_ids') && in_array($group->id, old('group_ids'))) || (isset($user) && $user->groups->contains($group->id)) ? 'selected' : '' }}
-                                    >
-                                        {{ $group->title }}
-                                    </option>
+                                @foreach ($companies as $company)
+                                <option
+                                    value="{{ $company->id }}"
+                                    {{ (old('company_ids') && in_array($company->id, old('company_ids'))) || (isset($user) && $user->groups->contains($company->id)) ? 'selected' : '' }}>
+                                    {{ $company->title }}
+                                </option>
                                 @endforeach
                             </select>
-                            @error('group_ids')
-                                <span class="text-danger">{{ $message }}</span>
+                            @error('company_ids')
+                            <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
                     </div>
-                    
+
                 </div>
             </div>
             <div class="card-footer">

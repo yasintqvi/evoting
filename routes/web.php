@@ -7,6 +7,7 @@ use App\Http\Controllers\ElectionParticipantController;
 use App\Http\Controllers\ElectionRoundController;
 use App\Http\Controllers\ElectionVotingController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\CompanyUserController;
 use App\Http\Controllers\GroupUserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
@@ -70,7 +71,7 @@ Route::middleware('auth')->group(function () {
 
             Route::get('/show/{election}', [ElectionController::class, 'show'])->name('elections.show');
 
-            Route::resource('{election}/candidates', ElectionCandidateController::class)->except('edit' , 'update');
+            Route::resource('{election}/candidates', ElectionCandidateController::class)->except('edit', 'update');
 
             Route::get('{election}/edit', [ElectionCandidateController::class, 'edit'])->name('candidates.edit');
 
@@ -80,7 +81,7 @@ Route::middleware('auth')->group(function () {
             Route::resource('{election}/participants', ElectionParticipantController::class);
 
             Route::post('{election}/participants/store-table-participent', [ElectionParticipantController::class, 'storeTableParticipent'])->name('participants.store-table-participen');
-            
+
             Route::post('{election}/participants/import', [UserExcelController::class, 'import'])->name('participants.import');
 
             Route::resource('{election}/election-rounds', ElectionRoundController::class);
@@ -91,16 +92,15 @@ Route::middleware('auth')->group(function () {
 
             Route::post('{election}/voting/terminate', [ElectionVotingController::class, 'terminate'])->name('voting.terminate');
 
-            Route::resource('/election-users', GroupUserController::class);
+            Route::resource('/election-users', CompanyUserController::class);
         });
 
-        Route::resource('users', GroupUserController::class)->names([
+        Route::resource('users', CompanyUserController::class)->names([
             'index' => 'company.users.index',
-            'create' => 'group.users.create',
-            'store' => 'group.users.store',
-            'edit' => 'group.users.edit',
-            'update' => 'group.users.update',
-        ]);  
-        
+            'create' => 'company.users.create',
+            'store' => 'company.users.store',
+            'edit' => 'company.users.edit',
+            'update' => 'company.users.update',
+        ]);
     });
 });

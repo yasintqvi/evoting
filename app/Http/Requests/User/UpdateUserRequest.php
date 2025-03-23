@@ -29,8 +29,8 @@ class UpdateUserRequest extends FormRequest
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'phone' => 'required|string|max:15|unique:users,phone,' . $this->user->id,
-            'group_ids' => 'nullable|array',
-            'group_ids.*' => 'exists:groups,id',
+            'company_ids' => 'nullable|array',
+            'company_ids.*' => 'exists:groups,id',
             'is_active' => 'sometimes|boolean',
         ];
     }

@@ -23,7 +23,7 @@
             <div class="card-header d-flex align-items-center justify-content-between border-bottom border-light">
                 <h4 class="header-title">لیست انتخابات</h4>
                 <div>
-                    <a href="{{route('elections.create', $group->slug)}}" class="btn btn-success bg-gradient"><i class="ti ti-plus me-1"></i>ایجاد همه پرسی</a>
+                    <a href="{{route('elections.create', $company->slug)}}" class="btn btn-success bg-gradient"><i class="ti ti-plus me-1"></i>ایجاد همه پرسی</a>
                 </div>
             </div>
             <div class="table-responsive">
@@ -47,7 +47,7 @@
                             <td class="ps-3">
                             </td>
                             <td>
-                                <a href="{{ route('elections.show', [$group->slug, $election->id]) }}" class="text-dark fw-medium">{{ $election->title }}</a>
+                                <a href="{{ route('elections.show', [$company->slug, $election->id]) }}" class="text-dark fw-medium">{{ $election->title }}</a>
                             </td>
                             <td>
                                 <div class="avatar-group">
@@ -69,7 +69,7 @@
                                 </div>
                             </td>
                             <td>
-                                % {{ (int) (100 * ($election->precentParticipants()->count() / $group->users->count())) }}
+                                % {{ (int) (100 * ($election->precentParticipants()->count() / $company->users->count())) }}
                             </td>
                             <td>
                                 <small>{{ $election->type->toFa() }}</small>
@@ -84,37 +84,37 @@
                                     @endphp
                                     @switch($election->status)
                                     @case(App\Enums\ElectionStatus::CREATED)
-                                        <!-- دکمه برای باز کردن مودال -->
-                                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#confirmModal">
-                                            تعیین نامزد ها
-                                        </button>
-                                        <!-- مودال -->
-                                        <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="confirmModalLabel">تأیید عملیات</h5>
-                                                        
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        در صورت تعیین نامزد دیگر نمیتوانید انتخابات را ویرایش کنید برای ادامه مطمئن هستید؟
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">لغو</button>
-                                                        <a href="{{ route('candidates.create', [$group->slug, $election->id]) }}" class="btn btn-primary">تأیید</a>
-                                                    </div>
+                                    <!-- دکمه برای باز کردن مودال -->
+                                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#confirmModal">
+                                        تعیین نامزد ها
+                                    </button>
+                                    <!-- مودال -->
+                                    <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="confirmModalLabel">تأیید عملیات</h5>
+
+                                                </div>
+                                                <div class="modal-body">
+                                                    در صورت تعیین نامزد دیگر نمیتوانید انتخابات را ویرایش کنید برای ادامه مطمئن هستید؟
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">لغو</button>
+                                                    <a href="{{ route('candidates.create', [$company->slug, $election->id]) }}" class="btn btn-primary">تأیید</a>
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
                                     @break
 
                                     @case(App\Enums\ElectionStatus::PARTICIPANTS_PENDING)
-                                    <a href="{{ route('participants.create', [$group->slug, $election->id]) }}" class="btn btn-primary btn-sm">تعیین مشارکت کنندگان</a>
+                                    <a href="{{ route('participants.create', [$company->slug, $election->id]) }}" class="btn btn-primary btn-sm">تعیین مشارکت کنندگان</a>
                                     @break
 
                                     @case(App\Enums\ElectionStatus::PARTICIPANTS_ATTENDEES)
                                     @if ($participant)
-                                    <form action="{{ route('participants.update', [$group->slug, $election->id, $participant->id]) }}" method="post">
+                                    <form action="{{ route('participants.update', [$company->slug, $election->id, $participant->id]) }}" method="post">
                                         @method('PUT')
                                         @csrf
                                         @if (!$participant->is_present)
@@ -126,7 +126,7 @@
 
                                     @case(App\Enums\ElectionStatus::WAITING_TO_START)
                                     @if (!$election->rounds()->where('is_active', true)->first())
-                                    <form action="{{ route('election-rounds.store', [$group->slug, $election->id]) }}" method="post">
+                                    <form action="{{ route('election-rounds.store', [$company->slug, $election->id]) }}" method="post">
                                         @csrf
                                         <button class="btn btn-primary btn-sm d-inline">شروع انتخابات</button>
                                     </form>
@@ -146,9 +146,9 @@
                                         مشارکت صورت گرفت
                                     </small>
                                     @else
-                                    <a href="{{ route('voting.create', [$group->slug, $election->id]) }}" class="btn btn-primary btn-sm">شرکت در همه پرسی</a>
+                                    <a href="{{ route('voting.create', [$company->slug, $election->id]) }}" class="btn btn-primary btn-sm">شرکت در همه پرسی</a>
                                     @endif
-                                    <form action="{{ route('voting.terminate', [$group->slug, $election->id]) }}" method="post">
+                                    <form action="{{ route('voting.terminate', [$company->slug, $election->id]) }}" method="post">
                                         @csrf
                                         <button class="btn btn-danger btn-sm">خاتمه دادن به انتخابات</button>
                                     </form>
@@ -156,19 +156,19 @@
                                     @break
 
                                     @endswitch
-                                    <a href="{{ route('elections.show', [$group->slug, $election->id]) }}" class="btn btn-soft-primary btn-icon btn-sm rounded-circle"> <i class="ti ti-eye"></i></a>
+                                    <a href="{{ route('elections.show', [$company->slug, $election->id]) }}" class="btn btn-soft-primary btn-icon btn-sm rounded-circle"> <i class="ti ti-eye"></i></a>
                                     @switch($election->status)
                                     @case(app\Enums\ElectionStatus::CREATED)
-                                    <a href="{{ route('elections.edit' , [$group->slug , $election->id]) }}" class="btn btn-soft-success btn-icon btn-sm rounded-circle"> <i class="ti ti-edit fs-16"></i></a>
+                                    <a href="{{ route('elections.edit' , [$company->slug , $election->id]) }}" class="btn btn-soft-success btn-icon btn-sm rounded-circle"> <i class="ti ti-edit fs-16"></i></a>
                                     @break
                                     @case(app\Enums\ElectionStatus::PARTICIPANTS_PENDING)
-                                        <a href="{{ route('candidates.edit', [$group->slug, $election->id]) }}" class="btn btn-soft-success btn-icon btn-sm rounded-circle">
-                                            <i class="ti ti-edit fs-16"></i>
-                                        </a>
+                                    <a href="{{ route('candidates.edit', [$company->slug, $election->id]) }}" class="btn btn-soft-success btn-icon btn-sm rounded-circle">
+                                        <i class="ti ti-edit fs-16"></i>
+                                    </a>
                                     @break
                                     @endswitch
 
-                                   
+
                                     <a href="javascript:void(0);" class="btn btn-soft-danger btn-icon btn-sm rounded-circle"> <i class="ti ti-trash"></i></a>
                                 </div>
                             </td>
@@ -197,4 +197,4 @@
 <script src="/assets/js/pages/chart-apex-bar.js"></script>
 @include('app.alerts.toastr.success')
 
-@endsection 
+@endsection

@@ -105,9 +105,9 @@
             <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center">
                 <h4 class="card-title mb-0">دور {{ $key + 1 }} انتخابات</h4>
                 <div class="d-flex align-items-center">
-                    <a href="{{ route('election-rounds.show', [$group->slug, $election->id, $electionRound->id]) }}" class="btn btn-outline-success mx-2">دیدن نتایج</a>
+                    <a href="{{ route('election-rounds.show', [$company->slug, $election->id, $electionRound->id]) }}" class="btn btn-outline-success mx-2">دیدن نتایج</a>
                     @if ($election->rounds()->where('is_active', true)->exists())
-                    <form action="{{ route('voting.terminate', [$group->slug, $election->id]) }}" class="p-0 m-0" method="post">
+                    <form action="{{ route('voting.terminate', [$company->slug, $election->id]) }}" class="p-0 m-0" method="post">
                         @csrf
                         <button class="btn btn-danger">خاتمه دادن</a>
                     </form>
@@ -134,7 +134,7 @@
             labels: ['مشارکت', 'عدم مشارکت'],
             datasets: [{
                 label: '# میزان مشارکت',
-                data: ["{{$election->precentParticipants()->count() }}", "{{$group->users->count() - $election->precentParticipants()->count() }}"],
+                data: ["{{$election->precentParticipants()->count() }}", "{{$company->users->count() - $election->precentParticipants()->count() }}"],
                 backgroundColor: [
                     'rgba(75, 192, 192, 0.8)',
                     'rgba(255, 99, 132, 0.8)'

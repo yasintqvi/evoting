@@ -24,9 +24,9 @@
                 <p class="text-muted mb-0">شما در حال ویرایش کاربر جدید هستید</p>
             </div>
         </div>
-    
+
         <!-- فرم ویرایش کاربر جدید -->
-        <form id="new-user-form" action="{{ route('group.users.update', ['group' => $group->slug, 'user' => $user->id]) }}" method="post">
+        <form id="new-user-form" action="{{ route('company.users.update', [$company->slug, $user->id]) }}" method="post">
             @csrf
             @method('PUT') <!-- متد PUT برای بروزرسانی -->
             <div class="card-body">
@@ -36,7 +36,7 @@
                             <label for="first_name" class="form-label">نام</label>
                             <input type="text" name="first_name" class="form-control" id="first_name" value="{{ old('first_name', $user->first_name) }}">
                             @error('first_name')
-                                <span class="text-danger">{{ $message }}</span>
+                            <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
                     </div>
@@ -45,7 +45,7 @@
                             <label for="last_name" class="form-label">نام خانوادگی</label>
                             <input type="text" name="last_name" class="form-control" id="last_name" value="{{ old('last_name', $user->last_name) }}">
                             @error('last_name')
-                                <span class="text-danger">{{ $message }}</span>
+                            <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
                     </div>
@@ -54,7 +54,7 @@
                             <label for="phone" class="form-label">تلفن همراه کاربر</label>
                             <input type="text" name="phone" class="form-control" id="phone" value="{{ old('phone', $user->phone) }}">
                             @error('phone')
-                                <span class="text-danger">{{ $message }}</span>
+                            <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
                     </div>
@@ -73,8 +73,8 @@
                 </div>
             </div>
         </form>
-        
-    
+
+
 
     </div>
 </div>

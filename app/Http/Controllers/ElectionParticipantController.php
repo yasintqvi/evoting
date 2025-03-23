@@ -8,7 +8,7 @@ use App\Imports\ParticipantsImport;
 use App\Http\Requests\Election\StoreParticipantRequest;
 use App\Http\Requests\Election\StoreParticipaintTableRequest;
 use App\Models\Election;
-use App\Models\Group;
+use App\Models\Company;
 use App\Models\Participant;
 use Illuminate\Http\Request;
 
@@ -25,20 +25,20 @@ class ElectionParticipantController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Group $group, Election $election)
+    public function create(Company $company, Election $election)
     {
-        return view('app.group.election.participant.create', compact('group', 'election'));
+        return view('app.company.election.participant.create', compact('company', 'election'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreParticipantRequest $request, Group $group, Election $election)
+    public function store(StoreParticipantRequest $request, Company $company, Election $election)
     {
         if ($election->status != ElectionStatus::PARTICIPANTS_PENDING) {
             return back();
         }
-        
+
         $participants = $request->validated('participants');
 
         foreach ($participants as $participant) {
@@ -53,24 +53,24 @@ class ElectionParticipantController extends Controller
 
         $election->save();
 
-        return to_route('elections.index', $group->slug)->with('success','شرکت کننده جدید اضافه شد');
+        return to_route('elections.index', $company->slug)->with('success', 'شرکت کننده جدید اضافه شد');
     }
 
-    public function storeTableParticipent(StoreParticipaintTableRequest $request, Group $group, Election $election)
+    public function storeTableParticipent(StoreParticipaintTableRequest $request, Company $company, Election $election)
     {
         if ($election->status != ElectionStatus::PARTICIPANTS_PENDING) {
             return back();
         }
-    
+
         $participants = collect($request->validated('participants'))
-        ->filter(function ($participant) {
-            return !empty($participant['normal_stock_count']) || !empty($participant['prefered_stock_count']);
-        })
-        ->map(function ($participant) {
-            $participant['normal_stock_count'] = $participant['normal_stock_count'] ?? 0;
-            $participant['prefered_stock_count'] = $participant['prefered_stock_count'] ?? 0;
-            return $participant;
-        });
+            ->filter(function ($participant) {
+                return !empty($participant['normal_stock_count']) || !empty($participant['prefered_stock_count']);
+            })
+            ->map(function ($participant) {
+                $participant['normal_stock_count'] = $participant['normal_stock_count'] ?? 0;
+                $participant['prefered_stock_count'] = $participant['prefered_stock_count'] ?? 0;
+                return $participant;
+            });
 
         foreach ($participants as $participant) {
             $election->participants()->create([
@@ -84,7 +84,7 @@ class ElectionParticipantController extends Controller
 
         $election->save();
 
-        return to_route('elections.index', $group->slug)->with('success','شرکت کننده جدید اضافه شد');
+        return to_route('elections.index', $company->slug)->with('success', 'شرکت کننده جدید اضافه شد');
     }
 
     /**
@@ -99,14 +99,14 @@ class ElectionParticipantController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Group $group, Election $election, Participant $participant)
+    public function update(Request $request, Company $company, Election $election, Participant $participant)
     {
         if ($election->status === ElectionStatus::PARTICIPANTS_ATTENDEES && !$participant->is_present) {
             $participant->update([
                 'is_present' => true
             ]);
 
-            if ((int) (100 * ($election->precentParticipants()->count() / $group->users->count())) > 50) {
+            if ((int) (100 * ($election->precentParticipants()->count() / $company->users->count())) > 50) {
                 $election->status = ElectionStatus::ONGOING;
                 $election->save();
 
@@ -116,7 +116,7 @@ class ElectionParticipantController extends Controller
             }
         }
 
-        return back()->with('success' , 'شرکت کننده ویرایش شد');
+        return back()->with('success', 'شرکت کننده ویرایش شد');
     }
 
     /**

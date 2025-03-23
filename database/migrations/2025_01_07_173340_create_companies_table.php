@@ -17,9 +17,9 @@ return new class extends Migration
             $table->string('title');
             $table->string('slug')->unique();
             $table->string('type')->default(CompanyType::COOPERTAIVE);
-            $table->string('normal_stock_count')->nullable();
-            $table->string('prefered_stock_count')->nullable();
-            $table->string('prefered_stock_weight')->nullable();
+            $table->string('normal_stock_count')->default(0);
+            $table->string('prefered_stock_count')->default(0);
+            $table->string('prefered_stock_weight')->default(0);
             $table->string('logo')->nullable();
             $table->text('description')->nullable();
             $table->foreignId('owner_id')->constrained('users');

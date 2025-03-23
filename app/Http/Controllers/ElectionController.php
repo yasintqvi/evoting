@@ -5,24 +5,24 @@ namespace App\Http\Controllers;
 use App\Enums\ElectionType;
 use App\Http\Requests\Election\StoreElectionRequest;
 use App\Http\Requests\Election\UpdateElectionRequest;
+use App\Models\Company;
 use App\Models\Election;
-use App\Models\Group;
 
 class ElectionController extends Controller
 {
-    public function index(Group $group)
+    public function index(Company $company)
     {
-        $elections = $group->elections()->latest()->get();
+        $elections = $company->elections()->latest()->get();
 
-        return view('app.group.election.index', compact('group', 'elections'));
+        return view('app.company.election.index', compact('company', 'elections'));
     }
 
-    public function create(Group $group)
+    public function create(Company $company)
     {
-        return view('app.group.election.create', compact('group'));
+        return view('app.company.election.create', compact('company'));
     }
 
-    public function store(StoreElectionRequest $request, Group $group)
+    public function store(StoreElectionRequest $request, Company $company)
     {
         $data = [];
 
@@ -32,25 +32,25 @@ class ElectionController extends Controller
             $data = $request->validated();
         }
 
-        $group->elections()->create([
+        $company->elections()->create([
             ...$data,
             'user_id' => user()->id
         ]);
 
-        return to_route('elections.index', $group->slug)->with('success', 'انتخابات جدید اضافه شد');
+        return to_route('elections.index', $company->slug)->with('success', 'انتخابات جدید اضافه شد');
     }
 
-    public function show(Group $group, Election $election)
+    public function show(Company $company, Election $election)
     {
-        return view('app.group.election.show', compact('group', 'election'));
+        return view('app.company.election.show', compact('company', 'election'));
     }
 
-    public function edit(Group $group, Election $election)
+    public function edit(Company $company, Election $election)
     {
-        return view('app.group.election.edit', compact('group', 'election'));
+        return view('app.company.election.edit', compact('company', 'election'));
     }
 
-    public function update(UpdateElectionRequest $request, Group $group, Election $election)
+    public function update(UpdateElectionRequest $request, Company $company, Election $election)
     {
         $data = [];
 
@@ -75,13 +75,11 @@ class ElectionController extends Controller
                 'user_id' => user()->id
             ]);
 
-            return to_route('elections.index', $group->slug)->with('success', 'انتخابات ویرایش شد');
+            return to_route('elections.index', $company->slug)->with('success', 'انتخابات ویرایش شد');
         } else {
             return back()->with('error', 'امکان ویرایش وجود ندارد');
         }
     }
 
-    public function destroy(Group $group, Election $election)
-    {
-    }
+    public function destroy(Company $company, Election $election) {}
 }

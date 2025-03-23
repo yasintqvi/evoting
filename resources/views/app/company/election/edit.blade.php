@@ -17,7 +17,7 @@
     </div>
 </div>
 
-<form action="{{ route('elections.update', [$group->slug , $election->id]) }}" method="post">
+<form action="{{ route('elections.update', [$company->slug , $election->id]) }}" method="post">
     @csrf
     @method('PUT')
     <div class="card col-lg-6">
@@ -42,21 +42,21 @@
                         <select name="type" onchange="checkElectionType(event)" id="election_type" data-toggle="select2" class="form-select">
                             <option value="">یک نوع همه پرسی را انتخاب نمایید</option>
 
-                            <option value="{{ App\Enums\ElectionType::PUBLIC_JOINT->value }}" 
+                            <option value="{{ App\Enums\ElectionType::PUBLIC_JOINT->value }}"
                                 {{ old('type', $election->type->value) == App\Enums\ElectionType::PUBLIC_JOINT->value ? 'selected' : '' }}>
                                 انتخابات تعاونی
                             </option>
-                            <option value="{{ App\Enums\ElectionType::PRIVATE_JOINT_WITH_88->value }}" 
+                            <option value="{{ App\Enums\ElectionType::PRIVATE_JOINT_WITH_88->value }}"
                                 {{ old('type', $election->type->value) == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88->value ? 'selected' : '' }}>
                                 سهامی خاص با ماده ۸۸
                             </option>
-                            <option value="{{ App\Enums\ElectionType::PRIVATE_JOINT->value }}" 
+                            <option value="{{ App\Enums\ElectionType::PRIVATE_JOINT->value }}"
                                 {{ old('type', $election->type->value) == App\Enums\ElectionType::PRIVATE_JOINT->value ? 'selected' : '' }}>
                                 سهامی خاص بدون ماده ۸۸
                             </option>
                         </select>
-                        
-                        
+
+
                         @error('type')
                         <span class="strong text-danger font-weight-bold">{{ $message }}</span>
                         @enderror
@@ -172,11 +172,12 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         const electionTypeElement = document.getElementById('election_type');
-        checkElectionType({ target: electionTypeElement });
+        checkElectionType({
+            target: electionTypeElement
+        });
     });
 </script>
 
 @include('app.alerts.toastr.error')
 
 @endsection
-

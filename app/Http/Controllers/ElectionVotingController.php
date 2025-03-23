@@ -4,12 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Enums\CandidateType;
 use App\Enums\ElectionStatus;
-use App\Enums\ElectionType;
 use App\Http\Requests\Election\StoreVotingRequest;
-use App\Models\Candidate;
 use App\Models\Election;
-use App\Models\Group;
-use App\Models\Participant;
+use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -23,7 +20,7 @@ class ElectionVotingController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Group $group, Election $election)
+    public function create(Company $company, Election $election)
     {
         if ($election->status != ElectionStatus::ONGOING) {
             return back();
@@ -44,30 +41,30 @@ class ElectionVotingController extends Controller
         $election->load('candidates');
 
 
-        return view('app.group.election.voting.create', compact('group', 'election', 'participant'));
+        return view('app.company.election.voting.create', compact('company', 'election', 'participant'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreVotingRequest $request, Group $group, Election $election)
+    public function store(StoreVotingRequest $request, Company $company, Election $election)
     {
         $data = $request->validated();
-        
+
         if (!isset($data['director_candidates']) || empty($data['director_candidates'])) {
             $data['director_candidates'] = [];
             foreach ($election->candidates()->where('candidate_type', CandidateType::DIRECTOR)->get() as $candidate) {
-                $data['director_candidates'][$candidate->id] = 0; 
+                $data['director_candidates'][$candidate->id] = 0;
             }
         }
 
         if (!isset($data['inspector_candidates']) || empty($data['inspector_candidates'])) {
             $data['inspector_candidates'] = [];
             foreach ($election->candidates()->where('candidate_type', CandidateType::INSPECTOR)->get() as $candidate) {
-                $data['inspector_candidates'][$candidate->id] = 0; 
+                $data['inspector_candidates'][$candidate->id] = 0;
             }
         }
-        
+
         if (count(array_filter($data['director_candidates'], fn($item) => $item > 0)) > $election->main_member_count) {
             return back()->withErrors(['director_candidates' => 'تعداد کاندیداهای مدیر بیش از حد مجاز است.']);
         }
@@ -76,7 +73,7 @@ class ElectionVotingController extends Controller
             return back()->withErrors(['inspector_candidates' => 'تعداد کاندیداهای بازرس بیش از حد مجاز است.']);
         }
 
-        DB::transaction(function () use ($group, $election, $data) {
+        DB::transaction(function () use ($company, $election, $data) {
             $participant = $election->participants()->where('user_id', user()->id)->first();
 
             $activeRound = $election->rounds()->where('is_active', true)->first();
@@ -100,7 +97,7 @@ class ElectionVotingController extends Controller
             }
 
             foreach ($election->candidates()->where('candidate_type', CandidateType::INSPECTOR)->get() as $candidate) {
-                $voteCount = $data['inspector_candidates'][$candidate->id] ?? 0; 
+                $voteCount = $data['inspector_candidates'][$candidate->id] ?? 0;
 
                 if ($participant->total_stock < (int) $voteCount) {
                     return back()->withErrors(['inspector_candidates' => 'تعداد سهام شما کافی نیست.']);
@@ -118,7 +115,7 @@ class ElectionVotingController extends Controller
             ]);
         });
 
-        return to_route('elections.index', $group->slug)->with('success', 'رای‌های شما با موفقیت ثبت شدند.');
+        return to_route('elections.index', $company->slug)->with('success', 'رای‌های شما با موفقیت ثبت شدند.');
     }
 
     /**
@@ -153,7 +150,7 @@ class ElectionVotingController extends Controller
         //
     }
 
-    public function terminate(Request $request, Group $group, Election $election)
+    public function terminate(Request $request, Company $company, Election $election)
     {
         $election->rounds->map(fn($round) => $round->update([
             'is_active' => false,

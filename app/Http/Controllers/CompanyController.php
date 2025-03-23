@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Company\CompanyRequest;
 use App\Models\Company;
 use App\Services\Image\ImageService;
-use Illuminate\Http\Request;
 
 class CompanyController extends Controller
 {

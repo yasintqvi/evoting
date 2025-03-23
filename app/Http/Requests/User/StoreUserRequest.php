@@ -28,8 +28,8 @@ class StoreUserRequest extends FormRequest
     {
         if ($this->has('user_ids')) {
             return [
-                'group_ids' => 'required|array|min:1',
-                'group_ids.*' => 'exists:groups,id',
+                'company_ids' => 'required|array|min:1',
+                'company_ids.*' => 'exists:groups,id',
                 'user_ids' => 'required|array|min:1',
                 'user_ids.*' => 'exists:users,id',
             ];
@@ -38,8 +38,8 @@ class StoreUserRequest extends FormRequest
                 'first_name' => 'required|string|max:255',
                 'last_name' => 'required|string|max:255',
                 'phone' => 'required|string|max:20|unique:users,phone',
-                'group_ids' => 'required|array|min:1',
-                'group_ids.*' => 'exists:groups,id',
+                'company_ids' => 'required|array|min:1',
+                'company_ids.*' => 'exists:groups,id',
                 'is_active' => 'sometimes|boolean',
             ];
         }
