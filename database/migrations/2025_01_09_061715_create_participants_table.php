@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('prefered_stock_count')->default(0);
             $table->boolean('is_present')->default(false);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

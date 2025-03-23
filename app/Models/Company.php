@@ -55,7 +55,7 @@ class Company extends Model
 
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'user_company');
+        return $this->belongsToMany(User::class, 'user_company')->withPivot("normal_stock_count", "prefered_stock_count");
     }
 
     public function elections(): HasMany

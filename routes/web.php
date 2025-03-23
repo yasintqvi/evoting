@@ -69,6 +69,8 @@ Route::middleware('auth')->group(function () {
 
             Route::put('/update/{election}', [ElectionController::class, 'update'])->name('elections.update');
 
+            Route::delete('/delete/{election}', [ElectionController::class, 'destroy'])->name('elections.delete');
+
             Route::get('/show/{election}', [ElectionController::class, 'show'])->name('elections.show');
 
             Route::resource('{election}/candidates', ElectionCandidateController::class)->except('edit', 'update');
@@ -76,7 +78,6 @@ Route::middleware('auth')->group(function () {
             Route::get('{election}/edit', [ElectionCandidateController::class, 'edit'])->name('candidates.edit');
 
             Route::put('{election}/update', [ElectionCandidateController::class, 'update'])->name('candidates.update');
-
 
             Route::resource('{election}/participants', ElectionParticipantController::class);
 

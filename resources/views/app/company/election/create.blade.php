@@ -161,5 +161,6 @@
     }
 </script>
 @include('app.alerts.toastr.success')
+@include('app.alerts.toastr.error')
 
 @endsection
