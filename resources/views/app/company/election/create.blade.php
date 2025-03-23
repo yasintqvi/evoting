@@ -40,9 +40,12 @@
                         <label for="election_type" class="form-label">نوع همه پرسی</label>
                         <select name="type" onchange="checkElectionType(event)" id="election_type" data-toggle="select2" class="form-select">
                             <option value="">یک نوع همه پرسی را انتخاب نمایید</option>
-                            <option @selected(old('type')==App\Enums\ElectionType::PUBLIC_JOINT->value) value="{{ App\Enums\ElectionType::PUBLIC_JOINT->value }}">انتخابات تعاونی</option>
+                            @if ($company->type === App\Enums\CompanyType::SPECIAL)
                             <option @selected(old('type')==App\Enums\ElectionType::PRIVATE_JOINT_WITH_88->value) value="{{ App\Enums\ElectionType::PRIVATE_JOINT_WITH_88->value }}">سهامی خاص با ماده ۸۸</option>
                             <option @selected(old('type')==App\Enums\ElectionType::PRIVATE_JOINT->value) value="{{ App\Enums\ElectionType::PRIVATE_JOINT->value }}">سهامی خاص بدون ماده ۸۸</option>
+                            @else
+                            <option @selected(old('type')==App\Enums\ElectionType::PUBLIC_JOINT->value) selected value="{{ App\Enums\ElectionType::PUBLIC_JOINT->value }}">انتخابات تعاونی</option>
+                            @endif
                         </select>
                         @error('type')
                         <span class="strong text-danger font-weight-bold">{{ $message }}</span>

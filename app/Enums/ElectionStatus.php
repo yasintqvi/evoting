@@ -2,8 +2,12 @@
 
 namespace App\Enums;
 
+use App\Traits\EnumValues;
+
 enum ElectionStatus: string
 {
+    use EnumValues;
+
     case CREATED = "created";
     case PARTICIPANTS_PENDING = 'participants_pending';
     case PARTICIPANTS_ATTENDEES = "participants_attendees";

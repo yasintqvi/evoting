@@ -84,28 +84,9 @@
                                     @endphp
                                     @switch($election->status)
                                     @case(App\Enums\ElectionStatus::CREATED)
-                                    <!-- دکمه برای باز کردن مودال -->
-                                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#confirmModal">
+                                    <a href="{{ route('candidates.create', [$company->slug, $election->id]) }}" class="btn btn-primary btn-sm">
                                         تعیین نامزد ها
-                                    </button>
-                                    <!-- مودال -->
-                                    <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog" role="document">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="confirmModalLabel">تأیید عملیات</h5>
-
-                                                </div>
-                                                <div class="modal-body">
-                                                    در صورت تعیین نامزد دیگر نمیتوانید انتخابات را ویرایش کنید برای ادامه مطمئن هستید؟
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">لغو</button>
-                                                    <a href="{{ route('candidates.create', [$company->slug, $election->id]) }}" class="btn btn-primary">تأیید</a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    </a>
                                     @break
 
                                     @case(App\Enums\ElectionStatus::PARTICIPANTS_PENDING)

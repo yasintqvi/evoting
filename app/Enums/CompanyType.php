@@ -3,13 +3,12 @@
 
 namespace App\Enums;
 
+use App\Traits\EnumValues;
+
 enum CompanyType: int
 {
-    case COOPERTAIVE = 0;
-    case SPECIAL = 1;
+    use EnumValues;
 
-    public static function values(): array
-    {
-        return array_column(self::cases(), 'value');
-    }
+    case COOPERTAIVE = 1;
+    case SPECIAL = 2;
 }

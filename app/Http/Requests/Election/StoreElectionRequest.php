@@ -17,7 +17,7 @@ class StoreElectionRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255', 'min:2'],
-            'type' => ['required', Rule::in(array_map(fn($case) => $case->value, ElectionType::cases()))],
+            'type' => ['required', Rule::in(ElectionType::values())],
             'quorum_required' => ['nullable', 'in:0,1'],
             'prefered_stock_weight' => ['nullable', Rule::requiredIf(fn() => in_array($this->type, [ElectionType::PRIVATE_JOINT->value, ElectionType::PRIVATE_JOINT_WITH_88->value])), 'integer'],
             'prefered_stock_count' => ['nullable', Rule::requiredIf(fn() => in_array($this->type, [ElectionType::PRIVATE_JOINT->value, ElectionType::PRIVATE_JOINT_WITH_88->value])), 'integer', 'min:1'],

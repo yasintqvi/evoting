@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\CompanyStatus;
+use App\Enums\CompanyType;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -25,6 +26,7 @@ class Company extends Model
         'prefered_stock_count',
         'prefered_stock_weight',
         'owner_id',
+        'type',
         'status',
         'logo'
     ];
@@ -41,7 +43,8 @@ class Company extends Model
     protected function casts()
     {
         return [
-            'status' => CompanyStatus::class
+            'status' => CompanyStatus::class,
+            'type' => CompanyType::class
         ];
     }
 
