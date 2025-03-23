@@ -15,7 +15,7 @@
                     <a class="dropdown-item" href="{{ route("companies.index", $otherCompany->slug) }}">{{ $otherCompany->title }}</a>
                     @endforeach
                     <hr>
-                    <a class="dropdown-item" href="{{ route("app.index") }}">همه گروه ها</a>
+                    <a class="dropdown-item" href="{{ route("app.index") }}">همه شرکت ها</a>
                     <a class="dropdown-item text-primary" href="{{ route("companies.edit", $company->slug) }}">ویرایش</a>
                     <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#leave-group" href="#!">ترک کردن</a>
                     <a class="dropdown-item active fw-semibold text-danger" data-bs-toggle="modal" data-bs-target="#delete-group" href="#!">حذف گروه</a>

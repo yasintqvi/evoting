@@ -7,12 +7,15 @@ use App\Enums\ElectionType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Election extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'company_id',
-        'user_id',
+        'owner_id',
         'title',
         'slug',
         'status',
@@ -35,7 +38,7 @@ class Election extends Model
         ];
     }
 
-    public function group(): BelongsTo
+    public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }

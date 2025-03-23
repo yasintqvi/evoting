@@ -12,6 +12,7 @@
         "php": "^8.2",
         "bacon/bacon-qr-code": "^3.0",
         "cviebrock/eloquent-sluggable": "^11.0",
+        "hekmatinasser/verta": "^8.5",
         "intervention/image": "^3.10",
         "kavenegar/php": "^1.2",
         "laravel/framework": "^11.31",

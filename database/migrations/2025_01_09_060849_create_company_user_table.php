@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('user_company', function (Blueprint $table) {
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('company_id')->constrained('companies');
+            $table->integer('normal_stock_count')->default(1);
+            $table->integer('prefered_stock_count')->default(0);
         });
     }
 

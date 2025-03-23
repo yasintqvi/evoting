@@ -2,17 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\ElectionType;
 use App\Http\Requests\Election\StoreElectionRequest;
 use App\Http\Requests\Election\UpdateElectionRequest;
+use App\Http\Resources\ElectionResource;
 use App\Models\Company;
 use App\Models\Election;
+use App\Services\ElectionService;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Throwable;
 
 class ElectionController extends Controller
 {
-    public function index(Company $company)
+
+    private ElectionService $electionService;
+
+    public function __construct(ElectionService $electionService)
     {
-        $elections = $company->elections()->latest()->get();
+        $this->electionService = $electionService;
+    }
+
+    public function index(Request $request, Company $company)
+    {
+        $elections = ElectionResource::collection($this->electionService->getAll($company))->toArray($request);
 
         return view('app.company.election.index', compact('company', 'elections'));
     }
@@ -22,64 +35,54 @@ class ElectionController extends Controller
         return view('app.company.election.create', compact('company'));
     }
 
-    public function store(StoreElectionRequest $request, Company $company)
+    public function store(StoreElectionRequest $request, Company $company): RedirectResponse
     {
-        $data = [];
+        try {
+            $company = $this->electionService->create($company, $request->toDto());
 
-        if ($request->input('type') == ElectionType::PUBLIC_JOINT->value) {
-            $data = $request->except('prefered_stock_weight', 'prefered_stock_count', 'normal_stock_count');
-        } else {
-            $data = $request->validated();
+            return to_route('elections.index', $company->slug)->with('success', __('messages.election.created'));
+        } catch (Throwable $th) {
+            return back()->with('error', "خطایی هنگام ایجاد انتخابات رخ داد.");
         }
-
-        $company->elections()->create([
-            ...$data,
-            'user_id' => user()->id
-        ]);
-
-        return to_route('elections.index', $company->slug)->with('success', 'انتخابات جدید اضافه شد');
     }
 
-    public function show(Company $company, Election $election)
+    public function show(Request $request, Company $company, Election $election): View
     {
+        $election = ElectionResource::make($election)->toArray($request);
+
         return view('app.company.election.show', compact('company', 'election'));
     }
 
-    public function edit(Company $company, Election $election)
+    public function edit(Request $request, Company $company, Election $election): View
     {
+        $election = ElectionResource::make($election)->toArray($request);
+
         return view('app.company.election.edit', compact('company', 'election'));
     }
 
-    public function update(UpdateElectionRequest $request, Company $company, Election $election)
+    public function update(UpdateElectionRequest $request, Company $company, Election $election): RedirectResponse
     {
-        $data = [];
+        try {
 
-        $status = $election->status->value;
+            $this->electionService->update($election, $request->toDto());
 
-        if ($status == 'created') {
-            if ($request->input('type') == ElectionType::PUBLIC_JOINT->value) {
-                $data = $request->except('prefered_stock_weight', 'prefered_stock_count', 'normal_stock_count');
-                $data = array_merge($data, [
-                    'prefered_stock_weight' => 0,
-                    'prefered_stock_count' => 0,
-                    'normal_stock_count' => 0,
-                ]);
-            } else {
-                $data = $request->validated();
-            }
+            return to_route('elections.index', $company->slug)->with('success',  __('messages.election.edited'));
+        } catch (Throwable $th) {
 
-            $data['quorum_required'] = $request->has('quorum_required') ? 1 : 0;
-
-            $election->update([
-                ...$data,
-                'user_id' => user()->id
-            ]);
-
-            return to_route('elections.index', $company->slug)->with('success', 'انتخابات ویرایش شد');
-        } else {
-            return back()->with('error', 'امکان ویرایش وجود ندارد');
+            return back()->with('error', $th->getMessage());
         }
     }
 
-    public function destroy(Company $company, Election $election) {}
+    public function destroy(Company $company, Election $election): RedirectResponse
+    {
+        try {
+
+            $this->electionService->delete($election);
+
+            return back()->with('success', __('messages.election.deleted'));
+        } catch (Throwable $th) {
+
+            return back()->with('error', $th->getMessage());
+        }
+    }
 }

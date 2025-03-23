@@ -22,7 +22,7 @@ class CompanyRequest extends FormRequest
         $rules = [
             'title' => 'required|string|max:255',
             'type' => ['required', 'in:' . implode(',', CompanyType::values())],
-            'description' => 'nullable|string|max:500',
+            'description' => ['nullable', 'string', 'max:500'],
             'logo' => 'nullable|file|mimes:jpg,png,webp,jpeg|max:2048',
         ];
 
@@ -51,5 +51,4 @@ class CompanyRequest extends FormRequest
             'prefered_stock_weight.min' => 'وزن سهام نمی‌تواند منفی باشد.',
         ];
     }
-
 }
