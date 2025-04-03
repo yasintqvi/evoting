@@ -7,6 +7,7 @@ use App\Http\Requests\User\UpdateCompanyUserRequest;
 use App\Models\Election;
 use App\Models\Company;
 use App\Models\User;
+use Hash;
 use Illuminate\Http\Request;
 
 class CompanyUserController extends Controller
@@ -28,6 +29,7 @@ class CompanyUserController extends Controller
      */
     public function create(Company $company)
     {
+        
         $users = User::whereDoesntHave('companies', function ($query) use ($company) {
             $query->where('company_id', $company->id);
         })->get();
@@ -39,25 +41,29 @@ class CompanyUserController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(StoreCompanyUserRequest $request, Company $company)
-    {
-        if ($request->has('phone')) {
-            $phone = convert_persian_to_english($request->input('phone'));
+    {   
+        $phone = convert_persian_to_english($request->input('phone'));
+        $nationalcode = convert_persian_to_english($request->input('nationalcode'));
+        
+        $userData = $request->validated();
+        $userData['phone'] = $phone;
+        $userData['nationalcode'] = $nationalcode;
+        $userData['password'] = Hash::make($nationalcode);
 
-            $userData = $request->validated();
-            $userData['phone'] = $phone;
+        $user = User::create($userData);
 
-            $user = User::create($userData);
+        $pivotData = [];
 
-            $company->users()->attach($user->id);
-
-            return redirect()->route('company.users.index', $company->slug)
-                ->with('success', 'کاربر جدید با موفقیت ایجاد و به گروه اضافه شد.');
-        } else {
-            $company->users()->syncWithoutDetaching($request->input('user_ids'));
-
-            return redirect()->route('company.users.index', $company->slug)
-                ->with('success', 'کاربر جدید با موفقیت ایجاد و به گروه اضافه شد.');
+        if ($company->type == \App\Enums\CompanyType::SPECIAL) {
+            $pivotData = [
+                'normal_stock_count' => $request->input('normal_stock_count', 0), 
+                'prefered_stock_count' => $request->input('prefered_stock_count', 0),
+            ];
         }
+        $company->users()->attach($user->id, $pivotData);          
+
+        return redirect()->route('company.users.index', $company->slug)
+            ->with('success', 'کاربر جدید با موفقیت ایجاد و به شرکت اضافه شد.');
     }
 
     /**
@@ -73,20 +79,39 @@ class CompanyUserController extends Controller
      */
     public function edit(Company $company, User $user)
     {
-        return view('app.company.users.edit', compact('company', 'user'));
+        $userStock = $company->users()->where('user_id', $user->id)->first()->pivot;
+        return view('app.company.users.edit', compact('company', 'user', 'userStock'));
     }
 
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateCompanyUserRequest  $request, Company $company, User $user)
+    public function update(UpdateCompanyUserRequest $request, Company $company, User $user)
     {
+        $phone = convert_persian_to_english($request->input('phone'));
+        $nationalcode = convert_persian_to_english($request->input('nationalcode'));
+    
         $userData = $request->validated();
+        $userData['phone'] = $phone;
+        $userData['nationalcode'] = $nationalcode;
+    
+        if ($user->nationalcode !== $nationalcode) {
+            $userData['password'] = Hash::make($nationalcode);
+        }
+    
         $user->update($userData);
-
+    
+        if ($company->type == \App\Enums\CompanyType::SPECIAL) {
+            $pivotData = [
+                'normal_stock_count' => $request->input('normal_stock_count', 0),
+                'prefered_stock_count' => $request->input('prefered_stock_count', 0),
+            ];
+        }
+        $company->users()->updateExistingPivot($user->id, $pivotData);
+        
         return redirect()->route('company.users.index', $company->slug)
-            ->with('success', 'ویرایش جدید با موفقیت ایجاد و به گروه اضافه شد.');
+            ->with('success', 'اطلاعات کاربر با موفقیت بروزرسانی شد.');
     }
 
 

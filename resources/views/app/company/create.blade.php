@@ -159,13 +159,15 @@
     function calculateTotal() {
         const normalStock = parseFloat(document.getElementById('normal_stock_count').value) || 0;
         const preferedStock = parseFloat(document.getElementById('prefered_stock_count').value) || 0;
-        const total = normalStock + preferedStock;
+        const stockWeight  = parseFloat(document.getElementById('prefered_stock_weight').value) || 0;
+        const total = (preferedStock * stockWeight) + normalStock;
 
         document.getElementById('total_stock_display').textContent = total;
     }
 
     document.getElementById('normal_stock_count').addEventListener('input', calculateTotal);
     document.getElementById('prefered_stock_count').addEventListener('input', calculateTotal);
+    document.getElementById('prefered_stock_weight').addEventListener('input', calculateTotal);
 
     calculateTotal();
 </script>
