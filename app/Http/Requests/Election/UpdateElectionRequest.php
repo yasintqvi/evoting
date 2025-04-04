@@ -29,7 +29,7 @@ class UpdateElectionRequest extends FormRequest
             'quorum_required' => ['nullable', 'in:0,1'],
             'main_member_count' => ['required', 'integer', 'min:1'],
             'substitute_member_count' => ['required', 'integer', 'min:0'],
-            'incpector_main_member_count' => ['required', 'integer', 'min:1'],
+            'incpector_main_member_count' => ['required', 'integer', 'min:0'],
             'incpector_substitute_member_count' => ['required', 'integer', 'min:0'],
         ];
     }

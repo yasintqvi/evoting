@@ -59,11 +59,6 @@
                                     class="form-check-input">
                                 <label class="form-check-label" for="customRadio4">نوع شرکت سهامی خاص</label>
                             </div>
-                            <div class="form-check form-check-inline d-inline-block me-3">
-                                <label class="form-check-label" for="customRadio4">
-                                    تعداد کل سهام شرکت : <p id="total_stock_display" class="d-inline-block mb-0">0</p>
-                                </label>
-                            </div>
 
                         </div>
                         @error('type')
@@ -153,21 +148,6 @@
     document.getElementById('customRadio4').addEventListener('change', toggleShareInput);
 
     toggleShareInput();
-</script>
-
-<script>
-    function calculateTotal() {
-        const normalStock = parseFloat(document.getElementById('normal_stock_count').value) || 0;
-        const preferedStock = parseFloat(document.getElementById('prefered_stock_count').value) || 0;
-        const total = normalStock + preferedStock;
-
-        document.getElementById('total_stock_display').textContent = total;
-    }
-
-    document.getElementById('normal_stock_count').addEventListener('input', calculateTotal);
-    document.getElementById('prefered_stock_count').addEventListener('input', calculateTotal);
-
-    calculateTotal();
 </script>
 
 @include('app.alerts.toastr.success')

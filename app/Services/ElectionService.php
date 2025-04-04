@@ -4,9 +4,11 @@ namespace App\Services;
 
 use App\DTOs\Election\CreateElectionDto;
 use App\DTOs\Election\UpdateElectionDto;
+use App\Enums\ElectionStatus;
 use App\Events\ElectionCreated;
 use App\Models\Company;
 use App\Models\Election;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -14,7 +16,7 @@ use Throwable;
 class ElectionService
 {
 
-    public function getAll(Company $company)
+    public function getAll(Company $company): Collection
     {
         $elections = $company->elections()->latest()->get();
 
@@ -26,19 +28,7 @@ class ElectionService
         DB::beginTransaction();
 
         try {
-            $election = $company->elections()->create([
-                'normal_stock_count' => $company->normal_stock_count,
-                'prefered_stock_count' => $company->prefered_stock_count,
-                'prefered_stock_weight' =>  $company->prefered_stock_weight,
-                'title' => $createElectionDto->title,
-                'owner_id' => $createElectionDto->owner_id,
-                'type' => $createElectionDto->type,
-                'main_member_count' => $createElectionDto->mainMemberCount,
-                'substitute_member_count' => $createElectionDto->substituteMemberCount,
-                'incpector_main_member_count' => $createElectionDto->incpectorMainMemberCount,
-                'incpector_substitute_member_count' => $createElectionDto->incpectorSubstituteMemberCount,
-                'quorum_required' => $createElectionDto->quorumRequired,
-            ]);
+            $election = $company->elections()->create($createElectionDto->all());
             event(new ElectionCreated($company, $election));
 
             DB::commit();
@@ -56,16 +46,9 @@ class ElectionService
         }
     }
 
-    public function update(Election $election, UpdateElectionDto $updateElectionDto)
+    public function update(Election $election, UpdateElectionDto $updateElectionDto): void
     {
-        $updateData = [
-            'title' => $updateElectionDto->title,
-            'quorum_required' => $updateElectionDto->quorumRequired,
-            'main_member_count' => $updateElectionDto->mainMemberCount,
-            'substitute_member_count' => $updateElectionDto->substituteMemberCount,
-            'incpector_main_member_count' => $updateElectionDto->incpectorMainMemberCount,
-            'incpector_substitute_member_count' => $updateElectionDto->incpectorSubstituteMemberCount,
-        ];
+        $updateData = $updateElectionDto->all();
 
         $isDirty = false;
         foreach ($updateData as $key => $value) {
@@ -76,7 +59,7 @@ class ElectionService
         }
 
         if ($isDirty) {
-            $updateData['status'] = 'created';
+            $updateData['status'] = ElectionStatus::CREATED;
         }
 
         $election->update($updateData);

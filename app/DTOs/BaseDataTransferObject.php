@@ -2,6 +2,7 @@
 
 namespace App\DTOs;
 
+use Illuminate\Support\Str;
 use ReflectionClass;
 use ReflectionProperty;
 
@@ -91,7 +92,8 @@ abstract readonly class BaseDataTransferObject
         $data = [];
         foreach ($properties as $property) {
             $property->setAccessible(true);
-            $data[$property->getName()] = $property->getValue($this);
+            $key = Str::snake($property->getName());
+            $data[$key] = $property->getValue($this);
         }
 
         return $data;
