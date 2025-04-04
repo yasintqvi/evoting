@@ -24,8 +24,8 @@
     @method('put')
     <div class="card col-lg-6">
         <div class="card-header border-bottom border-dashed">
-            <h4 class="card-title">اطلاعات مربوط به همه پرسی</h4>
-            <p class="text-muted mb-0">شما در حال ایجاد همه پرسی جدید هستید</p>
+            <h4 class="card-title">انتخاب نامزد های همه پرسی</h4>
+            <p class="text-muted mb-0">شما در حال انتخاب نامزد های همه پرسی هستید</p>
         </div>
         <div class="card-body">
             <div class="row">

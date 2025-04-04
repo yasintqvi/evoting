@@ -6,10 +6,8 @@ use App\Enums\CandidateType;
 use App\Enums\ElectionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Election\StoreCandidateRequest;
-use App\Models\Candidate;
 use App\Models\Company;
 use App\Models\Election;
-use Illuminate\Http\Request;
 
 class ElectionCandidateController extends Controller
 {
@@ -39,7 +37,6 @@ class ElectionCandidateController extends Controller
         if ($election->status != ElectionStatus::CREATED) {
             return back();
         }
-
 
         $data = $request->validated();
 
@@ -80,6 +77,7 @@ class ElectionCandidateController extends Controller
     public function edit(Company $company, Election $election)
     {
         $company->load('users');
+
         return view('app.company.election.candidate.edit', compact('company', 'election',));
     }
 
