@@ -32,26 +32,20 @@ class   UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreUserRequest $request)
+    public function store(Request $request)
     {
-        if ($request->has('user_ids')) {
-            foreach ($request->input('company_ids') as $companyId) {
-                $company = Company::findOrFail($companyId);
-                $company->users()->syncWithoutDetaching($request->input('user_ids'));
-            }
-            return redirect()->back()->with('success', 'کاربر جدید با موفقیت ایجاد و به گروه‌های انتخابی اضافه شد.');
-        } else {
+        dd($request->all());
 
-            $request->mergeIfMissing(['is_active' => 0]);
-            $inputs = $request->except('company_id');
-            $user = User::create($inputs);
+        $request->mergeIfMissing(['is_active' => 0]);
+        $inputs = $request->except('company_id');
+        $user = User::create($inputs);
 
-            $companyIds = $request->input('company_ids', []);
-            $user->companies()->sync($companyIds);
+        $companyId = $request->input('company_id');
+        $user->companies()->sync($companyId);
 
 
-            return redirect()->back()->with('success', 'کاربر جدید با موفقیت ایجاد و به گروه‌های انتخابی اضافه شد.');
-        }
+        return redirect()->back()->with('success', 'کاربر جدید با موفقیت ایجاد و به گروه‌های انتخابی اضافه شد.');
+        
     }
 
 

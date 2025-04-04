@@ -263,6 +263,7 @@ return [
         'identifier' => 'شناسه کاربری',
         'otp' => 'کد یکبار مصرف',
         'logo' => 'لوگو',
+        'nationalcode' => 'کد ملی',
         'current_password' => 'کلمه عبور فعلی',
         'two_factor_type' => 'نوع احراز هویت دو مرحله ای',
         'main_member_count' => 'تعداد عضو هیت مدیره',
