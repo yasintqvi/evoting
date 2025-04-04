@@ -46,6 +46,7 @@ class ElectionResource extends JsonResource
                 'delete' => route('elections.delete', [$this->company->slug, $this->id]),
                 'next_step' => $this->getNextStep()
             ],
+            'supervisor_id' => $this->supervisor_id,
             'created_at' => verta($this->created_at)->format("Y/m/d H:i"),
             'updated_at' => verta($this->updated_at)->format("Y/m/d H:i"),
             'participants' => $this->participants()->where('is_present', 1)->get(),

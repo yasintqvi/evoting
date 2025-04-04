@@ -25,6 +25,7 @@ class StoreElectionRequest extends FormRequest
             'substitute_member_count' => ['required', 'integer', 'min:0'],
             'incpector_main_member_count' => ['required', 'integer', "min:0"],
             'incpector_substitute_member_count' => ['required', 'integer', 'min:0'],
+            'supervisor_id' => ['required', 'exists:users,id']
         ];
     }
 
@@ -33,6 +34,7 @@ class StoreElectionRequest extends FormRequest
         return new CreateElectionDto(
             $this->validated('title'),
             Auth::user()->getAuthIdentifier(),
+            $this->validated('supervisor_id'),
             ElectionType::from($this->validated('type')),
             (bool) $this->validated('quorum_required'),
             $this->validated('main_member_count'),

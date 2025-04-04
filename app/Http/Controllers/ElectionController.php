@@ -7,6 +7,7 @@ use App\Http\Requests\Election\UpdateElectionRequest;
 use App\Http\Resources\ElectionResource;
 use App\Models\Company;
 use App\Models\Election;
+use App\Models\User;
 use App\Services\ElectionService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -32,7 +33,9 @@ class ElectionController extends Controller
 
     public function create(Company $company)
     {
-        return view('app.company.election.create', compact('company'));
+        $users = User::select("id", "first_name", "last_name")->get();
+
+        return view('app.company.election.create', compact('company', 'users'));
     }
 
     public function store(StoreElectionRequest $request, Company $company): RedirectResponse
@@ -55,9 +58,11 @@ class ElectionController extends Controller
 
     public function edit(Request $request, Company $company, Election $election): View
     {
+        $users = User::select("id", "first_name", "last_name")->get();
+
         $election = ElectionResource::make($election)->toArray($request);
 
-        return view('app.company.election.edit', compact('company', 'election'));
+        return view('app.company.election.edit', compact('company', 'users', 'election'));
     }
 
     public function update(UpdateElectionRequest $request, Company $company, Election $election): RedirectResponse

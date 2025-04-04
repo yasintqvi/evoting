@@ -16,6 +16,7 @@ class Election extends Model
     protected $fillable = [
         'company_id',
         'owner_id',
+        'supervisor_id',
         'title',
         'slug',
         'status',
