@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Election;
 
+use App\DTOs\Election\AddCandidatesDto;
+use App\DTOs\Election\ElectionCandidatesDto;
 use App\Models\Election;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -30,16 +32,11 @@ class StoreCandidateRequest extends FormRequest
         ];
     }
 
-    public function withValidator($validator)
+    public function toDto(): ElectionCandidatesDto
     {
-        $validator->after(function ($validator) {
-            $mainCandidates = $this->input('main_candidates_ids', []);
-            $incpectorCandidates = $this->input('incpector_candidates_ids', []);
-
-            $duplicateCandidates = array_intersect($mainCandidates, $incpectorCandidates);
-            if (!empty($duplicateCandidates)) {
-                $validator->errors()->add('main_candidates_ids', 'یک نامزد نمی‌تواند همزمان در هیئت مدیره و بازرس باشد.');
-            }
-        });
+        return new ElectionCandidatesDto(
+            $this->validated('main_candidates_ids'),
+            $this->validated('incpector_candidates_ids')
+        );
     }
 }

@@ -28,4 +28,12 @@ enum ElectionStatus: string
             self::CANCELED => "لغو شده"
         };
     }
+
+    public function isImmutableStatuses()
+    {
+        return match ($this)  {
+            self::ONGOING, self::COMPLETED, self::CANCELED => true,
+            default => false
+        };
+    }
 }
