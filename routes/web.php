@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ElectionCandidateController;
 use App\Http\Controllers\ElectionController;
@@ -95,6 +96,11 @@ Route::middleware('auth')->group(function () {
 
             Route::resource('/election-users', CompanyUserController::class);
         });
+
+        Route::prefix('attendances')->group(function () {
+            Route::get('/', [AttendanceController::class, 'index'])->name('attendances.index');
+        });
+
 
         Route::resource('users', CompanyUserController::class)->names([
             'index' => 'company.users.index',
