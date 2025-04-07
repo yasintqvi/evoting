@@ -5,23 +5,19 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Jenssegers\Agent\Facades\Agent;
 
-// if (! function_exists('agent_detect')) {
-//     function agent_detect(): array
-//     {
-//         return [
-//             'platform' => Agent::platform(),
-//             'browser' => Agent::browser() ?? 'app',
-//         ];
-//     }
-// }
 
-if (!function_exists('convert_persian_to_english')) {   
+
+if (!function_exists('convert_persian_to_english')) {
     function convert_persian_to_english($string)
     {
         $persian = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+        $arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
         $english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
-        return str_replace($persian, $english, $string);
+        $string = str_replace($persian, $english, $string);
+        $string = str_replace($arabic, $english, $string);
+        
+        return $string;
     }
 }
 

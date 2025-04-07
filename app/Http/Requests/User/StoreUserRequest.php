@@ -26,22 +26,15 @@ class StoreUserRequest extends FormRequest
      */
     public function rules()
     {
-        if ($this->has('user_ids')) {
-            return [
-                'company_ids' => 'required|array|min:1',
-                'company_ids.*' => 'exists:groups,id',
-                'user_ids' => 'required|array|min:1',
-                'user_ids.*' => 'exists:users,id',
-            ];
-        } else {
-            return [
-                'first_name' => 'required|string|max:255',
-                'last_name' => 'required|string|max:255',
-                'phone' => 'required|string|max:20|unique:users,phone',
-                'company_ids' => 'required|array|min:1',
-                'company_ids.*' => 'exists:groups,id',
-                'is_active' => 'sometimes|boolean',
-            ];
-        }
+        
+        return [
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20|unique:users,phone',
+            'nationalcode' => 'required|string|max:20|unique:users,nationalcode',
+            'company_id' => 'required|array|min:1',
+            'is_active' => 'sometimes|boolean',
+        ];
+        
     }
 }
