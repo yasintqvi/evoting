@@ -104,9 +104,9 @@
                 </div>
                 <div class="col-lg-6">
                     <div class="mb-3">
-                        <label for="election_type" class="form-label">ناظر</label>
+                        <label for="election_type" class="form-label">منشی</label>
                         <select name="supervisor_id" id="supervisor_id" data-toggle="select2" class="form-select">
-                            <option value="">ناظر مورد نظر را انتخاب کنید</option>
+                            <option value="">منشی مورد نظر را انتخاب کنید</option>
                             @foreach ($users as $user)
                             <option @selected(old('supervisor_id', $election['supervisor_id'])==$user->id) value="{{ $user->id }}">{{ $user->full_name }}</option>
                             @endforeach

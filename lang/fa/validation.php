@@ -263,6 +263,7 @@ return [
         'identifier' => 'شناسه کاربری',
         'otp' => 'کد یکبار مصرف',
         'logo' => 'لوگو',
+        'nationalcode' => 'کد ملی',
         'current_password' => 'کلمه عبور فعلی',
         'two_factor_type' => 'نوع احراز هویت دو مرحله ای',
         'main_member_count' => 'تعداد عضو هیت مدیره',
@@ -278,5 +279,6 @@ return [
         'participants.*.user_id' => "مشارکت کننده",
         'participants.*.normal_stock_count' => "تعدا سهام عادی",
         'participants.*.prefered_stock_count' => "تعداد سهام ممتاز",
+        'supervisor_id' => 'منشی',
     ],
 ];

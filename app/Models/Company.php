@@ -62,4 +62,24 @@ class Company extends Model
     {
         return $this->hasMany(Election::class);
     }
+
+    public function getTotalPreferedAttribute()
+    {
+        return ($this->prefered_stock_count * $this->prefered_stock_weight)
+         + $this->normal_stock_count;
+    }
+
+    public function getAssignedStocksAttribute()
+    {
+        return $this->users->sum(function($user){
+            return $user->pivot->normal_stock_count + 
+            ($user->pivot->prefered_stock_count * $this->prefered_stock_weight);
+        });
+    }
+
+    public function getRemainingWeightedStocksAttribute()
+    {
+       return $this->total_prefered - $this->assigned_stocks;
+    }
+    
 }

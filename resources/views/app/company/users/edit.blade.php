@@ -59,6 +59,43 @@
                         </div>
                     </div>
                     <div class="col-lg-6">
+                        <div class="mb-3">
+                            <label for="nationalcode" class="form-label">کد ملی کاربر</label>
+                            <input type="text" name="nationalcode" class="form-control"
+                                placeholder="کد ملی را وارد کنید" value="{{ old('nationalcode', $user->nationalcode) }}">
+                            @error('nationalcode')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+                    @if (in_array($company->type, [App\Enums\CompanyType::SPECIAL]))
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <label for="nationalcode" class="form-label">تعداد سهام عادی</label>
+                            <input type="text" name="normal_stock_count" class="form-control"
+                                placeholder="تعداد سهام عادی را وارد کنید" value="{{ old('normal_stock_count', $userStock->normal_stock_count) }}">
+                            @error('normal_stock_count')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                            @error('total_stocks')
+                            <span class="text-danger">{{ $message }}</span>
+                        @enderror
+                        <input type="hidden" name="total_stocks" value="1">
+
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <label for="nationalcode" class="form-label">تعداد سهام ممتاز</label>
+                            <input type="text" name="prefered_stock_count" class="form-control"
+                                placeholder="تعداد سهام ممتاز را وارد کنید" value="{{ old('prefered_stock_count' , $userStock->prefered_stock_count) }}">
+                            @error('prefered_stock_count')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+                    @endif
+                    <div class="col-lg-6">
                         <label for="is_active" class="form-label">وضعیت</label>
                         <div class="mt-1">
                             <input type="checkbox" value="1" @checked(old('is_active', $user->is_active)) name="is_active" id="is_active" data-switch="primary" />
@@ -77,6 +114,36 @@
 
 
     </div>
+    @if (in_array($company->type, [App\Enums\CompanyType::SPECIAL]))
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-header border-bottom border-dashed d-flex align-items-center">
+                <h4 class="header-title">جزئیات سهام شرکت</h4>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">
+                    برای دسترسی به حضور غیاب کاربران و شروع انتخابات شرکت باید تعداد کل سهام کاربران با تعداد سهام شرکت
+                    برابر باشد .
+                </p>
+                <div class="alert alert-info d-flex align-items-center" role="alert">
+                    <iconify-icon class="fs-20 me-1"></iconify-icon>
+                    <div class="lh-1"> تعداد سهام کل شرکت : <strong> {{ $company->total_prefered }} </strong>
+                    </div>
+                </div>
+
+                <div class="alert alert-secondary d-flex align-items-center" role="alert">
+                    <iconify-icon class="fs-20 me-1"></iconify-icon>
+                    <div class="lh-1">
+                        تعداد سهام باقی مانده شرکت : <strong> {{ $company->total_prefered - $company->assigned_stocks }}
+                        </strong>
+                    </div>
+                </div>
+
+
+            </div> <!-- end card-body-->
+        </div> <!-- end card-->
+    </div>
+    @endif
 </div>
 
 

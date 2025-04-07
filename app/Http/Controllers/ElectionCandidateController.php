@@ -8,9 +8,18 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Election\StoreCandidateRequest;
 use App\Models\Company;
 use App\Models\Election;
+use App\Services\CandidateService;
+use Exception;
+use Throwable;
 
 class ElectionCandidateController extends Controller
 {
+    protected CandidateService $candidateService;
+
+    public function __construct(CandidateService $candidateService)
+    {
+        $this->candidateService = $candidateService;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -34,33 +43,14 @@ class ElectionCandidateController extends Controller
      */
     public function store(StoreCandidateRequest $request, Company $company, Election $election)
     {
-        if ($election->status != ElectionStatus::CREATED) {
-            return back();
+        try {
+
+            $this->candidateService->create($election, $request->toDto());
+
+            return to_route('elections.index', $company->slug)->with('success', 'کاندید جدید اضافه شد');
+        } catch (Exception $e) {
+            return back()->with('error', $e->getMessage());
         }
-
-        $data = $request->validated();
-
-        $election->candidates()->delete();
-
-        foreach ($data['main_candidates_ids'] as $mainCandidateId) {
-            $election->candidates()->create([
-                'user_id' => $mainCandidateId,
-                'candidate_type' => CandidateType::DIRECTOR,
-            ]);
-        }
-
-        foreach ($data['incpector_candidates_ids'] as $incpectorCandidateId) {
-            $election->candidates()->create([
-                'user_id' => $incpectorCandidateId,
-                'candidate_type' => CandidateType::INSPECTOR,
-            ]);
-        }
-
-        $election->status = ElectionStatus::PARTICIPANTS_PENDING;
-
-        $election->save();
-
-        return to_route('elections.index', $company->slug)->with('success', 'کاندید جدید اضافه شد');
     }
 
     /**
@@ -87,31 +77,16 @@ class ElectionCandidateController extends Controller
      */
     public function update(StoreCandidateRequest $request, Company $company, Election $election)
     {
-        if ($election->status != ElectionStatus::CREATED) {
-            return back()->with('error', 'امکان ویرایش در این وضعیت وجود ندارد.');
+        try {
+
+            $this->candidateService->update($election, $request->toDto());
+
+            return to_route('elections.index', $company->slug)->with('success', 'کاندیدها با موفقیت به‌روزرسانی شدند.');
+
+        } catch (Exception $e) {
+
+            return back()->with('error', $e->getMessage());
         }
-
-        $data = $request->validated();
-
-        $election->candidates()
-            ->whereNotIn('user_id', array_merge($data['main_candidates_ids'], $data['incpector_candidates_ids']))
-            ->delete();
-
-        foreach ($data['main_candidates_ids'] as $mainCandidateId) {
-            $election->candidates()->updateOrCreate(
-                ['user_id' => $mainCandidateId],
-                ['candidate_type' => CandidateType::DIRECTOR]
-            );
-        }
-
-        foreach ($data['incpector_candidates_ids'] as $incpectorCandidateId) {
-            $election->candidates()->updateOrCreate(
-                ['user_id' => $incpectorCandidateId],
-                ['candidate_type' => CandidateType::INSPECTOR]
-            );
-        }
-
-        return to_route('elections.index', $company->slug)->with('success', 'کاندیدها با موفقیت به‌روزرسانی شدند.');
     }
 
     /**
