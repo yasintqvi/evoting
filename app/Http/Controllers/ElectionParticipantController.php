@@ -35,7 +35,7 @@ class ElectionParticipantController extends Controller
      */
     public function store(StoreParticipantRequest $request, Company $company, Election $election)
     {
-        if ($election->status != ElectionStatus::PARTICIPANTS_PENDING) {
+        if ($election->status != ElectionStatus::PARTICIPANTS_ATTENDEES) {
             return back();
         }
 
@@ -58,7 +58,7 @@ class ElectionParticipantController extends Controller
 
     public function storeTableParticipent(StoreParticipaintTableRequest $request, Company $company, Election $election)
     {
-        if ($election->status != ElectionStatus::PARTICIPANTS_PENDING) {
+        if ($election->status != ElectionStatus::PARTICIPANTS_ATTENDEES) {
             return back();
         }
 
@@ -106,7 +106,7 @@ class ElectionParticipantController extends Controller
                 'is_present' => true
             ]);
 
-            if ((int) (100 * ($election->precentParticipants()->count() / $company->users->count())) > 50) {
+            if ($election->precentParticipants() > 50) {
                 $election->status = ElectionStatus::ONGOING;
                 $election->save();
 

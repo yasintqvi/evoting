@@ -95,10 +95,9 @@ Route::middleware('auth')->group(function () {
             Route::post('{election}/voting/terminate', [ElectionVotingController::class, 'terminate'])->name('voting.terminate');
 
             Route::resource('/election-users', CompanyUserController::class);
-        });
 
-        Route::prefix('attendances')->group(function () {
-            Route::get('/', [AttendanceController::class, 'index'])->name('attendances.index');
+            Route::get('{election}/attendances', [AttendanceController::class, 'create'])->name('attendances.create');
+            Route::post('{election}/attendances', [AttendanceController::class, 'store'])->name('attendances.store');
         });
 
 

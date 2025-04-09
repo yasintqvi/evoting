@@ -58,12 +58,12 @@ class ElectionResource extends JsonResource
     {
         return match ($this->status) {
             ElectionStatus::CREATED => [
-                "title" => 'تعیین نامزد ها',
+                "title" => 'تعیین یا تغییر نامزد ها',
                 "url" => route('candidates.edit', [$this->company->slug, $this->id])
             ],
             ElectionStatus::PARTICIPANTS_ATTENDEES => [
-                "title" => 'اعلام حضور',
-                "url" => route('candidates.edit', $this->id)
+                "title" => 'حضور و غیاب و ثبت وکالت انتخاباتی',
+                "url" => route('attendances.create', [$this->company->slug, $this->id])
             ],
             ElectionStatus::WAITING_TO_START => [
                 "title" => 'شروع انتخابات',

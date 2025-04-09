@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('normal_stock_count')->default(0);
             $table->integer('prefered_stock_count')->default(0);
             $table->boolean('is_present')->default(false);
+            $table->foreignId('attorney_id')->nullable()->constrained('participants');
             $table->timestamps();
             $table->softDeletes();
         });

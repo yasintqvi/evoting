@@ -9,7 +9,6 @@ enum ElectionStatus: string
     use EnumValues;
 
     case CREATED = "created";
-    case PARTICIPANTS_PENDING = 'participants_pending';
     case PARTICIPANTS_ATTENDEES = "participants_attendees";
     case WAITING_TO_START = "waiting_to_start";
     case ONGOING = "ongoing";
@@ -20,8 +19,7 @@ enum ElectionStatus: string
     {
         return match ($this) {
             self::CREATED => "ایجاد شده - در انتظار تعیین نامزد ها",
-            self::PARTICIPANTS_PENDING => "در انتظار انتخاب مشارکت کنندگان ",
-            self::PARTICIPANTS_ATTENDEES => "در انتظار تحقق حد نصاب",
+            self::PARTICIPANTS_ATTENDEES => "در انتظار حضور و غیاب و ثبت وکالت انتخاباتی",
             self::WAITING_TO_START => "در انتظار شروع انتخابات",
             self::ONGOING => "در حال برگزاری",
             self::COMPLETED => "پایان یافته",
@@ -31,7 +29,7 @@ enum ElectionStatus: string
 
     public function isImmutableStatuses()
     {
-        return match ($this)  {
+        return match ($this) {
             self::ONGOING, self::COMPLETED, self::CANCELED => true,
             default => false
         };

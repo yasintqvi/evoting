@@ -5,7 +5,7 @@
         <!-- Brand Logo -->
         <div style="margin-top: 1rem;">
             <div class="btn-group mb-2">
-                <button type="button" class="btn btn-light btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                     <span class="menu-icon"><img src="{{asset($company->logo ?? 'assets/img/company.jpg') }}" class="rounded-circle me-lg-2 d-flex object-fit-cover" width="20" height="20" alt="{{$company->title}}"></span>
                     {{ $company->title }}
                 </button>

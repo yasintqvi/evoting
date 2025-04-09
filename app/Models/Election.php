@@ -6,6 +6,7 @@ use App\Enums\ElectionStatus;
 use App\Enums\ElectionType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -61,6 +62,12 @@ class Election extends Model
 
     public function precentParticipants()
     {
-        return $this->participants()->where("is_present", true)->get();
+        $totalParticipants = $this->participants->count();
+
+        $presentCount = $this->participants->where('is_present', 1)->count();
+
+        return $totalParticipants > 0
+            ? ($presentCount / $totalParticipants) * 100
+            : 0;
     }
 }

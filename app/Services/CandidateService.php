@@ -32,7 +32,7 @@ class CandidateService
             ]);
         }
 
-        $election->status = ElectionStatus::PARTICIPANTS_PENDING;
+        $election->status = ElectionStatus::PARTICIPANTS_ATTENDEES;
 
         $election->save();
     }
@@ -60,6 +60,10 @@ class CandidateService
                 ['candidate_type' => CandidateType::INSPECTOR]
             );
         }
+
+        $election->status = $election->quorum_required ? ElectionStatus::PARTICIPANTS_ATTENDEES : ElectionStatus::WAITING_TO_START;
+
+        $election->save();
     }
 
     private function ensureCanAddCandidates(Election $election): void

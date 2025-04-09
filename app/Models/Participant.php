@@ -15,6 +15,7 @@ class Participant extends Model
     protected $fillable = [
         'election_id',
         'user_id',
+        'attorney_id',
         'normal_stock_count',
         'prefered_stock_count',
         'is_present'
