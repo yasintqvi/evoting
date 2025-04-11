@@ -4,11 +4,14 @@ namespace Database\Seeders;
 
 use App\Enums\CompanyStatus;
 use App\Enums\GroupStatus;
+use App\Enums\Permission;
+use App\Enums\Role;
 use App\Models\Company;
 use App\Models\Group;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission as ModelsPermission;
+use Spatie\Permission\Models\Role as ModelsRole;
 
 class DevEnvironmentSeeder extends Seeder
 {
@@ -23,7 +26,7 @@ class DevEnvironmentSeeder extends Seeder
             'password' => bcrypt('12345678')
         ]);
 
-        $testGroup = Company::create([
+        $testCompany = Company::create([
             'title' => 'Evoting Test Group',
             'description' => 'this is the test group in the evoting system',
             'owner_id' => $adminUser->id,
@@ -31,6 +34,21 @@ class DevEnvironmentSeeder extends Seeder
             'logo' => 'assets/img/group.jpg'
         ]);
 
-        $testGroup->users()->attach($adminUser->id);
+        $testCompany->users()->attach($adminUser->id);
+
+        foreach (Role::cases() as $role) {
+            $roleModel = ModelsRole::create(['name' => $role->value]);
+            $permissions = Permission::getPermissionsByRole($role);
+
+            foreach ($permissions as $permission) {
+                $permissionModel = ModelsPermission::firstOrCreate([
+                    'name' => $permission->value
+                ]);
+                $roleModel->givePermissionTo($permissionModel);
+            }
+        }
+
+        $adminUser->assignRole('admin');
+        $adminUser->givePermissionTo(ModelsPermission::all());
     }
 }
