@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Enums\ElectionStatus;
+use App\Enums\Permission;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -54,21 +55,29 @@ class ElectionResource extends JsonResource
         ];
     }
 
-    private function getNextStep()
+    private function getNextStep(): ?array
     {
-        return match ($this->status) {
-            ElectionStatus::CREATED => [
+        if ($this->status == ElectionStatus::CREATED && user()->hasPermissionTo(Permission::CREATE_CANDIDATES->value)) {
+            return [
                 "title" => 'تعیین یا تغییر نامزد ها',
                 "url" => route('candidates.edit', [$this->company->slug, $this->id])
-            ],
-            ElectionStatus::PARTICIPANTS_ATTENDEES => [
+            ];
+        }
+
+        if ($this->status == ElectionStatus::PARTICIPANTS_ATTENDEES && user()->hasPermissionTo(Permission::CREATE_ATTENDANCE->value)) {
+            return [
                 "title" => 'حضور و غیاب و ثبت وکالت انتخاباتی',
                 "url" => route('attendances.create', [$this->company->slug, $this->id])
-            ],
-            ElectionStatus::WAITING_TO_START => [
+            ];
+        }
+
+        if ($this->status == ElectionStatus::WAITING_TO_START && user()->hasPermissionTo(Permission::CREATE_ELECTION_ROUNDS->value)) {
+            return [
                 "title" => 'شروع انتخابات',
                 "url" => route('election-rounds.store', [$this->company->slug, $this->id]),
-            ]
-        };
+            ];
+        }
+
+        return null;
     }
 }

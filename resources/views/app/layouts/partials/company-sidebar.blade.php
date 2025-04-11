@@ -31,6 +31,7 @@
 
          <!--- Sidenav Menu -->
          <ul class="side-nav">
+             @can(\App\Enums\Permission::VIEW_ELECTIONS->value)
              <li class="side-nav-item">
                  <a href="{{ route('elections.index', $company->slug) }}" class="side-nav-link">
                      <span class="menu-icon">
@@ -42,6 +43,7 @@
                      <span class="menu-text"> انتخابات </span>
                  </a>
              </li>
+             @endcan
              <li class="side-nav-item">
                  <a href="#" class="side-nav-link">
                      <span class="menu-icon">
@@ -54,6 +56,7 @@
                      <span class="menu-text"> نظرسنجی </span>
                  </a>
              </li>
+             @can(\App\Enums\Permission::VIEW_COMPANY_USERS->value)
              <li class="side-nav-item">
                  <a href="{{ route('company.users.index', $company->slug) }}" class="side-nav-link">
                      <span class="menu-icon">
@@ -68,6 +71,7 @@
                      <span class="menu-text"> اعضا </span>
                  </a>
              </li>
+             @endcan
          </ul>
 
          <div class="clearfix"></div>

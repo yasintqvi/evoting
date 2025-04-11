@@ -61,6 +61,14 @@ enum Permission: string
 
     case VIEW_DASHBOARD = 'view dashboard';
 
+    case VIEW_ROLES = 'view roles';
+    case CREATE_ROLES = 'create roles';
+    case EDIT_ROLES = 'edit roles';
+    case UPDATE_ROLES = 'update roles';
+    case DELETE_ROLES = 'delete roles';
+
+    case VIEW_PERMISSIONS = 'view permissions';
+
     /**
      * Get permissions based on role
      *
@@ -71,6 +79,7 @@ enum Permission: string
     {
         return match ($role) {
             Role::Manager => [
+                self::CREATE_COMPANY,
                 self::VIEW_COMPANY,
                 self::EDIT_COMPANY,
                 self::UPDATE_COMPANY,
@@ -111,6 +120,12 @@ enum Permission: string
                 self::CREATE_ATTENDANCE,
                 self::STORE_ATTENDANCE,
                 self::VIEW_DASHBOARD,
+                self::VIEW_ROLES,
+                self::CREATE_ROLES,
+                self::EDIT_ROLES,
+                self::UPDATE_ROLES,
+                self::DELETE_ROLES,
+                self::VIEW_PERMISSIONS,
             ],
             Role::Secretary => [
                 self::VIEW_ELECTIONS,
@@ -133,6 +148,62 @@ enum Permission: string
                 self::VIEW_DASHBOARD,
             ],
             default => [],
+        };
+    }
+
+    public function fa(): string
+    {
+        return match ($this) {
+            self::CREATE_COMPANY => 'ایجاد شرکت',
+            self::VIEW_COMPANY => 'مشاهده شرکت',
+            self::EDIT_COMPANY => 'ویرایش شرکت',
+            self::UPDATE_COMPANY => 'بروزرسانی شرکت',
+            self::DELETE_COMPANY => 'حذف شرکت',
+            self::LIST_COMPANIES => 'لیست شرکت‌ها',
+            self::VIEW_USERS => 'مشاهده کاربران',
+            self::CREATE_USERS => 'ایجاد کاربر',
+            self::EDIT_USERS => 'ویرایش کاربر',
+            self::UPDATE_USERS => 'بروزرسانی کاربر',
+            self::DELETE_USERS => 'حذف کاربر',
+            self::IMPORT_USERS => 'وارد کردن کاربران',
+            self::VIEW_COMPANY_USERS => 'مشاهده کاربران شرکت',
+            self::CREATE_COMPANY_USERS => 'ایجاد کاربر شرکت',
+            self::EDIT_COMPANY_USERS => 'ویرایش کاربر شرکت',
+            self::UPDATE_COMPANY_USERS => 'بروزرسانی کاربر شرکت',
+            self::DELETE_COMPANY_USERS => 'حذف کاربر شرکت',
+            self::VIEW_ELECTIONS => 'مشاهده انتخابات',
+            self::CREATE_ELECTIONS => 'ایجاد انتخابات',
+            self::EDIT_ELECTIONS => 'ویرایش انتخابات',
+            self::UPDATE_ELECTIONS => 'بروزرسانی انتخابات',
+            self::DELETE_ELECTIONS => 'حذف انتخابات',
+            self::SHOW_ELECTION => 'نمایش انتخابات',
+            self::VIEW_CANDIDATES => 'مشاهده کاندیداها',
+            self::CREATE_CANDIDATES => 'ایجاد کاندیدا',
+            self::EDIT_CANDIDATES => 'ویرایش کاندیدا',
+            self::UPDATE_CANDIDATES => 'بروزرسانی کاندیدا',
+            self::DELETE_CANDIDATES => 'حذف کاندیدا',
+            self::VIEW_PARTICIPANTS => 'مشاهده شرکت‌کنندگان',
+            self::CREATE_PARTICIPANTS => 'ایجاد شرکت‌کننده',
+            self::EDIT_PARTICIPANTS => 'ویرایش شرکت‌کننده',
+            self::UPDATE_PARTICIPANTS => 'بروزرسانی شرکت‌کننده',
+            self::DELETE_PARTICIPANTS => 'حذف شرکت‌کننده',
+            self::IMPORT_PARTICIPANTS => 'وارد کردن شرکت‌کنندگان',
+            self::STORE_TABLE_PARTICIPANT => 'ذخیره جدول شرکت‌کنندگان',
+            self::VIEW_ELECTION_ROUNDS => 'مشاهده دوره‌های انتخابات',
+            self::CREATE_ELECTION_ROUNDS => 'ایجاد دوره انتخابات',
+            self::EDIT_ELECTION_ROUNDS => 'ویرایش دوره انتخابات',
+            self::UPDATE_ELECTION_ROUNDS => 'بروزرسانی دوره انتخابات',
+            self::DELETE_ELECTION_ROUNDS => 'حذف دوره انتخابات',
+            self::CREATE_ATTENDANCE => 'ایجاد حضور و غیاب',
+            self::STORE_ATTENDANCE => 'ذخیره حضور و غیاب',
+            self::VIEW_DASHBOARD => 'مشاهده داشبورد',
+            self::VIEW_ROLES => 'مشاهده نقش‌ها',
+            self::CREATE_ROLES => 'ایجاد نقش',
+            self::EDIT_ROLES => 'ویرایش نقش',
+            self::UPDATE_ROLES => 'بروزرسانی نقش',
+            self::DELETE_ROLES => 'حذف نقش',
+            self::VIEW_PERMISSIONS => 'مشاهده دسترسی‌ها',
+            default => $this->value
         };
     }
 }

@@ -23,7 +23,9 @@
             <div class="card-header d-flex align-items-center justify-content-between border-bottom border-light">
                 <h4 class="header-title">لیست انتخابات</h4>
                 <div>
+                    @can(\App\Enums\Permission::CREATE_ELECTIONS->value)
                     <a href="{{route('elections.create', $company->slug)}}" class="btn btn-success bg-gradient"><i class="ti ti-plus me-1"></i>ایجاد همه پرسی</a>
+                    @endcan
                 </div>
             </div>
             <div class="table-responsive">
@@ -47,7 +49,11 @@
                             <td class="ps-3">
                             </td>
                             <td>
+                                @can(\App\Enums\Permission::SHOW_ELECTION->value)
                                 <a href="{{ $election['operations']['show'] }}" class="text-dark fw-medium">{{ $election['title'] }}</a>
+                                @else
+                                <span class="text-dark fw-medium">{{ $election['title'] }}</span>
+                                @endcan
                             </td>
                             <td>
                                 <div class="avatar-group">
@@ -79,12 +85,20 @@
                             </td>
                             <td class="pe-3">
                                 <div class="hstack gap-1 justify-content-end">
+                                    @isset($election['operations']['next_step'])
                                     <a href="{{ $election['operations']['next_step']['url'] }}" class="btn btn-primary btn-sm">
                                         {{ $election['operations']['next_step']['title'] }}
                                     </a>
+                                    @endisset
+                                    @can(\App\Enums\Permission::SHOW_ELECTION->value)
                                     <a href="{{ $election['operations']['show'] }}" class="btn btn-success btn-sm"><i class="ti ti-eye"></i></a>
+                                    @endcan
+                                    @can(\App\Enums\Permission::EDIT_ELECTIONS->value)
                                     <a href="{{ $election['operations']['edit'] }}" class="btn btn-secondary btn-sm"><i class="ti ti-edit"></i></a>
+                                    @endcan
+                                    @can(\App\Enums\Permission::DELETE_ELECTIONS->value)
                                     <a href="javascript:void(0);" class="btn btn-danger btn-sm"><i class="ti ti-trash"></i></a>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>
@@ -110,6 +124,5 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script src="/assets/js/pages/chart-apex-bar.js"></script>
-@include('app.alerts.toastr.success')
 
 @endsection

@@ -13,6 +13,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserExcelController;
 use App\Enums\Permission;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\RoleController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -61,6 +63,24 @@ Route::middleware('auth')->group(function () {
 
     Route::post('uplode-users', [UserExcelController::class, 'uplodeExcel'])->name('uplode-users')
         ->middleware('can:' . Permission::IMPORT_USERS->value);
+
+    Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index')
+        ->middleware('can:' . Permission::VIEW_PERMISSIONS->value);
+
+    Route::prefix('roles')->group(function () {
+        Route::get('/', [RoleController::class, 'index'])->name('roles.index')
+            ->middleware('can:' . Permission::VIEW_ROLES->value);
+        Route::get('/create', [RoleController::class, 'create'])->name('roles.create')
+            ->middleware('can:' . Permission::CREATE_ROLES->value);
+        Route::post('/create', [RoleController::class, 'store'])->name('roles.store')
+            ->middleware('can:' . Permission::CREATE_ROLES->value);
+        Route::get('/edit/{role}', [RoleController::class, 'edit'])->name('roles.edit')
+            ->middleware('can:' . Permission::EDIT_ROLES->value);
+        Route::put('/update/{role}', [RoleController::class, 'update'])->name('roles.update')
+            ->middleware('can:' . Permission::UPDATE_ROLES->value);
+        Route::delete('/delete/{role}', [RoleController::class, 'destroy'])->name('roles.delete')
+            ->middleware('can:' . Permission::DELETE_ROLES->value);
+    });
 
     Route::prefix('{company:slug}')->group(function () {
         Route::get('/', [CompanyController::class, 'index'])->name('companies.index')
