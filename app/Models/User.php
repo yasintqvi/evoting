@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
@@ -21,6 +23,7 @@ class User extends Authenticatable
     use Notifiable;
     use SoftDeletes;
     use HasRoles;
+    use LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -41,6 +44,7 @@ class User extends Authenticatable
         'two_factor_type'
     ];
 
+
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -50,6 +54,13 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+
+    protected static $logAttributesToIgnore = ['updated_at'];
+
+    protected static $logAttributes = ['*'];
+
+    protected static $logOnlyDirty = true;
 
     /**
      * Get the attributes that should be cast.
@@ -65,6 +76,15 @@ class User extends Authenticatable
             'status' => UserStatus::class,
             'two_factor_type' => TwoFactorType::class,
         ];
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(static::$logAttributes)->dontLogIfAttributesChangedOnly(static::$logAttributesToIgnore)
+            ->logOnlyDirty()
+            ->setDescriptionForEvent(fn(string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'کاربر', 'subject' => $this->full_name]))
+            ->dontSubmitEmptyLogs();
     }
 
     public function companies(): BelongsToMany

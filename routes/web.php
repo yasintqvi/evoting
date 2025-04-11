@@ -16,6 +16,7 @@ use App\Enums\Permission;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserAccessController;
+use App\Http\Controllers\UserActivityController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -66,7 +67,9 @@ Route::middleware('auth')->group(function () {
         ->middleware('can:' . Permission::CHANGE_ACCESS->value);
 
     Route::put('users/{user}/changes-access', [UserAccessController::class, 'update'])->name('users.change-access.update')
-        ->middleware('can:' . Permission::CHANGE_ACCESS->value);;
+        ->middleware('can:' . Permission::CHANGE_ACCESS->value);
+
+    Route::get('user-activities', UserActivityController::class)->name('users.activities.index');
 
     Route::post('uplode-users', [UserExcelController::class, 'uplodeExcel'])->name('uplode-users')
         ->middleware('can:' . Permission::IMPORT_USERS->value);

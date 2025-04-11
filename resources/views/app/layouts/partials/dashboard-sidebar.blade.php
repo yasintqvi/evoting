@@ -63,7 +63,7 @@
                              <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5 6s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zM11 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5m.5 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1zm2 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1z" />
                          </svg>
                      </span>
-                     <span class="menu-text"> مدیرت کاربران </span>
+                     <span class="menu-text"> مدیریت کاربران </span>
                  </a>
              </li>
              @endcan
@@ -78,6 +78,23 @@
                          </svg>
                      </span>
                      <span class="menu-text"> مدیریت دسترسی ها </span>
+                 </a>
+             </li>
+             @endcan
+
+             @can(\App\Enums\Permission::VIEW_USERS->value)
+             <li class="side-nav-item">
+                 <a href="{{ route('users.activities.index') }}" class="side-nav-link">
+                     <span class="menu-icon">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clipboard-text">
+                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                             <path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
+                             <path d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
+                             <path d="M9 12h6" />
+                             <path d="M9 16h6" />
+                         </svg>
+                     </span>
+                     <span class="menu-text"> لاگ فعالیت کاربران </span>
                  </a>
              </li>
              @endcan

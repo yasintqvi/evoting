@@ -8,7 +8,7 @@ use App\Models\Company;
 use App\Models\User;
 use Illuminate\Http\Request;
 
-class   UserController extends Controller
+class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,8 +34,6 @@ class   UserController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request->all());
-
         $request->mergeIfMissing(['is_active' => 0]);
         $inputs = $request->except('company_id');
         $user = User::create($inputs);
@@ -45,7 +43,6 @@ class   UserController extends Controller
 
 
         return redirect()->back()->with('success', 'کاربر جدید با موفقیت ایجاد و به گروه‌های انتخابی اضافه شد.');
-        
     }
 
 

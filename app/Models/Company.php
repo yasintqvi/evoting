@@ -11,12 +11,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Company extends Model
 {
     use HasFactory;
     use Sluggable;
     use SoftDeletes;
+    use LogsActivity;
 
     protected $fillable = [
         'title',
@@ -30,6 +33,21 @@ class Company extends Model
         'status',
         'logo'
     ];
+
+    protected static $logAttributesToIgnore = ['updated_at'];
+
+    protected static $logAttributes = ['*'];
+
+    protected static $logOnlyDirty = true;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(static::$logAttributes)->dontLogIfAttributesChangedOnly(static::$logAttributesToIgnore)
+            ->logOnlyDirty()
+            ->setDescriptionForEvent(fn(string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'شرکت', 'subject' => $this->title]))
+            ->dontSubmitEmptyLogs();
+    }
 
     public function sluggable(): array
     {
@@ -66,20 +84,19 @@ class Company extends Model
     public function getTotalPreferedAttribute()
     {
         return ($this->prefered_stock_count * $this->prefered_stock_weight)
-         + $this->normal_stock_count;
+            + $this->normal_stock_count;
     }
 
     public function getAssignedStocksAttribute()
     {
-        return $this->users->sum(function($user){
-            return $user->pivot->normal_stock_count + 
-            ($user->pivot->prefered_stock_count * $this->prefered_stock_weight);
+        return $this->users->sum(function ($user) {
+            return $user->pivot->normal_stock_count +
+                ($user->pivot->prefered_stock_count * $this->prefered_stock_weight);
         });
     }
 
     public function getRemainingWeightedStocksAttribute()
     {
-       return $this->total_prefered - $this->assigned_stocks;
+        return $this->total_prefered - $this->assigned_stocks;
     }
-    
 }

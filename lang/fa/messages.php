@@ -8,7 +8,7 @@ return [
     'password_changed' => 'کلمه عبور با موفقیت تغییر کرد.',
     'invalid_otp' => "کد اعتبارسنجی نا معتبر است.",
     'google2fa_verified' => 'احراز هویت دومرحله ای google authenticator با موفقیت فعال شد.',
-
+    'log_activity' => ':resource با عنوان :subject :event شد.',
     'election' => [
         'created' => 'همه پرسی جدید اضافه شد',
         'edited' => 'همه پرسی با موفقیت ویرایش شد.',

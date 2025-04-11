@@ -7,10 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Participant extends Model
 {
     use SoftDeletes;
+    use LogsActivity;
 
     protected $fillable = [
         'election_id',
@@ -20,6 +23,21 @@ class Participant extends Model
         'prefered_stock_count',
         'is_present'
     ];
+
+    protected static $logAttributesToIgnore = ['updated_at'];
+
+    protected static $logAttributes = ['*'];
+
+    protected static $logOnlyDirty = true;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(static::$logAttributes)->dontLogIfAttributesChangedOnly(static::$logAttributesToIgnore)
+            ->logOnlyDirty()
+            ->setDescriptionForEvent(fn(string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'شرکت کننده', 'subject' => $this->user->full_name]))
+            ->dontSubmitEmptyLogs();
+    }
 
     public function casts(): array
     {
