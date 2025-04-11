@@ -36,7 +36,7 @@ class CompanyController extends Controller
 
         $company->users()->attach(user()->id);
 
-        return back()->with('success', 'شرکت جدید ایجاد شد.');
+        return back()->with('success', __('messages.company_updated'));
     }
 
     public function edit(Company $company)

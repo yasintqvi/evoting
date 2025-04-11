@@ -52,35 +52,6 @@
                         @enderror
                     </div>
                 </div>
-                <div id="prefered_stock_weight" class="row m-0 p-0 d-none">
-                    <div class="col-lg-4">
-                        <div class="mb-3">
-                            <label for="normal_stock_count" class="form-label">تعداد سهام عادی</label>
-                            <input type="number" class="form-control" name="normal_stock_count" value="{{ old('normal_stock_count') }}" id="normal_stock_count">
-                            @error('normal_stock_count')
-                            <span class="strong text-danger font-weight-bold">{{ $message }}</span>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="mb-3">
-                            <label for="prefered_stock_count" class="form-label">تعداد سهام ممتاز</label>
-                            <input type="number" class="form-control" name="prefered_stock_count" value="{{ old('prefered_stock_count') }}" id="prefered_stock_count">
-                            @error('prefered_stock_count')
-                            <span class="strong text-danger font-weight-bold">{{ $message }}</span>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="mb-3">
-                            <label for="prefered_stock_weight" class="form-label">وزن سهام ممتاز</label>
-                            <input type="number" class="form-control" name="prefered_stock_weight" value="{{ old('prefered_stock_weight') }}" id="prefered_stock_weight">
-                            @error('prefered_stock_weight')
-                            <span class="strong text-danger font-weight-bold">{{ $message }}</span>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
                 <div class="col-lg-6">
                     <div class="mb-3">
                         <label for="main_member_count" class="form-label">تعداد عضو اصلی هیت مدیره</label>
@@ -158,22 +129,6 @@
 
 @section('scripts')
 
-<script>
-    function checkElectionType(event) {
-        const privateJoint = "{{ App\Enums\ElectionType::PRIVATE_JOINT->value }}";
-        const privateJointWith88 = "{{ App\Enums\ElectionType::PRIVATE_JOINT_WITH_88->value }}";
-
-        const selectedValue = event.target.value;
-
-        const preferredStockWeightField = document.getElementById('prefered_stock_weight');
-
-        if (selectedValue === privateJoint || selectedValue === privateJointWith88) {
-            preferredStockWeightField.classList.remove('d-none');
-        } else {
-            preferredStockWeightField.classList.add('d-none');
-        }
-    }
-</script>
 @include('app.alerts.toastr.success')
 @include('app.alerts.toastr.error')
 

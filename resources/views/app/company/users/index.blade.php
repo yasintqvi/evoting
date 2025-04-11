@@ -33,6 +33,8 @@
 
                             <th><span class="m-3">نام نام خانوادگی</span></th>
                             <th><span class="m-3">تلفن همراه</span></th>
+                            <th><span class="m-3">تعداد سهام عادی</span></th>
+                            <th><span class="m-3">تعداد سهام ممتاز</span></th>
                             <th><span class="m-3">وضعیت</span></th>
                             <th class="text-center" style="width: 120px;">فعالیت</th>
                         </tr>
@@ -48,6 +50,8 @@
                             <td>
                                 <span class="m-3">{{ $user->phone }}</span>
                             </td>
+                            <td>{{ $user->pivot->normal_stock_count ?? '-' }}</td>
+                            <td>{{ $user->pivot->prefered_stock_count ?? '-' }}</td>
                             <td>
                                 @if ($user->is_active == 1)
                                 <a href="#" class="badge badge-soft-success"> فعال </a>
@@ -72,6 +76,22 @@
                         @endforelse
 
                     </tbody>
+
+                    <tfoot class="bg-light-subtle fw-bold">
+                        <tr>
+                            <td colspan="2" class="text-end">جمع سهام اختصاص داده شده:</td>
+                            <td>{{ $company->users->sum('pivot.normal_stock_count') }}</td>
+                            <td>{{ $company->users->sum('pivot.prefered_stock_count') }}</td>
+                            <td colspan="2"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="text-end">سهام باقیمانده:</td>
+                            <td>{{ $company->normal_stock_count - $company->users->sum('pivot.normal_stock_count') }}</td>
+                            <td>{{ $company->prefered_stock_count - $company->users->sum('pivot.prefered_stock_count') }}</td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tfoot>
+                    
                     <!-- end tbody -->
                 </table><!-- end table -->
             </div>

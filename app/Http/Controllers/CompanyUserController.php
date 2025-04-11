@@ -34,7 +34,9 @@ class CompanyUserController extends Controller
             $query->where('company_id', $company->id);
         })->get();
 
-        return view('app.company.users.create', compact('company', 'users'));
+        $stockWeight = $company->prefered_stock_weight;
+
+        return view('app.company.users.create', compact('company', 'users' , 'stockWeight'));
     }
 
     /**
@@ -89,11 +91,9 @@ class CompanyUserController extends Controller
      */
     public function update(UpdateCompanyUserRequest $request, Company $company, User $user)
     {
-        $phone = convert_persian_to_english($request->input('phone'));
         $nationalcode = convert_persian_to_english($request->input('nationalcode'));
     
         $userData = $request->validated();
-        $userData['phone'] = $phone;
         $userData['nationalcode'] = $nationalcode;
     
         if ($user->nationalcode !== $nationalcode) {

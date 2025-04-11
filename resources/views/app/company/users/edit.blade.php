@@ -106,7 +106,7 @@
             </div>
             <div class="card-footer">
                 <div class="text-end mb-3">
-                    <button type="submit" class="btn btn-primary">ویرایش کاربر جدید</button>
+                    <button type="submit" class="btn btn-primary">ویرایش کاربر </button>
                 </div>
             </div>
         </form>
@@ -122,23 +122,62 @@
             </div>
             <div class="card-body">
                 <p class="text-muted">
-                    برای دسترسی به حضور غیاب کاربران و شروع انتخابات شرکت باید تعداد کل سهام کاربران با تعداد سهام شرکت
+                    برای دسترسی به حضور غیاب کاربران و شروع انتخابات شرکت باید تعداد کل سهام کاربران با تعداد سهام
+                    شرکت
                     برابر باشد .
                 </p>
-                <div class="alert alert-info d-flex align-items-center" role="alert">
+                <div class="alert alert-info d-flex align-items-center justify-content-center text-center" role="alert">
                     <iconify-icon class="fs-20 me-1"></iconify-icon>
                     <div class="lh-1"> تعداد سهام کل شرکت : <strong> {{ $company->total_prefered }} </strong>
                     </div>
                 </div>
 
-                <div class="alert alert-secondary d-flex align-items-center" role="alert">
-                    <iconify-icon class="fs-20 me-1"></iconify-icon>
-                    <div class="lh-1">
-                        تعداد سهام باقی مانده شرکت : <strong> {{ $company->total_prefered - $company->assigned_stocks }}
-                        </strong>
+                <div class="row">
+                   <div class="col-xl-6">
+                    <div class=" alert alert-success d-flex align-items-center mb-0" role="alert">
+                        <iconify-icon class="fs-20 me-1"></iconify-icon>
+                        <div class="lh-1">
+                            تعداد کل سهام عادی : <strong>
+                                {{ $company->normal_stock_count }}
+                            </strong>
+                        </div>
+                    </div>
+                   </div>
+                   
+                
+                    <div class="col-xl-6">
+                        <div class=" alert alert-success d-flex align-items-center mb-0" role="alert">
+                            <iconify-icon class="fs-20 me-1"></iconify-icon>
+                            <div class="lh-1">
+                             تعداد سهام ممتاز : <strong>
+                                        {{ $company->prefered_stock_count }}
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-6 mt-2">
+                        <div class=" alert alert-danger d-flex align-items-center mb-0" role="alert">
+                            <iconify-icon class="fs-20 me-1"></iconify-icon>
+                            <div class="lh-1">
+                                تعداد سهام عادی باقی مانده : <strong>
+                                    {{ $company->total_normal_stock }}
+                                </strong>
+                            </div>
+                        </div>
+                       </div>   
+
+                       <div class="col-xl-6 mt-2">
+                        <div class=" alert alert-danger d-flex align-items-center mb-0" role="alert">
+                            <iconify-icon class="fs-20 me-1"></iconify-icon>
+                            <div class="lh-1">
+                              تعداد سهام ممتاز باقی مانده : <strong>
+                                        {{ $company->total_prefered_stock }}
+                                </strong>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
 
             </div> <!-- end card-body-->
         </div> <!-- end card-->

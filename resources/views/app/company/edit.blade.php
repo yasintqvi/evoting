@@ -37,38 +37,38 @@
                             <div class="mb-3">
                                 <label for="title" class="form-label">عنوان</label>
                                 <input type="text" class="form-control" name="title" id="title"
-                                    placeholder="عنوان را وارد کنید" value="{{ old('title', $company->title) }}" required="">
+                                    placeholder="عنوان را وارد کنید" value="{{ old('title', $company->title) }}"
+                                    required="">
                                 @error('title')
                                     <span class="text-danger font-weight-bold">{{ $message }}</span>
                                 @enderror
                             </div>
-                            
+
                             <h6 class="fs-13">انتخاب نوع شرکت</h6>
                             <div class="mt-2">
+                                @php
+                                    $oldType = (int) old('type', $company->type->value ?? null);
+                                @endphp
                                 <div class="form-check form-check-inline d-inline-block me-3">
                                     <input type="radio" id="customRadio3" name="type"
                                         value="{{ App\Enums\CompanyType::COOPERTAIVE->value }}" class="form-check-input"
-                                        {{ $company->type == App\Enums\CompanyType::COOPERTAIVE->value ? 'checked' : '' }}>
+                                        {{ $oldType === App\Enums\CompanyType::COOPERTAIVE->value ? 'checked' : '' }}>
                                     <label class="form-check-label" for="customRadio3">نوع شرکت تعاونی</label>
                                 </div>
+
                                 <div class="form-check form-check-inline d-inline-block me-3">
                                     <input type="radio" id="customRadio4" name="type"
-                                        value="{{ App\Enums\CompanyType::SPECIAL->value }}"
-                                        {{ $company->type == App\Enums\CompanyType::SPECIAL->value ? 'checked' : '' }}
-                                        class="form-check-input">
+                                        value="{{ App\Enums\CompanyType::SPECIAL->value }}" class="form-check-input"
+                                        {{ $oldType === App\Enums\CompanyType::SPECIAL->value ? 'checked' : '' }}>
                                     <label class="form-check-label" for="customRadio4">نوع شرکت سهامی خاص</label>
-                                </div>
-                                <div class="form-check form-check-inline d-inline-block me-3">
-                                    <label class="form-check-label" for="customRadio4">
-                                        تعداد کل سهام شرکت : <p id="total_stock_display" class="d-inline-block mb-0">{{ old('normal_stock_count', $company->normal_stock_count) + old('prefered_stock_count', $company->prefered_stock_count) }}</p>
-                                    </label>
                                 </div>
                             </div>
                             @error('type')
                                 <span class="text-danger font-weight-bold mt-1">{{ $message }}</span>
                             @enderror
 
-                            <div class="d-flex gap-2 mt-3 {{ old('type', $company->type) == App\Enums\CompanyType::SPECIAL->value ? '' : 'hidden' }}" id="shareInput">
+                            <div class="d-flex gap-2 mt-3 {{ old('type', $company->type) == App\Enums\CompanyType::SPECIAL->value ? '' : 'hidden' }}"
+                                id="shareInput">
                                 <div class="flex-grow-1">
                                     <label for="normal_stock_count" class="form-label">تعداد سهام عادی کل شرکت</label>
                                     <input type="number" id="normal_stock_count" name="normal_stock_count"
@@ -130,7 +130,7 @@
             </form>
         </div>
     </div>
-</div>
+    </div>
 @endsection
 
 @section('scripts')
