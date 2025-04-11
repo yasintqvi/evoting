@@ -71,7 +71,10 @@
                             </td>
                             <td class="pe-3">
                                 <div class="hstack gap-1 justify-content-end">
-                                    <a href="{{ route('users.edit' , [$company->slug, $user->id]) }}" class="btn btn-soft-success btn-icon btn-sm rounded-circle"> <i class="ti ti-edit fs-16"></i></a>
+                                    @can(\App\Enums\Permission::CHANGE_ACCESS->value)
+                                    <a href="{{ route('users.change-access.edit' , $user->id) }}" class="btn btn-soft-primary btn-sm">تغییر دسترسی</a>
+                                    @endcan
+                                    <a href="{{ route('users.edit' ,  $user->id) }}" class="btn btn-soft-success btn-icon btn-sm"> <i class="ti ti-edit fs-16"></i></a>
                                 </div>
                             </td>
                         </tr>

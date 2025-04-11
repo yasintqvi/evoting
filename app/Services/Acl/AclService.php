@@ -7,8 +7,11 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Database\Eloquent\Collection;
 use App\Enums\Role as RoleEnum;
 use App\DTOs\ACL\RoleDto;
+use App\DTOs\ACL\UserAccessDto;
+use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use Throwable;
 
 class AclService
 {
@@ -78,7 +81,7 @@ class AclService
     {
         try {
             $role->update(['name' => $roleDto->name]);
-            
+
             if (!empty($roleDto->permissions)) {
                 $permissions = Permission::whereIn('id', $roleDto->permissions)->get();
                 $role->syncPermissions($permissions);
@@ -94,6 +97,21 @@ class AclService
             Log::error('Failed to update role', [
                 'role_id' => $role->id,
                 'role_name' => $roleDto->name,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
+    public function updateUserAccess(User $user, UserAccessDto $userAccessDto)
+    {
+        try {
+            $user->permissions()->sync($userAccessDto->permission_ids);
+
+            $user->roles()->sync($userAccessDto->role_ids);
+        } catch (Throwable $e) {
+            Log::error('Failed to update role', [
+                'user_id' => $user->id,
                 'error' => $e->getMessage()
             ]);
             throw $e;
@@ -119,7 +137,7 @@ class AclService
             }
 
             $role->delete();
-            
+
             Log::info('Role deleted successfully', [
                 'role_id' => $role->id,
                 'role_name' => $role->name

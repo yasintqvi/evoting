@@ -61,7 +61,6 @@
                                         class="btn btn-soft-success btn-icon btn-sm rounded-circle">
                                         <i class="ti ti-edit fs-16"></i>
                                     </a>
-
                                 </div>
                             </td>
                         </tr>

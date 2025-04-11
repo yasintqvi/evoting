@@ -22,6 +22,7 @@ enum Permission: string
     case UPDATE_USERS = 'update users';
     case DELETE_USERS = 'delete users';
     case IMPORT_USERS = 'import users';
+    case CHANGE_ACCESS = 'changes access';
 
     case VIEW_COMPANY_USERS = 'view company users';
     case CREATE_COMPANY_USERS = 'create company users';
@@ -126,6 +127,7 @@ enum Permission: string
                 self::UPDATE_ROLES,
                 self::DELETE_ROLES,
                 self::VIEW_PERMISSIONS,
+                self::CHANGE_ACCESS,
             ],
             Role::Secretary => [
                 self::VIEW_ELECTIONS,
@@ -166,6 +168,7 @@ enum Permission: string
             self::UPDATE_USERS => 'بروزرسانی کاربر',
             self::DELETE_USERS => 'حذف کاربر',
             self::IMPORT_USERS => 'وارد کردن کاربران',
+            self::CHANGE_ACCESS => 'تغییر دسترسی کاربران',
             self::VIEW_COMPANY_USERS => 'مشاهده کاربران شرکت',
             self::CREATE_COMPANY_USERS => 'ایجاد کاربر شرکت',
             self::EDIT_COMPANY_USERS => 'ویرایش کاربر شرکت',

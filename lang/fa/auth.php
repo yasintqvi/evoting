@@ -14,7 +14,7 @@ return [
     */
 
     'failed' => 'اطلاعات وارد شده صحیح نمی باشد',
-    'sucess' => 'ورود موفق ! خوش آمدید',
+    'success' => 'ورود موفق ! خوش آمدید',
     'password' => 'کلمه عبور صحیح نیست',
     'throttle' => 'درخواست بیش از حد مجاز! لطفا بعد از :seconds ثانیه دوباره امتحان کنید',
 
@@ -24,7 +24,7 @@ return [
     'confirm-password'  =>  'تکرار کلمه عبور',
     'already-registered' => 'قبلا ثبت نام کرده اید ؟',
     'register'  =>  'ثبت نام',
-    # authentication login page
+    # authentication login page۵
     'login'   => 'ورود',
     'remember-me' => 'مرا به خاطر بسپار',
     'forgot-password.question' => 'کلمه عبور را فراموش کرده اید ؟',
