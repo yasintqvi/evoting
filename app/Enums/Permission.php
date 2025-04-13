@@ -70,6 +70,8 @@ enum Permission: string
 
     case VIEW_PERMISSIONS = 'view permissions';
 
+    case LOG_ACTIVITIES = "view log activities";
+
     /**
      * Get permissions based on role
      *
@@ -128,6 +130,7 @@ enum Permission: string
                 self::DELETE_ROLES,
                 self::VIEW_PERMISSIONS,
                 self::CHANGE_ACCESS,
+                self::LOG_ACTIVITIES
             ],
             Role::Secretary => [
                 self::VIEW_ELECTIONS,

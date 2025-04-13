@@ -59,7 +59,7 @@
                         <tr>
                             <td class="ps-3">{{ $loop->iteration }}</td>
                             <td>{{ $activity->description }}</td>
-                            <td>{{ $activity->causer->full_name }}</td>
+                            <td>{{ $activity->causer?->full_name }}</td>
                             <td>{{ __($activity->event) }}</td>
                             <td>
                                 @if($activity->subject)

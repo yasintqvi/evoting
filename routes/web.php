@@ -13,6 +13,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserExcelController;
 use App\Enums\Permission;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserAccessController;
@@ -28,8 +29,7 @@ Route::middleware('guest')->group(function () {
 Route::post('/otp/send', [AuthController::class, 'sendOtp'])->name('otp.send');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/', fn() => view('app.dashboard'))->name('app.index')
-        ->middleware('can:' . Permission::VIEW_DASHBOARD->value);
+    Route::get('/', DashboardController::class)->name('app.index');
 
     Route::prefix('profile')->group(function () {
         Route::get('/', [ProfileController::class, 'show'])->name('profile.show');
