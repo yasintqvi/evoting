@@ -106,7 +106,7 @@
             </div>
             <div class="card-footer">
                 <div class="text-end mb-3">
-                    <button type="submit" class="btn btn-primary">ویرایش کاربر </button>
+                    <button type="submit" class="btn btn-primary">ویرایش  </button>
                 </div>
             </div>
         </form>
@@ -121,11 +121,6 @@
                 <h4 class="header-title">جزئیات سهام شرکت</h4>
             </div>
             <div class="card-body">
-                <p class="text-muted">
-                    برای دسترسی به حضور غیاب کاربران و شروع انتخابات شرکت باید تعداد کل سهام کاربران با تعداد سهام
-                    شرکت
-                    برابر باشد .
-                </p>
                 <div class="alert alert-info d-flex align-items-center justify-content-center text-center" role="alert">
                     <iconify-icon class="fs-20 me-1"></iconify-icon>
                     <div class="lh-1"> تعداد سهام کل شرکت : <strong> {{ $company->total_prefered }} </strong>

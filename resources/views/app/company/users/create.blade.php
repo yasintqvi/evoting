@@ -119,7 +119,7 @@
                 </div>
                 <div class="card-footer">
                     <div class="text-end mb-3">
-                        <button type="submit" class="btn btn-primary">ایجاد کاربر جدید</button>
+                        <button type="submit" class="btn btn-primary">ایجاد</button>
                     </div>
                 </div>
             </form>
@@ -139,7 +139,7 @@
                                 @foreach ($users as $user)
                                     <option value="{{ $user->id }}"
                                         {{ collect(old('user_ids'))->contains($user->id) ? 'selected' : '' }}>
-                                        {{ $user->fullName }}
+                                        {{ $user->full_name }}
                                     </option>
                                 @endforeach
                             </select>
@@ -164,11 +164,6 @@
                         <h4 class="header-title">جزئیات سهام شرکت</h4>
                     </div>
                     <div class="card-body">
-                        <p class="text-muted">
-                            برای دسترسی به حضور غیاب کاربران و شروع انتخابات شرکت باید تعداد کل سهام کاربران با تعداد سهام
-                            شرکت
-                            برابر باشد .
-                        </p>
                         <div class="alert alert-info d-flex align-items-center justify-content-center text-center" role="alert">
                             <iconify-icon class="fs-20 me-1"></iconify-icon>
                             <div class="lh-1"> تعداد سهام کل شرکت : <strong> {{ $company->total_prefered }} </strong>
@@ -235,27 +230,5 @@
 
 @section('scripts')
     {{-- include alerts --}}
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const normalStockInput = document.querySelector('input[name="normal_stock_count"]');
-        const preferedStockInput = document.querySelector('input[name="prefered_stock_count"]');
-        const resultSpan = document.getElementById('totalWeightedStocks');
-        
-        const stockWeight = parseFloat(document.querySelector('span[style="display: none"]').textContent.trim()) || 1;
-        
-        function calculateTotal() {
-            const normal = parseFloat(normalStockInput.value) || 0;
-            const prefered = parseFloat(preferedStockInput.value) || 0;
-            
-            const total = (prefered * stockWeight) + normal;
-            resultSpan.textContent = total.toLocaleString('fa-IR'); 
-        }
-        
-        normalStockInput.addEventListener('input', calculateTotal);
-        preferedStockInput.addEventListener('input', calculateTotal);
-        
-        calculateTotal();
-    });
-    </script>
     @include('app.alerts.toastr.success')
 @endsection

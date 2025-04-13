@@ -268,9 +268,4 @@
         });
     </script>
 
-
-
-
-    @include('app.alerts.toastr.success')
-
     @endsection

@@ -9,10 +9,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Election extends Model
 {
     use SoftDeletes;
+    use LogsActivity;
 
     protected $fillable = [
         'company_id',
@@ -31,6 +34,21 @@ class Election extends Model
         'incpector_substitute_member_count',
         'quorum_required',
     ];
+
+    protected static $logAttributesToIgnore = ['updated_at'];
+
+    protected static $logAttributes = ['*'];
+
+    protected static $logOnlyDirty = true;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(static::$logAttributes)->dontLogIfAttributesChangedOnly(static::$logAttributesToIgnore)
+            ->logOnlyDirty()
+            ->setDescriptionForEvent(fn(string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'همه پرسی', 'subject' => $this->title]))
+            ->dontSubmitEmptyLogs();
+    }
 
     public function casts()
     {

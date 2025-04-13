@@ -43,32 +43,8 @@
                                     <span class="text-danger font-weight-bold">{{ $message }}</span>
                                 @enderror
                             </div>
-
-                            <h6 class="fs-13">انتخاب نوع شرکت</h6>
-                            <div class="mt-2">
-                                @php
-                                    $oldType = (int) old('type', $company->type->value ?? null);
-                                @endphp
-                                <div class="form-check form-check-inline d-inline-block me-3">
-                                    <input type="radio" id="customRadio3" name="type"
-                                        value="{{ App\Enums\CompanyType::COOPERTAIVE->value }}" class="form-check-input"
-                                        {{ $oldType === App\Enums\CompanyType::COOPERTAIVE->value ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="customRadio3">نوع شرکت تعاونی</label>
-                                </div>
-
-                                <div class="form-check form-check-inline d-inline-block me-3">
-                                    <input type="radio" id="customRadio4" name="type"
-                                        value="{{ App\Enums\CompanyType::SPECIAL->value }}" class="form-check-input"
-                                        {{ $oldType === App\Enums\CompanyType::SPECIAL->value ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="customRadio4">نوع شرکت سهامی خاص</label>
-                                </div>
-                            </div>
-                            @error('type')
-                                <span class="text-danger font-weight-bold mt-1">{{ $message }}</span>
-                            @enderror
-
-                            <div class="d-flex gap-2 mt-3 {{ old('type', $company->type) == App\Enums\CompanyType::SPECIAL->value ? '' : 'hidden' }}"
-                                id="shareInput">
+                            @if (in_array($company->type, [App\Enums\CompanyType::SPECIAL]))
+                            <div class="d-flex gap-2 mt-3">
                                 <div class="flex-grow-1">
                                     <label for="normal_stock_count" class="form-label">تعداد سهام عادی کل شرکت</label>
                                     <input type="number" id="normal_stock_count" name="normal_stock_count"
@@ -99,7 +75,7 @@
                                     @enderror
                                 </div>
                             </div>
-
+                            @endif
                             <div class="mt-3">
                                 <label for="logo" class="form-label">لوگو (اختیاری)</label>
                                 <input type="file" class="form-control" id="logo" name="logo">

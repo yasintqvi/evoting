@@ -18,21 +18,21 @@ class AttendanceController extends Controller
         $this->attendanceService = $attendanceService;
     }
 
-    public function create(Company $company, Election $election)
+    public function create(Company $company)
     {
-        $election->load('participants.user');
+        // $election->load('participants.user');
 
-        return view('app.company.attendances.create', compact('company', 'election'));
+        return view('app.company.attendances.create', compact('company'));
     }
 
-    public function store(StoreAttendanceRequest $request, Company $company, Election $election)
+    public function store(StoreAttendanceRequest $request, Company $company)
     {
-        try {
-            $this->attendanceService->create($request->toDto(), $election);
+        // try {
+        //     $this->attendanceService->create($request->toDto(), $election);
 
-            return to_route('elections.index', [$company->slug]);
-        } catch (Exception $e) {
-            return back()->with('error', $e->getMessage());
-        }
+        //     return to_route('elections.index', [$company->slug]);
+        // } catch (Exception $e) {
+        //     return back()->with('error', $e->getMessage());
+        // }
     }
 }

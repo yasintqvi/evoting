@@ -8,7 +8,13 @@ use Illuminate\Validation\Rule;
 
 class UpdateCompanyUserRequest extends FormRequest
 {
-
+    public function prepareForValidation()
+    {
+        $this->merge([
+            'is_active' => $this->has('is_active') ? 1 : 0,
+        ]);
+    }
+    
     /**
      * Get the validation rules that apply to the request.
      *

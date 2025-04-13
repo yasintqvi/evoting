@@ -131,5 +131,21 @@
 
 @include('app.alerts.toastr.success')
 @include('app.alerts.toastr.error')
+<script>
+    function checkElectionType(event) {
+        const privateJoint = "{{ App\Enums\ElectionType::PRIVATE_JOINT->value }}";
+        const privateJointWith88 = "{{ App\Enums\ElectionType::PRIVATE_JOINT_WITH_88->value }}";
+
+        const selectedValue = event.target.value;
+
+        const preferredStockWeightField = document.getElementById('prefered_stock_weight');
+
+        if (selectedValue === privateJoint || selectedValue === privateJointWith88) {
+            preferredStockWeightField.classList.remove('d-none');
+        } else {
+            preferredStockWeightField.classList.add('d-none');
+        }
+    }
+</script>
 
 @endsection

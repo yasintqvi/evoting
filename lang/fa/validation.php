@@ -142,6 +142,17 @@ return [
         'g-recaptcha-response'  =>  [
             'required'    =>     "گزینه من ربات نیستم را تایید کنید"
         ],
+        'name' => [
+            'required' => 'نام نقش الزامی است',
+            'string' => 'نام نقش باید متن باشد',
+            'unique' => 'این نام نقش قبلا ثبت شده است'
+        ],
+        'permissions' => [
+            'array' => 'دسترسی‌ها باید به صورت آرایه باشند'
+        ],
+        'permissions.*' => [
+            'exists' => 'دسترسی انتخاب شده معتبر نیست'
+        ]
     ],
 
     /*
@@ -270,7 +281,7 @@ return [
         'substitute_member_count' => 'تعداد عضو علی البدل هیت مدیره',
         'incpector_main_member_count' => 'تعداد عضو اصلی بازرس',
         'incpector_substitute_member_count' => 'تعداد عضو علی البدل بازرس',
-        'company_ids' => 'گروه',
+        'company_ids' => 'شرکت',
         'normal_stock_count' => 'تعداد سهام عادی',
         'prefered_stock_count' => 'تعداد سهام ممتاز',
         'prefered_stock_weight' => 'وزن سهام ممتاز',

@@ -512,7 +512,6 @@
 
 
 
-@include('app.alerts.toastr.success')
 <script src="{{ asset('assets/vendor/gridjs/gridjs.umd.js') }}"></script>
 <script src="{{ asset('assets/js/pages/table-gridjs.js') }}"></script>
 @endsection

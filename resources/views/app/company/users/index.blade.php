@@ -1,106 +1,176 @@
 @extends('app.layouts.app')
 
 @section('content')
-<div class="page-title-head d-flex align-items-sm-center flex-sm-row flex-column gap-2">
-    <div class="flex-grow-1">
-        <h4 class="fs-18 fw-semibold mb-0">کاربران</h4>
+    <div class="page-title-head d-flex align-items-sm-center flex-sm-row flex-column gap-2">
+        <div class="flex-grow-1">
+            <h4 class="fs-18 fw-semibold mb-0">کاربران</h4>
+        </div>
+
+        <div class="text-end">
+            <ol class="breadcrumb m-0 py-0">
+                <li class="breadcrumb-item"><a href="javascript: void(0);">خانه</a></li>
+
+                <li class="breadcrumb-item"><a href="javascript: void(0);">کاربران</a></li>
+
+                <li class="breadcrumb-item active">همه</li>
+            </ol>
+        </div>
     </div>
 
-    <div class="text-end">
-        <ol class="breadcrumb m-0 py-0">
-            <li class="breadcrumb-item"><a href="javascript: void(0);">خانه</a></li>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header border-bottom border-light">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
 
-            <li class="breadcrumb-item"><a href="javascript: void(0);">کاربران</a></li>
-
-            <li class="breadcrumb-item active">همه</li>
-        </ol>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between border-bottom border-light">
-                <h4 class="header-title">لیست کاربران</h4>
-                <div>
-                    <a href="{{route('company.users.create' , $company->slug )}}" class="btn btn-success bg-gradient"><i class="ti ti-plus me-1"></i>ایجاد کاربران</a>
-                </div>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-nowrap mb-0">
-                    <thead class="bg-light-subtle">
-                        <tr>
-
-                            <th><span class="m-3">نام نام خانوادگی</span></th>
-                            <th><span class="m-3">تلفن همراه</span></th>
-                            <th><span class="m-3">تعداد سهام عادی</span></th>
-                            <th><span class="m-3">تعداد سهام ممتاز</span></th>
-                            <th><span class="m-3">وضعیت</span></th>
-                            <th class="text-center" style="width: 120px;">فعالیت</th>
-                        </tr>
-                    </thead><!-- end thead -->
-
-                    <tbody>
-                        @forelse ($company->users as $user)
-                        <tr>
-
-                            <td>
-                                <a href="#" class="text-dark fw-medium "><span class="m-3">{{ $user->fullName }}</span></a>
-                            </td>
-                            <td>
-                                <span class="m-3">{{ $user->phone }}</span>
-                            </td>
-                            <td>{{ $user->pivot->normal_stock_count ?? '-' }}</td>
-                            <td>{{ $user->pivot->prefered_stock_count ?? '-' }}</td>
-                            <td>
-                                @if ($user->is_active == 1)
-                                <a href="#" class="badge badge-soft-success"> فعال </a>
-                                @else
-                                <a href="#" class="badge badge-soft-warning"> غیر فعال </a>
-                                @endif
-                            </td>
-                            <td class="pe-3">
-                                <div class="hstack gap-1 justify-content-end">
-                                    <a href="{{ route('company.users.edit', [$company->slug, $user->id]) }}"
-                                        class="btn btn-soft-success btn-icon btn-sm rounded-circle">
-                                        <i class="ti ti-edit fs-16"></i>
-                                    </a>
-
+                        <h4 class="header-title mb-0">لیست کاربران</h4>
+                        <form method="GET" action="" class="col-lg-3">
+                                <div class="position-relative">
+                                    <input type="text"
+                                           name="search"
+                                           value="{{ request('search') }}"
+                                           class="form-control ps-4"
+                                           placeholder="جستجو...">
+                                    <i class="ti ti-search position-absolute top-50 translate-middle-y ms-2"></i>
                                 </div>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td class="text-muted">هیچ کاربری وجود ندارد.</td>
-                        </tr>
-                        @endforelse
+                        </form>
+                        
 
-                    </tbody>
+                        <div class="d-flex justify-content-center flex-grow-1 gap-3">
+                            @if (in_array($company->type, [App\Enums\CompanyType::SPECIAL]))
+                                <div class="card bg-light px-3 py-1 border-0 shadow-sm mb-0" style="min-width: 240px;">
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <i class="ti ti-chart-dots text-primary fs-5"></i>
+                                        <span class="fw-bold text-primary">سهام اختصاص داده‌شده</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>عادی:</span>
+                                        <strong>{{ $company->users->sum('pivot.normal_stock_count') }}</strong>
+                                        <span>ممتاز:</span>
+                                        <strong>{{ $company->users->sum('pivot.prefered_stock_count') }}</strong>
+                                    </div>
+                                </div>
 
-                    <tfoot class="bg-light-subtle fw-bold">
-                        <tr>
-                            <td colspan="2" class="text-end">جمع سهام اختصاص داده شده:</td>
-                            <td>{{ $company->users->sum('pivot.normal_stock_count') }}</td>
-                            <td>{{ $company->users->sum('pivot.prefered_stock_count') }}</td>
-                            <td colspan="2"></td>
-                        </tr>
-                        <tr>
-                            <td colspan="2" class="text-end">سهام باقیمانده:</td>
-                            <td>{{ $company->normal_stock_count - $company->users->sum('pivot.normal_stock_count') }}</td>
-                            <td>{{ $company->prefered_stock_count - $company->users->sum('pivot.prefered_stock_count') }}</td>
-                            <td colspan="2"></td>
-                        </tr>
-                    </tfoot>
-                    
-                    <!-- end tbody -->
-                </table><!-- end table -->
+                                <div class="card bg-light px-3 py-1 border-0 shadow-sm mb-0" style="min-width: 240px;">
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <i class="ti ti-box-multiple text-warning fs-5"></i>
+                                        <span class="fw-bold text-warning">سهام باقیمانده</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>عادی:</span>
+                                        <strong>{{ $company->normal_stock_count - $company->users->sum('pivot.normal_stock_count') }}</strong>
+                                        <span>ممتاز:</span>
+                                        <strong>{{ $company->prefered_stock_count - $company->users->sum('pivot.prefered_stock_count') }}</strong>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+
+                        <a href="{{ route('company.users.create', $company->slug) }}"
+                            class="btn btn-success bg-gradient h-100 p-2">
+                            <i class="ti ti-plus me-1"></i>ایجاد کاربران
+                        </a>
+                    </div>
+                </div>
+
+
+
+                <div class="table-responsive">
+                    <table class="table table-nowrap mb-0">
+                        <thead class="bg-light-subtle">
+                            <tr>
+
+                                <th><span class="m-3">نام نام خانوادگی</span></th>
+                                <th><span class="m-3">تلفن همراه</span></th>
+                            @if (in_array($company->type, [App\Enums\CompanyType::SPECIAL]))
+                                <th><span class="m-3">تعداد سهام عادی</span></th>
+                                <th><span class="m-3">تعداد سهام ممتاز</span></th>
+                            @endif
+                                <th><span class="m-3">وضعیت</span></th>
+                                <th class="text-center" style="width: 120px;">فعالیت</th>
+                            </tr>
+                        </thead><!-- end thead -->
+
+                        <tbody>
+                            @forelse ($company->users as $user)
+                                <tr>
+
+                                    <td>
+                                        <a href="#" class="text-dark fw-medium "><span
+                                                class="m-3">{{ $user->fullName }}</span></a>
+                                    </td>
+                                    <td>
+                                        <span class="m-3">{{ $user->phone }}</span>
+                                    </td>
+                            @if (in_array($company->type, [App\Enums\CompanyType::SPECIAL]))
+                                    <td>{{ $user->pivot->normal_stock_count ?? '-' }}</td>
+                                    <td>{{ $user->pivot->prefered_stock_count ?? '-' }}</td>
+                            @endif
+                                    <td>
+                                        @if ($user->is_active == 1)
+                                            <a href="#" class="badge badge-soft-success p-1"> فعال </a>
+                                        @else
+                                            <a href="#" class="badge badge-soft-danger p-1"> غیر فعال </a>
+                                        @endif
+                                    </td>
+
+                                    <td class="pe-3">
+                                        <div class="hstack gap-1 justify-content-end">
+                                            <a href="{{ route('company.users.edit', [$company->slug, $user->id]) }}"
+                                                class="btn btn-secondary btn-sm">
+                                                <i class="ti ti-edit"></i></a>
+                                            </a>
+                                            <form
+                                                action="{{ route('company.users.destroy', [$company->slug, $user->id]) }}"
+                                                method="POST" class="d-inline delete-role-form">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button" class="btn btn-danger btn-sm delete-role-btn">
+                                                    <i class="ti ti-trash"></i>
+                                                </button>
+                                            </form>
+
+                                        </div>
+
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td class="text-muted">هیچ کاربری وجود ندارد.</td>
+                                </tr>
+                            @endforelse
+
+                        </tbody>
+
+                        <!-- end tbody -->
+                    </table><!-- end table -->
+                </div>
             </div>
         </div>
     </div>
-</div>
 @endsection
 
 @section('scripts')
-{{-- include alerts --}}
-@include('app.alerts.toastr.success')
+<script>
+    document.querySelectorAll('.delete-role-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const form = this.closest('.delete-role-form');
+
+            Swal.fire({
+                title: 'آیا مطمئن هستید؟',
+                text: "این عملیات غیرقابل برگشت است!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'بله، حذف شود',
+                cancelButtonText: 'انصراف'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+</script>
 @endsection

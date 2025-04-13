@@ -3,6 +3,8 @@
 namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
 
 class UpdateUserRequest extends FormRequest
 {
@@ -23,15 +25,18 @@ class UpdateUserRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
+
     public function rules(): array
     {
         return [
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'phone' => 'required|string|max:15|unique:users,phone,' . $this->user->id,
-            'company_ids' => 'nullable|array',
-            'company_ids.*' => 'exists:groups,id',
-            'is_active' => 'sometimes|boolean',
+            'first_name'    => 'required|string|max:255',
+            'last_name'     => 'required|string|max:255',
+            'phone'         => ['required', 'string', 'max:11', Rule::unique('users', 'phone')->ignore($this->user->id)],
+            'nationalcode'  => ['required', 'string', 'max:10', Rule::unique('users', 'nationalcode')->ignore($this->user->id)],
+            'company_ids'   => 'nullable|array',
+            'company_ids.*' => 'exists:companies,id',
+            'is_active'     => 'sometimes|boolean',
         ];
     }
+
 }

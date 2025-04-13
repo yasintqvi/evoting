@@ -59,28 +59,30 @@
                         </div>
                     </div>
                     <div class="col-lg-6">
-                        <label for="is_active" class="form-label">وضعیت</label>
-                        <div class="mt-1">
-                            <input type="checkbox" value="1" @checked(old('is_active', $user->is_active)) name="is_active" id="is_active" data-switch="primary" />
-                            <label for="is_active" data-on-label="فعال" data-off-label="غیر فعال"></label>
+                        <div class="mb-3">
+                            <label for="nationalcode" class="form-label">کد ملی کاربر</label>
+                            <input type="text" name="nationalcode" class="form-control"
+                                placeholder="کد ملی را وارد کنید" value="{{ old('nationalcode', $user->nationalcode) }}">
+                            @error('nationalcode')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
                         </div>
                     </div>
-                    <div class="col-lg-12">
+                    <div class="col-lg-6">
                         <div class="mb-3">
-                            <label for="group" class="form-label">افزودن به گروه</label>
+                            <label for="group" class="form-label">شرکت </label>
                             <select
                                 class="form-select my-1 my-md-0 me-sm-3"
                                 name="company_ids[]"
                                 id="group"
                                 data-toggle="select2"
                                 multiple>
-                                <option value="">وضعیت را انتخاب کنید</option>
+                                <option value="">شرکت را انتخاب کنید</option>
                                 @foreach ($companies as $company)
-                                <option
-                                    value="{{ $company->id }}"
-                                    {{ (old('company_ids') && in_array($company->id, old('company_ids'))) || (isset($user) && $user->groups->contains($company->id)) ? 'selected' : '' }}>
+                                <option value="{{ $company->id }}"
+                                    {{ in_array($company->id, old('company_ids', isset($user) ? $user->companies->pluck('id')->toArray() : [])) ? 'selected' : '' }}>
                                     {{ $company->title }}
-                                </option>
+                                </option>                                
                                 @endforeach
                             </select>
                             @error('company_ids')
@@ -88,12 +90,20 @@
                             @enderror
                         </div>
                     </div>
+                    <div class="col-lg-6">
+                        <label for="is_active" class="form-label">وضعیت</label>
+                        <div class="mt-1">
+                            <input type="checkbox" value="1" @checked(old('is_active', $user->is_active)) name="is_active" id="is_active" data-switch="primary" />
+                            <label for="is_active" data-on-label="فعال" data-off-label="غیر فعال"></label>
+                        </div>
+                    </div>
+                    
 
                 </div>
             </div>
             <div class="card-footer">
                 <div class="text-end mb-3">
-                    <button type="submit" class="btn btn-primary">ویرایش کاربر</button>
+                    <button type="submit" class="btn btn-primary">ویرایش </button>
                 </div>
             </div>
         </form>

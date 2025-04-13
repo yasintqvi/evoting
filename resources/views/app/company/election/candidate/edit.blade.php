@@ -86,7 +86,3 @@
 </form>
 
 @endsection
-
-@section('scripts')
-@include('app.alerts.toastr.success')
-@endsection

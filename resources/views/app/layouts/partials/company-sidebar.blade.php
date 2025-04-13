@@ -31,6 +31,17 @@
 
          <!--- Sidenav Menu -->
          <ul class="side-nav">
+            <li class="side-nav-item">
+                <a href="{{ route('companies.index', $company->slug) }}" class="side-nav-link">
+                    <span class="menu-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-door-fill" viewBox="0 0 16 16">
+                            <path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5"/>
+                          </svg>
+                    </span>
+                    <span class="menu-text"> داشبورد </span>
+                </a>
+            </li>
+             @can(\App\Enums\Permission::VIEW_ELECTIONS->value)
              <li class="side-nav-item">
                  <a href="{{ route('elections.index', $company->slug) }}" class="side-nav-link">
                      <span class="menu-icon">
@@ -42,6 +53,7 @@
                      <span class="menu-text"> انتخابات </span>
                  </a>
              </li>
+             @endcan
              <li class="side-nav-item">
                  <a href="#" class="side-nav-link">
                      <span class="menu-icon">
@@ -54,6 +66,7 @@
                      <span class="menu-text"> نظرسنجی </span>
                  </a>
              </li>
+             @can(\App\Enums\Permission::VIEW_COMPANY_USERS->value)
              <li class="side-nav-item">
                  <a href="{{ route('company.users.index', $company->slug) }}" class="side-nav-link">
                      <span class="menu-icon">
@@ -68,18 +81,16 @@
                      <span class="menu-text"> اعضا </span>
                  </a>
              </li>
+             @endcan
              <li class="side-nav-item">
-                <a href="{{ route('company.users.index', $company->slug) }}" class="side-nav-link">
+                <a href="{{ route('attendances.create', $company->slug, ) }}" class="side-nav-link">
                     <span class="menu-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                            <circle cx="15" cy="6" r="3" fill="currentColor" opacity="0.4" />
-                            <ellipse cx="16" cy="17" fill="currentColor" opacity="0.4" rx="5"
-                                ry="3" />
-                            <circle cx="9.001" cy="6" r="4" fill="currentColor" />
-                            <ellipse cx="9.001" cy="17.001" fill="currentColor" rx="7" ry="4" />
-                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-check" viewBox="0 0 16 16">
+                            <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m1.679-4.493-1.335 2.226a.75.75 0 0 1-1.174.144l-.774-.773a.5.5 0 0 1 .708-.708l.547.548 1.17-1.951a.5.5 0 1 1 .858.514M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0M8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/>
+                            <path d="M8.256 14a4.5 4.5 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10q.39 0 .74.025c.226-.341.496-.65.804-.918Q8.844 9.002 8 9c-5 0-6 3-6 4s1 1 1 1z"/>
+                          </svg>
                     </span>
-                    <span class="menu-text"> حضور غیاب   </span>
+                    <span class="menu-text"> حضور و غیاب </span>
                 </a>
             </li>
          </ul>
