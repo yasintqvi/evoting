@@ -24,6 +24,7 @@ class User extends Authenticatable
     use SoftDeletes;
     use HasRoles;
     use LogsActivity;
+    use Notifiable;
 
     /**
      * The attributes that are mass assignable.

@@ -70,8 +70,47 @@
 @endcan
 
 <div class="row">
+    <div class="col-6">
+        <div class="card">
+            <div class="card-header border-bottom border-light">
+                <div class="row justify-content-between gy-2 position-relative">
+                    <div class="col-lg-12">
+                        <h4 class="header-title">اطلاع رسانی ها</h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-nowrap mb-0">
+                    <thead class="bg-light-subtle">
+
+                        @forelse(user()->notifications->take(10) as $notification)
+                        <tr>
+                            @if (empty($notification->is_read))
+                            <th>{{ $notification->data['message'] }}</th>
+                            @else
+                            <td>{{ $notification->data['message'] }}</td>
+                            @endif
+                        </tr>
+                        @empty
+                        <tr>
+                            <td class="text-muted">هیچ اعلانی وجود ندارد</td>
+                        </tr>
+                        @endforelse
+
+                    </thead>
+
+                    <tbody>
+                        <tr></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
     @can(App\Enums\Permission::LOG_ACTIVITIES->value)
-    <div class="col-8">
+    <div class="col-12">
         <div class="card">
             <div class="card-header border-bottom border-light">
                 <div class="row justify-content-between gy-2 position-relative">
@@ -121,32 +160,6 @@
         </div>
     </div>
     @endcan
-    <div class="col-4">
-        <div class="card">
-            <div class="card-header border-bottom border-light">
-                <div class="row justify-content-between gy-2 position-relative">
-                    <div class="col-lg-12">
-                        <h4 class="header-title">اطلاع رسانی ها</h4>
-                    </div>
-                </div>
-            </div>
-
-            <div class="table-responsive">
-                <table class="table table-nowrap mb-0">
-                    <thead class="bg-light-subtle">
-                        <tr>
-                            <th class="ps-3" style="width: 50px;">#</th>
-                            <th>توضیحات</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        <tr></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
 </div>
 
 @endsection

@@ -51,10 +51,10 @@
              </div>
              @endcan
 
-             @canany(\App\Enums\Permission::VIEW_USERS->value, App\Enums\Permission::VIEW_ROLES->value)
+             @if (user()->can(App\Enums\Permission::VIEW_USERS->value) || user()->can( App\Enums\Permission::VIEW_ROLES->value))
 
              <li class="side-nav-title">مدیریت</li>
-             @endcan
+             @endif
 
              @can(\App\Enums\Permission::VIEW_USERS->value)
              <li class="side-nav-item">
@@ -99,7 +99,7 @@
              </li>
              @endcan
 
-             @can(\App\Enums\Permission::VIEW_USERS->value)
+             @can(\App\Enums\Permission::LOG_ACTIVITIES->value)
              <li class="side-nav-item">
                  <a href="{{ route('users.activities.index') }}" class="side-nav-link">
                      <span class="menu-icon">
@@ -116,11 +116,11 @@
              </li>
              @endcan
          </ul>
-         
+
 
 
          <div class="clearfix"></div>
-       
+
      </div>
  </div>
  <!-- Sidenav Menu End -->

@@ -93,12 +93,11 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::prefix('{company:slug}')->group(function () {
-        Route::get('/', [CompanyController::class, 'index'])->name('companies.index')
-            ->middleware('can:' . Permission::VIEW_COMPANY->value);
+        Route::get('/', [CompanyController::class, 'index'])->name('companies.index');
 
         Route::prefix('elections')->group(function () {
-            Route::get('/', [ElectionController::class, 'index'])->name('elections.index')
-                ->middleware('can:' . Permission::VIEW_ELECTIONS->value);
+            Route::get('/', [ElectionController::class, 'index'])->name('elections.index');
+
             Route::get('/create', [ElectionController::class, 'create'])->name('elections.create')
                 ->middleware('can:' . Permission::CREATE_ELECTIONS->value);
             Route::post('/create', [ElectionController::class, 'store'])->name('elections.store')
