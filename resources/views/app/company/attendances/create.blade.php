@@ -24,7 +24,7 @@
             </div>
 
             <div class="card-body">
-                <form action="{{ route('attendances.store', [$company->slug, $election->id]) }}" method="post">
+                <form action="{{ route('attendances.store', $company->slug) }}" method="post">
                     @csrf
                     <div class="table-responsive-sm">
                         <table class="table mb-0">
@@ -36,12 +36,13 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($election->participants as $participant)
+                                {{-- @foreach($election->participants as $participant) --}}
                                 <tr>
-                                    <td>{{ $participant->user->full_name }}</td>
+                                    {{-- <td>{{ $participant->user->full_name }}</td> --}}
+                                    <td> علیرضا علیخانی </td>
                                     <td>
                                         <!-- Switch -->
-                                        <div>
+                                        {{-- <div>
                                             <input type="hidden" name="attendance[{{ $participant->id }}][status]" value="0">
                                             <input type="checkbox"
                                                 name="attendance[{{ $participant->id }}][status]"
@@ -53,10 +54,22 @@
                                                 data-on-label="حاضر"
                                                 data-off-label="غایب"
                                                 class="mb-0 d-block"></label>
+                                        </div> --}}
+                                        <div>
+                                            <input type="hidden" name="" value="0">
+                                            <input type="checkbox"
+                                                name="11"
+                                                id="11"
+                                                value="1"
+                                                data-switch="1">
+                                            <label for="11"
+                                                data-on-label="حاضر"
+                                                data-off-label="غایب"
+                                                class="mb-0 d-block"></label>
                                         </div>
                                     </td>
                                     <td>
-                                        <input type="hidden" name="attendance[{{ $participant->id }}][attorney_id]" value="">
+                                        {{-- <input type="hidden" name="attendance[{{ $participant->id }}][attorney_id]" value="">
                                         <select name="attendance[{{ $participant->id }}][attorney_id]"
                                             id="attendance-{{ $participant->id }}-attorney_id"
                                             data-toggle="select2"
@@ -68,10 +81,21 @@
                                                 {{ $attorney->user->full_name }}
                                             </option>
                                             @endforeach
+                                        </select> --}}
+                                        <input type="hidden" name="" value="">
+                                        <select name="12"
+                                            id=""
+                                            data-toggle="select2"
+                                            class="form-select">
+                                            <option value="">انتخاب وکیل</option>
+                                            <option value="1"
+                                               >
+                                               یاسین تقوی
+                                            </option>
                                         </select>
                                     </td>
                                 </tr>
-                                @endforeach
+                                {{-- @endforeach --}}
                             </tbody>
 
                         </table>

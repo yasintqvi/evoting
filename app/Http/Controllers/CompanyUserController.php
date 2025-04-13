@@ -17,7 +17,17 @@ class CompanyUserController extends Controller
      */
     public function index(Company $company)
     {
-        $company = $company->load(['users' => function ($query) {
+        $search = request('search');
+
+        $company->load(['users' => function ($query) use ($search) {
+            if ($search) {
+                $query->where(fn($q) =>
+                    $q->where('first_name', 'like', "%$search%")
+                    ->orWhere('last_name', 'like', "%$search%")
+                    ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$search%"])
+                );
+            }
+
             $query->latest();
         }]);
 
@@ -34,7 +44,9 @@ class CompanyUserController extends Controller
             $query->where('company_id', $company->id);
         })->get();
 
-        return view('app.company.users.create', compact('company', 'users'));
+        $stockWeight = $company->prefered_stock_weight;
+
+        return view('app.company.users.create', compact('company', 'users' , 'stockWeight'));
     }
 
     /**
@@ -89,11 +101,9 @@ class CompanyUserController extends Controller
      */
     public function update(UpdateCompanyUserRequest $request, Company $company, User $user)
     {
-        $phone = convert_persian_to_english($request->input('phone'));
         $nationalcode = convert_persian_to_english($request->input('nationalcode'));
     
         $userData = $request->validated();
-        $userData['phone'] = $phone;
         $userData['nationalcode'] = $nationalcode;
     
         if ($user->nationalcode !== $nationalcode) {
@@ -111,14 +121,15 @@ class CompanyUserController extends Controller
         $company->users()->updateExistingPivot($user->id, $pivotData);
         
         return redirect()->route('company.users.index', $company->slug)
-            ->with('success', 'اطلاعات کاربر با موفقیت بروزرسانی شد.');
+            ->with('success', __('messages.company_user_update'));
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Company $company, User $user)
     {
-        //
+        $company->users()->detach($user);
+        return back()->with('success', __('messages.company_user_delete'));
     }
 }

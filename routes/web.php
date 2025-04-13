@@ -163,9 +163,9 @@ Route::middleware('auth')->group(function () {
                     'can:' . Permission::DELETE_COMPANY_USERS->value,
                 ]);
 
-            Route::get('{election}/attendances', [AttendanceController::class, 'create'])->name('attendances.create')
+            Route::get('attendances', [AttendanceController::class, 'create'])->name('attendances.create')
                 ->middleware('can:' . Permission::CREATE_ATTENDANCE->value);
-            Route::post('{election}/attendances', [AttendanceController::class, 'store'])->name('attendances.store')
+            Route::post('/attendances', [AttendanceController::class, 'store'])->name('attendances.store')
                 ->middleware('can:' . Permission::STORE_ATTENDANCE->value);
         });
 
@@ -175,6 +175,7 @@ Route::middleware('auth')->group(function () {
             'store' => 'company.users.store',
             'edit' => 'company.users.edit',
             'update' => 'company.users.update',
+            'destroy' => 'company.users.destroy',
         ])->middleware([
             'can:' . Permission::VIEW_COMPANY_USERS->value,
             'can:' . Permission::CREATE_COMPANY_USERS->value,

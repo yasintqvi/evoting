@@ -281,7 +281,7 @@ return [
         'substitute_member_count' => 'تعداد عضو علی البدل هیت مدیره',
         'incpector_main_member_count' => 'تعداد عضو اصلی بازرس',
         'incpector_substitute_member_count' => 'تعداد عضو علی البدل بازرس',
-        'company_ids' => 'گروه',
+        'company_ids' => 'شرکت',
         'normal_stock_count' => 'تعداد سهام عادی',
         'prefered_stock_count' => 'تعداد سهام ممتاز',
         'prefered_stock_weight' => 'وزن سهام ممتاز',
@@ -291,5 +291,6 @@ return [
         'participants.*.normal_stock_count' => "تعدا سهام عادی",
         'participants.*.prefered_stock_count' => "تعداد سهام ممتاز",
         'supervisor_id' => 'منشی',
+
     ],
 ];

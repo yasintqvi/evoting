@@ -8,7 +8,13 @@ use Illuminate\Validation\Rule;
 
 class UpdateCompanyUserRequest extends FormRequest
 {
-
+    public function prepareForValidation()
+    {
+        $this->merge([
+            'is_active' => $this->has('is_active') ? 1 : 0,
+        ]);
+    }
+    
     /**
      * Get the validation rules that apply to the request.
      *
@@ -25,19 +31,39 @@ class UpdateCompanyUserRequest extends FormRequest
             'nationalcode'         => ['required', 'numeric', 'digits:10', "unique:users,nationalcode,{$userId}"],
             'is_active'            => ['sometimes', 'boolean'], 
         ];
-    
         if ($this->company->type == \App\Enums\CompanyType::SPECIAL) {
-            $rules['normal_stock_count'] = ['required', 'integer', 'min:1'];
-            $rules['prefered_stock_count'] = ['required', 'integer', 'min:1'];
-
-            $rules['total_stocks'] = [
-                function ($attribute, $value, $fail) {
-                    $totalRequested = 
-                        ($this->prefered_stock_count * $this->company->prefered_stock_weight) 
-                        + $this->normal_stock_count;
-        
-                    if ($totalRequested > $this->company->remaining_weighted_stocks) {
-                        $fail('مجموع سهام درخواستی (با احتساب وزن) بیشتر از موجودی شرکت است');
+            $currentUserId = $this->user->id; 
+            
+            $rules['normal_stock_count'] = [
+                'required',
+                'integer',
+                'min:1',
+                function ($attribute, $value, $fail) use ($currentUserId) {
+                    $assignedToOthers = $this->company->users()
+                        ->where('users.id', '!=', $currentUserId)
+                        ->sum('user_company.normal_stock_count');
+                        
+                    $remaining = $this->company->normal_stock_count - $assignedToOthers;
+                    
+                    if ($value > $remaining) {
+                        $fail('مقدار سهام عادی بیشتر از مقدار باقیمانده (' . $remaining . ') است.');
+                    }
+                }
+            ];
+            
+            $rules['prefered_stock_count'] = [
+                'required',
+                'integer',
+                'min:1',
+                function ($attribute, $value, $fail) use ($currentUserId) {
+                    $assignedToOthers = $this->company->users()
+                        ->where('users.id', '!=', $currentUserId)
+                        ->sum('user_company.prefered_stock_count');
+                        
+                    $remaining = $this->company->prefered_stock_count - $assignedToOthers;
+                    
+                    if ($value > $remaining) {
+                        $fail('مقدار سهام ممتاز بیشتر از مقدار باقیمانده (' . $remaining . ') است.');
                     }
                 }
             ];

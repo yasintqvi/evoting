@@ -6,6 +6,12 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreCompanyUserRequest extends FormRequest
 {
+    public function prepareForValidation()
+    {
+        $this->merge([
+            'is_active' => $this->has('is_active') ? 1 : 0,
+        ]);
+    }
     /**
      * Get the validation rules that apply to the request.
      *
@@ -22,21 +28,28 @@ class StoreCompanyUserRequest extends FormRequest
             ];
 
             if ($this->company->type == \App\Enums\CompanyType::SPECIAL) {
-                $rules['normal_stock_count'] = ['required','integer','min:1',];
-                $rules['prefered_stock_count'] = ['required', 'integer', 'min:1',];
-                
-                $rules['total_stocks'] = [
+                $rules['normal_stock_count'] = [
+                    'required',
+                    'integer',
+                    'min:1',
                     function ($attribute, $value, $fail) {
-                        $totalRequested = 
-                            ($this->prefered_stock_count * $this->company->prefered_stock_weight) 
-                            + $this->normal_stock_count;
-            
-                        if ($totalRequested > $this->company->remaining_weighted_stocks) {
-                            $fail('مجموع سهام درخواستی (با احتساب وزن) بیشتر از موجودی شرکت است');
+                        if ($value > $this->company->total_normal_stock) {
+                            $fail('مقدار سهام عادی بیشتر از مقدار باقیمانده است.');
                         }
                     }
                 ];
-            }
+                
+                $rules['prefered_stock_count'] = [
+                    'required',
+                    'integer',
+                    'min:1',
+                    function ($attribute, $value, $fail) {
+                        if ($value > $this->company->total_prefered_stock) {
+                            $fail('مقدار سهام ممتاز بیشتر از مقدار باقیمانده است.');
+                        }
+                    }
+                ];
+             }
             return $rules;  
     }
   
