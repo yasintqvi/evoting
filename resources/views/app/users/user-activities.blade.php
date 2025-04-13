@@ -46,8 +46,8 @@
                     <thead class="bg-light-subtle">
                         <tr>
                             <th class="ps-3" style="width: 50px;">#</th>
-                            <th>عامل</th>
                             <th>توضیحات</th>
+                            <th>عامل</th>
                             <th>نوع رویداد</th>
                             <th>موضوع</th>
                             <th>تاریخ</th>
