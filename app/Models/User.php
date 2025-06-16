@@ -88,14 +88,14 @@ class User extends Authenticatable
             ->dontSubmitEmptyLogs();
     }
 
-    public function companies(): BelongsToMany
+    public function groups(): BelongsToMany
     {
-        return $this->belongsToMany(Company::class, 'user_company');
+        return $this->belongsToMany(Group::class, 'group_user');
     }
 
     public function ownerCompanies(): HasMany
     {
-        return $this->hasMany(Company::class, 'owner_id');
+        return $this->hasMany(Group::class, 'owner_id');
     }
 
     public function participants()

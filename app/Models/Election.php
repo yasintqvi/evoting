@@ -60,7 +60,7 @@ class Election extends Model
 
     public function company(): BelongsTo
     {
-        return $this->belongsTo(Company::class);
+        return $this->belongsTo(Group::class);
     }
 
     public function rounds(): HasMany

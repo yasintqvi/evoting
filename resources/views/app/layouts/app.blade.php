@@ -10,7 +10,7 @@
     <!-- Begin page -->
     <div class="wrapper">
 
-        @if (request()->route('company'))
+        @if (request()->route('group'))
         @include('app.layouts.partials.company-sidebar')
         @else
         @include('app.layouts.partials.dashboard-sidebar')
@@ -41,7 +41,7 @@
     <!-- END wrapper -->
 
     @include('app.layouts.partials.scripts')
-    
+
     @yield('scripts')
 
 </body>

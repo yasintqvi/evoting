@@ -22,9 +22,9 @@ class ElectionEventSubscriber
      */
     public function handleElectionCreated(ElectionCreated $event): void
     {
-        $companyShareholders = $event->company->users;
+        $groupShareholders = $event->company->users;
 
-        foreach ($companyShareholders as $shareholder) {
+        foreach ($groupShareholders as $shareholder) {
 
             $this->participantService->create(new CreateParticipantDto(
                 $event->election->id,

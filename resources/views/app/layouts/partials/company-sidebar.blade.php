@@ -32,7 +32,7 @@
          <!--- Sidenav Menu -->
          <ul class="side-nav">
              <li class="side-nav-item">
-                 <a href="{{ route('companies.index', $company->slug) }}" class="side-nav-link">
+                 <a href="{{ route('groups.index', $group->slug) }}" class="side-nav-link">
                      <span class="menu-icon">
                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-door-fill" viewBox="0 0 16 16">
                              <path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5" />
@@ -42,7 +42,7 @@
                  </a>
              </li>
              <li class="side-nav-item">
-                 <a href="{{ route('elections.index', $company->slug) }}" class="side-nav-link">
+                 <a href="{{ route('elections.index', $group->slug) }}" class="side-nav-link">
                      <span class="menu-icon">
                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                              <path fill="currentColor"
@@ -64,9 +64,9 @@
                      <span class="menu-text"> نظرسنجی </span>
                  </a>
              </li>
-             @can(\App\Enums\Permission::VIEW_COMPANY_USERS->value)
+             @can(\App\Enums\Permission::VIEW_GROUP_USERS->value)
              <li class="side-nav-item">
-                 <a href="{{ route('company.users.index', $company->slug) }}" class="side-nav-link">
+                 <a href="{{ route('group.users.index', $group->slug) }}" class="side-nav-link">
                      <span class="menu-icon">
                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                              <circle cx="15" cy="6" r="3" fill="currentColor" opacity="0.4" />
@@ -82,7 +82,7 @@
              @endcan
              @can(App\Enums\Permission::STORE_ATTENDANCE)
              <li class="side-nav-item">
-                 <a href="{{ route('attendances.create', $company->slug, ) }}" class="side-nav-link">
+                 <a href="{{ route('attendances.create', $group->slug, ) }}" class="side-nav-link">
                      <span class="menu-icon">
                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-check" viewBox="0 0 16 16">
                              <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m1.679-4.493-1.335 2.226a.75.75 0 0 1-1.174.144l-.774-.773a.5.5 0 0 1 .708-.708l.547.548 1.17-1.951a.5.5 0 1 1 .858.514M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0M8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4" />

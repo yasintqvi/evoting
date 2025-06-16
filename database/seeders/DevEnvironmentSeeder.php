@@ -2,11 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Enums\CompanyStatus;
 use App\Enums\GroupStatus;
 use App\Enums\Permission;
 use App\Enums\Role;
-use App\Models\Company;
 use App\Models\Group;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -26,15 +24,15 @@ class DevEnvironmentSeeder extends Seeder
             'password' => bcrypt('12345678')
         ]);
 
-        $testCompany = Company::create([
+        $testGroup = Group::create([
             'title' => 'Evoting Test Group',
             'description' => 'this is the test group in the evoting system',
             'owner_id' => $adminUser->id,
-            'status' => CompanyStatus::ENABLE,
+            'status' => GroupStatus::ENABLE,
             'logo' => 'assets/img/group.jpg'
         ]);
 
-        $testCompany->users()->attach($adminUser->id);
+        $testGroup->users()->attach($adminUser->id);
 
         foreach (Role::cases() as $role) {
             $roleModel = ModelsRole::create(['name' => $role->value]);

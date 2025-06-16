@@ -7,8 +7,8 @@ use App\Http\Controllers\ElectionController;
 use App\Http\Controllers\ElectionParticipantController;
 use App\Http\Controllers\ElectionRoundController;
 use App\Http\Controllers\ElectionVotingController;
-use App\Http\Controllers\CompanyController;
-use App\Http\Controllers\CompanyUserController;
+use App\Http\Controllers\GroupController;
+use App\Http\Controllers\GroupUserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserExcelController;
@@ -40,18 +40,18 @@ Route::middleware('auth')->group(function () {
         Route::match(['get', 'post'], '/logout', [ProfileController::class, 'logout'])->name('logout');
     });
 
-    Route::prefix('companies')->group(function () {
-        Route::get('/create', [CompanyController::class, 'create'])->name('companies.create')
-            ->middleware('can:' . Permission::CREATE_COMPANY->value);
-        Route::post('/create', [CompanyController::class, 'store'])->name('companies.store')
-            ->middleware('can:' . Permission::CREATE_COMPANY->value);
-        Route::get('/edit/{company:slug}', [CompanyController::class, 'edit'])->name('companies.edit')
-            ->middleware('can:' . Permission::EDIT_COMPANY->value);
-        Route::put('/edit/{company:slug}', [CompanyController::class, 'update'])->name('companies.update')
-            ->middleware('can:' . Permission::UPDATE_COMPANY->value);
-        Route::delete('/delete/{company:slug}', [CompanyController::class, 'destroy'])->name('companies.delete')
-            ->middleware('can:' . Permission::DELETE_COMPANY->value);
-        Route::post('/leave/{company:slug}', [CompanyController::class, 'leave'])->name('companies.leave');
+    Route::prefix('groups')->group(function () {
+        Route::get('/create', [GroupController::class, 'create'])->name('groups.create')
+            ->middleware('can:' . Permission::CREATE_GROUP->value);
+        Route::post('/create', [GroupController::class, 'store'])->name('groups.store')
+            ->middleware('can:' . Permission::CREATE_GROUP->value);
+        Route::get('/edit/{group:slug}', [GroupController::class, 'edit'])->name('groups.edit')
+            ->middleware('can:' . Permission::EDIT_GROUP->value);
+        Route::put('/edit/{group:slug}', [GroupController::class, 'update'])->name('groups.update')
+            ->middleware('can:' . Permission::UPDATE_GROUP->value);
+        Route::delete('/delete/{group:slug}', [GroupController::class, 'destroy'])->name('groups.delete')
+            ->middleware('can:' . Permission::DELETE_GROUP->value);
+        Route::post('/leave/{group:slug}', [GroupController::class, 'leave'])->name('groups.leave');
     });
 
     Route::resource('users', UserController::class)
@@ -92,8 +92,8 @@ Route::middleware('auth')->group(function () {
             ->middleware('can:' . Permission::DELETE_ROLES->value);
     });
 
-    Route::prefix('{company:slug}')->group(function () {
-        Route::get('/', [CompanyController::class, 'index'])->name('companies.index');
+    Route::prefix('{group:slug}')->group(function () {
+        Route::get('/', [GroupController::class, 'index'])->name('groups.index');
 
         Route::prefix('elections')->group(function () {
             Route::get('/', [ElectionController::class, 'index'])->name('elections.index');
@@ -153,13 +153,13 @@ Route::middleware('auth')->group(function () {
             Route::post('{election}/voting', [ElectionVotingController::class, 'store'])->name('voting.store');
             Route::post('{election}/voting/terminate', [ElectionVotingController::class, 'terminate'])->name('voting.terminate');
 
-            Route::resource('/election-users', CompanyUserController::class)
+            Route::resource('/election-users', GroupUserController::class)
                 ->middleware([
-                    'can:' . Permission::VIEW_COMPANY_USERS->value,
-                    'can:' . Permission::CREATE_COMPANY_USERS->value,
-                    'can:' . Permission::EDIT_COMPANY_USERS->value,
-                    'can:' . Permission::UPDATE_COMPANY_USERS->value,
-                    'can:' . Permission::DELETE_COMPANY_USERS->value,
+                    'can:' . Permission::VIEW_GROUP_USERS->value,
+                    'can:' . Permission::CREATE_GROUP_USERS->value,
+                    'can:' . Permission::EDIT_GROUP_USERS->value,
+                    'can:' . Permission::UPDATE_GROUP_USERS->value,
+                    'can:' . Permission::DELETE_GROUP_USERS->value,
                 ]);
 
             Route::get('attendances', [AttendanceController::class, 'create'])->name('attendances.create')
@@ -168,18 +168,18 @@ Route::middleware('auth')->group(function () {
                 ->middleware('can:' . Permission::STORE_ATTENDANCE->value);
         });
 
-        Route::resource('users', CompanyUserController::class)->names([
-            'index' => 'company.users.index',
-            'create' => 'company.users.create',
-            'store' => 'company.users.store',
-            'edit' => 'company.users.edit',
-            'update' => 'company.users.update',
-            'destroy' => 'company.users.destroy',
+        Route::resource('users', GroupUserController::class)->names([
+            'index' => 'group.users.index',
+            'create' => 'group.users.create',
+            'store' => 'group.users.store',
+            'edit' => 'group.users.edit',
+            'update' => 'group.users.update',
+            'destroy' => 'group.users.destroy',
         ])->middleware([
-            'can:' . Permission::VIEW_COMPANY_USERS->value,
-            'can:' . Permission::CREATE_COMPANY_USERS->value,
-            'can:' . Permission::EDIT_COMPANY_USERS->value,
-            'can:' . Permission::UPDATE_COMPANY_USERS->value,
+            'can:' . Permission::VIEW_GROUP_USERS->value,
+            'can:' . Permission::CREATE_GROUP_USERS->value,
+            'can:' . Permission::EDIT_GROUP_USERS->value,
+            'can:' . Permission::UPDATE_GROUP_USERS->value,
         ]);
     });
 });

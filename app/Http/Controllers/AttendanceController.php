@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Election\StoreAttendanceRequest;
-use App\Models\Company;
+use App\Models\Group;
 use App\Models\Election;
 use App\Services\AttendanceService;
 use Exception;
@@ -18,19 +18,19 @@ class AttendanceController extends Controller
         $this->attendanceService = $attendanceService;
     }
 
-    public function create(Company $company)
+    public function create(Group $group)
     {
         // $election->load('participants.user');
 
-        return view('app.company.attendances.create', compact('company'));
+        return view('app.group.attendances.create', compact('group'));
     }
 
-    public function store(StoreAttendanceRequest $request, Company $company)
+    public function store(StoreAttendanceRequest $request, Group $group)
     {
         // try {
         //     $this->attendanceService->create($request->toDto(), $election);
 
-        //     return to_route('elections.index', [$company->slug]);
+        //     return to_route('elections.index', [$group->slug]);
         // } catch (Exception $e) {
         //     return back()->with('error', $e->getMessage());
         // }

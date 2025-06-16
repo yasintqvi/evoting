@@ -28,26 +28,26 @@
 
          <!--- Sidenav Menu -->
          <ul class="side-nav mt-4">
-             <li class="side-nav-title">شرکت ها</li>
+             <li class="side-nav-title">گروه ها</li>
 
-             @forelse(user()->companies as $company)
+             @forelse(user()->groups as $group)
              <li class="side-nav-item">
-                 <a href="{{route('companies.index', $company->slug)}}" class="side-nav-link">
-                     <span class="menu-icon"><img src="{{asset($company->logo ?? 'assets/img/company.jpg') }}" class="rounded-circle me-lg-2 d-flex object-fit-cover" width="20" height="20" alt="{{$company->title}}"></span>
-                     <span class="menu-text">{{$company->title}}</span>
+                 <a href="{{route('groups.index', $group->slug)}}" class="side-nav-link">
+                     <span class="menu-icon"><img src="{{asset($group->logo) }}" class="rounded-circle me-lg-2 d-flex object-fit-cover" width="20" height="20" alt="{{$group->title}}"></span>
+                     <span class="menu-text">{{$group->title}}</span>
                  </a>
              </li>
              @empty
              <div class="d-flex justify-content-center align-items-center">
                  <div class="d-flex flex-column">
-                     <div class="mt-2 side-nav-title"> هیچ شرکتی یافت نشد.</div>
+                     <div class="mt-2 side-nav-title"> هیچ گروهی یافت نشد.</div>
                  </div>
              </div>
              @endforelse
 
-             @can(\App\Enums\Permission::CREATE_COMPANY->value)
+             @can(\App\Enums\Permission::CREATE_GROUP->value)
              <div class="d-flex flex-column mt-3">
-                 <a href="{{ route('companies.create') }}" class="btn btn-primary btn-sm mx-auto">افزودن شرکت</a>
+                 <a href="{{ route('groups.create') }}" class="btn btn-primary btn-sm mx-auto">افزودن گروه</a>
              </div>
              @endcan
 

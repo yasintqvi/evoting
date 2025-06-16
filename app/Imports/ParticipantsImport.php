@@ -12,13 +12,13 @@ use App\Models\Election;
 
 class ParticipantsImport implements ToCollection, WithHeadingRow
 {
-    protected $companyId;
+    protected $groupId;
     protected $election;
     protected $participants = [];
 
-    public function __construct($companyId, $electionId)
+    public function __construct($groupId, $electionId)
     {
-        $this->companyId = $companyId;
+        $this->companyId = $groupId;
         $this->election = Election::findOrFail($electionId);
     }
 
@@ -102,7 +102,7 @@ class ParticipantsImport implements ToCollection, WithHeadingRow
         }
 
         if (count($this->participants) < 3) {
-            throw new \Exception("حداقل ۳ شرکت‌کننده باید ثبت شوند. تعداد ثبت‌شده: " . count($this->participants));
+            throw new \Exception("حداقل ۳ گروه‌کننده باید ثبت شوند. تعداد ثبت‌شده: " . count($this->participants));
         }
 
         foreach ($this->participants as $participant) {

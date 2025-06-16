@@ -13,44 +13,44 @@
         </ol>
     </div>
 </div>
-@can(App\Enums\Permission::LIST_COMPANIES->value)
+@can(App\Enums\Permission::LIST_GROUPS->value)
 <div class="row row-cols-xxl-5 row-cols-md-3 row-cols-1 align-items-center">
-    @foreach ($companies as $company)
+    @foreach ($companies as $group)
 
     <div class="col">
         <div class="card">
             <div class="card-body">
-                <a href="{{ route('companies.edit', $company->slug) }}" class="text-muted float-end mt-n1 fs-18"><i class="ti ti-edit"></i></a>
-                <h5 class="text-muted fs-13 text-uppercase" title="Number of Orders">{{ $company->title }}</h5>
+                <a href="{{ route('groups.edit', $group->slug) }}" class="text-muted float-end mt-n1 fs-18"><i class="ti ti-edit"></i></a>
+                <h5 class="text-muted fs-13 text-uppercase" title="Number of Orders">{{ $group->title }}</h5>
                 <div class="d-flex align-items-center gap-2 my-3">
                     <div class="avatar-md flex-shrink-0">
                         <span class="avatar-title bg-primary-subtle text-primary rounded fs-22">
-                            <img src="{{ $company->logo }}" width="20" height="20" alt="">
+                            <img src="{{ $group->logo }}" width="20" height="20" alt="">
                         </span>
                     </div>
-                    {{ $company->title }}
+                    {{ $group->title }}
                 </div>
                 <p class="mb-1">
                     <span class="text-primary me-1"><i class="ti ti-point-filled"></i></span>
                     <span class="text-nowrap text-muted">تعداد اعضا</span>
-                    <span class="float-end"><b>{{ $company->users->count() }}</b></span>
+                    <span class="float-end"><b>{{ $group->users->count() }}</b></span>
                 </p>
                 <p class="mb-0">
                     <span class="text-primary me-1"><i class="ti ti-point-filled"></i></span>
                     <span class="text-nowrap text-muted">تعداد کل سهام عادی</span>
-                    <span class="float-end"><b>{{ $company->normal_stock_count }}</b></span>
+                    <span class="float-end"><b>{{ $group->normal_stock_count }}</b></span>
                 </p>
                 <p class="mb-0">
                     <span class="text-primary me-1"><i class="ti ti-point-filled"></i></span>
                     <span class="text-nowrap text-muted">تعداد کل سهام ممتاز</span>
-                    <span class="float-end"><b>{{ $company->prefered_stock_count }}</b></span>
+                    <span class="float-end"><b>{{ $group->prefered_stock_count }}</b></span>
                 </p>
 
                 <p class="mb-0">
                     <span class="text-primary me-1"><i class="ti ti-point-filled"></i></span>
                     <span class="text-nowrap text-muted">تعداد سهم عادی شما</span>
                     <span class="float-end">
-                        <b>{{ $company->users()->where('user_id', auth()->id())->first()->pivot->normal_stock_count ?? 0 }}</b>
+                        <b>{{ $group->users()->where('user_id', auth()->id())->first()->pivot->normal_stock_count ?? 0 }}</b>
                     </span>
                 </p>
 
@@ -58,7 +58,7 @@
                     <span class="text-primary me-1"><i class="ti ti-point-filled"></i></span>
                     <span class="text-nowrap text-muted"> تعداد سهم ممتاز شما</span>
                     <span class="float-end">
-                        <b>{{ $company->users()->where('user_id', auth()->id())->first()->pivot->prefered_stock_count ?? 0 }}</b>
+                        <b>{{ $group->users()->where('user_id', auth()->id())->first()->pivot->prefered_stock_count ?? 0 }}</b>
                     </span>
                 </p>
             </div>

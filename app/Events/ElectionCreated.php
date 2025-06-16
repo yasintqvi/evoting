@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Models\Company;
+use App\Models\Group;
 use App\Models\Election;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -16,16 +16,16 @@ class ElectionCreated
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public Company $company;
+    public Group $group;
 
     public Election $election;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(Company $company, Election $election)
+    public function __construct(Group $group, Election $election)
     {
-        $this->company = $company;
+        $this->company = $group;
 
         $this->election = $election;
     }

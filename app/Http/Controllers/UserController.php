@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
-use App\Models\Company;
+use App\Models\Group;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -21,8 +21,8 @@ class UserController extends Controller
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('first_name', 'like', "%$search%")
-                      ->orWhere('last_name', 'like', "%$search%")
-                      ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$search%"]);
+                        ->orWhere('last_name', 'like', "%$search%")
+                        ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$search%"]);
                 });
             })
             ->latest()
@@ -36,7 +36,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        $companies = Company::all();
+        $companies = Group::all();
         $users = User::all();
         return view("app.users.create", compact("companies", "users"));
     }
@@ -45,21 +45,20 @@ class UserController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(StoreUserRequest $request)
-    {        
-        if($request->has('phone')){
+    {
+        if ($request->has('phone')) {
             $request->mergeIfMissing(['is_active' => 0]);
             $inputs = $request->except('company_id');
             $user = User::create($inputs);
 
 
-            $companyId = $request->input('company_ids');
-            $user->companies()->sync($companyId);
-            } else {
+            $groupId = $request->input('company_ids');
+            $user->groups()->sync($groupId);
+        } else {
 
-            foreach ($request->company_ids as $companyId) {
-                $company = Company::find($companyId);
-                $company->users()->syncWithoutDetaching($request->user_ids);
-
+            foreach ($request->company_ids as $groupId) {
+                $group = Group::find($groupId);
+                $group->users()->syncWithoutDetaching($request->user_ids);
             }
         }
 
@@ -79,9 +78,9 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(User $user, Company $company)
+    public function edit(User $user, Group $group)
     {
-        $companies = $company->get();
+        $companies = $group->get();
         return view('app.users.edit', compact('user', 'companies'));
     }
 
@@ -94,8 +93,8 @@ class UserController extends Controller
         $inputs = $request->except('company_ids');
         $user->update($inputs);
 
-        $companyIds = $request->input('company_ids', []);
-        $user->companies()->sync($companyIds);
+        $groupIds = $request->input('company_ids', []);
+        $user->groups()->sync($groupIds);
 
         return redirect()->route('users.index')->with('success', 'اطلاعات کاربر با موفقیت به‌روزرسانی شد.');
     }

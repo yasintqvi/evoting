@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Election\StoreElectionRequest;
 use App\Http\Requests\Election\UpdateElectionRequest;
 use App\Http\Resources\ElectionResource;
-use App\Models\Company;
+use App\Models\Group;
 use App\Models\Election;
 use App\Models\User;
 use App\Services\ElectionService;
@@ -24,61 +24,61 @@ class ElectionController extends Controller
         $this->electionService = $electionService;
     }
 
-    public function index(Request $request, Company $company)
+    public function index(Request $request, Group $group)
     {
-        $elections = ElectionResource::collection($this->electionService->getAll($company))->toArray($request);
+        $elections = ElectionResource::collection($this->electionService->getAll($group))->toArray($request);
 
-        return view('app.company.election.index', compact('company', 'elections'));
+        return view('app.group.election.index', compact('group', 'elections'));
     }
 
-    public function create(Company $company)
+    public function create(Group $group)
     {
         $users = User::select("id", "first_name", "last_name")->get();
 
-        return view('app.company.election.create', compact('company', 'users'));
+        return view('app.group.election.create', compact('group', 'users'));
     }
 
-    public function store(StoreElectionRequest $request, Company $company): RedirectResponse
+    public function store(StoreElectionRequest $request, Group $group): RedirectResponse
     {
         try {
-            $company = $this->electionService->create($company, $request->toDto());
+            $group = $this->electionService->create($group, $request->toDto());
 
-            return to_route('elections.index', $company->slug)->with('success', __('messages.election.created'));
+            return to_route('elections.index', $group->slug)->with('success', __('messages.election.created'));
         } catch (Throwable $th) {
             return back()->with('error', "خطایی هنگام ایجاد انتخابات رخ داد.");
         }
     }
 
-    public function show(Request $request, Company $company, Election $election): View
+    public function show(Request $request, Group $group, Election $election): View
     {
         $election = ElectionResource::make($election)->toArray($request);
 
-        return view('app.company.election.show', compact('company', 'election'));
+        return view('app.group.election.show', compact('group', 'election'));
     }
 
-    public function edit(Request $request, Company $company, Election $election): View
+    public function edit(Request $request, Group $group, Election $election): View
     {
         $users = User::select("id", "first_name", "last_name")->get();
 
         $election = ElectionResource::make($election)->toArray($request);
 
-        return view('app.company.election.edit', compact('company', 'users', 'election'));
+        return view('app.group.election.edit', compact('group', 'users', 'election'));
     }
 
-    public function update(UpdateElectionRequest $request, Company $company, Election $election): RedirectResponse
+    public function update(UpdateElectionRequest $request, Group $group, Election $election): RedirectResponse
     {
         try {
 
             $this->electionService->update($election, $request->toDto());
 
-            return to_route('elections.index', $company->slug)->with('success',  __('messages.election.edited'));
+            return to_route('elections.index', $group->slug)->with('success',  __('messages.election.edited'));
         } catch (Throwable $th) {
 
             return back()->with('error', $th->getMessage());
         }
     }
 
-    public function destroy(Company $company, Election $election): RedirectResponse
+    public function destroy(Group $group, Election $election): RedirectResponse
     {
         try {
 

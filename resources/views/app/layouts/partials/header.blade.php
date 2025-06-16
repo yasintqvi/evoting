@@ -2,34 +2,34 @@
 <header class="app-topbar">
     <div class="page-container topbar-menu">
         @if (request()->route('company'))
-            <!-- Brand Logo -->
-            <div style="margin-top: 1rem;">
-                <div class="btn-group mb-2">
-                    <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown"
-                        aria-haspopup="true" aria-expanded="true">
-                        <span class="menu-icon"><img src="{{ asset($company->logo ?? 'assets/img/company.jpg') }}"
-                                class="rounded-circle me-lg-2 d-flex object-fit-cover" width="20" height="20"
-                                alt="{{ $company->title }}"></span>
-                        {{ $company->title }}
-                    </button>
-                    @isset(user()->companies)
-                        <div class="dropdown-menu" data-popper-placement="bottom-end"
-                            style="position: absolute; inset: 0px 0px auto auto; margin: 0px; transform: translate(0px, 40px);">
-                            @foreach (user()->companies->except($company->id) as $otherCompany)
-                                <a class="dropdown-item"
-                                    href="{{ route('companies.index', $otherCompany->slug) }}">{{ $otherCompany->title }}</a>
-                            @endforeach
-                            <hr>
-                            <a class="dropdown-item" href="{{ route('app.index') }}">همه شرکت ها</a>
-                            <a class="dropdown-item text-primary"
-                                href="{{ route('companies.edit', $company->slug) }}">ویرایش</a>
-                            <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#leave-group" href="#!">ترک
-                                کردن</a>
-                            <a class="dropdown-item active fw-semibold text-danger" data-bs-toggle="modal"
-                                data-bs-target="#delete-group" href="#!">حذف شرکت</a>
-                        </div>
-            @endif
-        </div>
+        <!-- Brand Logo -->
+        <div style="margin-top: 1rem;">
+            <div class="btn-group mb-2">
+                <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="true">
+                    <span class="menu-icon"><img src="{{ asset($group->logo ?? 'assets/img/group.jpg') }}"
+                            class="rounded-circle me-lg-2 d-flex object-fit-cover" width="20" height="20"
+                            alt="{{ $group->title }}"></span>
+                    {{ $group->title }}
+                </button>
+                @isset(user()->groups)
+                <div class="dropdown-menu" data-popper-placement="bottom-end"
+                    style="position: absolute; inset: 0px 0px auto auto; margin: 0px; transform: translate(0px, 40px);">
+                    @foreach (user()->groups->except($group->id) as $otherGroup)
+                    <a class="dropdown-item"
+                        href="{{ route('groups.index', $otherGroup->slug) }}">{{ $otherGroup->title }}</a>
+                    @endforeach
+                    <hr>
+                    <a class="dropdown-item" href="{{ route('app.index') }}">همه گروه ها</a>
+                    <a class="dropdown-item text-primary"
+                        href="{{ route('groups.edit', $group->slug) }}">ویرایش</a>
+                    <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#leave-group" href="#!">ترک
+                        کردن</a>
+                    <a class="dropdown-item active fw-semibold text-danger" data-bs-toggle="modal"
+                        data-bs-target="#delete-group" href="#!">حذف گروه</a>
+                </div>
+                @endif
+            </div>
         </div>
         @endif
         <div class="d-flex align-items-center gap-2">
@@ -272,57 +272,57 @@
                 </div>
             </div>
         </div>
-        </div>
-    </header>
-    <!-- Topbar End -->
+    </div>
+</header>
+<!-- Topbar End -->
 
-    @isset($company)
-        <div id="delete-group" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" id="standard-modalLabel">حذف شرکت</h4>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p> آیا از حذف شرکت <b>{{ $company->title }}</b> مطمئن هستید ؟</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">انصراف</button>
-                        <form action="{{ route('companies.delete', $company->slug) }}" method="post">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger">بله مطمئن هستم</button>
-                        </form>
-                    </div>
-                </div><!-- /.modal-content -->
-            </div><!-- /.modal-dialog -->
-        </div><!-- /.modal -->
-
-
-
-        <div id="leave-group" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" id="standard-modalLabel">ترک شرکت</h4>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p> آیا از ترک شرکت <b>{{ $company->title }}</b> مطمئن هستید ؟</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">انصراف</button>
-                        <form action="{{ route('companies.leave', $company->slug) }}" method="post">
-                            @csrf
-                            <button type="submit" class="btn btn-danger">بله مطمئن هستم</button>
-                        </form>
-                    </div>
-                </div><!-- /.modal-content -->
-            </div><!-- /.modal-dialog -->
-        </div><!-- /.modal -->
+@isset($group)
+<div id="delete-group" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="standard-modalLabel">حذف گروه</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p> آیا از حذف گروه <b>{{ $group->title }}</b> مطمئن هستید ؟</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">انصراف</button>
+                <form action="{{ route('groups.delete', $group->slug) }}" method="post">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger">بله مطمئن هستم</button>
+                </form>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
 
-    @endisset
+
+<div id="leave-group" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="standard-modalLabel">ترک گروه</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p> آیا از ترک گروه <b>{{ $group->title }}</b> مطمئن هستید ؟</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">انصراف</button>
+                <form action="{{ route('groups.leave', $group->slug) }}" method="post">
+                    @csrf
+                    <button type="submit" class="btn btn-danger">بله مطمئن هستم</button>
+                </form>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+@endisset

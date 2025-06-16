@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\Role;
-use App\Models\Company;
+use App\Models\Group;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
 
@@ -21,11 +21,9 @@ class DashboardController extends Controller
         }
 
         if (user()->hasRole(Role::Manager->value)) {
-            $companies = Company::all();
-
+            $companies = Group::all();
         } else {
-            $companies = Company::whereHas('users', fn($q) => $q->where('user_id', user()->id))->get();
-
+            $companies = Group::whereHas('users', fn($q) => $q->where('user_id', user()->id))->get();
         }
 
         return view('app.dashboard', compact('activities', 'companies'));

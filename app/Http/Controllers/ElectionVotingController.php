@@ -6,7 +6,7 @@ use App\Enums\CandidateType;
 use App\Enums\ElectionStatus;
 use App\Http\Requests\Election\StoreVotingRequest;
 use App\Models\Election;
-use App\Models\Company;
+use App\Models\Group;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -20,7 +20,7 @@ class ElectionVotingController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Company $company, Election $election)
+    public function create(Group $group, Election $election)
     {
         if ($election->status != ElectionStatus::ONGOING) {
             return back();
@@ -41,13 +41,13 @@ class ElectionVotingController extends Controller
         $election->load('candidates');
 
 
-        return view('app.company.election.voting.create', compact('company', 'election', 'participant'));
+        return view('app.group.election.voting.create', compact('group', 'election', 'participant'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreVotingRequest $request, Company $company, Election $election)
+    public function store(StoreVotingRequest $request, Group $group, Election $election)
     {
         $data = $request->validated();
 
@@ -73,7 +73,7 @@ class ElectionVotingController extends Controller
             return back()->withErrors(['inspector_candidates' => 'تعداد کاندیداهای بازرس بیش از حد مجاز است.']);
         }
 
-        DB::transaction(function () use ($company, $election, $data) {
+        DB::transaction(function () use ($group, $election, $data) {
             $participant = $election->participants()->where('user_id', user()->id)->first();
 
             $activeRound = $election->rounds()->where('is_active', true)->first();
@@ -115,7 +115,7 @@ class ElectionVotingController extends Controller
             ]);
         });
 
-        return to_route('elections.index', $company->slug)->with('success', 'رای‌های شما با موفقیت ثبت شدند.');
+        return to_route('elections.index', $group->slug)->with('success', 'رای‌های شما با موفقیت ثبت شدند.');
     }
 
     /**
@@ -150,7 +150,7 @@ class ElectionVotingController extends Controller
         //
     }
 
-    public function terminate(Request $request, Company $company, Election $election)
+    public function terminate(Request $request, Group $group, Election $election)
     {
         $election->rounds->map(fn($round) => $round->update([
             'is_active' => false,

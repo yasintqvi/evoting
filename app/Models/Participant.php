@@ -35,7 +35,7 @@ class Participant extends Model
         return LogOptions::defaults()
             ->logOnly(static::$logAttributes)->dontLogIfAttributesChangedOnly(static::$logAttributesToIgnore)
             ->logOnlyDirty()
-            ->setDescriptionForEvent(fn(string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'شرکت کننده', 'subject' => $this->user->full_name]))
+            ->setDescriptionForEvent(fn(string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'گروه کننده', 'subject' => $this->user->full_name]))
             ->dontSubmitEmptyLogs();
     }
 

@@ -7,7 +7,7 @@ use App\Enums\ElectionStatus;
 use App\Models\Candidate;
 use App\Models\Election;
 use App\Models\ElectionRound;
-use App\Models\Company;
+use App\Models\Group;
 use Illuminate\Http\Request;
 
 class ElectionRoundController extends Controller
@@ -15,7 +15,7 @@ class ElectionRoundController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Company $company, Election $election) {}
+    public function index(Group $group, Election $election) {}
 
     /**
      * Show the form for creating a new resource.
@@ -28,7 +28,7 @@ class ElectionRoundController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, Company $company, Election $election)
+    public function store(Request $request, Group $group, Election $election)
     {
         if ($election->status != ElectionStatus::WAITING_TO_START) {
             return back();
@@ -46,13 +46,13 @@ class ElectionRoundController extends Controller
             'status' => ElectionStatus::ONGOING
         ]);
 
-        return to_route('elections.index', $company->slug);
+        return to_route('elections.index', $group->slug);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Company $company, Election $election, ElectionRound $electionRound)
+    public function show(Group $group, Election $election, ElectionRound $electionRound)
     {
         $electionRound = $election->rounds()->where('id', $electionRound->id)->first();
         $candidates = $election->candidates;
@@ -81,7 +81,7 @@ class ElectionRoundController extends Controller
             })->sortByDesc('votes')->toArray();
         }
 
-        return view('app.company.election.round.show', compact(
+        return view('app.group.election.round.show', compact(
             'company',
             'election',
             'electionRound',

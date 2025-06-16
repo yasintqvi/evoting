@@ -9,12 +9,12 @@ enum Permission: string
 
     use EnumValues;
 
-    case CREATE_COMPANY = 'create company';
-    case VIEW_COMPANY = 'view company';
-    case EDIT_COMPANY = 'edit company';
-    case UPDATE_COMPANY = 'update company';
-    case DELETE_COMPANY = 'delete company';
-    case LIST_COMPANIES = 'list companies';
+    case CREATE_GROUP = 'create group';
+    case VIEW_GROUP = 'view group';
+    case EDIT_GROUP = 'edit group';
+    case UPDATE_GROUP = 'update group';
+    case DELETE_GROUP = 'delete group';
+    case LIST_GROUPS = 'list groups';
 
     case VIEW_USERS = 'view users';
     case CREATE_USERS = 'create users';
@@ -24,11 +24,11 @@ enum Permission: string
     case IMPORT_USERS = 'import users';
     case CHANGE_ACCESS = 'changes access';
 
-    case VIEW_COMPANY_USERS = 'view company users';
-    case CREATE_COMPANY_USERS = 'create company users';
-    case EDIT_COMPANY_USERS = 'edit company users';
-    case UPDATE_COMPANY_USERS = 'update company users';
-    case DELETE_COMPANY_USERS = 'delete company users';
+    case VIEW_GROUP_USERS = 'view group users';
+    case CREATE_GROUP_USERS = 'create group users';
+    case EDIT_GROUP_USERS = 'edit group users';
+    case UPDATE_GROUP_USERS = 'update group users';
+    case DELETE_GROUP_USERS = 'delete group users';
 
     case VIEW_ELECTIONS = 'view elections';
     case CREATE_ELECTIONS = 'create elections';
@@ -82,21 +82,21 @@ enum Permission: string
     {
         return match ($role) {
             Role::Manager => [
-                self::CREATE_COMPANY,
-                self::VIEW_COMPANY,
-                self::EDIT_COMPANY,
-                self::UPDATE_COMPANY,
-                self::LIST_COMPANIES,
+                self::CREATE_GROUP,
+                self::VIEW_GROUP,
+                self::EDIT_GROUP,
+                self::UPDATE_GROUP,
+                self::LIST_GROUPS,
                 self::VIEW_USERS,
                 self::CREATE_USERS,
                 self::EDIT_USERS,
                 self::UPDATE_USERS,
                 self::DELETE_USERS,
-                self::VIEW_COMPANY_USERS,
-                self::CREATE_COMPANY_USERS,
-                self::EDIT_COMPANY_USERS,
-                self::UPDATE_COMPANY_USERS,
-                self::DELETE_COMPANY_USERS,
+                self::VIEW_GROUP_USERS,
+                self::CREATE_GROUP_USERS,
+                self::EDIT_GROUP_USERS,
+                self::UPDATE_GROUP_USERS,
+                self::DELETE_GROUP_USERS,
                 self::VIEW_ELECTIONS,
                 self::CREATE_ELECTIONS,
                 self::EDIT_ELECTIONS,
@@ -159,12 +159,12 @@ enum Permission: string
     public function fa(): string
     {
         return match ($this) {
-            self::CREATE_COMPANY => 'ایجاد شرکت',
-            self::VIEW_COMPANY => 'مشاهده شرکت',
-            self::EDIT_COMPANY => 'ویرایش شرکت',
-            self::UPDATE_COMPANY => 'بروزرسانی شرکت',
-            self::DELETE_COMPANY => 'حذف شرکت',
-            self::LIST_COMPANIES => 'لیست شرکت‌ها',
+            self::CREATE_GROUP => 'ایجاد گروه',
+            self::VIEW_GROUP => 'مشاهده گروه',
+            self::EDIT_GROUP => 'ویرایش گروه',
+            self::UPDATE_GROUP => 'بروزرسانی گروه',
+            self::DELETE_GROUP => 'حذف گروه',
+            self::LIST_GROUPS => 'لیست گروه‌ها',
             self::VIEW_USERS => 'مشاهده کاربران',
             self::CREATE_USERS => 'ایجاد کاربر',
             self::EDIT_USERS => 'ویرایش کاربر',
@@ -172,11 +172,11 @@ enum Permission: string
             self::DELETE_USERS => 'حذف کاربر',
             self::IMPORT_USERS => 'وارد کردن کاربران',
             self::CHANGE_ACCESS => 'تغییر دسترسی کاربران',
-            self::VIEW_COMPANY_USERS => 'مشاهده کاربران شرکت',
-            self::CREATE_COMPANY_USERS => 'ایجاد کاربر شرکت',
-            self::EDIT_COMPANY_USERS => 'ویرایش کاربر شرکت',
-            self::UPDATE_COMPANY_USERS => 'بروزرسانی کاربر شرکت',
-            self::DELETE_COMPANY_USERS => 'حذف کاربر شرکت',
+            self::VIEW_GROUP_USERS => 'مشاهده کاربران گروه',
+            self::CREATE_GROUP_USERS => 'ایجاد کاربر گروه',
+            self::EDIT_GROUP_USERS => 'ویرایش کاربر گروه',
+            self::UPDATE_GROUP_USERS => 'بروزرسانی کاربر گروه',
+            self::DELETE_GROUP_USERS => 'حذف کاربر گروه',
             self::VIEW_ELECTIONS => 'مشاهده انتخابات',
             self::CREATE_ELECTIONS => 'ایجاد انتخابات',
             self::EDIT_ELECTIONS => 'ویرایش انتخابات',
@@ -188,13 +188,13 @@ enum Permission: string
             self::EDIT_CANDIDATES => 'ویرایش کاندیدا',
             self::UPDATE_CANDIDATES => 'بروزرسانی کاندیدا',
             self::DELETE_CANDIDATES => 'حذف کاندیدا',
-            self::VIEW_PARTICIPANTS => 'مشاهده شرکت‌کنندگان',
-            self::CREATE_PARTICIPANTS => 'ایجاد شرکت‌کننده',
-            self::EDIT_PARTICIPANTS => 'ویرایش شرکت‌کننده',
-            self::UPDATE_PARTICIPANTS => 'بروزرسانی شرکت‌کننده',
-            self::DELETE_PARTICIPANTS => 'حذف شرکت‌کننده',
-            self::IMPORT_PARTICIPANTS => 'وارد کردن شرکت‌کنندگان',
-            self::STORE_TABLE_PARTICIPANT => 'ذخیره جدول شرکت‌کنندگان',
+            self::VIEW_PARTICIPANTS => 'مشاهده گروه‌کنندگان',
+            self::CREATE_PARTICIPANTS => 'ایجاد گروه‌کننده',
+            self::EDIT_PARTICIPANTS => 'ویرایش گروه‌کننده',
+            self::UPDATE_PARTICIPANTS => 'بروزرسانی گروه‌کننده',
+            self::DELETE_PARTICIPANTS => 'حذف گروه‌کننده',
+            self::IMPORT_PARTICIPANTS => 'وارد کردن گروه‌کنندگان',
+            self::STORE_TABLE_PARTICIPANT => 'ذخیره جدول گروه‌کنندگان',
             self::VIEW_ELECTION_ROUNDS => 'مشاهده دوره‌های انتخابات',
             self::CREATE_ELECTION_ROUNDS => 'ایجاد دوره انتخابات',
             self::EDIT_ELECTION_ROUNDS => 'ویرایش دوره انتخابات',

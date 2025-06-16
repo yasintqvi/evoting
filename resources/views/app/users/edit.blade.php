@@ -64,25 +64,25 @@
                             <input type="text" name="nationalcode" class="form-control"
                                 placeholder="کد ملی را وارد کنید" value="{{ old('nationalcode', $user->nationalcode) }}">
                             @error('nationalcode')
-                                <span class="text-danger">{{ $message }}</span>
+                            <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
                     </div>
                     <div class="col-lg-6">
                         <div class="mb-3">
-                            <label for="group" class="form-label">شرکت </label>
+                            <label for="group" class="form-label">گروه </label>
                             <select
                                 class="form-select my-1 my-md-0 me-sm-3"
                                 name="company_ids[]"
                                 id="group"
                                 data-toggle="select2"
                                 multiple>
-                                <option value="">شرکت را انتخاب کنید</option>
-                                @foreach ($companies as $company)
-                                <option value="{{ $company->id }}"
-                                    {{ in_array($company->id, old('company_ids', isset($user) ? $user->companies->pluck('id')->toArray() : [])) ? 'selected' : '' }}>
-                                    {{ $company->title }}
-                                </option>                                
+                                <option value="">گروه را انتخاب کنید</option>
+                                @foreach ($companies as $group)
+                                <option value="{{ $group->id }}"
+                                    {{ in_array($group->id, old('company_ids', isset($user) ? $user->groups->pluck('id')->toArray() : [])) ? 'selected' : '' }}>
+                                    {{ $group->title }}
+                                </option>
                                 @endforeach
                             </select>
                             @error('company_ids')
@@ -97,7 +97,7 @@
                             <label for="is_active" data-on-label="فعال" data-off-label="غیر فعال"></label>
                         </div>
                     </div>
-                    
+
 
                 </div>
             </div>

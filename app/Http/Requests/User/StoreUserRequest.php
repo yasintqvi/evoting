@@ -36,19 +36,19 @@ class StoreUserRequest extends FormRequest
             'phone'        => 'required|string|max:11|unique:users,phone',
             'nationalcode' => 'required|string|max:10|unique:users,nationalcode',
             'company_ids'  => 'required|array',
-            'company_ids.*'=> 'exists:companies,id',
+            'company_ids.*' => 'exists:companies,id',
             'is_active'    => 'sometimes|boolean',
         ];
     }
 
- 
+
     protected function getAssignRules(): array
     {
         return [
             'user_ids'     => 'required|array',
             'user_ids.*'   => 'exists:users,id',
             'company_ids'  => 'required|array',
-            'company_ids.*'=> 'exists:companies,id',
+            'company_ids.*' => 'exists:companies,id',
         ];
     }
 }

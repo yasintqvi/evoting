@@ -6,7 +6,7 @@ use App\DTOs\Election\CreateElectionDto;
 use App\DTOs\Election\UpdateElectionDto;
 use App\Enums\ElectionStatus;
 use App\Events\ElectionCreated;
-use App\Models\Company;
+use App\Models\Group;
 use App\Models\Election;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -16,24 +16,24 @@ use Throwable;
 class ElectionService
 {
 
-    public function getAll(Company $company): Collection
+    public function getAll(Group $group): Collection
     {
-        $elections = $company->elections()->latest()->get();
+        $elections = $group->elections()->latest()->get();
 
         return $elections;
     }
 
-    public function create(Company $company, CreateElectionDto $createElectionDto): Company
+    public function create(Group $group, CreateElectionDto $createElectionDto): Group
     {
         DB::beginTransaction();
 
         try {
-            $election = $company->elections()->create($createElectionDto->all());
-            event(new ElectionCreated($company, $election));
+            $election = $group->elections()->create($createElectionDto->all());
+            event(new ElectionCreated($group, $election));
 
             DB::commit();
 
-            return $company;
+            return $group;
         } catch (Throwable $th) {
 
             DB::rollBack();
