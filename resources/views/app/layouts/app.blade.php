@@ -11,7 +11,7 @@
     <div class="wrapper">
 
         @if (request()->route('group'))
-        @include('app.layouts.partials.company-sidebar')
+        @include('app.layouts.partials.group-sidebar')
         @else
         @include('app.layouts.partials.dashboard-sidebar')
         @endif
