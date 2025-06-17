@@ -174,8 +174,8 @@
         document.addEventListener('DOMContentLoaded', function() {
             const directorCtx = document.getElementById('directorChart').getContext('2d');
 
-            const directorLabels = @json(collect($directorCandidates) - > pluck('name'));
-            const directorVotes = @json(collect($directorCandidates) - > pluck('votes'));
+            const directorLabels = @json(collect($directorCandidates) -> pluck('name'));
+            const directorVotes = @json(collect($directorCandidates) -> pluck('votes'));
 
             const directorChart = new Chart(directorCtx, {
                 type: 'bar',
@@ -207,8 +207,8 @@
             const inspectorCtx = document.getElementById('inspectorChart').getContext('2d');
 
             // استخراج نام‌ها و تعداد رأی‌های بازرسان
-            const inspectorLabels = @json(collect($inspectorCandidates) - > pluck('name'));
-            const inspectorVotes = @json(collect($inspectorCandidates) - > pluck('votes'));
+            const inspectorLabels = @json(collect($inspectorCandidates) -> pluck('name'));
+            const inspectorVotes = @json(collect($inspectorCandidates) -> pluck('votes'));
 
             const inspectorChart = new Chart(inspectorCtx, {
                 type: 'bar',

@@ -17,18 +17,20 @@ class GroupUserController extends Controller
     {
         $search = request('search');
 
-        $group->load(['users' => function ($query) use ($search) {
-            if ($search) {
-                $query->where(
-                    fn($q) =>
-                    $q->where('first_name', 'like', "%$search%")
-                        ->orWhere('last_name', 'like', "%$search%")
-                        ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$search%"])
-                );
-            }
+        $group->load([
+            'users' => function ($query) use ($search) {
+                if ($search) {
+                    $query->where(
+                        fn($q) =>
+                        $q->where('first_name', 'like', "%$search%")
+                            ->orWhere('last_name', 'like', "%$search%")
+                            ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$search%"])
+                    );
+                }
 
-            $query->latest();
-        }]);
+                $query->latest();
+            }
+        ]);
 
         return view('app.group.users.index', compact('group'));
     }
@@ -38,14 +40,29 @@ class GroupUserController extends Controller
      */
     public function create(Group $group)
     {
+        $search = request('search');
 
-        $users = User::whereDoesntHave('companies', function ($query) use ($group) {
-            $query->where('company_id', $group->id);
-        })->get();
+        $group->load([
+            'users' => function ($query) use ($search) {
+                if ($search) {
+                    $query->where(
+                        fn($q) =>
+                        $q->where('first_name', 'like', "%$search%")
+                            ->orWhere('last_name', 'like', "%$search%")
+                            ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$search%"])
+                    );
+                }
 
-        $stockWeight = $group->prefered_stock_weight;
+                $query->latest();
+            }
+        ]);
+        // $users = User::whereDoesntHave('companies', function ($query) use ($group) {
+        //     $query->where('company_id', $group->id);
+        // })->get();
 
-        return view('app.group.users.create', compact('group', 'users', 'stockWeight'));
+        // $stockWeight = $group->prefered_stock_weight;
+
+        return view('app.group.users.create', compact('group'));
     }
 
     /**
