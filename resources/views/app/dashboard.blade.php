@@ -15,7 +15,7 @@
 </div>
 @can(App\Enums\Permission::LIST_GROUPS->value)
 <div class="row row-cols-xxl-5 row-cols-md-3 row-cols-1 align-items-center">
-    @foreach ($companies as $group)
+    @foreach ($groups as $group)
 
     <div class="col">
         <div class="card">

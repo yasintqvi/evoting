@@ -93,16 +93,16 @@
                     <div class="col-lg-6">
                         <div class="mt-1">
                             <label for="group1" class="form-label">افزودن به گروه</label>
-                            <select class="form-select my-1 my-md-0 me-sm-3" name="company_ids[]" id="group1"
+                            <select class="form-select my-1 my-md-0 me-sm-3" name="group_ids[]" id="group1"
                                 data-toggle="select2" multiple>
-                                @foreach ($companies as $group)
+                                @foreach ($groups as $group)
                                 <option value="{{ $group->id }}"
-                                    {{ collect(old('company_ids'))->contains($group->id) ? 'selected' : '' }}>
+                                    {{ collect(old('group_ids'))->contains($group->id) ? 'selected' : '' }}>
                                     {{ $group->title }}
                                 </option>
                                 @endforeach
                             </select>
-                            @error('company_ids')
+                            @error('group_ids')
                             <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
@@ -153,16 +153,16 @@
                 <div class="col-lg-12">
                     <div class="mb-3">
                         <label for="group" class="form-label">افزودن به گروه</label>
-                        <select class="form-select my-1 my-md-0 me-sm-3" name="company_ids[]" id="group"
+                        <select class="form-select my-1 my-md-0 me-sm-3" name="group_ids[]" id="group"
                             data-toggle="select2" multiple>
-                            @foreach ($companies as $group)
+                            @foreach ($groups as $group)
                             <option value="{{ $group->id }}"
-                                {{ collect(old('company_ids'))->contains($group->id) ? 'selected' : '' }}>
+                                {{ collect(old('group_ids'))->contains($group->id) ? 'selected' : '' }}>
                                 {{ $group->title }}
                             </option>
                             @endforeach
                         </select>
-                        @error('company_ids')
+                        @error('group_ids')
                         <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
@@ -238,7 +238,7 @@
         const checkbox = document.getElementById('customCheckcolor2');
 
         if (hasErrors) {
-            if (errorKeys.some(key => key.startsWith('user_ids') || key === 'company_id')) {
+            if (errorKeys.some(key => key.startsWith('user_ids') || key === 'group_id')) {
                 activeUsersForm.style.display = 'block';
                 newUserForm.style.display = 'none';
                 checkbox.checked = true;

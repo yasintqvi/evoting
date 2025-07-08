@@ -73,19 +73,19 @@
                             <label for="group" class="form-label">گروه </label>
                             <select
                                 class="form-select my-1 my-md-0 me-sm-3"
-                                name="company_ids[]"
+                                name="group_ids[]"
                                 id="group"
                                 data-toggle="select2"
                                 multiple>
                                 <option value="">گروه را انتخاب کنید</option>
-                                @foreach ($companies as $group)
+                                @foreach ($groups as $group)
                                 <option value="{{ $group->id }}"
-                                    {{ in_array($group->id, old('company_ids', isset($user) ? $user->groups->pluck('id')->toArray() : [])) ? 'selected' : '' }}>
+                                    {{ in_array($group->id, old('group_ids', isset($user) ? $user->groups->pluck('id')->toArray() : [])) ? 'selected' : '' }}>
                                     {{ $group->title }}
                                 </option>
                                 @endforeach
                             </select>
-                            @error('company_ids')
+                            @error('group_ids')
                             <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>

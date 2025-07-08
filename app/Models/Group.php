@@ -81,6 +81,11 @@ class Group extends Model
         return $this->belongsToMany(User::class, 'group_user')->withPivot("normal_stock_count", "prefered_stock_count");
     }
 
+    public function events(): HasMany
+    {
+        return $this->hasMany(Event::class);
+    }
+
     public function elections(): HasMany
     {
         return $this->hasMany(Election::class);

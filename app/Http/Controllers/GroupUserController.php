@@ -39,8 +39,8 @@ class GroupUserController extends Controller
     public function create(Group $group)
     {
 
-        $users = User::whereDoesntHave('companies', function ($query) use ($group) {
-            $query->where('company_id', $group->id);
+        $users = User::whereDoesntHave('groups', function ($query) use ($group) {
+            $query->where('group_id', $group->id);
         })->get();
 
         $stockWeight = $group->prefered_stock_weight;

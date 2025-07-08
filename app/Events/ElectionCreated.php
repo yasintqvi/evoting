@@ -25,7 +25,7 @@ class ElectionCreated
      */
     public function __construct(Group $group, Election $election)
     {
-        $this->company = $group;
+        $this->group = $group;
 
         $this->election = $election;
     }

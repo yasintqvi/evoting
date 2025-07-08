@@ -24,7 +24,7 @@
                 <h4 class="header-title">لیست انتخابات</h4>
                 <div>
                     @can(\App\Enums\Permission::CREATE_ELECTIONS->value)
-                    <a href="{{route('elections.create', $group->slug)}}" class="btn btn-success bg-gradient"><i class="ti ti-plus me-1"></i>ایجاد همه پرسی</a>
+                    <a href="{{route('elections.create', [$group->slug, $event->id])}}" class="btn btn-success bg-gradient"><i class="ti ti-plus me-1"></i>ایجاد همه پرسی</a>
                     @endcan
                 </div>
             </div>

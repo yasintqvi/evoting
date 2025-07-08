@@ -36,7 +36,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        $companies = Group::all();
+        $groups = Group::all();
         $users = User::all();
         return view("app.users.create", compact("companies", "users"));
     }
@@ -48,15 +48,15 @@ class UserController extends Controller
     {
         if ($request->has('phone')) {
             $request->mergeIfMissing(['is_active' => 0]);
-            $inputs = $request->except('company_id');
+            $inputs = $request->except('group_id');
             $user = User::create($inputs);
 
 
-            $groupId = $request->input('company_ids');
+            $groupId = $request->input('group_ids');
             $user->groups()->sync($groupId);
         } else {
 
-            foreach ($request->company_ids as $groupId) {
+            foreach ($request->group_ids as $groupId) {
                 $group = Group::find($groupId);
                 $group->users()->syncWithoutDetaching($request->user_ids);
             }
@@ -80,8 +80,8 @@ class UserController extends Controller
      */
     public function edit(User $user, Group $group)
     {
-        $companies = $group->get();
-        return view('app.users.edit', compact('user', 'companies'));
+        $groups = $group->get();
+        return view('app.users.edit', compact('user', 'groups'));
     }
 
     /**
@@ -90,10 +90,10 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, User $user)
     {
         $request->mergeIfMissing(['is_active' => 0]);
-        $inputs = $request->except('company_ids');
+        $inputs = $request->except('group_ids');
         $user->update($inputs);
 
-        $groupIds = $request->input('company_ids', []);
+        $groupIds = $request->input('group_ids', []);
         $user->groups()->sync($groupIds);
 
         return redirect()->route('users.index')->with('success', 'اطلاعات کاربر با موفقیت به‌روزرسانی شد.');

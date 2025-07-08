@@ -35,8 +35,8 @@ class StoreUserRequest extends FormRequest
             'last_name'    => 'required|string|max:255',
             'phone'        => 'required|string|max:11|unique:users,phone',
             'nationalcode' => 'required|string|max:10|unique:users,nationalcode',
-            'company_ids'  => 'required|array',
-            'company_ids.*' => 'exists:companies,id',
+            'group_ids'  => 'required|array',
+            'group_ids.*' => 'exists:companies,id',
             'is_active'    => 'sometimes|boolean',
         ];
     }
@@ -47,8 +47,8 @@ class StoreUserRequest extends FormRequest
         return [
             'user_ids'     => 'required|array',
             'user_ids.*'   => 'exists:users,id',
-            'company_ids'  => 'required|array',
-            'company_ids.*' => 'exists:companies,id',
+            'group_ids'  => 'required|array',
+            'group_ids.*' => 'exists:companies,id',
         ];
     }
 }

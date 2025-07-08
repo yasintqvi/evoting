@@ -41,29 +41,6 @@
                      <span class="menu-text"> داشبورد </span>
                  </a>
              </li>
-             <li class="side-nav-item">
-                 <a href="{{ route('elections.index', $group->slug) }}" class="side-nav-link">
-                     <span class="menu-icon">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                             <path fill="currentColor"
-                                 d="m17.578 4.432l-2-1.05C13.822 2.461 12.944 2 12 2s-1.822.46-3.578 1.382l-.321.169l8.923 5.099l4.016-2.01c-.646-.732-1.688-1.279-3.462-2.21m4.17 3.534l-3.998 2V13a.75.75 0 0 1-1.5 0v-2.286l-3.5 1.75v9.44c.718-.179 1.535-.607 2.828-1.286l2-1.05c2.151-1.129 3.227-1.693 3.825-2.708c.597-1.014.597-2.277.597-4.8v-.117c0-1.893 0-3.076-.252-3.978M11.25 21.904v-9.44l-8.998-4.5C2 8.866 2 10.05 2 11.941v.117c0 2.525 0 3.788.597 4.802c.598 1.015 1.674 1.58 3.825 2.709l2 1.049c1.293.679 2.11 1.107 2.828 1.286M2.96 6.641l9.04 4.52l3.411-1.705l-8.886-5.078l-.103.054c-1.773.93-2.816 1.477-3.462 2.21" />
-                         </svg>
-                     </span>
-                     <span class="menu-text"> انتخابات </span>
-                 </a>
-             </li>
-             <li class="side-nav-item">
-                 <a href="#" class="side-nav-link">
-                     <span class="menu-icon">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                             <path fill="currentColor" fill-rule="evenodd"
-                                 d="M8.048 2.488a.75.75 0 0 1-.036 1.06l-4.286 4a.75.75 0 0 1-1.095-.076l-1.214-1.5a.75.75 0 0 1 1.166-.944l.708.875l3.697-3.451a.75.75 0 0 1 1.06.036M11.25 5a.75.75 0 0 1 .75-.75h10a.75.75 0 0 1 0 1.5H12a.75.75 0 0 1-.75-.75M8.048 9.488a.75.75 0 0 1-.036 1.06l-4.286 4a.75.75 0 0 1-1.095-.076l-1.214-1.5a.75.75 0 1 1 1.166-.944l.708.875l3.697-3.451a.75.75 0 0 1 1.06.036M11.25 12a.75.75 0 0 1 .75-.75h10a.75.75 0 0 1 0 1.5H12a.75.75 0 0 1-.75-.75m-3.202 4.488a.75.75 0 0 1-.036 1.06l-4.286 4a.75.75 0 0 1-1.095-.076l-1.214-1.5a.75.75 0 1 1 1.166-.944l.708.875l3.697-3.451a.75.75 0 0 1 1.06.036M11.25 19a.75.75 0 0 1 .75-.75h10a.75.75 0 0 1 0 1.5H12a.75.75 0 0 1-.75-.75"
-                                 clip-rule="evenodd" />
-                         </svg>
-                     </span>
-                     <span class="menu-text"> نظرسنجی </span>
-                 </a>
-             </li>
              @can(\App\Enums\Permission::VIEW_GROUP_USERS->value)
              <li class="side-nav-item">
                  <a href="{{ route('group.users.index', $group->slug) }}" class="side-nav-link">
@@ -79,19 +56,50 @@
                      <span class="menu-text"> اعضا </span>
                  </a>
              </li>
-             @endcan
-             @can(App\Enums\Permission::STORE_ATTENDANCE)
-             <li class="side-nav-item">
-                 <a href="{{ route('attendances.create', $group->slug, ) }}" class="side-nav-link">
-                     <span class="menu-icon">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-check" viewBox="0 0 16 16">
-                             <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m1.679-4.493-1.335 2.226a.75.75 0 0 1-1.174.144l-.774-.773a.5.5 0 0 1 .708-.708l.547.548 1.17-1.951a.5.5 0 1 1 .858.514M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0M8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4" />
-                             <path d="M8.256 14a4.5 4.5 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10q.39 0 .74.025c.226-.341.496-.65.804-.918Q8.844 9.002 8 9c-5 0-6 3-6 4s1 1 1 1z" />
-                         </svg>
-                     </span>
-                     <span class="menu-text"> حضور و غیاب </span>
+             <br>
+             <li class="side-nav-title">لیست آخرین رویداد ها</li>
+             @forelse($group->events()->latest()->take(10)->get() as $event)
+             <li class="side-nav-item active">
+                 <a data-bs-toggle="collapse" href="#event-{{ $event->id }}" aria-expanded="false" aria-controls="sidebarHospital" class="side-nav-link collapsed">
+                     <span class="menu-icon"><img src="{{asset($event->logo) }}" class="rounded-circle me-lg-2 d-flex object-fit-cover" width="20" height="20" alt="{{$group->title}}"></i></span>
+                     <span class="menu-text text-wrap small" style="line-height: 1.2rem;"> {{ $event->title }} </span>
+                     <span class="menu-arrow"></span>
                  </a>
+                 <div class="collapse" id="event-{{ $event->id }}">
+                     <ul class="sub-menu">
+                         <li class="side-nav-item">
+                             <a href="{{ route('elections.index', [$group->slug, $event->id]) }}" class="side-nav-link">
+                                 <span class="menu-text">انتخابات </span>
+                             </a>
+                         </li>
+                         <li class="side-nav-item">
+                             <a href="#" class="side-nav-link">
+                                 <span class="menu-text">نظرسنجی ها</span>
+                             </a>
+                         </li>
+
+                         <li class="side-nav-item">
+                             <a href="{{ route('attendances.create', [$group->slug, $event->id]) }}" class="side-nav-link">
+                                 <span class="menu-text">حضور و غیاب</span>
+                             </a>
+                         </li>
+                     </ul>
+                 </div>
              </li>
+             @empty
+             <div class="d-flex justify-content-center align-items-center">
+                 <div class="d-flex flex-column">
+                     <div class="mt-2 side-nav-title"> هنوز هیچ رویدادی اضافه نشده است.</div>
+                 </div>
+             </div>
+             @endforelse
+
+             @can(\App\Enums\Permission::CREATE_GROUP_EVENT->value)
+             <div class="d-flex flex-column mt-3">
+                 <a href="{{ route('events.create', $group->slug) }}" class="btn btn-secondary btn-sm mx-auto">رویداد جدید</a>
+             </div>
+             @endcan
+
              @endcan
          </ul>
 

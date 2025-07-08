@@ -17,7 +17,7 @@
     </div>
 </div>
 
-<form action="{{ route('elections.store', $group->slug) }}" method="post">
+<form action="{{ route('elections.store', [$group->slug, $event->id]) }}" method="post">
     @csrf
     <div class="card col-lg-6">
         <div class="card-header border-bottom border-dashed">
