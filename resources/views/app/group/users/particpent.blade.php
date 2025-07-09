@@ -14,7 +14,7 @@
         </div>
     </div>
 
-    <form action="{{ route('group.users.create', $group) }}" method="GET" class="mb-3">
+    <form action="{{ route('group.users.create-participant', $group) }}" method="GET" class="mb-3">
         <div class="row">
             <div class="col-lg-6">
                 <input type="text" name="search" class="form-control" placeholder="جستجوی کاربر..."
@@ -23,7 +23,7 @@
         </div>
     </form>
 
-    <form action="{{ route('group.users.store', $group) }}" method="POST" id="add-users-form">
+    <form action="{{ route('group.users.store-participant', $group->slug) }}" method="POST">
         @csrf
         <div class="card">
             <div class="card-header">
@@ -38,19 +38,37 @@
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th>انتخاب</th>
                                     <th>نام</th>
                                     <th>نام خانوادگی</th>
+                                    <th>سهام عادی</th>
+                                    <th>سهام ممتاز</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($users as $user)
+                                    @php
+                                        $pivot = $group->users->firstWhere('id', $user->id)?->pivot;
+                                        $normal = old(
+                                            "users.{$user->id}.normal_stock_count",
+                                            $pivot->normal_stock_count ?? 0,
+                                        );
+                                        $prefered = old(
+                                            "users.{$user->id}.prefered_stock_count",
+                                            $pivot->prefered_stock_count ?? 0,
+                                        );
+                                    @endphp
+
                                     <tr>
-                                        <td>
-                                            <input type="checkbox" name="user_ids[]" value="{{ $user->id }}">
-                                        </td>
                                         <td>{{ $user->first_name }}</td>
                                         <td>{{ $user->last_name }}</td>
+                                        <td>
+                                            <input type="number" name="users[{{ $user->id }}][normal_stock_count]"
+                                                class="form-control" min="0" value="{{ $normal }}">
+                                        </td>
+                                        <td>
+                                            <input type="number" name="users[{{ $user->id }}][prefered_stock_count]"
+                                                class="form-control" min="0" value="{{ $prefered }}">
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>

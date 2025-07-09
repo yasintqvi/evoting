@@ -199,8 +199,4 @@
         }
     </script>
 
-
-
-
-
 @endsection

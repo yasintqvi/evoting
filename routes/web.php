@@ -168,6 +168,9 @@ Route::middleware('auth')->group(function () {
                 ->middleware('can:' . Permission::STORE_ATTENDANCE->value);
         });
 
+        Route::post('users/store-participant', [GroupUserController::class, 'storeParticipant'])->name('group.users.store-participant');
+        Route::get('users/create-participant', [GroupUserController::class, 'createParticipant'])->name('group.users.create-participant');
+
         Route::resource('users', GroupUserController::class)->names([
             'index' => 'group.users.index',
             'create' => 'group.users.create',

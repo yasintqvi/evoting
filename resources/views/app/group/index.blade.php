@@ -15,42 +15,56 @@
         </div>
     </div>
 
-    <div class="d-flex flex-column gap-3">
+    <div class="d-flex flex-row gap-3 p-3">
 
-        <div
-            class="d-flex align-items-center justify-content-between p-3 rounded shadow-sm border-start border-4 border-success bg-light">
-            <div class="d-flex align-items-center gap-3">
+        <!-- مرحله 1 -->
+        <div class="d-flex flex-column flex-fill p-3 rounded shadow-sm border-start border-4 border-success ">
+            <div class="d-flex align-items-center gap-3 mb-2">
                 <div class="bg-success text-white rounded px-3 py-2 fw-bold">✓</div>
                 <div class="text-success fw-semibold">ایجاد گروه</div>
             </div>
-            <small class="text-success">تکمیل شده</small>
+            <small class="text-success align-self-end">تکمیل شده</small>
         </div>
 
-        <div
-            class="d-flex align-items-center justify-content-between p-3 rounded shadow-sm border-start border-4 border-primary bg-white">
-            <div class="d-flex align-items-center gap-3">
-                <div class="bg-primary text-white rounded px-3 py-2 fw-bold">2</div>
-                <div class="text-primary fw-semibold">ایجاد اعضا</div>
+        <!-- مرحله 2 -->
+        @can(\App\Enums\Permission::VIEW_GROUP_USERS->value)
+            @php
+                $isApproved = $usersCount >= 3;
+            @endphp
+
+            <div
+                class="d-flex flex-column flex-fill p-3 rounded shadow-sm border-start border-4
+        {{ $isApproved ? 'border-success' : 'border-primary bg-white' }}
+        transition-all hover:shadow-lg">
+
+                <a href="{{ route('group.users.index', $group->slug) }}"
+                    class="text-decoration-none {{ $isApproved ? 'text-success' : 'text-primary' }}">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <div
+                            class="{{ $isApproved ? 'bg-success text-white' : 'bg-secondary text-white' }} rounded px-3 py-2 fw-bold">
+                            {{ $isApproved ? '✓' : '2' }}
+                        </div>
+                        <div class="{{ $isApproved ? 'text-success fw-semibold' : 'text-primary fw-semibold' }}">
+                            {{ $isApproved ? 'تایید شده - اعضا اضافه شدند' : 'ایجاد اعضا' }}
+                        </div>
+                    </div>
+                </a>
+
+                <small class="{{ $isApproved ? 'text-success' : 'text-primary' }} align-self-end">
+                    {{ $isApproved ? 'تکمیل شده' : 'در حال انتظار' }}
+                </small>
             </div>
-            <small class="text-primary">در حال انجام</small>
-        </div>
+        @endcan
 
-        <div
-            class="d-flex align-items-center justify-content-between p-3 rounded shadow-sm border-start border-4 border-secondary bg-white">
-            <div class="d-flex align-items-center gap-3">
-                <div class="bg-secondary text-white rounded px-3 py-2 fw-bold">3</div>
-                <div class="text-muted fw-semibold">ایجاد سهام‌داران</div>
+        <!-- مرحله 3 -->
+        @if (in_array($group->type, [App\Enums\GroupType::SPECIAL]))
+            <div class="d-flex flex-column flex-fill p-3 rounded shadow-sm border-start border-4 border-secondary bg-white">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <div class="bg-secondary text-white rounded px-3 py-2 fw-bold">3</div>
+                    <div class="text-muted fw-semibold">ایجاد سهام‌داران</div>
+                </div>
+                <small class="text-muted align-self-end">در انتظار</small>
             </div>
-            <small class="text-muted">در انتظار</small>
-        </div>
-    </div>
-
-    <div class="alert alert-info mt-4">
-        <strong>نمونه نمایشی:</strong> این یک طرح بصری است و وضعیت مراحل به‌صورت ثابت تنظیم شده‌اند:
-        <ul class="mt-2 mb-0">
-            <li>مرحله 1: <span class="text-success fw-semibold">تکمیل شده</span></li>
-            <li>مرحله 2: <span class="text-primary fw-semibold">فعال</span></li>
-            <li>مرحله 3: <span class="text-muted fw-semibold">غیرفعال</span></li>
-        </ul>
+        @endif
     </div>
 @endsection

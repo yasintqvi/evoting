@@ -6,6 +6,7 @@ use App\Http\Requests\User\StoreGroupUserRequest;
 use App\Http\Requests\User\UpdateGroupUserRequest;
 use App\Models\Group;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class GroupUserController extends Controller
@@ -15,6 +16,7 @@ class GroupUserController extends Controller
      */
     public function index(Group $group)
     {
+
         $search = request('search');
 
         $group->load([
@@ -32,7 +34,10 @@ class GroupUserController extends Controller
             }
         ]);
 
-        return view('app.group.users.index', compact('group'));
+        $users = $group->users;
+
+
+        return view('app.group.users.index', compact('group', 'users'));
     }
 
     /**
@@ -42,6 +47,44 @@ class GroupUserController extends Controller
     {
         $search = request('search');
 
+        $users = User::query()
+            ->whereDoesntHave('groups', function ($q) use ($group) {
+                $q->where('groups.id', $group->id);
+            })
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%")
+                        ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
+                });
+            })
+            ->latest()
+            ->get();
+
+        return view('app.group.users.create', compact('group', 'users'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+
+
+    public function store(Request $request, Group $group)
+    {
+        $validated = $request->validate([
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id',
+        ]);
+
+        $group->users()->attach($validated['user_ids']);
+
+        return redirect()->back()->with('success', 'کاربران با موفقیت اضافه شدند.');
+    }
+
+    public function createParticipant(Group $group)
+    {
+        $search = request('search');
+
         $group->load([
             'users' => function ($query) use ($search) {
                 if ($search) {
@@ -56,42 +99,30 @@ class GroupUserController extends Controller
                 $query->latest();
             }
         ]);
-        // $users = User::whereDoesntHave('companies', function ($query) use ($group) {
-        //     $query->where('company_id', $group->id);
-        // })->get();
 
-        // $stockWeight = $group->prefered_stock_weight;
+        $users = $group->users;
 
-        return view('app.group.users.create', compact('group'));
+        return view('app.group.users.particpent', compact('group', 'users'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreGroupUserRequest $request, Group $group)
+    public function storeParticipant(Request $request, Group $group)
     {
-        $phone = convert_persian_to_english($request->input('phone'));
-        $nationalcode = convert_persian_to_english($request->input('nationalcode'));
+        $validated = $request->validate([
+            'users' => 'required|array',
+            'users.*.normal_stock_count' => 'required|integer|min:0',
+            'users.*.prefered_stock_count' => 'required|integer|min:0',
+        ]);
 
-        $userData = $request->validated();
-        $userData['phone'] = $phone;
-        $userData['nationalcode'] = $nationalcode;
-        $userData['password'] = Hash::make($nationalcode);
-
-        $user = User::create($userData);
-
-        $pivotData = [];
-
-        if ($group->type == \App\Enums\GroupType::SPECIAL) {
-            $pivotData = [
-                'normal_stock_count' => $request->input('normal_stock_count', 0),
-                'prefered_stock_count' => $request->input('prefered_stock_count', 0),
-            ];
+        foreach ($validated['users'] as $userId => $stockData) {
+            $group->users()->syncWithoutDetaching([
+                $userId => [
+                    'normal_stock_count' => $stockData['normal_stock_count'],
+                    'prefered_stock_count' => $stockData['prefered_stock_count'],
+                ]
+            ]);
         }
-        $group->users()->attach($user->id, $pivotData);
 
-        return redirect()->route('group.users.index', $group->slug)
-            ->with('success', 'کاربر جدید با موفقیت ایجاد و به گروه اضافه شد.');
+        return redirect()->back()->with('success', 'کاربران با موفقیت به گروه اضافه شدند.');
     }
 
     /**
@@ -105,39 +136,18 @@ class GroupUserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Group $group, User $user)
+    public function edit()
     {
-        $userStock = $group->users()->where('user_id', $user->id)->first()->pivot;
-        return view('app.group.users.edit', compact('group', 'user', 'userStock'));
+
     }
 
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateGroupUserRequest $request, Group $group, User $user)
+    public function update()
     {
-        $nationalcode = convert_persian_to_english($request->input('nationalcode'));
 
-        $userData = $request->validated();
-        $userData['nationalcode'] = $nationalcode;
-
-        if ($user->nationalcode !== $nationalcode) {
-            $userData['password'] = Hash::make($nationalcode);
-        }
-
-        $user->update($userData);
-
-        if ($group->type == \App\Enums\GroupType::SPECIAL) {
-            $pivotData = [
-                'normal_stock_count' => $request->input('normal_stock_count', 0),
-                'prefered_stock_count' => $request->input('prefered_stock_count', 0),
-            ];
-        }
-        $group->users()->updateExistingPivot($user->id, $pivotData);
-
-        return redirect()->route('group.users.index', $group->slug)
-            ->with('success', __('messages.company_user_update'));
     }
 
     /**
