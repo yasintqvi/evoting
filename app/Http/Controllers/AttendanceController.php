@@ -26,14 +26,14 @@ class AttendanceController extends Controller
         return view('app.group.attendances.create', compact('group', 'event'));
     }
 
-    public function store(StoreAttendanceRequest $request, Group $group)
+    public function store(StoreAttendanceRequest $request, Group $group, Event $event)
     {
-        // try {
-        //     $this->attendanceService->create($request->toDto(), $election);
+        try {
+            $this->attendanceService->create($request->toDto(), $event);
 
-        //     return to_route('elections.index', [$group->slug]);
-        // } catch (Exception $e) {
-        //     return back()->with('error', $e->getMessage());
-        // }
+            return to_route('elections.index', [$group->slug]);
+        } catch (Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
 }

@@ -21,7 +21,8 @@ class Participant extends Model
         'attorney_id',
         'normal_stock_count',
         'prefered_stock_count',
-        'is_present'
+        'is_present',
+        'group_id',
     ];
 
     protected static $logAttributesToIgnore = ['updated_at'];

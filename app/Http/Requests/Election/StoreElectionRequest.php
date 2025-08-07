@@ -18,14 +18,13 @@ class StoreElectionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['required', 'string', 'max:255', 'min:2'],
-            'type' => ['required', Rule::in(ElectionType::values())],
+            'title' => ['nullable', 'string', 'max:255', 'min:2'],
+            'type' => ['nullable', Rule::in(ElectionType::values())],
             'quorum_required' => ['nullable', 'in:0,1'],
-            'main_member_count' => ['required', 'integer', 'min:1'],
-            'substitute_member_count' => ['required', 'integer', 'min:0'],
-            'incpector_main_member_count' => ['required', 'integer', "min:0"],
-            'incpector_substitute_member_count' => ['required', 'integer', 'min:0'],
-            'supervisor_id' => ['required', 'exists:users,id']
+            'main_member_count' => ['nullable', 'integer', 'min:1'],
+            'substitute_member_count' => ['nullable', 'integer', 'min:0'],
+            'incpector_main_member_count' => ['nullable', 'integer', "min:0"],
+            'incpector_substitute_member_count' => ['nullable', 'integer', 'min:0'],
         ];
     }
 
@@ -34,7 +33,6 @@ class StoreElectionRequest extends FormRequest
         return new CreateElectionDto(
             $this->validated('title'),
             Auth::user()->getAuthIdentifier(),
-            $this->validated('supervisor_id'),
             ElectionType::from($this->validated('type')),
             (bool) $this->validated('quorum_required'),
             $this->validated('main_member_count'),

@@ -21,7 +21,6 @@ class Election extends Model
         'group_id',
         'event_id',
         'owner_id',
-        'supervisor_id',
         'title',
         'slug',
         'status',

@@ -8,9 +8,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Election\StoreCandidateRequest;
 use App\Models\Group;
 use App\Models\Election;
+use App\Models\Event;
 use App\Services\CandidateService;
 use Exception;
-use Throwable;
 
 class ElectionCandidateController extends Controller
 {
@@ -31,7 +31,7 @@ class ElectionCandidateController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Group $group, Election $election)
+    public function create(Group $group, Event $event, Election $election)
     {
         $group->load('users');
 
@@ -64,11 +64,11 @@ class ElectionCandidateController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Group $group, Election $election)
+    public function edit(Group $group, Event $event, Election $election)
     {
         $group->load('users');
 
-        return view('app.group.election.candidate.edit', compact('group', 'election',));
+        return view('app.group.event.election.candidate.edit', compact('group', 'event', 'election',));
     }
 
 

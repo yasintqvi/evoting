@@ -44,7 +44,7 @@ class ElectionController extends Controller
         try {
             $group = $this->electionService->create($group, $event, $request->toDto());
 
-            return to_route('elections.index', $group->slug)->with('success', __('messages.election.created'));
+            return to_route('elections.index', [$group->slug, $event->id])->with('success', __('messages.election.created'));
         } catch (Throwable $th) {
             return back()->with('error', "خطایی هنگام ایجاد انتخابات رخ داد.");
         }

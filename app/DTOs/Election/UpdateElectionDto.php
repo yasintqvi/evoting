@@ -7,7 +7,6 @@ use App\DTOs\BaseDataTransferObject;
 readonly class UpdateElectionDto extends BaseDataTransferObject
 {
     public function __construct(
-        public int $supervisor_id,
         public string $title,
         public bool $quorumRequired,
         public int $mainMemberCount,

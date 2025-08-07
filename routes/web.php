@@ -135,12 +135,11 @@ Route::middleware('auth')->group(function () {
                 Route::get('/show/{election}', [ElectionController::class, 'show'])->name('elections.show')
                     ->middleware('can:' . Permission::SHOW_ELECTION->value);
 
-                Route::resource('{election}/candidates', ElectionCandidateController::class)->except('edit', 'update')
-                    ->middleware([
-                        'can:' . Permission::VIEW_CANDIDATES->value,
-                        'can:' . Permission::CREATE_CANDIDATES->value,
-                        'can:' . Permission::DELETE_CANDIDATES->value,
-                    ]);
+                Route::get('/{election}/candidates', [ElectionCandidateController::class, 'index'])->name('candidates.index');
+
+                Route::get('/{election}/candidates/create', [ElectionCandidateController::class, 'create'])->name('candidates.create');
+
+                Route::post('/{election}/candidates/create', [ElectionCandidateController::class, 'store'])->name('candidates.store');
 
                 Route::get('{election}/edit', [ElectionCandidateController::class, 'edit'])->name('candidates.edit')
                     ->middleware('can:' . Permission::EDIT_CANDIDATES->value);

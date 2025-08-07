@@ -6,7 +6,6 @@ use App\DTOs\Participant\CreateParticipantDto;
 use App\Events\ElectionCreated;
 use App\Services\ParticipantService;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class ElectionEventSubscriber
 {
@@ -22,7 +21,7 @@ class ElectionEventSubscriber
      */
     public function handleElectionCreated(ElectionCreated $event): void
     {
-        $groupShareholders = $event->company->users;
+        $groupShareholders = $event->group->users;
 
         foreach ($groupShareholders as $shareholder) {
 

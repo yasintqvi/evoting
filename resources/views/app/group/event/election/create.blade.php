@@ -90,20 +90,6 @@
                     </div>
                 </div>
                 <div class="col-lg-6">
-                    <div class="mb-3">
-                        <label for="election_type" class="form-label">منشی</label>
-                        <select name="supervisor_id" id="supervisor_id" data-toggle="select2" class="form-select">
-                            <option value="">منشی مورد نظر را انتخاب کنید</option>
-                            @foreach ($users as $user)
-                            <option @selected(old('supervisor_id')==$user->id) value="{{ $user->id }}">{{ $user->full_name }}</option>
-                            @endforeach
-                        </select>
-                        @error('supervisor_id')
-                        <span class="strong text-danger font-weight-bold">{{ $message }}</span>
-                        @enderror
-                    </div>
-                </div>
-                <div class="col-lg-6">
                     <div class="form-check">
                         <label for="quorum_required" class="form-label">فعال سازی قانون حدنصاب اعضا</label>
                         <input type="checkbox" class="form-check-input" value="1" name="quorum_required" value="{{ old('quorum_required') }}" id="quorum_required">
