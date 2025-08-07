@@ -115,7 +115,6 @@
                             <div class="d-block">
                                 <h4 class="card-title mb-0">جزئیات سهام داران</h4>
                             </div>
-
                             <div class="ms-auto">
                                 <div class="dropdown">
                                     <a href="#" class="dropdown-toggle btn btn-sm btn-soft-primary drop-arrow-none"

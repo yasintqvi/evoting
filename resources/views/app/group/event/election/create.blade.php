@@ -17,7 +17,7 @@
     </div>
 </div>
 
-<form action="{{ route('elections.store', $group->slug) }}" method="post">
+<form action="{{ route('elections.store', [$group->slug, $event->id]) }}" method="post">
     @csrf
     <div class="card col-lg-6">
         <div class="card-header border-bottom border-dashed">
@@ -89,7 +89,7 @@
                         @enderror
                     </div>
                 </div>
-                <div class="col-lg-6">
+                {{-- <div class="col-lg-6">
                     <div class="mb-3">
                         <label for="election_type" class="form-label">منشی</label>
                         <select name="supervisor_id" id="supervisor_id" data-toggle="select2" class="form-select">
@@ -102,7 +102,7 @@
                         <span class="strong text-danger font-weight-bold">{{ $message }}</span>
                         @enderror
                     </div>
-                </div>
+                </div> --}}
                 <div class="col-lg-6">
                     <div class="form-check">
                         <label for="quorum_required" class="form-label">فعال سازی قانون حدنصاب اعضا</label>

@@ -168,6 +168,7 @@
             const newUserForm = document.getElementById('new-user-form');
             const checkbox = document.getElementById('customCheckcolor2');
 
+<<<<<<< HEAD
             if (hasErrors) {
                 if (errorKeys.some(key => key.startsWith('user_ids') || key === 'company_id')) {
                     activeUsersForm.style.display = 'block';
@@ -190,6 +191,11 @@
             const activeUsersForm = document.getElementById('active-users-form');
 
             if (isChecked) {
+=======
+        if (hasErrors) {
+            if (errorKeys.some(key => key.startsWith('user_ids') || key === 'group_id')) {
+                activeUsersForm.style.display = 'block';
+>>>>>>> 06b0e13ea19b0559acf021c28dc175a756577d3e
                 newUserForm.style.display = 'none';
                 activeUsersForm.style.display = 'block';
             } else {

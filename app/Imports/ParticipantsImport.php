@@ -74,7 +74,7 @@ class ParticipantsImport implements ToCollection, WithHeadingRow
             if ($user) {
                 $this->participants[] = [
                     'user_id' => $user->id,
-                    'company_id' => $this->companyId,
+                    'group_id' => $this->companyId,
                     'election_id' => $this->election->id,
                     'normal_stock_count' => $row['normal_stock_count'],
                     'prefered_stock_count' => $row['prefered_stock_count'],

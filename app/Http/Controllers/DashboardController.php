@@ -21,11 +21,11 @@ class DashboardController extends Controller
         }
 
         if (user()->hasRole(Role::Manager->value)) {
-            $companies = Group::all();
+            $groups = Group::all();
         } else {
-            $companies = Group::whereHas('users', fn($q) => $q->where('user_id', user()->id))->get();
+            $groups = Group::whereHas('users', fn($q) => $q->where('user_id', user()->id))->get();
         }
 
-        return view('app.dashboard', compact('activities', 'companies'));
+        return view('app.dashboard', compact('activities', 'groups'));
     }
 }

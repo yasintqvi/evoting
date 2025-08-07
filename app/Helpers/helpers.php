@@ -16,7 +16,7 @@ if (!function_exists('convert_persian_to_english')) {
 
         $string = str_replace($persian, $english, $string);
         $string = str_replace($arabic, $english, $string);
-        
+
         return $string;
     }
 }
@@ -83,5 +83,12 @@ if (! function_exists('format_phone')) {
         }
 
         return ed($phone);
+    }
+}
+
+if (!function_exists('is_active')) {
+    function is_active(string $address_segment)
+    {
+        return str_contains(request()->uri(), $address_segment);
     }
 }

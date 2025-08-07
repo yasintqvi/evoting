@@ -36,5 +36,4 @@ class UpdateUserRequest extends FormRequest
             'is_active'     => 'sometimes|boolean',
         ];
     }
-
 }

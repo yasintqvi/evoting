@@ -8,6 +8,7 @@ use App\Enums\ElectionStatus;
 use App\Events\ElectionCreated;
 use App\Models\Group;
 use App\Models\Election;
+use App\Models\Event;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -16,19 +17,19 @@ use Throwable;
 class ElectionService
 {
 
-    public function getAll(Group $group): Collection
+    public function getAll(Event $event): Collection
     {
-        $elections = $group->elections()->latest()->get();
+        $elections = $event->elections()->latest()->get();
 
         return $elections;
     }
 
-    public function create(Group $group, CreateElectionDto $createElectionDto): Group
+    public function create(Group $group, Event $event, CreateElectionDto $createElectionDto): Group
     {
         DB::beginTransaction();
 
         try {
-            $election = $group->elections()->create($createElectionDto->all());
+            $election = $event->elections()->create($createElectionDto->all());
             event(new ElectionCreated($group, $election));
 
             DB::commit();

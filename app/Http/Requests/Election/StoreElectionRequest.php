@@ -25,7 +25,7 @@ class StoreElectionRequest extends FormRequest
             'substitute_member_count' => ['required', 'integer', 'min:0'],
             'incpector_main_member_count' => ['required', 'integer', "min:0"],
             'incpector_substitute_member_count' => ['required', 'integer', 'min:0'],
-            'supervisor_id' => ['required', 'exists:users,id']
+            'supervisor_id' => ['nullable']
         ];
     }
 

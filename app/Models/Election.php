@@ -18,9 +18,10 @@ class Election extends Model
     use LogsActivity;
 
     protected $fillable = [
-        'company_id',
+        'group_id',
+        'event_id',
         'owner_id',
-        'supervisor_id',
+        // 'supervisor_id',
         'title',
         'slug',
         'status',
@@ -58,9 +59,14 @@ class Election extends Model
         ];
     }
 
-    public function company(): BelongsTo
+    public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class);
+    }
+
+    public function event(): BelongsTo
+    {
+        return $this->belongsTo(Event::class);
     }
 
     public function rounds(): HasMany

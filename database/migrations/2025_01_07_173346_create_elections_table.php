@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('elections', function (Blueprint $table) {
             $table->id();
             $table->foreignId('group_id')->constrained('groups');
+            $table->foreignId('event_id')->constrained('events');
             $table->string('title');
             $table->string('slug')->unique()->nullable();
             $table->string('type')->default(ElectionType::PUBLIC_JOINT);
