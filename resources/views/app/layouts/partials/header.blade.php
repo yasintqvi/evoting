@@ -1,7 +1,7 @@
 <!-- Topbar Start -->
 <header class="app-topbar">
     <div class="page-container topbar-menu">
-        @if (request()->route('company'))
+        @if (request()->route('group'))
         <!-- Brand Logo -->
         <div style="margin-top: 1rem;">
             <div class="btn-group mb-2">

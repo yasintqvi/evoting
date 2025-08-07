@@ -31,14 +31,12 @@ class UpdateElectionRequest extends FormRequest
             'substitute_member_count' => ['required', 'integer', 'min:0'],
             'incpector_main_member_count' => ['required', 'integer', 'min:0'],
             'incpector_substitute_member_count' => ['required', 'integer', 'min:0'],
-            'supervisor_id' => ['required', 'exists:users,id'],
         ];
     }
 
     public function toDto(): UpdateElectionDto
     {
         return new UpdateElectionDto(
-            $this->validated('supervisor_id'),
             $this->validated('title'),
             (bool) $this->validated('quorum_required'),
             $this->validated('main_member_count'),

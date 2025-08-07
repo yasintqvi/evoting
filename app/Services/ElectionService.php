@@ -29,7 +29,10 @@ class ElectionService
         DB::beginTransaction();
 
         try {
-            $election = $event->elections()->create($createElectionDto->all());
+            $election = $event->elections()->create([
+                'group_id' => $group->id,
+                ...$createElectionDto->all()
+            ]);
             event(new ElectionCreated($group, $election));
 
             DB::commit();
@@ -41,6 +44,7 @@ class ElectionService
 
             Log::info("Error while creating election", [
                 'message' => $th->getMessage(),
+                'trace' => $th->getTrace(),
             ]);
 
             throw $th;
