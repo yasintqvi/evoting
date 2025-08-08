@@ -38,7 +38,7 @@ class UserController extends Controller
     {
         $groups = Group::all();
         $users = User::all();
-        return view("app.users.create", compact("companies", "users"));
+        return view("app.users.create", compact("groups", "users"));
     }
 
     /**

@@ -68,11 +68,6 @@ class Election extends Model
         return $this->belongsTo(Event::class);
     }
 
-    public function rounds(): HasMany
-    {
-        return $this->hasMany(ElectionRound::class);
-    }
-
     public function participants(): HasMany
     {
         return $this->hasMany(Participant::class);

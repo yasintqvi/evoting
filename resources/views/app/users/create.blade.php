@@ -231,8 +231,8 @@
 
 <script>
     window.onload = function() {
-        const hasErrors = @json($errors - > any());
-        const errorKeys = @json($errors - > keys());
+        const hasErrors = @json($errors->any());
+        const errorKeys = @json($errors->keys());
         const activeUsersForm = document.getElementById('active-users-form');
         const newUserForm = document.getElementById('new-user-form');
         const checkbox = document.getElementById('customCheckcolor2');

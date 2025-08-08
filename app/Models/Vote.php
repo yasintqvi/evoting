@@ -12,7 +12,7 @@ class Vote extends Model
     use LogsActivity;
 
     protected $fillable = [
-        'election_round_id',
+        'election_id',
         'participant_id',
         'candidate_id',
         'vote_count',
@@ -33,9 +33,9 @@ class Vote extends Model
             ->dontSubmitEmptyLogs();
     }
 
-    public function round(): BelongsTo
+    public function election(): BelongsTo
     {
-        return $this->belongsTo(ElectionRound::class);
+        return $this->belongsTo(Election::class);
     }
 
     public function participant(): BelongsTo
