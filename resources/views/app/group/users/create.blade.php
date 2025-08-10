@@ -14,54 +14,104 @@
         </div>
     </div>
 
-    <form action="{{ route('group.users.create', $group) }}" method="GET" class="mb-3">
-        <div class="row">
-            <div class="col-lg-6">
-                <input type="text" name="search" class="form-control" placeholder="جستجوی کاربر..."
-                    value="{{ request('search') }}" onchange="this.form.submit()">
+    <div class="card col-lg-6">
+        <div class="d-flex col-lg-12 align-items-center">
+            <div class="card-header border-bottom border-dashed col-lg-6">
+                <h4 class="card-title">اطلاعات مربوط به کاربر</h4>
+                <p class="text-muted mb-0">شما در حال ایجاد کاربر جدید هستید</p>
             </div>
         </div>
-    </form>
 
-    <form action="{{ route('group.users.store', $group) }}" method="POST" id="add-users-form">
-        @csrf
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title">لیست کاربران</h4>
-            </div>
-
+        <form id="new-user-form" action="{{ route('group.users.store', $group->slug) }}" method="post" style="display: block;">
+            @csrf
             <div class="card-body">
-                @if ($users->isEmpty())
-                    <p>کاربری یافت نشد.</p>
-                @else
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>انتخاب</th>
-                                    <th>نام</th>
-                                    <th>نام خانوادگی</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($users as $user)
-                                    <tr>
-                                        <td>
-                                            <input type="checkbox" name="user_ids[]" value="{{ $user->id }}">
-                                        </td>
-                                        <td>{{ $user->first_name }}</td>
-                                        <td>{{ $user->last_name }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                <div class="row">
+                    {{-- فیلدهای کاربر --}}
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <label for="productName" class="form-label">نام </label>
+                            <input type="text" name="first_name" class="form-control" placeholder="نام" id="productName"
+                                value="{{ old('first_name') }}">
+                            @error('first_name')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
                     </div>
-                @endif
+
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <label for="lastName" class="form-label">نام خانوادگی</label>
+                            <input type="text" name="last_name" class="form-control" placeholder="نام خانوادگی" id="lastName"
+                                value="{{ old('last_name') }}">
+                            @error('last_name')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">تلفن همراه کاربر</label>
+                            <input type="text" name="phone" class="form-control" placeholder="تلفن همراه" id="phone"
+                                value="{{ old('phone') }}">
+                            @error('phone')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="mb-3 ">
+                            <label for="nationalcode" class="form-label">کد ملی کاربر</label>
+                            <input type="number" name="nationalcode" class="form-control"
+                                style="direction: rtl; text-align: right;" placeholder="کد ملی را وارد کنید"
+                                value="{{ old('nationalcode') }}">
+                            @error('nationalcode')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    @if ($group->type === \App\Enums\GroupType::SPECIAL)
+                        <div class="col-lg-6">
+                            <div class="mb-3">
+                                <label for="normal_stock_count" class="form-label">تعداد سهام عادی</label>
+                                <input type="number" name="normal_stock_count" class="form-control" min="0"
+                                    value="{{ old('normal_stock_count', 0) }}">
+                                @error('normal_stock_count')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="mb-3">
+                                <label for="prefered_stock_count" class="form-label">تعداد سهام ممتاز</label>
+                                <input type="number" name="prefered_stock_count" class="form-control" min="0"
+                                    value="{{ old('prefered_stock_count', 0) }}">
+                                @error('prefered_stock_count')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+                    @endif
+
+                    <div class="col-lg-6">
+                        <label for="is_active" class="form-label">وضعیت</label>
+                        <div class="mt-1">
+                            <input type="checkbox" value="1" @checked(old('is_active')) name="is_active"
+                                id="is_active" data-switch="primary" />
+                            <label for="is_active" data-on-label="فعال" data-off-label="غیر فعال"></label>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="card-footer text-end">
-                <button type="submit" class="btn btn-success" @disabled($users->isEmpty())>افزودن به گروه</button>
+            <div class="card-footer">
+                <div class="text-end mb-3">
+                    <button type="submit" class="btn btn-primary">ایجاد</button>
+                </div>
             </div>
-        </div>
-    </form>
+        </form>
+    </div>
 @endsection

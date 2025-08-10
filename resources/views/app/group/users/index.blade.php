@@ -81,6 +81,9 @@
 
                                     <td class="pe-3">
                                         <div class="hstack gap-1 justify-content-end">
+                                            <a href="{{ route('group.users.edit', [$group->slug, $user->id]) }}"
+                                                class="btn btn-secondary btn-sm">
+                                                <i class="ti ti-edit"></i></a>
                                             <form action="{{ route('group.users.destroy', [$group->slug, $user->id]) }}"
                                                 method="POST" class="d-inline delete-role-form">
                                                 @csrf
@@ -117,12 +120,9 @@
                             </div>
                             <div class="ms-auto">
                                 <div class="dropdown">
-                                    <a href="#" class="dropdown-toggle btn btn-sm btn-soft-primary drop-arrow-none"
-                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                        ایجاد سهام دار
-                                    </a>
                                     <div class="dropdown-menu dropdown-menu-end">
-                                        <a href="{{route("group.users.create-participant",$group->slug)}}" class="dropdown-item">ایجاد سهام داران به صورت
+                                        <a href="{{ route('group.users.create-participant', $group->slug) }}"
+                                            class="dropdown-item">ایجاد سهام داران به صورت
                                             دستی</a>
                                     </div>
                                 </div>
