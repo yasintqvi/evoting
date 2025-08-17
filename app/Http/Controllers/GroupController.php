@@ -8,13 +8,17 @@ use App\Services\Image\ImageService;
 
 class GroupController extends Controller
 {
-    public function __construct(protected ImageService $imageService) {}
+    public function __construct(protected ImageService $imageService)
+    {
+    }
 
     public function index(Group $group)
     {
         $usersCount = $group->users()->count();
 
-        return view('app.group.index', compact('group', 'usersCount'));
+        $events = $group->events()->orderBy('created_at')->get();
+
+        return view('app.group.index', compact('group', 'events', 'usersCount'));
     }
 
 

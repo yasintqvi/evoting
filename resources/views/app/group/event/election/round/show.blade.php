@@ -1,4 +1,4 @@
-@extends('app.layouts.app')
+    2@extends('app.layouts.app')
 
 @section('content')
 <div class="page-title-head d-flex align-items-sm-center flex-sm-row flex-column gap-2">
@@ -206,8 +206,8 @@
 
             const inspectorCtx = document.getElementById('inspectorChart').getContext('2d');
 
-            const inspectorLabels = @json(collect($inspectorCandidates) - > pluck('name'));
-            const inspectorVotes = @json(collect($inspectorCandidates) - > pluck('votes'));
+            const inspectorLabels = @json(collect($inspectorCandidates) -> pluck('name'));
+            const inspectorVotes = @json(collect($inspectorCandidates) -> pluck('votes'));
 
             const inspectorChart = new Chart(inspectorCtx, {
                 type: 'bar',

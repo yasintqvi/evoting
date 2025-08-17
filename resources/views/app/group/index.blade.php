@@ -67,4 +67,86 @@
             </div>
         @endif
     </div>
+
+    <h4>{{ $group->title }}</h4>
+
+
+    @foreach ($events as $event)
+        <a href="#" class="event-link" data-id="{{ $event->id }}">
+            {{ $event->title }}
+        </a><br>
+    @endforeach
+
+    <canvas id="attendanceChart" style="max-height: 300px; width: 300%;"></canvas>
+@endsection
+
+
+
+@section('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const ctx = document.getElementById('attendanceChart').getContext('2d');
+            let attendanceChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['حاضر', 'غایب'],
+                    datasets: [{
+                        label: 'وضعیت حضور',
+                        data: [0, 0],
+                        backgroundColor: ['#4caf50', '#f44336']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            let currentEventId = null;
+
+            document.querySelectorAll('.event-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    currentEventId = this.dataset.id;
+                    fetchStats(currentEventId); 
+                });
+            });
+
+            function fetchStats(eventId) {
+                if (!eventId) return;
+
+                console.log("در حال ارسال درخواست برای رویداد: ", eventId);
+
+                fetch(`/events/${eventId}/attendance-stats`)
+                    .then(res => {
+                        if (!res.ok) throw new Error("خطا در دریافت دیتا");
+                        return res.json();
+                    })
+                    .then(data => {
+                        console.log("داده دریافت شد: ", data);
+
+                        attendanceChart.data.datasets[0].data = [
+                            data.present,
+                            data.absent,
+                        ];
+                        attendanceChart.update();
+                    })
+                    .catch(err => {
+                        console.error("خطا: ", err);
+                    });
+            }
+
+            setInterval(() => {
+                if (currentEventId) {
+                    fetchStats(currentEventId);
+                }
+            }, 5000);
+        });
+    </script>
 @endsection

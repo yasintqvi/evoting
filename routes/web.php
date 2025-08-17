@@ -1,13 +1,18 @@
 <?php
 
+use App\Http\Controllers\AttendanceChartController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 require __DIR__ . "/auth.php";
+// routes/web.php
+
 
 Route::middleware('auth')->group(function () {
 
     Route::get('/', DashboardController::class)->name('app.index');
+
+    require __DIR__ . "/attendance.php";
 
     require __DIR__ . "/profile.php";
 
@@ -18,4 +23,5 @@ Route::middleware('auth')->group(function () {
     require __DIR__ . "/event.php";
 
     require __DIR__ . "/election.php";
+
 });

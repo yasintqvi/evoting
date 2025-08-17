@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\AttendanceUpdated;
 use App\Http\Requests\Election\StoreAttendanceRequest;
+use App\Models\Attendance;
 use App\Models\Group;
 use App\Models\Election;
 use App\Models\Event;
@@ -21,19 +23,37 @@ class AttendanceController extends Controller
 
     public function create(Group $group, Event $event)
     {
-        // $election->load('participants.user');
+        $users = $group->users;
 
-        return view('app.group.attendances.create', compact('group', 'event'));
+        return view('app.group.attendances.create', compact('group', 'event', 'users'));
     }
 
-    public function store(StoreAttendanceRequest $request, Group $group, Event $event)
+    public function store(Request $request, Group $group, Event $event)
     {
-        try {
-            $this->attendanceService->create($request->toDto(), $event);
+        // try {
+        //     $this->attendanceService->create($request->toDto(), $event);
 
-            return to_route('elections.index', [$group->slug]);
-        } catch (Exception $e) {
-            return back()->with('error', $e->getMessage());
+        //     return to_route('elections.index', [$group->slug]);
+        // } catch (Exception $e) {
+        //     return back()->with('error', $e->getMessage());
+        // }
+
+        foreach ($request->attendance as $userid => $data) {
+            Attendance::updateOrCreate(
+                [
+                    'event_id' => $event->id,
+                    'user_id' => $userid,
+                ],
+                [
+                    'status' => $data['status'] ?? 0,
+                ]
+            );
         }
+
+
+        
+
+        return back()->with('success', 'حضور و غیاب ثبت شد');
+
     }
 }
