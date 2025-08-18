@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Group\EventRequest;
+use App\Models\Attendance;
 use App\Models\Event;
 use App\Models\Group;
 use App\Services\Image\ImageService;

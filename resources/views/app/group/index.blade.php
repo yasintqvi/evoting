@@ -1,4 +1,28 @@
 @extends('app.layouts.app')
+@section('head-tag')
+    <style>
+        .event-card {
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            color: #2c3e50;
+        }
+
+        .badge {
+            padding: 5px 8px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+    </style>
+@endsection
 
 @section('content')
     <div class="page-title-head d-flex align-items-sm-center flex-sm-row flex-column gap-2">
@@ -67,86 +91,57 @@
             </div>
         @endif
     </div>
+    <h4 class="mb-4 text-primary fw-bold">{{ $group->title }}</h4>
 
-    <h4>{{ $group->title }}</h4>
+    <div class="row g-4">
+        @foreach ($events as $event)
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="card event-card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="card-body p-4 d-flex flex-column">
+                        <h5 class="card-title fw-bold mb-3 text-primary">
+                            <i class="fas fa-calendar-check me-2 text-primary"></i>
+                            {{ $event->title }}
+                        </h5>
 
+                        <div class="d-flex justify-content-between mb-3">
+                            <div class="text-center flex-fill">
+                                <div class="icon-circle bg-success bg-opacity-10 text-success mb-2">
+                                    <i class="fas fa-user-check"></i>
+                                </div>
+                                <span class="fw-semibold">{{ $event->present_count }}</span>
+                                <small class="d-block text-muted">حاضر</small>
+                            </div>
+                            <div class="text-center flex-fill">
+                                <div class="icon-circle bg-danger bg-opacity-10 text-danger mb-2">
+                                    <i class="fas fa-user-times"></i>
+                                </div>
+                                <span class="fw-semibold">{{ $event->absent_count }}</span>
+                                <small class="d-block text-muted">غایب</small>
+                            </div>
+                        </div>
 
-    @foreach ($events as $event)
-        <a href="#" class="event-link" data-id="{{ $event->id }}">
-            {{ $event->title }}
-        </a><br>
-    @endforeach
+                        <div class="mt-auto">
+                            <a href="{{ route('group.event.show', [$group->id, $event->id]) }}"
+                                class="btn btn-outline-primary w-100 rounded-pill">
+                                مشاهده جزئیات
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- فوتر -->
+                    <div class="card-footer bg-light border-0 text-center py-2">
+                        <small class="text-muted">
+                            <i class="far fa-clock me-1"></i> {{ $event->created_at->format('Y/m/d') }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
 
     <canvas id="attendanceChart" style="max-height: 300px; width: 300%;"></canvas>
 @endsection
 
 
 
-@section('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const ctx = document.getElementById('attendanceChart').getContext('2d');
-            let attendanceChart = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: ['حاضر', 'غایب'],
-                    datasets: [{
-                        label: 'وضعیت حضور',
-                        data: [0, 0],
-                        backgroundColor: ['#4caf50', '#f44336']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
-            });
 
-            let currentEventId = null;
-
-            document.querySelectorAll('.event-link').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    currentEventId = this.dataset.id;
-                    fetchStats(currentEventId); 
-                });
-            });
-
-            function fetchStats(eventId) {
-                if (!eventId) return;
-
-                console.log("در حال ارسال درخواست برای رویداد: ", eventId);
-
-                fetch(`/events/${eventId}/attendance-stats`)
-                    .then(res => {
-                        if (!res.ok) throw new Error("خطا در دریافت دیتا");
-                        return res.json();
-                    })
-                    .then(data => {
-                        console.log("داده دریافت شد: ", data);
-
-                        attendanceChart.data.datasets[0].data = [
-                            data.present,
-                            data.absent,
-                        ];
-                        attendanceChart.update();
-                    })
-                    .catch(err => {
-                        console.error("خطا: ", err);
-                    });
-            }
-
-            setInterval(() => {
-                if (currentEventId) {
-                    fetchStats(currentEventId);
-                }
-            }, 5000);
-        });
-    </script>
-@endsection

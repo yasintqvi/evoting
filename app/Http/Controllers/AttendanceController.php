@@ -23,20 +23,22 @@ class AttendanceController extends Controller
 
     public function create(Group $group, Event $event)
     {
-        $users = $group->users;
+        $users = $group->users()->with([
+            'attendances' => function ($q) use ($event) {
+                $q->where('event_id', $event->id);
+            }
+        ])->get();
+
 
         return view('app.group.attendances.create', compact('group', 'event', 'users'));
     }
 
     public function store(Request $request, Group $group, Event $event)
     {
-        // try {
-        //     $this->attendanceService->create($request->toDto(), $event);
+        $request->validate([
+            'attendance.*.status' => 'required|in:0,1',
+        ]);
 
-        //     return to_route('elections.index', [$group->slug]);
-        // } catch (Exception $e) {
-        //     return back()->with('error', $e->getMessage());
-        // }
 
         foreach ($request->attendance as $userid => $data) {
             Attendance::updateOrCreate(
@@ -50,10 +52,14 @@ class AttendanceController extends Controller
             );
         }
 
-
-        
-
         return back()->with('success', 'حضور و غیاب ثبت شد');
+    }
 
+    public function show($groupId, $eventId)
+    {
+        $group = Group::findOrFail($groupId);
+        $event = Event::where('group_id', $groupId)->findOrFail($eventId);
+
+        return view('app.group.attendances.show', compact('group', 'event'));
     }
 }

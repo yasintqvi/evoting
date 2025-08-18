@@ -117,4 +117,9 @@ class User extends Authenticatable
     {
         return $this->avatar ?? asset('assets/img/profile.png');
     }
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
 }

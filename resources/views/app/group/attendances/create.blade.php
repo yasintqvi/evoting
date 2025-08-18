@@ -39,15 +39,28 @@
                                     @foreach ($users as $user)
                                         <tr>
                                             <td>{{ $user->full_name }}</td>
+
+
                                             <td>
+                                                @php
+                                                    $attendance = $user->attendances->first();
+                                                    $status = old(
+                                                        'attendance.' . $user->id . '.status',
+                                                        $attendance->status ?? 0,
+                                                    );
+                                                @endphp
+                                                
                                                 <input type="hidden" name="attendance[{{ $user->id }}][status]"
                                                     value="0">
+
                                                 <input type="checkbox" name="attendance[{{ $user->id }}][status]"
-                                                    id="attendance-{{ $user->id }}" value="1" data-switch="1"
-                                                    @checked(old("attendance.{$user->id}.status") == 1)>
+                                                    id="attendance-{{ $user->id }}" value="1" data-switch="true"
+                                                    {{ $status == 1 ? 'checked' : '' }}>
+
                                                 <label for="attendance-{{ $user->id }}" data-on-label="حاضر"
                                                     data-off-label="غایب" class="mb-0 d-block"></label>
                                             </td>
+
                                             <td>
                                                 <input type="hidden" name="" value="">
                                                 <select name="12" id="" data-toggle="select2"

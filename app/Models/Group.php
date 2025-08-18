@@ -78,7 +78,7 @@ class Group extends Model
 
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'group_user')->withPivot("normal_stock_count", "prefered_stock_count");
+        return $this->belongsToMany(User::class, 'group_user', )->withPivot("normal_stock_count", "prefered_stock_count");
     }
 
     public function events(): HasMany
@@ -116,5 +116,11 @@ class Group extends Model
     public function getRemainingWeightedStocksAttribute()
     {
         return $this->total_prefered - $this->assigned_stocks;
+    }
+    public function userAttendes()
+    {
+        return $this->belongsToMany(User::class, 'attendances')
+            ->withPivot('status')
+            ->withTimestamps();
     }
 }
