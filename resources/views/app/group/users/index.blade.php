@@ -1,43 +1,135 @@
 @extends('app.layouts.app')
 
 @section('content')
-<div class="page-title-head d-flex align-items-sm-center flex-sm-row flex-column gap-2">
-    <div class="flex-grow-1">
-        <h4 class="fs-18 fw-semibold mb-0">کاربران</h4>
+    <div class="page-title-head d-flex align-items-sm-center flex-sm-row flex-column gap-2">
+        <div class="flex-grow-1">
+            <h4 class="fs-18 fw-semibold mb-0"> کاربران گروه: {{ $group->title }}</h4>
+        </div>
+
+        <div class="text-end">
+            <ol class="breadcrumb m-0 py-0">
+                <li class="breadcrumb-item"><a href="javascript: void(0);">خانه</a></li>
+
+                <li class="breadcrumb-item"><a href="javascript: void(0);">کاربران</a></li>
+
+                <li class="breadcrumb-item active">همه</li>
+            </ol>
+        </div>
     </div>
 
-    <div class="text-end">
-        <ol class="breadcrumb m-0 py-0">
-            <li class="breadcrumb-item"><a href="javascript: void(0);">خانه</a></li>
+    <div class="row">
+        <div class="col-xl-9 col-lg-12">
+            <div class="card">
+                <div class="card-header border-bottom border-light">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
 
-            <li class="breadcrumb-item"><a href="javascript: void(0);">کاربران</a></li>
+                        <h4 class="header-title mb-0">لیست کاربران</h4>
+                        <form method="GET" action="" class="col-lg-3">
+                            <div class="position-relative">
+                                <input type="text" name="search" value="{{ request('search') }}"
+                                    class="form-control ps-4" placeholder="جستجو...">
+                                <i class="ti ti-search position-absolute top-50 translate-middle-y ms-2"></i>
+                            </div>
+                        </form>
 
-            <li class="breadcrumb-item active">همه</li>
-        </ol>
-    </div>
-</div>
 
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header border-bottom border-light">
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <a href="{{ route('group.users.create', $group->slug) }}"
+                            class="btn btn-success bg-gradient h-100 p-2">
+                            <i class="ti ti-plus me-1"></i>افزودن کاربر به این گروه
+                        </a>
+                    </div>
+                </div>
 
-                    <h4 class="header-title mb-0">لیست کاربران</h4>
-                    <form method="GET" action="" class="col-lg-3">
-                        <div class="position-relative">
-                            <input type="text"
-                                name="search"
-                                value="{{ request('search') }}"
-                                class="form-control ps-4"
-                                placeholder="جستجو...">
-                            <i class="ti ti-search position-absolute top-50 translate-middle-y ms-2"></i>
+                <div class="table-responsive">
+                    <table class="table table-nowrap mb-0">
+                        <thead class="bg-light-subtle">
+                            <tr>
+
+                                <th><span class="m-3">نام نام خانوادگی</span></th>
+                                <th><span class="m-3">تلفن همراه</span></th>
+                                @if (in_array($group->type, [App\Enums\GroupType::SPECIAL]))
+                                    <th><span class="m-3">تعداد سهام عادی</span></th>
+                                    <th><span class="m-3">تعداد سهام ممتاز</span></th>
+                                @endif
+                                <th><span class="m-3">وضعیت</span></th>
+                                <th class="text-center" style="width: 120px;">فعالیت</th>
+                            </tr>
+                        </thead><!-- end thead -->
+
+                        <tbody>
+                            @forelse ($group->users as $user)
+                                <tr>
+
+                                    <td>
+                                        <a href="#" class="text-dark fw-medium "><span
+                                                class="m-3">{{ $user->fullName }}</span></a>
+                                    </td>
+                                    <td>
+                                        <span class="m-3">{{ $user->phone }}</span>
+                                    </td>
+                                    @if (in_array($group->type, [App\Enums\GroupType::SPECIAL]))
+                                        <td>{{ $user->pivot->normal_stock_count ?? '-' }}</td>
+                                        <td>{{ $user->pivot->prefered_stock_count ?? '-' }}</td>
+                                    @endif
+                                    <td>
+                                        @if ($user->is_active == 1)
+                                            <a href="#" class="badge badge-soft-success p-1"> فعال </a>
+                                        @else
+                                            <a href="#" class="badge badge-soft-danger p-1"> غیر فعال </a>
+                                        @endif
+                                    </td>
+
+                                    <td class="pe-3">
+                                        <div class="hstack gap-1 justify-content-end">
+                                            <a href="{{ route('group.users.edit', [$group->slug, $user->id]) }}"
+                                                class="btn btn-secondary btn-sm">
+                                                <i class="ti ti-edit"></i></a>
+                                            <form action="{{ route('group.users.destroy', [$group->slug, $user->id]) }}"
+                                                method="POST" class="d-inline delete-role-form">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button" class="btn btn-danger btn-sm delete-role-btn">
+                                                    <i class="ti ti-trash"></i>
+                                                </button>
+                                            </form>
+
+                                        </div>
+
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td class="text-muted">هیچ کاربری وجود ندارد.</td>
+                                </tr>
+                            @endforelse
+
+                        </tbody>
+
+                        <!-- end tbody -->
+                    </table><!-- end table -->
+                </div>
+            </div>
+        </div>
+        @if (in_array($group->type, [App\Enums\GroupType::SPECIAL]))
+            <div class="col-xl-3 col-lg-12">
+                <div class="card">
+                    <div class="card-header border-bottom border-dashed">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="d-block">
+                                <h4 class="card-title mb-0">جزئیات سهام داران</h4>
+                            </div>
+                            <div class="ms-auto">
+                                <div class="dropdown">
+                                    <div class="dropdown-menu dropdown-menu-end">
+                                        <a href="{{ route('group.users.create-participant', $group->slug) }}"
+                                            class="dropdown-item">ایجاد سهام داران به صورت
+                                            دستی</a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </form>
-
-
-                    <div class="d-flex justify-content-center flex-grow-1 gap-3">
-                        @if (in_array($group->type, [App\Enums\GroupType::SPECIAL]))
+                    </div>
+                    <div class="card-body">
                         <div class="card bg-light px-3 py-1 border-0 shadow-sm mb-0" style="min-width: 240px;">
                             <div class="d-flex align-items-center gap-2 mb-2">
                                 <i class="ti ti-chart-dots text-primary fs-5"></i>
@@ -51,7 +143,7 @@
                             </div>
                         </div>
 
-                        <div class="card bg-light px-3 py-1 border-0 shadow-sm mb-0" style="min-width: 240px;">
+                        <div class="card bg-light px-3 py-1 border-0 shadow-sm mb-0 mt-3" style="min-width: 240px;">
                             <div class="d-flex align-items-center gap-2 mb-2">
                                 <i class="ti ti-box-multiple text-warning fs-5"></i>
                                 <span class="fw-bold text-warning">سهام باقیمانده</span>
@@ -63,114 +155,34 @@
                                 <strong>{{ $group->prefered_stock_count - $group->users->sum('pivot.prefered_stock_count') }}</strong>
                             </div>
                         </div>
-                        @endif
                     </div>
-
-                    <a href="{{ route('group.users.create', $group->slug) }}"
-                        class="btn btn-success bg-gradient h-100 p-2">
-                        <i class="ti ti-plus me-1"></i>ایجاد کاربران
-                    </a>
                 </div>
+
             </div>
+        @endif
+    @endsection
 
+    @section('scripts')
+        <script>
+            document.querySelectorAll('.delete-role-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const form = this.closest('.delete-role-form');
 
-
-            <div class="table-responsive">
-                <table class="table table-nowrap mb-0">
-                    <thead class="bg-light-subtle">
-                        <tr>
-
-                            <th><span class="m-3">نام نام خانوادگی</span></th>
-                            <th><span class="m-3">تلفن همراه</span></th>
-                            @if (in_array($group->type, [App\Enums\GroupType::SPECIAL]))
-                            <th><span class="m-3">تعداد سهام عادی</span></th>
-                            <th><span class="m-3">تعداد سهام ممتاز</span></th>
-                            @endif
-                            <th><span class="m-3">وضعیت</span></th>
-                            <th class="text-center" style="width: 120px;">فعالیت</th>
-                        </tr>
-                    </thead><!-- end thead -->
-
-                    <tbody>
-                        @forelse ($group->users as $user)
-                        <tr>
-
-                            <td>
-                                <a href="#" class="text-dark fw-medium "><span
-                                        class="m-3">{{ $user->fullName }}</span></a>
-                            </td>
-                            <td>
-                                <span class="m-3">{{ $user->phone }}</span>
-                            </td>
-                            @if (in_array($group->type, [App\Enums\GroupType::SPECIAL]))
-                            <td>{{ $user->pivot->normal_stock_count ?? '-' }}</td>
-                            <td>{{ $user->pivot->prefered_stock_count ?? '-' }}</td>
-                            @endif
-                            <td>
-                                @if ($user->is_active == 1)
-                                <a href="#" class="badge badge-soft-success p-1"> فعال </a>
-                                @else
-                                <a href="#" class="badge badge-soft-danger p-1"> غیر فعال </a>
-                                @endif
-                            </td>
-
-                            <td class="pe-3">
-                                <div class="hstack gap-1 justify-content-end">
-                                    <a href="{{ route('group.users.edit', [$group->slug, $user->id]) }}"
-                                        class="btn btn-secondary btn-sm">
-                                        <i class="ti ti-edit"></i></a>
-                                    </a>
-                                    <form
-                                        action="{{ route('group.users.destroy', [$group->slug, $user->id]) }}"
-                                        method="POST" class="d-inline delete-role-form">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="button" class="btn btn-danger btn-sm delete-role-btn">
-                                            <i class="ti ti-trash"></i>
-                                        </button>
-                                    </form>
-
-                                </div>
-
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td class="text-muted">هیچ کاربری وجود ندارد.</td>
-                        </tr>
-                        @endforelse
-
-                    </tbody>
-
-                    <!-- end tbody -->
-                </table><!-- end table -->
-            </div>
-        </div>
-    </div>
-</div>
-@endsection
-
-@section('scripts')
-<script>
-    document.querySelectorAll('.delete-role-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const form = this.closest('.delete-role-form');
-
-            Swal.fire({
-                title: 'آیا مطمئن هستید؟',
-                text: "این عملیات غیرقابل برگشت است!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'بله، حذف شود',
-                cancelButtonText: 'انصراف'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit();
-                }
+                    Swal.fire({
+                        title: 'آیا مطمئن هستید؟',
+                        text: "این عملیات غیرقابل برگشت است!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'بله، حذف شود',
+                        cancelButtonText: 'انصراف'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
             });
-        });
-    });
-</script>
-@endsection
+        </script>
+    @endsection

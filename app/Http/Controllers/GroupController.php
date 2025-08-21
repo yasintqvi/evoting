@@ -12,7 +12,9 @@ class GroupController extends Controller
 
     public function index(Group $group)
     {
-        return view('app.group.index', compact('group'));
+        $usersCount = $group->users()->count();
+
+        return view('app.group.index', compact('group', 'usersCount'));
     }
 
 

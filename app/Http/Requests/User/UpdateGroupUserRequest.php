@@ -29,7 +29,7 @@ class UpdateGroupUserRequest extends FormRequest
             'nationalcode'         => ['required', 'numeric', 'digits:10', "unique:users,nationalcode,{$userId}"],
             'is_active'            => ['sometimes', 'boolean'],
         ];
-        if ($this->company->type == \App\Enums\GroupType::SPECIAL) {
+        if ($this->group->type == \App\Enums\GroupType::SPECIAL) {
             $currentUserId = $this->user->id;
 
             $rules['normal_stock_count'] = [
@@ -37,11 +37,11 @@ class UpdateGroupUserRequest extends FormRequest
                 'integer',
                 'min:1',
                 function ($attribute, $value, $fail) use ($currentUserId) {
-                    $assignedToOthers = $this->company->users()
+                    $assignedToOthers = $this->group->users()
                         ->where('users.id', '!=', $currentUserId)
-                        ->sum('user_group.normal_stock_count');
+                        ->sum('group_user.normal_stock_count');
 
-                    $remaining = $this->company->normal_stock_count - $assignedToOthers;
+                    $remaining = $this->group->normal_stock_count - $assignedToOthers;
 
                     if ($value > $remaining) {
                         $fail('مقدار سهام عادی بیشتر از مقدار باقیمانده (' . $remaining . ') است.');
@@ -54,11 +54,11 @@ class UpdateGroupUserRequest extends FormRequest
                 'integer',
                 'min:1',
                 function ($attribute, $value, $fail) use ($currentUserId) {
-                    $assignedToOthers = $this->company->users()
+                    $assignedToOthers = $this->group->users()
                         ->where('users.id', '!=', $currentUserId)
-                        ->sum('user_group.prefered_stock_count');
+                        ->sum('group_user.prefered_stock_count');
 
-                    $remaining = $this->company->prefered_stock_count - $assignedToOthers;
+                    $remaining = $this->group->prefered_stock_count - $assignedToOthers;
 
                     if ($value > $remaining) {
                         $fail('مقدار سهام ممتاز بیشتر از مقدار باقیمانده (' . $remaining . ') است.');

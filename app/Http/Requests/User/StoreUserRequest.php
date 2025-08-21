@@ -13,7 +13,7 @@ class StoreUserRequest extends FormRequest
     {
         if ($this->filled('phone')) {
             $this->merge([
-                'phone'     => ed($this->input('phone')),
+                'phone' => ed($this->input('phone')),
                 'is_active' => $this->has('is_active') ? 1 : 0,
             ]);
         }
@@ -31,13 +31,11 @@ class StoreUserRequest extends FormRequest
     protected function getStoreRules(): array
     {
         return [
-            'first_name'   => 'required|string|max:255',
-            'last_name'    => 'required|string|max:255',
-            'phone'        => 'required|string|max:11|unique:users,phone',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'phone' => 'required|string|max:11|unique:users,phone',
             'nationalcode' => 'required|string|max:10|unique:users,nationalcode',
-            'group_ids'  => 'required|array',
-            'group_ids.*' => 'exists:companies,id',
-            'is_active'    => 'sometimes|boolean',
+            'is_active' => 'sometimes|boolean',
         ];
     }
 
@@ -45,10 +43,10 @@ class StoreUserRequest extends FormRequest
     protected function getAssignRules(): array
     {
         return [
-            'user_ids'     => 'required|array',
-            'user_ids.*'   => 'exists:users,id',
-            'group_ids'  => 'required|array',
-            'group_ids.*' => 'exists:companies,id',
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id',
+            'company_ids' => 'required|array',
+            'company_ids.*' => 'exists:companies,id',
         ];
     }
 }

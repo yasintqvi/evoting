@@ -33,8 +33,6 @@ class UpdateUserRequest extends FormRequest
             'last_name'     => 'required|string|max:255',
             'phone'         => ['required', 'string', 'max:11', Rule::unique('users', 'phone')->ignore($this->user->id)],
             'nationalcode'  => ['required', 'string', 'max:10', Rule::unique('users', 'nationalcode')->ignore($this->user->id)],
-            'group_ids'   => 'nullable|array',
-            'group_ids.*' => 'exists:companies,id',
             'is_active'     => 'sometimes|boolean',
         ];
     }

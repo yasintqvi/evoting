@@ -174,8 +174,8 @@
         document.addEventListener('DOMContentLoaded', function() {
             const directorCtx = document.getElementById('directorChart').getContext('2d');
 
-            const directorLabels = @json(collect($directorCandidates) - > pluck('name'));
-            const directorVotes = @json(collect($directorCandidates) - > pluck('votes'));
+            const directorLabels = @json(collect($directorCandidates) -> pluck('name'));
+            const directorVotes = @json(collect($directorCandidates) -> pluck('votes'));
 
             const directorChart = new Chart(directorCtx, {
                 type: 'bar',

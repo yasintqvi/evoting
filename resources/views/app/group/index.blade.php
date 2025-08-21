@@ -1,18 +1,70 @@
 @extends('app.layouts.app')
 
 @section('content')
-<div class="page-title-head d-flex align-items-sm-center flex-sm-row flex-column gap-2">
-    <div class="flex-grow-1">
-        <h4 class="fs-18 fw-semibold mb-0">{{ $group->title }}</h4>
+    <div class="page-title-head d-flex align-items-sm-center flex-sm-row flex-column gap-2">
+        <div class="flex-grow-1">
+            <h4 class="fs-18 fw-semibold mb-0">{{ $group->title }}</h4>
+        </div>
+
+        <div class="text-end">
+            <ol class="breadcrumb m-0 py-0">
+                <li class="breadcrumb-item"><a href="javascript: void(0);">داشبورد</a></li>
+
+                <li class="breadcrumb-item active">{{ $group->title }}</li>
+            </ol>
+        </div>
     </div>
 
-    <div class="text-end">
-        <ol class="breadcrumb m-0 py-0">
-            <li class="breadcrumb-item"><a href="javascript: void(0);">داشبورد</a></li>
+    <div class="d-flex flex-row gap-3 p-3">
 
-            <li class="breadcrumb-item active">{{$group->title}}</li>
-        </ol>
+        <!-- مرحله 1 -->
+        <div class="d-flex flex-column flex-fill p-3 rounded shadow-sm border-start border-4 border-success ">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <div class="bg-success text-white rounded px-3 py-2 fw-bold">✓</div>
+                <div class="text-success fw-semibold">ایجاد گروه</div>
+            </div>
+            <small class="text-success align-self-end">تکمیل شده</small>
+        </div>
+
+        <!-- مرحله 2 -->
+        @can(\App\Enums\Permission::VIEW_GROUP_USERS->value)
+            @php
+                $isApproved = $usersCount >= 3;
+            @endphp
+
+            <div
+                class="d-flex flex-column flex-fill p-3 rounded shadow-sm border-start border-4
+        {{ $isApproved ? 'border-success' : 'border-primary bg-white' }}
+        transition-all hover:shadow-lg">
+
+                <a href="{{ route('group.users.index', $group->slug) }}"
+                    class="text-decoration-none {{ $isApproved ? 'text-success' : 'text-primary' }}">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <div
+                            class="{{ $isApproved ? 'bg-success text-white' : 'bg-secondary text-white' }} rounded px-3 py-2 fw-bold">
+                            {{ $isApproved ? '✓' : '2' }}
+                        </div>
+                        <div class="{{ $isApproved ? 'text-success fw-semibold' : 'text-primary fw-semibold' }}">
+                            {{ $isApproved ? 'تایید شده - اعضا اضافه شدند' : 'ایجاد اعضا' }}
+                        </div>
+                    </div>
+                </a>
+
+                <small class="{{ $isApproved ? 'text-success' : 'text-primary' }} align-self-end">
+                    {{ $isApproved ? 'تکمیل شده' : 'در حال انتظار' }}
+                </small>
+            </div>
+        @endcan
+
+        <!-- مرحله 3 -->
+        @if (in_array($group->type, [App\Enums\GroupType::SPECIAL]))
+            <div class="d-flex flex-column flex-fill p-3 rounded shadow-sm border-start border-4 border-secondary bg-white">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <div class="bg-secondary text-white rounded px-3 py-2 fw-bold">3</div>
+                    <div class="text-muted fw-semibold">ایجاد سهام‌داران</div>
+                </div>
+                <small class="text-muted align-self-end">در انتظار</small>
+            </div>
+        @endif
     </div>
-</div>
-
 @endsection
