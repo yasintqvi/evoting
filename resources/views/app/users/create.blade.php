@@ -126,11 +126,10 @@
             </div>
         </form>
 
-        <!-- فرم کاربران فعال -->
+
         <form id="active-users-form" action="{{ route('users.store') }}" method="post" style="display: none;">
             @csrf
             <div class="card-body">
-                <!-- انتخاب کاربران -->
                 <div class="col-lg-12">
                     <div class="mb-3">
                         <label for="users" class="form-label">انتخاب کاربران</label>

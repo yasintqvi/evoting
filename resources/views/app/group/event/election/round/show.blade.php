@@ -206,8 +206,8 @@
 
             const inspectorCtx = document.getElementById('inspectorChart').getContext('2d');
 
-            const inspectorLabels = @json(collect($inspectorCandidates) - > pluck('name'));
-            const inspectorVotes = @json(collect($inspectorCandidates) - > pluck('votes'));
+            const inspectorLabels = @json(collect($inspectorCandidates)->pluck('name'));
+            const inspectorVotes = @json(collect($inspectorCandidates)->pluck('votes'));
 
             const inspectorChart = new Chart(inspectorCtx, {
                 type: 'bar',
