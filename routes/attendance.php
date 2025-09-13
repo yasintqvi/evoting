@@ -11,7 +11,6 @@ Route::get('/attendance', function () {
     return view('test-broadcast');
 });
 
-// routes/web.php
 Route::get('/groups/{group}/events/{event}', [AttendanceController::class, 'show'])
     ->name('group.event.show');
 
