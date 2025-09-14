@@ -17,7 +17,7 @@ class StoreAttendanceRequest extends FormRequest
         return [
             'attendance.*' => ['required', 'array'],
             'attendance.*.status' => ['nullable', 'in:0,1'],
-            'attendance.*.attorney_id' => ['nullable', 'exists:participants,id'],
+            'attendance.*.attorney_id' => ['nullable', 'numeric'],
         ];
     }
 
@@ -32,7 +32,7 @@ class StoreAttendanceRequest extends FormRequest
 
             $statuses[] = [
                 'participant_id' => $participantId,
-                'status' => (bool)$data['status']
+                'status' => (bool) isset($data['status']) ? $data['status'] : false
             ];
 
 

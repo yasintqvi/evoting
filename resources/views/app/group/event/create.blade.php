@@ -39,7 +39,14 @@
                                 @enderror
                             </div>
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-3 col-md-6">
+                            <label for="quorum_percent" class="form-label">حد نصاب مشارکت (درصد)</label>
+                            <input type="number" min="1" max="100" class="form-control" id="quorum_percent" name="quorum_percent">
+                            @error('quorum_percent')
+                            <span class="text-danger font-weight-bold">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div class="mb-3 col-md-6">
                             <label for="logo" class="form-label">لوگو (اختیاری)</label>
                             <input type="file" class="form-control" id="logo" name="logo">
                             @error('logo')

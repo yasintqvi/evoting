@@ -31,7 +31,7 @@ class AttendanceController extends Controller
         try {
             $this->attendanceService->create($request->toDto(), $event);
 
-            return to_route('elections.index', [$group->slug]);
+            return back()->with('success', 'اطلاعات با موفقیت بروز رسانی شد.');
         } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
         }

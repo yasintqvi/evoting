@@ -3,9 +3,9 @@
 namespace App\Services;
 
 use App\DTOs\Election\CreateAttendanceDto;
-use App\Enums\ElectionStatus;
-use App\Models\Election;
 use App\Models\Event;
+use App\Models\Participant;
+use App\Models\User;
 use Exception;
 
 class AttendanceService
@@ -26,28 +26,42 @@ class AttendanceService
 
         foreach ($createAttendanceDto->participantsAttorney as $attorney) {
 
-            $attorneyParticipant = $event->participants()->find($attorney['attorney_id']);
+            if ($attorney['attorney_id']) {
+                $attorneyParticipant = User::where('phone', $attorney['attorney_id'])->first();
 
-            if ($attorneyParticipant?->attorney_id) {
-                throw new Exception("شخصی که به عنوان وکیل انتخاب شده است، نمی‌تواند برای خودش وکیل تعیین کند!");
-            }
+                if (!$attorneyParticipant) {
+                    $attorneyParticipant = User::create([
+                        'phone' => $attorney['attorney_id'],
+                        "passowrd" => 1234578,
+                        "first_name" => 'test'
+                    ]);
+                }
 
-            $particpant = $event->participants()->find($attorney['participant_id']);
+                if ($attorneyParticipant?->attorney_id) {
+                    throw new Exception("شخصی که به عنوان وکیل انتخاب شده است، نمی‌تواند برای خودش وکیل تعیین کند!");
+                }
 
-            if ($particpant) {
+                $particpant = $event->participants()->find($attorney['participant_id']);
 
-                $particpant->update([
-                    'attorney_id' => $attorneyParticipant?->id
-                ]);
+                if ($particpant) {
+
+                    $attorney = Participant::create([
+                        'user_id' => $attorneyParticipant->id,
+                        'event_id' => $event->id,
+                        'normal_stock_count' => $particpant->normal_stock_count,
+                        'prefered_stock_count' => $particpant->prefered_stock_count,
+                        'is_present' => true
+                    ]);
+
+
+                    $particpant->update([
+                        'attorney_id' => $attorney->id,
+                        'normal_stock_count' => 0,
+                        'prefered_stock_count' => 0,
+                    ]);
+                }
             }
         }
-
-        if (
-            $event->precentParticipants() <= 50
-        ) {
-            throw new Exception('درصد افراد حاضر باید حداقل نصف به علاوه ی یک اعضا باشد.');
-        }
-        // $event->status = ElectionStatus::WAITING_TO_START;
 
         $event->save();
     }
