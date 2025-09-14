@@ -156,8 +156,6 @@
                             <label for="is_active" data-on-label="فعال" data-off-label="غیر فعال"></label>
                         </div>
                     </div>
-
-
                 </div>
             </div>
             <div class="card-footer">

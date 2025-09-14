@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\Role;
+use App\Models\Event;
 use App\Models\Group;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
@@ -28,4 +29,5 @@ class DashboardController extends Controller
 
         return view('app.dashboard', compact('activities', 'groups'));
     }
+
 }

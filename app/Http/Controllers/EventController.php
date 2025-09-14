@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Group\EventRequest;
+use App\Models\Attendance;
 use App\Models\Event;
 use App\Models\Group;
 use App\Services\Image\ImageService;
@@ -52,6 +53,19 @@ class EventController extends Controller
         return back();
     }
 
+    public function attendanceStats(Event $event)
+    {
+        $map = [
+            'absent' => 0,
+            'present' => 1,
+        ];
+
+        return response()->json([
+            'present' => $event->attendances()->where('status', $map['present'])->count(),
+            'absent' => $event->attendances()->where('status', $map['absent'])->count(),
+        ]);
+    }
+
     /**
      * Display the specified resource.
      */
@@ -79,5 +93,7 @@ class EventController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Group $group, Event $event) {}
+    public function destroy(Group $group, Event $event)
+    {
+    }
 }

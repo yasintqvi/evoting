@@ -14,7 +14,7 @@
         </div>
     </div>
 
-    <form action="{{ route('group.users.create-participant', $group) }}" method="GET" class="mb-3">
+    <form action="#" method="GET" class="mb-3">
         <div class="row">
             <div class="col-lg-6">
                 <input type="text" name="search" class="form-control" placeholder="جستجوی کاربر..."
