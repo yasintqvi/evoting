@@ -50,6 +50,11 @@ class Event extends Model
         return $this->belongsTo(Group::class);
     }
 
+    public function participants(): HasMany
+    {
+        return $this->hasMany(Participant::class);
+    }
+
     public function elections(): HasMany
     {
         return $this->hasMany(Election::class);

@@ -65,11 +65,21 @@ class Participant extends Model
 
     public function getTotalStockAttribute()
     {
-        return $this->election->type == ElectionType::PUBLIC_JOINT ?  1 : (int) ($this->normal_stock_count + ($this->prefered_stock_count * $this->election->prefered_stock_weight));
+        return $this->election->type == ElectionType::PUBLIC_JOINT ? 1 : (int)($this->normal_stock_count + ($this->prefered_stock_count * $this->election->prefered_stock_weight));
+    }
+
+    public function event()
+    {
+        return $this->belongsTo(Event::class);
     }
 
     public function attorney(): BelongsTo
     {
         return $this->belongsTo(Participant::class, 'attorney_id');
+    }
+
+    public function is_attorney()
+    {
+        return $this->hasMany(Participant::class, 'attorney_id');
     }
 }

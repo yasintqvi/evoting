@@ -5,14 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Attendance;
 use App\Models\Group;
 use App\Models\Event;
-use App\Services\AttendanceService;
+use App\Models\Participant;
+use App\Services\AttorneyService;
 use Illuminate\Http\Request;
 
 class AttendanceController extends Controller
 {
-    protected AttendanceService $attendanceService;
+    protected AttorneyService $attendanceService;
 
-    public function __construct(AttendanceService $attendanceService)
+    public function __construct(AttorneyService $attendanceService)
     {
         $this->attendanceService = $attendanceService;
     }
@@ -44,9 +45,10 @@ class AttendanceController extends Controller
                 $q->where('event_id', $event->id);
             }
         ])->get();
+        $attorneyIds = array_filter($event->participants()->pluck('attorney_id')->toArray());
 
 
-        return view('app.group.attendances.create', compact('group', 'event', 'users'));
+        return view('app.group.attendances.create', compact('group', 'event', 'users', 'attorneyIds'));
     }
 
     public function store(Request $request, Group $group, Event $event)
@@ -77,5 +79,19 @@ class AttendanceController extends Controller
         $event = Event::where('group_id', $groupId)->findOrFail($eventId);
 
         return view('app.group.attendances.show', compact('group', 'event'));
+
+    }
+
+    public function setPresent(Participant $participant)
+    {
+        try {
+            $participant->is_present = !$participant->is_present;
+            $participant->save();
+            return response()->json(['status' => 'success',
+                'message' => 'با موفقیت ثبت شد.', 200]);
+        } catch (\Exception $exception) {
+            return response()->json(['status' => 'error',
+                'message' => 'با شکست مواجه شد.', 200]);
+        }
     }
 }
