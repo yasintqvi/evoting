@@ -119,14 +119,6 @@
                                 <h4 class="card-title mb-0">جزئیات سهام داران</h4>
                             </div>
                             <div class="ms-auto">
-                                <div class="dropdown">
-                                    <div class="dropdown-menu dropdown-menu-end">
-                                        <a href="{{ route('group.users.create-participant', $group->slug) }}"
-                                            class="dropdown-item">ایجاد سهام داران به صورت
-                                            دستی</a>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                     <div class="card-body">

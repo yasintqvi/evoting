@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Group\EventRequest;
+use App\Models\Attendance;
 use App\Models\Event;
 use App\Models\Group;
 use App\Services\Image\ImageService;
@@ -39,9 +40,30 @@ class EventController extends Controller
                 ->save();
         }
 
-        $group->events()->create($data);
+        $event = $group->events()->create($data);
+
+        foreach ($group->users as $user) {
+            $event->participants()->create([
+                'user_id' => $user->id,
+                'normal_stock_count' => $user->pivot->normal_stock_count,
+                'prefered_stock_count' => $user->pivot->prefered_stock_count,
+            ]);
+        }
 
         return back();
+    }
+
+    public function attendanceStats(Event $event)
+    {
+        $map = [
+            'absent' => 0,
+            'present' => 1,
+        ];
+
+        return response()->json([
+            'present' => $event->attendances()->where('status', $map['present'])->count(),
+            'absent' => $event->attendances()->where('status', $map['absent'])->count(),
+        ]);
     }
 
     /**
@@ -71,5 +93,7 @@ class EventController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Group $group, Event $event) {}
+    public function destroy(Group $group, Event $event)
+    {
+    }
 }

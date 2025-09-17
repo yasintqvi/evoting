@@ -20,6 +20,7 @@
         "maatwebsite/excel": "^3.1",
         "nwidart/laravel-modules": "^12.0",
         "pragmarx/google2fa-laravel": "^2.2",
+        "pusher/pusher-php-server": "^7.2",
         "spatie/laravel-activitylog": "^4.10",
         "spatie/laravel-permission": "^6.17",
         "stevebauman/location": "*"
