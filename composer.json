@@ -3,27 +3,12 @@
     "name": "laravel/laravel",
     "type": "project",
     "description": "The skeleton application for the Laravel framework.",
-    "keywords": [
-        "laravel",
-        "framework"
-    ],
+    "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "bacon/bacon-qr-code": "^3.0",
-        "cviebrock/eloquent-sluggable": "^11.0",
-        "hekmatinasser/verta": "^8.5",
-        "intervention/image": "^3.10",
-        "kavenegar/php": "^1.2",
         "laravel/framework": "^11.31",
-        "laravel/tinker": "^2.9",
-        "maatwebsite/excel": "^3.1",
-        "nwidart/laravel-modules": "^12.0",
-        "pragmarx/google2fa-laravel": "^2.2",
-        "pusher/pusher-php-server": "^7.2",
-        "spatie/laravel-activitylog": "^4.10",
-        "spatie/laravel-permission": "^6.17",
-        "stevebauman/location": "*"
+        "laravel/tinker": "^2.9"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -39,10 +24,7 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        },
-        "files": [
-            "app/Helpers/helpers.php"
-        ]
+        }
     },
     "autoload-dev": {
         "psr-4": {
@@ -81,8 +63,7 @@
         "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
-            "php-http/discovery": true,
-            "wikimedia/composer-merge-plugin": true
+            "php-http/discovery": true
         }
     },
     "minimum-stability": "stable",
