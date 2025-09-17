@@ -19,6 +19,7 @@ class Event extends Model
         'logo',
         'description',
         'status',
+        'quorum_percent'
     ];
 
     protected static $logAttributesToIgnore = ['updated_at'];
@@ -47,6 +48,11 @@ class Event extends Model
     public function group()
     {
         return $this->belongsTo(Group::class);
+    }
+
+    public function participants(): HasMany
+    {
+        return $this->hasMany(Participant::class);
     }
 
     public function elections(): HasMany

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('participants', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('election_id')->constrained('elections');
+            $table->foreignId('event_id')->constrained('events');
             $table->integer('normal_stock_count')->default(0);
             $table->integer('prefered_stock_count')->default(0);
             $table->boolean('is_present')->default(false);

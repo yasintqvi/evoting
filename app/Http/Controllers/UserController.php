@@ -40,7 +40,7 @@ class UserController extends Controller
         $users = User::all();
         return view("app.users.create", compact("groups", "users"));
     }
-
+    
     /**
      * Store a newly created resource in storage.
      */
@@ -81,6 +81,7 @@ class UserController extends Controller
     public function edit(User $user, Group $group)
     {
         $groups = $group->get();
+
         return view('app.users.edit', compact('user', 'groups'));
     }
 

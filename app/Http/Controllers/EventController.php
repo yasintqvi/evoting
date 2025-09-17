@@ -40,7 +40,15 @@ class EventController extends Controller
                 ->save();
         }
 
-        $group->events()->create($data);
+        $event = $group->events()->create($data);
+
+        foreach ($group->users as $user) {
+            $event->participants()->create([
+                'user_id' => $user->id,
+                'normal_stock_count' => $user->pivot->normal_stock_count,
+                'prefered_stock_count' => $user->pivot->prefered_stock_count,
+            ]);
+        }
 
         return back();
     }
