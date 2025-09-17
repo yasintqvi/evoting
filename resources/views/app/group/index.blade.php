@@ -81,15 +81,6 @@
         @endcan
 
         <!-- مرحله 3 -->
-        @if (in_array($group->type, [App\Enums\GroupType::SPECIAL]))
-            <div class="d-flex flex-column flex-fill p-3 rounded shadow-sm border-start border-4 border-secondary bg-white">
-                <div class="d-flex align-items-center gap-3 mb-2">
-                    <div class="bg-secondary text-white rounded px-3 py-2 fw-bold">3</div>
-                    <div class="text-muted fw-semibold">ایجاد سهام‌داران</div>
-                </div>
-                <small class="text-muted align-self-end">در انتظار</small>
-            </div>
-        @endif
     </div>
     <h4 class="mb-4 text-primary fw-bold">{{ $group->title }}</h4>
 
