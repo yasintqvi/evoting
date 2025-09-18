@@ -50,7 +50,9 @@
                                         <td>{{ $participant->user->full_name }}</td>
                                         <td>
                                             @if($participant->attorney_id)
+                                                <div id="present-{{$participant->id}}">
                                                 اهدای وکالت
+                                                </div>
                                             @else
                                                 <div id="present-{{$participant->id}}">
                                                     <input type="hidden" name="" value="0">
@@ -135,10 +137,9 @@
                     <form id="attorneyForm">
                         <div class="mb-3">
                             <label for="attorney-phone" class="form-label">شماره تلفن</label>
-                            <input type="number" class="form-control" id="attorney-phone" style="direction: rtl"
-                                   required>
-                        </div>
-                        <div class="mb-3">
+                            <select id="attorney-phone" class="form-control" style="direction: rtl; width: 100%;" required>
+                            </select>
+                        </div>                       <div class="mb-3">
                             <label for="attorney-name" class="form-label">نام وکیل</label>
                             <input type="text" class="form-control" id="attorney-name" required>
                         </div>
@@ -163,6 +164,41 @@
 @section('scripts')
     <script src="{{ asset('assets/js/axios.js') }}"></script>
     <script>
+        $(document).ready(function() {
+            $('#attorney-phone').select2({
+                placeholder: "شماره تلفن را انتخاب کنید",
+                allowClear: true,
+                dir: "rtl",
+                tags: true,
+                dropdownParent: $('#attorneyModal'),
+                ajax: {
+                    url: '/user/select2',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                            q: params.term,   // search term
+                            page: params.page || 1
+                        };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: $.map(data.results, function (item) {
+                                return {
+                                    id: item.phone,
+                                    text: item.first_name +" "+item.last_name +'-'+ item.phone
+                                }
+                            }),
+                            pagination: {
+                                more: data.pagination.more
+                            }
+                        };
+                    },
+                    cache: true
+                },
+                minimumInputLength: 0 // only start searching after typing 1 char
+            });
+        });
         document.addEventListener('DOMContentLoaded', function () {
             const modal = new bootstrap.Modal(document.getElementById('attorneyModal'));
             const attorneyForm = document.getElementById('attorneyForm');
@@ -294,8 +330,22 @@
                 attorneyForm.reset();
             });
 
-            document.getElementById('attorney-phone').addEventListener('blur', function () {
-                const value = document.getElementById('attorney-phone').value;
+            $('#attorney-phone').on('change', function () {
+                const value = $(this).val(); // selected value
+                if (value) {
+                    axios.post('{{route('attorneys.index')}}', {phone: value})
+                        .then(response => {
+                            const data = response.data
+                            document.getElementById('attorney-name').value = data.first_name ?? '';
+                            document.getElementById('attorney-l-name').value = data.last_name ?? '';
+                        })
+                        .catch(error => {
+                        });
+                }
+            });
+            $('#attorneyModal').on('shown.bs.modal', function () {
+                const value = $('#attorney-phone').val(); // selected value
+                console.log(value);
                 if (value) {
                     axios.post('{{route('attorneys.index')}}', {phone: value})
                         .then(response => {
@@ -333,13 +383,13 @@
                              <input type="hidden" name="" value="0">
                                                     <input type="checkbox"
                                                            name="participant-present"
-                                                           id="participant-present-{{$participant->id}}"
+                                                           id="participant-present-${id}"
                                                            value="1"
-                                                           data-switch="1" {{$participant->is_present?'checked':''}}>
-                                                    <label for="participant-present-{{$participant->id}}"
+                                                           data-switch="1" >
+                                                    <label for="participant-present-${id}"
                                                            data-on-label="حاضر"
                                                            data-off-label="غایب"
-                                                           data-id="{{$participant->id}}"
+                                                           data-id="${id}"
                                                            class="mb-0 d-block present"></label>`)
                             document.getElementById('attorney-col-' + id).innerHTML = `
                     <button type="button"

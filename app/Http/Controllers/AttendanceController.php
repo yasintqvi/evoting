@@ -6,6 +6,7 @@ use App\Models\Attendance;
 use App\Models\Group;
 use App\Models\Event;
 use App\Models\Participant;
+use App\Models\User;
 use App\Services\AttorneyService;
 use Illuminate\Http\Request;
 
@@ -46,8 +47,6 @@ class AttendanceController extends Controller
             }
         ])->get();
         $attorneyIds = array_filter($event->participants()->pluck('attorney_id')->toArray());
-
-
         return view('app.group.attendances.create', compact('group', 'event', 'users', 'attorneyIds'));
     }
 
@@ -93,5 +92,23 @@ class AttendanceController extends Controller
             return response()->json(['status' => 'error',
                 'message' => 'با شکست مواجه شد.', 200]);
         }
+    }
+    public function getUser(Request $request){
+        $search = $request->input('q');   // search term
+        $page   = $request->input('page', 1);
+        $perPage = 10;
+
+        $query = User::query()->select('id', 'phone','first_name','last_name');
+
+        if ($search) {
+            $query->where('phone', 'like', "%{$search}%");
+        }
+
+        $users = $query->paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json([
+            'results' => $users->items(),
+            'pagination' => ['more' => $users->hasMorePages()]
+        ]);
     }
 }

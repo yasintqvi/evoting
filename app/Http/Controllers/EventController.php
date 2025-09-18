@@ -53,16 +53,20 @@ class EventController extends Controller
         return back();
     }
 
+   
+
     public function attendanceStats(Event $event)
     {
+        $participants = $event->participants;
+
         $map = [
             'absent' => 0,
             'present' => 1,
         ];
 
         return response()->json([
-            'present' => $event->attendances()->where('status', $map['present'])->count(),
-            'absent' => $event->attendances()->where('status', $map['absent'])->count(),
+            'present' => $event->participants()->where('is_present', $map['present'])->count(),
+            'absent' => $event->participants()->where('is_present', $map['absent'])->count(),
         ]);
     }
 
