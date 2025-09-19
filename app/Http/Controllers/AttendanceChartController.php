@@ -1,9 +1,8 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Event;
-use Illuminate\Http\Request;
-use Log;
 
 class AttendanceChartController extends Controller
 {
@@ -11,10 +10,10 @@ class AttendanceChartController extends Controller
     {
         $event = Event::find(1);
 
-        if (!$event) {
+        if (! $event) {
             return response()->json([
                 'presentCount' => 0,
-                'totalCount' => 0
+                'totalCount' => 0,
             ]);
         }
 
@@ -23,8 +22,7 @@ class AttendanceChartController extends Controller
 
         return response()->json([
             'presentCount' => $presentCount,
-            'totalCount' => $totalCount
+            'totalCount' => $totalCount,
         ]);
     }
-
 }

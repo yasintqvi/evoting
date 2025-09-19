@@ -19,9 +19,10 @@ class AttorneyController extends Controller
     {
         $this->attorneyService = $attorneyService;
     }
-    //get attorney by ajax only by knowing their phone
-    //to user not see all the user exist in database
-    //only see the user that he search for
+
+    // get attorney by ajax only by knowing their phone
+    // to user not see all the user exist in database
+    // only see the user that he search for
     public function getAttorney(Request $request)
     {
         try {
@@ -30,9 +31,10 @@ class AttorneyController extends Controller
             ]);
             $users = User::where($data)->select('first_name', 'last_name', 'phone')
                 ->first();
-            if (!$users) {
+            if (! $users) {
                 return response()->json(['error' => 'User not found'], 200);
             }
+
             return response()->json($users);
         } catch (\Exception $e) {
             return response()->json(['error' => 'User not found'], 200);
@@ -51,13 +53,15 @@ class AttorneyController extends Controller
             $created = $this->attorneyService->create($dto);
 
             DB::commit();
+
             return response()->json(['status' => 'success',
                 'message' => 'وکیل با موفقیت ایجاد شد.', 'data' => $created, 200]);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json(['status' => 'error',
                 'message' => 'خطایی هنگام ایجاد وکیل رخ داد.', 200]);
-//            'message' => $e->getMessage(), 200]);
+            //            'message' => $e->getMessage(), 200]);
         }
 
     }
@@ -67,24 +71,24 @@ class AttorneyController extends Controller
         DB::beginTransaction();
         try {
             $dto = new DeleteAttorneyDto($participant->attorney);
-            $id=$participant->attorney->id;
-            $participant->attorney_id=null;
+            $id = $participant->attorney->id;
+            $participant->attorney_id = null;
             $participant->save();
             $deleted = $this->attorneyService->delete($dto);
             DB::commit();
             if ($deleted) {
                 return response()->json(['status' => 'success',
-                    'message' => 'وکیل با موفقیت حذف شد.','data'=>$id, 200]);
+                    'message' => 'وکیل با موفقیت حذف شد.', 'data' => $id, 200]);
             } else {
                 return response()->json(['status' => 'error',
                     'message' => 'خطایی هنگام حذف وکیل رخ داد.', 200]);
             }
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json(['status' => 'error',
                 'message' => 'خطایی هنگام حذف وکیل رخ داد.', 200]);
 
         }
     }
-
 }

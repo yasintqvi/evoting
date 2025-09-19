@@ -18,27 +18,26 @@ class AttendanceService
 
             if ($particpant) {
                 $particpant->update([
-                    'is_present' => $attendance['status']
+                    'is_present' => $attendance['status'],
                 ]);
             }
         }
-
 
         foreach ($createAttendanceDto->participantsAttorney as $attorney) {
 
             if ($attorney['attorney_id']) {
                 $attorneyParticipant = User::where('phone', $attorney['attorney_id'])->first();
 
-                if (!$attorneyParticipant) {
+                if (! $attorneyParticipant) {
                     $attorneyParticipant = User::create([
                         'phone' => $attorney['attorney_id'],
-                        "passowrd" => 1234578,
-                        "first_name" => 'test'
+                        'passowrd' => 1234578,
+                        'first_name' => 'test',
                     ]);
                 }
 
                 if ($attorneyParticipant?->attorney_id) {
-                    throw new Exception("شخصی که به عنوان وکیل انتخاب شده است، نمی‌تواند برای خودش وکیل تعیین کند!");
+                    throw new Exception('شخصی که به عنوان وکیل انتخاب شده است، نمی‌تواند برای خودش وکیل تعیین کند!');
                 }
 
                 $particpant = $event->participants()->find($attorney['participant_id']);
@@ -50,9 +49,8 @@ class AttendanceService
                         'event_id' => $event->id,
                         'normal_stock_count' => $particpant->normal_stock_count,
                         'prefered_stock_count' => $particpant->prefered_stock_count,
-                        'is_present' => true
+                        'is_present' => true,
                     ]);
-
 
                     $particpant->update([
                         'attorney_id' => $attorney->id,

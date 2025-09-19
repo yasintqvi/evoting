@@ -3,15 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Group\GroupRequest;
-use App\Models\Attendance;
 use App\Models\Group;
 use App\Services\Image\ImageService;
 
 class GroupController extends Controller
 {
-    public function __construct(protected ImageService $imageService)
-    {
-    }
+    public function __construct(protected ImageService $imageService) {}
 
     public function index(Group $group)
     {
@@ -21,7 +18,6 @@ class GroupController extends Controller
 
         return view('app.group.index', compact('group', 'events', 'usersCount'));
     }
-
 
     public function create()
     {

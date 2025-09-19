@@ -11,14 +11,14 @@ class Setting extends Model
     protected $fillable = [
         'slug',
         'user_id',
-        'payload'
+        'payload',
     ];
 
     public function casts()
     {
         return [
             'slug' => SettingSlug::class,
-            'payload' => 'object'
+            'payload' => 'object',
         ];
     }
 

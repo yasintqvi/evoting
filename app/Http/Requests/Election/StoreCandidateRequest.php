@@ -2,9 +2,7 @@
 
 namespace App\Http\Requests\Election;
 
-use App\DTOs\Election\AddCandidatesDto;
 use App\DTOs\Election\ElectionCandidatesDto;
-use App\Models\Election;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreCandidateRequest extends FormRequest
@@ -18,7 +16,7 @@ class StoreCandidateRequest extends FormRequest
                 'required',
                 'array',
                 'distinct',
-                'min:' . $election->main_member_count
+                'min:'.$election->main_member_count,
             ],
             'main_candidates_ids.*' => ['exists:users,id'],
 
@@ -26,7 +24,7 @@ class StoreCandidateRequest extends FormRequest
                 'required',
                 'array',
                 'distinct',
-                'min:' . $election->incpector_main_member_count
+                'min:'.$election->incpector_main_member_count,
             ],
             'incpector_candidates_ids.*' => ['exists:users,id'],
         ];

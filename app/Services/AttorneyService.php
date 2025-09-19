@@ -18,7 +18,7 @@ class AttorneyService
             [
                 'first_name' => $attorneyDto->user->first_name,
                 'last_name' => $attorneyDto->user->last_name,
-                'password' => bcrypt($password)
+                'password' => bcrypt($password),
             ]
         );
         $participant = $attorneyDto->participant;
@@ -40,6 +40,7 @@ class AttorneyService
         $participant->save();
         $participant->load('attorney.user');
         SendPasswordJob::dispatch($password);
+
         return [$participant, $deleted];
     }
 
@@ -48,12 +49,13 @@ class AttorneyService
         $participant = $attorneyDto->participant;
         $event = $participant->event;
         $group = $event->group;
-        $user=$participant->user;
-        if($event->participants()->where('user_id', $user->id)->count()<2){
+        $user = $participant->user;
+        if ($event->participants()->where('user_id', $user->id)->count() < 2) {
             $user->groups()->detach($group->id);
         }
 
         $status = $participant->delete();
+
         return $status;
 
     }

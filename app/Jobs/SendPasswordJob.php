@@ -8,6 +8,7 @@ use Illuminate\Foundation\Queue\Queueable;
 class SendPasswordJob implements ShouldQueue
 {
     use Queueable;
+
     public $password;
 
     /**
@@ -15,7 +16,7 @@ class SendPasswordJob implements ShouldQueue
      */
     public function __construct($password)
     {
-        $this->password=$password;
+        $this->password = $password;
     }
 
     /**
@@ -23,6 +24,6 @@ class SendPasswordJob implements ShouldQueue
      */
     public function handle(): void
     {
-        //send sms
+        // send sms
     }
 }

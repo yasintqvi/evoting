@@ -8,9 +8,9 @@ enum ElectionType: string
 {
     use EnumValues;
 
-    case PUBLIC_JOINT = "public_joint";
-    case PRIVATE_JOINT = "private_joint";
-    case PRIVATE_JOINT_WITH_88 = "private_joint_with_88";
+    case PUBLIC_JOINT = 'public_joint';
+    case PRIVATE_JOINT = 'private_joint';
+    case PRIVATE_JOINT_WITH_88 = 'private_joint_with_88';
 
     public function toFa()
     {

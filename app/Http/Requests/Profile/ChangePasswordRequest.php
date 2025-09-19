@@ -7,7 +7,6 @@ use Illuminate\Validation\Rules\Password;
 
 class ChangePasswordRequest extends FormRequest
 {
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -17,7 +16,7 @@ class ChangePasswordRequest extends FormRequest
     {
         return [
             'current_password' => 'required|string',
-            'password' => ['required', 'string', Password::min(8)->mixedCase(), 'confirmed']
+            'password' => ['required', 'string', Password::min(8)->mixedCase(), 'confirmed'],
         ];
     }
 }

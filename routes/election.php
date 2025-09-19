@@ -56,14 +56,12 @@ Route::prefix('{group:slug}/events/{event}')->group(function () {
     Route::put('/elections/{election}/update', [ElectionCandidateController::class, 'update'])->name('candidates.update')
         ->can(Permission::UPDATE_CANDIDATES);
 
-
     // ATTENDANCE
     Route::get('attendances', [AttendanceController::class, 'create'])->name('attendances.create')
         ->can(Permission::CREATE_ATTENDANCE);
 
     Route::post('/attendances', [AttendanceController::class, 'store'])->name('attendances.store')
         ->can(Permission::STORE_ATTENDANCE);
-
 
     Route::prefix('/elections/{election}')->group(function () {
         Route::get('/participants', [ElectionParticipantController::class, 'index'])
@@ -89,7 +87,6 @@ Route::prefix('{group:slug}/events/{event}')->group(function () {
 
         Route::post('/participants/import', [UserExcelController::class, 'import'])
             ->name('participants.import');
-
 
         // Voting
         Route::get('/voting', [ElectionVotingController::class, 'create'])

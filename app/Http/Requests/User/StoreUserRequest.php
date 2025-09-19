@@ -27,7 +27,6 @@ class StoreUserRequest extends FormRequest
         return $this->filled('phone') ? $this->getStoreRules() : $this->getAssignRules();
     }
 
-
     protected function getStoreRules(): array
     {
         return [
@@ -38,7 +37,6 @@ class StoreUserRequest extends FormRequest
             'is_active' => 'sometimes|boolean',
         ];
     }
-
 
     protected function getAssignRules(): array
     {

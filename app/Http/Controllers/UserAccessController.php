@@ -19,7 +19,6 @@ class UserAccessController extends Controller
         $this->aclService = $aclService;
     }
 
-
     public function edit(User $user)
     {
         $permissions = Permission::all();
@@ -35,7 +34,7 @@ class UserAccessController extends Controller
     public function update(UserAccessRequest $request, User $user)
     {
         try {
-            $this->aclService->updateUserAccess($user,  $request->toDto());
+            $this->aclService->updateUserAccess($user, $request->toDto());
 
             return to_route('users.index')->with('success', __('messages.user.access_changed'));
         } catch (Throwable $th) {

@@ -18,6 +18,7 @@ class PermissionController extends Controller
     {
         try {
             $permissions = $this->aclService->getAllPermissions();
+
             return view('app.permission.index', compact('permissions'));
         } catch (Throwable $th) {
             return back()->with('error', __('messages.permission.index_error'));

@@ -28,7 +28,7 @@ class UserController extends Controller
             ->latest()
             ->get();
 
-        return view("app.users.index", compact('users'));
+        return view('app.users.index', compact('users'));
     }
 
     /**
@@ -38,9 +38,10 @@ class UserController extends Controller
     {
         $groups = Group::all();
         $users = User::all();
-        return view("app.users.create", compact("groups", "users"));
+
+        return view('app.users.create', compact('groups', 'users'));
     }
-    
+
     /**
      * Store a newly created resource in storage.
      */
@@ -50,7 +51,6 @@ class UserController extends Controller
             $request->mergeIfMissing(['is_active' => 0]);
             $inputs = $request->except('group_id');
             $user = User::create($inputs);
-
 
             $groupId = $request->input('group_ids');
             $user->groups()->sync($groupId);
@@ -64,8 +64,6 @@ class UserController extends Controller
 
         return redirect()->back()->with('success', 'کاربر جدید با موفقیت ایجاد و به گروه‌های انتخابی اضافه شد.');
     }
-
-
 
     /**
      * Display the specified resource.
@@ -99,7 +97,6 @@ class UserController extends Controller
 
         return redirect()->route('users.index')->with('success', 'اطلاعات کاربر با موفقیت به‌روزرسانی شد.');
     }
-
 
     /**
      * Remove the specified resource from storage.

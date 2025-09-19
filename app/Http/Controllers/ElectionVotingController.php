@@ -26,7 +26,7 @@ class ElectionVotingController extends Controller
             return back();
         }
 
-        if (!$election->participants()->where('user_id', user()->id)->exists()) {
+        if (! $election->participants()->where('user_id', user()->id)->exists()) {
             return back();
         }
 
@@ -40,7 +40,6 @@ class ElectionVotingController extends Controller
 
         $election->load('candidates');
 
-
         return view('app.group.election.voting.create', compact('group', 'election', 'participant'));
     }
 
@@ -51,34 +50,34 @@ class ElectionVotingController extends Controller
     {
         $data = $request->validated();
 
-        if (!isset($data['director_candidates']) || empty($data['director_candidates'])) {
+        if (! isset($data['director_candidates']) || empty($data['director_candidates'])) {
             $data['director_candidates'] = [];
             foreach ($election->candidates()->where('candidate_type', CandidateType::DIRECTOR)->get() as $candidate) {
                 $data['director_candidates'][$candidate->id] = 0;
             }
         }
 
-        if (!isset($data['inspector_candidates']) || empty($data['inspector_candidates'])) {
+        if (! isset($data['inspector_candidates']) || empty($data['inspector_candidates'])) {
             $data['inspector_candidates'] = [];
             foreach ($election->candidates()->where('candidate_type', CandidateType::INSPECTOR)->get() as $candidate) {
                 $data['inspector_candidates'][$candidate->id] = 0;
             }
         }
 
-        if (count(array_filter($data['director_candidates'], fn($item) => $item > 0)) > $election->main_member_count) {
+        if (count(array_filter($data['director_candidates'], fn ($item) => $item > 0)) > $election->main_member_count) {
             return back()->withErrors(['director_candidates' => 'تعداد کاندیداهای مدیر بیش از حد مجاز است.']);
         }
 
-        if (count(array_filter($data['inspector_candidates'], fn($item) => $item > 0)) > $election->incpector_main_member_count) {
+        if (count(array_filter($data['inspector_candidates'], fn ($item) => $item > 0)) > $election->incpector_main_member_count) {
             return back()->withErrors(['inspector_candidates' => 'تعداد کاندیداهای بازرس بیش از حد مجاز است.']);
         }
 
-        DB::transaction(function () use ($group, $election, $data) {
+        DB::transaction(function () use ($election, $data) {
             $participant = $election->participants()->where('user_id', user()->id)->first();
 
             $activeRound = $election->rounds()->where('is_active', true)->first();
 
-            if (!$activeRound) {
+            if (! $activeRound) {
                 $activeRound = $election->rounds()->create(['is_active' => true]);
             }
 
@@ -90,9 +89,9 @@ class ElectionVotingController extends Controller
                 }
 
                 $participant->votes()->create([
-                    "election_round_id" => $activeRound->id,
+                    'election_round_id' => $activeRound->id,
                     'candidate_id' => $candidate->id,
-                    'vote_count' => (int) $voteCount
+                    'vote_count' => (int) $voteCount,
                 ]);
             }
 
@@ -104,14 +103,14 @@ class ElectionVotingController extends Controller
                 }
 
                 $participant->votes()->create([
-                    "election_round_id" => $activeRound->id,
+                    'election_round_id' => $activeRound->id,
                     'candidate_id' => $candidate->id,
-                    'vote_count' => (int) $voteCount
+                    'vote_count' => (int) $voteCount,
                 ]);
             }
 
             $participant->update([
-                'is_present' => true
+                'is_present' => true,
             ]);
         });
 
@@ -152,12 +151,12 @@ class ElectionVotingController extends Controller
 
     public function terminate(Request $request, Group $group, Election $election)
     {
-        $election->rounds->map(fn($round) => $round->update([
+        $election->rounds->map(fn ($round) => $round->update([
             'is_active' => false,
         ]));
 
         $election->update([
-            'status' => ElectionStatus::COMPLETED
+            'status' => ElectionStatus::COMPLETED,
         ]);
 
         return back();

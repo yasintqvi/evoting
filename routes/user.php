@@ -2,7 +2,6 @@
 
 use App\Enums\Permission;
 use App\Http\Controllers\GroupController;
-use App\Http\Controllers\GroupUserController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserAccessController;

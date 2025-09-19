@@ -22,7 +22,7 @@ class GroupFactory extends Factory
             'title' => fake()->name(),
             'description' => fake()->text(200),
             'owner_id' => User::inRandomOrder()->first(),
-            'status' => GroupStatus::ENABLE
+            'status' => GroupStatus::ENABLE,
         ];
     }
 }

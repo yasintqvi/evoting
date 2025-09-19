@@ -6,9 +6,9 @@ use App\DTOs\Election\CreateElectionDto;
 use App\DTOs\Election\UpdateElectionDto;
 use App\Enums\ElectionStatus;
 use App\Events\ElectionCreated;
-use App\Models\Group;
 use App\Models\Election;
 use App\Models\Event;
+use App\Models\Group;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -16,7 +16,6 @@ use Throwable;
 
 class ElectionService
 {
-
     public function getAll(Event $event): Collection
     {
         $elections = $event->elections()->latest()->get();
@@ -31,7 +30,7 @@ class ElectionService
         try {
             $election = $event->elections()->create([
                 'group_id' => $group->id,
-                ...$createElectionDto->all()
+                ...$createElectionDto->all(),
             ]);
             event(new ElectionCreated($group, $election));
 
@@ -42,7 +41,7 @@ class ElectionService
 
             DB::rollBack();
 
-            Log::info("Error while creating election", [
+            Log::info('Error while creating election', [
                 'message' => $th->getMessage(),
                 'trace' => $th->getTrace(),
             ]);
@@ -57,7 +56,7 @@ class ElectionService
 
         $isDirty = false;
         foreach ($updateData as $key => $value) {
-            if ($key !== 'title' && $election->$key != $value) {
+            if ($key !== 'title' && $value != $election->$key) {
                 $isDirty = true;
                 break;
             }

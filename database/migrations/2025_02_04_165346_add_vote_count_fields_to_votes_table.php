@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('votes', function (Blueprint $table) {
-            $table->unsignedInteger("vote_count")->default(1);
+            $table->unsignedInteger('vote_count')->default(1);
         });
     }
 

@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Election;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StoreParticipantRequest extends FormRequest
 {
@@ -72,7 +71,7 @@ class StoreParticipantRequest extends FormRequest
         // Check for election types that require stock validation
         return in_array($electionType, [
             \App\Enums\ElectionType::PRIVATE_JOINT,
-            \App\Enums\ElectionType::PRIVATE_JOINT_WITH_88
+            \App\Enums\ElectionType::PRIVATE_JOINT_WITH_88,
         ]);
     }
 }

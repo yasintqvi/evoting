@@ -15,7 +15,7 @@ class Candidate extends Model
     protected $fillable = [
         'user_id',
         'election_id',
-        'candidate_type'
+        'candidate_type',
     ];
 
     protected static $logAttributesToIgnore = ['updated_at'];
@@ -29,14 +29,14 @@ class Candidate extends Model
         return LogOptions::defaults()
             ->logOnly(static::$logAttributes)->dontLogIfAttributesChangedOnly(static::$logAttributesToIgnore)
             ->logOnlyDirty()
-            ->setDescriptionForEvent(fn(string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'کاندیدا', 'subject' => $this->user->full_name]))
+            ->setDescriptionForEvent(fn (string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'کاندیدا', 'subject' => $this->user->full_name]))
             ->dontSubmitEmptyLogs();
     }
 
     public function casts()
     {
         return [
-            'candidate_type' => CandidateType::class
+            'candidate_type' => CandidateType::class,
         ];
     }
 
