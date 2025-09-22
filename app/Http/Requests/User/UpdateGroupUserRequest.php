@@ -23,11 +23,11 @@ class UpdateGroupUserRequest extends FormRequest
         $userId = $this->route('user')->id;
 
         $rules = [
-            'first_name'           => ['required', 'string', 'max:255'],
-            'last_name'            => ['required', 'string', 'max:255'],
-            'phone'                => ['required', 'numeric', 'digits:11', "unique:users,phone,{$userId}"],
-            'nationalcode'         => ['required', 'numeric', 'digits:10', "unique:users,nationalcode,{$userId}"],
-            'is_active'            => ['sometimes', 'boolean'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'numeric', 'digits:11', "unique:users,phone,{$userId}"],
+            'nationalcode' => ['required', 'numeric', 'digits:10', "unique:users,nationalcode,{$userId}"],
+            'is_active' => ['sometimes', 'boolean'],
         ];
         if ($this->group->type == \App\Enums\GroupType::SPECIAL) {
             $currentUserId = $this->user->id;
@@ -44,9 +44,9 @@ class UpdateGroupUserRequest extends FormRequest
                     $remaining = $this->group->normal_stock_count - $assignedToOthers;
 
                     if ($value > $remaining) {
-                        $fail('مقدار سهام عادی بیشتر از مقدار باقیمانده (' . $remaining . ') است.');
+                        $fail('مقدار سهام عادی بیشتر از مقدار باقیمانده ('.$remaining.') است.');
                     }
-                }
+                },
             ];
 
             $rules['prefered_stock_count'] = [
@@ -61,11 +61,12 @@ class UpdateGroupUserRequest extends FormRequest
                     $remaining = $this->group->prefered_stock_count - $assignedToOthers;
 
                     if ($value > $remaining) {
-                        $fail('مقدار سهام ممتاز بیشتر از مقدار باقیمانده (' . $remaining . ') است.');
+                        $fail('مقدار سهام ممتاز بیشتر از مقدار باقیمانده ('.$remaining.') است.');
                     }
-                }
+                },
             ];
         }
+
         return $rules;
     }
 }

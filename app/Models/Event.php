@@ -11,8 +11,8 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Event extends Model
 {
-    use SoftDeletes;
     use LogsActivity;
+    use SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -20,7 +20,7 @@ class Event extends Model
         'logo',
         'description',
         'status',
-        'quorum_percent'
+        'quorum_percent',
     ];
 
     protected static $logAttributesToIgnore = ['updated_at'];
@@ -29,11 +29,10 @@ class Event extends Model
 
     protected static $logOnlyDirty = true;
 
-
     public function casts(): array
     {
         return [
-            'status' => EventStatus::class
+            'status' => EventStatus::class,
         ];
     }
 
@@ -42,7 +41,7 @@ class Event extends Model
         return LogOptions::defaults()
             ->logOnly(static::$logAttributes)->dontLogIfAttributesChangedOnly(static::$logAttributesToIgnore)
             ->logOnlyDirty()
-            ->setDescriptionForEvent(fn(string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'رویداد', 'subject' => $this->title]))
+            ->setDescriptionForEvent(fn (string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'رویداد', 'subject' => $this->title]))
             ->dontSubmitEmptyLogs();
     }
 

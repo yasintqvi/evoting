@@ -6,7 +6,7 @@ return [
     'profile_updated' => 'پروفایل کاربری با موفقیت بروز رسانی شد.',
     'current_password_invalid' => 'کلمه عبور فعلی اشتباه است.',
     'password_changed' => 'کلمه عبور با موفقیت تغییر کرد.',
-    'invalid_otp' => "کد اعتبارسنجی نا معتبر است.",
+    'invalid_otp' => 'کد اعتبارسنجی نا معتبر است.',
     'google2fa_verified' => 'احراز هویت دومرحله ای google authenticator با موفقیت فعال شد.',
     'log_activity' => ':resource با عنوان :subject :event شد.',
     'election' => [
@@ -35,7 +35,7 @@ return [
             'name_unique' => 'این نام نقش قبلاً استفاده شده است.',
             'permissions_array' => 'دسترسی‌ها باید به صورت آرایه باشند.',
             'permissions_exists' => 'دسترسی انتخاب شده معتبر نیست.',
-        ]
+        ],
     ],
 
     'permission' => [
@@ -45,5 +45,5 @@ return [
     'user' => [
         'user_access_error' => 'اعطای دسترسی به کاربر مورد نظر با خطا مواجه شد.',
         'access_changed' => 'دسترسی ها با موفقیت به کاربر اعطا شد.',
-    ]
+    ],
 ];

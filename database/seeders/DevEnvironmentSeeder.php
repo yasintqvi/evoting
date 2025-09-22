@@ -20,8 +20,8 @@ class DevEnvironmentSeeder extends Seeder
     {
         $adminUser = User::factory()->create([
             'first_name' => 'مدیر سایت',
-            'phone' => "09931623277",
-            'password' => bcrypt('12345678')
+            'phone' => '09931623277',
+            'password' => bcrypt('12345678'),
         ]);
 
         $testGroup = Group::create([
@@ -29,7 +29,7 @@ class DevEnvironmentSeeder extends Seeder
             'description' => 'this is the test group in the evoting system',
             'owner_id' => $adminUser->id,
             'status' => GroupStatus::ENABLE,
-            'logo' => 'assets/img/group.jpg'
+            'logo' => 'assets/img/group.jpg',
         ]);
 
         $testGroup->users()->attach($adminUser->id);
@@ -40,7 +40,7 @@ class DevEnvironmentSeeder extends Seeder
 
             foreach ($permissions as $permission) {
                 $permissionModel = ModelsPermission::firstOrCreate([
-                    'name' => $permission->value
+                    'name' => $permission->value,
                 ]);
                 $roleModel->givePermissionTo($permissionModel);
             }

@@ -30,7 +30,7 @@ class ElectionEventSubscriber
                 $shareholder->id,
                 $shareholder->pivot->normal_stock_count,
                 $shareholder->pivot->prefered_stock_count,
-                (bool) !$event->election->quorum_required
+                (bool) ! $event->election->quorum_required
             ));
         }
     }

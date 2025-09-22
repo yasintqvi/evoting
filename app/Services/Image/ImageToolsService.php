@@ -118,21 +118,21 @@ class ImageToolsService
 
     public function getImageAddress(): ?string
     {
-        return $this->final_image_directory . DIRECTORY_SEPARATOR . $this->final_image_name;
+        return $this->final_image_directory.DIRECTORY_SEPARATOR.$this->final_image_name;
     }
 
     protected function provider()
     {
-        $this->getImageDirectory() ?? $this->setImageDirectory(date('Y') . DIRECTORY_SEPARATOR . date('m'));
+        $this->getImageDirectory() ?? $this->setImageDirectory(date('Y').DIRECTORY_SEPARATOR.date('m'));
 
         $this->getImageName() ?? $this->setImageName(time());
 
         $this->getImageFormat() ?? $this->setImageFormat($this->image->extension());
 
-        $final_image_directory = empty($this->getExclusiveDirectory()) ? $this->getImageDirectory() : $this->getExclusiveDirectory() . DIRECTORY_SEPARATOR . $this->getImageDirectory();
+        $final_image_directory = empty($this->getExclusiveDirectory()) ? $this->getImageDirectory() : $this->getExclusiveDirectory().DIRECTORY_SEPARATOR.$this->getImageDirectory();
         $this->setFinalImageDirectory($final_image_directory);
 
-        $this->setFinalImageName($this->getImageName() . '.' . $this->getImageFormat());
+        $this->setFinalImageName($this->getImageName().'.'.$this->getImageFormat());
 
         $this->checkDirectory($this->getFinalImageDirectory());
     }

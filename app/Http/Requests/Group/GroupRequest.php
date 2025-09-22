@@ -16,7 +16,7 @@ class GroupRequest extends FormRequest
     {
         $rules = [
             'title' => 'required|string|max:255',
-            'type' => ['required', 'in:' . implode(',', GroupType::values())],
+            'type' => ['required', 'in:'.implode(',', GroupType::values())],
             'description' => ['nullable', 'string', 'max:500'],
             'logo' => 'nullable|file|mimes:jpg,png,webp,jpeg|max:2048',
         ];

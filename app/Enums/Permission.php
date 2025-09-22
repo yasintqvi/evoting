@@ -6,7 +6,6 @@ use App\Traits\EnumValues;
 
 enum Permission: string
 {
-
     use EnumValues;
 
     case CREATE_GROUP = 'create group';
@@ -70,18 +69,16 @@ enum Permission: string
 
     case VIEW_PERMISSIONS = 'view permissions';
 
-    case LOG_ACTIVITIES = "view log activities";
+    case LOG_ACTIVITIES = 'view log activities';
 
-        // Group Permissions
-    case VIEW_GROUP_EVENT = "view group event";
-    case CREATE_GROUP_EVENT = "create group event";
-    case EDIT_GROUP_EVENT = "edit group event";
-    case DELETE_GROUP_EVENT = "delete group event";
+    // Group Permissions
+    case VIEW_GROUP_EVENT = 'view group event';
+    case CREATE_GROUP_EVENT = 'create group event';
+    case EDIT_GROUP_EVENT = 'edit group event';
+    case DELETE_GROUP_EVENT = 'delete group event';
+
     /**
      * Get permissions based on role
-     *
-     * @param Role $role
-     * @return array
      */
     public static function getPermissionsByRole(Role $role): array
     {

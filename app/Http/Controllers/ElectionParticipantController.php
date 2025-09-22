@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ElectionStatus;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Imports\ParticipantsImport;
-use App\Http\Requests\Election\StoreParticipantRequest;
 use App\Http\Requests\Election\StoreParticipaintTableRequest;
+use App\Http\Requests\Election\StoreParticipantRequest;
 use App\Models\Election;
 use App\Models\Group;
 use App\Models\Participant;
@@ -45,11 +43,11 @@ class ElectionParticipantController extends Controller
             $election->participants()->create([
                 'user_id' => $participant['user_id'],
                 'normal_stock_count' => $participant['normal_stock_count'] ?? 0,
-                'prefered_stock_count' => $participant['prefered_stock_count'] ?? 0
+                'prefered_stock_count' => $participant['prefered_stock_count'] ?? 0,
             ]);
         }
 
-        $election->status = $election->quorum_required ?  ElectionStatus::PARTICIPANTS_ATTENDEES : ElectionStatus::WAITING_TO_START;
+        $election->status = $election->quorum_required ? ElectionStatus::PARTICIPANTS_ATTENDEES : ElectionStatus::WAITING_TO_START;
 
         $election->save();
 
@@ -64,11 +62,12 @@ class ElectionParticipantController extends Controller
 
         $participants = collect($request->validated('participants'))
             ->filter(function ($participant) {
-                return !empty($participant['normal_stock_count']) || !empty($participant['prefered_stock_count']);
+                return ! empty($participant['normal_stock_count']) || ! empty($participant['prefered_stock_count']);
             })
             ->map(function ($participant) {
                 $participant['normal_stock_count'] = $participant['normal_stock_count'] ?? 0;
                 $participant['prefered_stock_count'] = $participant['prefered_stock_count'] ?? 0;
+
                 return $participant;
             });
 
@@ -76,11 +75,11 @@ class ElectionParticipantController extends Controller
             $election->participants()->create([
                 'user_id' => $participant['user_id'],
                 'normal_stock_count' => $participant['normal_stock_count'] ?? 0,
-                'prefered_stock_count' => $participant['prefered_stock_count'] ?? 0
+                'prefered_stock_count' => $participant['prefered_stock_count'] ?? 0,
             ]);
         }
 
-        $election->status = $election->quorum_required ?  ElectionStatus::PARTICIPANTS_ATTENDEES : ElectionStatus::WAITING_TO_START;
+        $election->status = $election->quorum_required ? ElectionStatus::PARTICIPANTS_ATTENDEES : ElectionStatus::WAITING_TO_START;
 
         $election->save();
 
@@ -95,15 +94,14 @@ class ElectionParticipantController extends Controller
         //
     }
 
-
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, Group $group, Election $election, Participant $participant)
     {
-        if ($election->status === ElectionStatus::PARTICIPANTS_ATTENDEES && !$participant->is_present) {
+        if ($election->status === ElectionStatus::PARTICIPANTS_ATTENDEES && ! $participant->is_present) {
             $participant->update([
-                'is_present' => true
+                'is_present' => true,
             ]);
 
             if ($election->precentParticipants() > 50) {
@@ -111,7 +109,7 @@ class ElectionParticipantController extends Controller
                 $election->save();
 
                 $election->rounds()->create([
-                    'is_active' => true
+                    'is_active' => true,
                 ]);
             }
         }

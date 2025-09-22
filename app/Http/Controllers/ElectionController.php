@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Election\StoreElectionRequest;
 use App\Http\Requests\Election\UpdateElectionRequest;
 use App\Http\Resources\ElectionResource;
-use App\Models\Group;
 use App\Models\Election;
 use App\Models\Event;
+use App\Models\Group;
 use App\Models\User;
 use App\Services\ElectionService;
 use Illuminate\Contracts\View\View;
@@ -17,7 +17,6 @@ use Throwable;
 
 class ElectionController extends Controller
 {
-
     private ElectionService $electionService;
 
     public function __construct(ElectionService $electionService)
@@ -34,7 +33,7 @@ class ElectionController extends Controller
 
     public function create(Group $group, Event $event)
     {
-        $users = User::select("id", "first_name", "last_name")->get();
+        $users = User::select('id', 'first_name', 'last_name')->get();
 
         return view('app.group.event.election.create', compact('group', 'event', 'users'));
     }
@@ -46,7 +45,7 @@ class ElectionController extends Controller
 
             return to_route('elections.index', [$group->slug, $event->id])->with('success', __('messages.election.created'));
         } catch (Throwable $th) {
-            return back()->with('error', "خطایی هنگام ایجاد انتخابات رخ داد.");
+            return back()->with('error', 'خطایی هنگام ایجاد انتخابات رخ داد.');
         }
     }
 
@@ -59,7 +58,7 @@ class ElectionController extends Controller
 
     public function edit(Request $request, Group $group, Event $event, Election $election): View
     {
-        $users = User::select("id", "first_name", "last_name")->get();
+        $users = User::select('id', 'first_name', 'last_name')->get();
 
         $election = ElectionResource::make($election)->toArray($request);
 
@@ -72,7 +71,7 @@ class ElectionController extends Controller
 
             $this->electionService->update($election, $request->toDto());
 
-            return to_route('elections.index', $group->slug)->with('success',  __('messages.election.edited'));
+            return to_route('elections.index', $group->slug)->with('success', __('messages.election.edited'));
         } catch (Throwable $th) {
 
             return back()->with('error', $th->getMessage());

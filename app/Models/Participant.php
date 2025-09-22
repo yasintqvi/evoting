@@ -12,8 +12,8 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Participant extends Model
 {
-    use SoftDeletes;
     use LogsActivity;
+    use SoftDeletes;
 
     protected $fillable = [
         'election_id',
@@ -37,14 +37,14 @@ class Participant extends Model
         return LogOptions::defaults()
             ->logOnly(static::$logAttributes)->dontLogIfAttributesChangedOnly(static::$logAttributesToIgnore)
             ->logOnlyDirty()
-            ->setDescriptionForEvent(fn(string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'گروه کننده', 'subject' => $this->user->full_name]))
+            ->setDescriptionForEvent(fn (string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'گروه کننده', 'subject' => $this->user->full_name]))
             ->dontSubmitEmptyLogs();
     }
 
     public function casts(): array
     {
         return [
-            'is_present' => 'boolean'
+            'is_present' => 'boolean',
         ];
     }
 
@@ -65,7 +65,7 @@ class Participant extends Model
 
     public function getTotalStockAttribute()
     {
-        return $this->election->type == ElectionType::PUBLIC_JOINT ? 1 : (int)($this->normal_stock_count + ($this->prefered_stock_count * $this->election->prefered_stock_weight));
+        return $this->election->type == ElectionType::PUBLIC_JOINT ? 1 : (int) ($this->normal_stock_count + ($this->prefered_stock_count * $this->election->prefered_stock_weight));
     }
 
     public function event()

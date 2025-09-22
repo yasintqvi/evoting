@@ -17,9 +17,9 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class Group extends Model
 {
     use HasFactory;
+    use LogsActivity;
     use Sluggable;
     use SoftDeletes;
-    use LogsActivity;
 
     protected $fillable = [
         'title',
@@ -31,7 +31,7 @@ class Group extends Model
         'owner_id',
         'type',
         'status',
-        'logo'
+        'logo',
     ];
 
     protected static $logAttributesToIgnore = ['updated_at'];
@@ -45,7 +45,7 @@ class Group extends Model
         return LogOptions::defaults()
             ->logOnly(static::$logAttributes)->dontLogIfAttributesChangedOnly(static::$logAttributesToIgnore)
             ->logOnlyDirty()
-            ->setDescriptionForEvent(fn(string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'گروه', 'subject' => $this->title]))
+            ->setDescriptionForEvent(fn (string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'گروه', 'subject' => $this->title]))
             ->dontSubmitEmptyLogs();
     }
 
@@ -53,8 +53,8 @@ class Group extends Model
     {
         return [
             'slug' => [
-                'source' => 'title'
-            ]
+                'source' => 'title',
+            ],
         ];
     }
 
@@ -62,7 +62,7 @@ class Group extends Model
     {
         return [
             'status' => GroupStatus::class,
-            'type' => GroupType::class
+            'type' => GroupType::class,
         ];
     }
 
@@ -78,7 +78,7 @@ class Group extends Model
 
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'group_user', )->withPivot("normal_stock_count", "prefered_stock_count");
+        return $this->belongsToMany(User::class, 'group_user')->withPivot('normal_stock_count', 'prefered_stock_count');
     }
 
     public function events(): HasMany
@@ -93,7 +93,7 @@ class Group extends Model
 
     public function getTotalPreferedAttribute()
     {
-        return ($this->prefered_stock_count + $this->normal_stock_count);
+        return $this->prefered_stock_count + $this->normal_stock_count;
     }
 
     public function getTotalNormalStockAttribute()
@@ -109,7 +109,8 @@ class Group extends Model
     protected function getRemainingStock($stockType)
     {
         $total = $this->$stockType;
-        $assigned = $this->users->sum(fn($user) => $user->pivot->$stockType);
+        $assigned = $this->users->sum(fn ($user) => $user->pivot->$stockType);
+
         return $total - $assigned;
     }
 
@@ -117,6 +118,7 @@ class Group extends Model
     {
         return $this->total_prefered - $this->assigned_stocks;
     }
+
     public function userAttendes()
     {
         return $this->belongsToMany(User::class, 'attendances')

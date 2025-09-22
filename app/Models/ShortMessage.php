@@ -15,13 +15,13 @@ class ShortMessage extends Model
         'content',
         'handler',
         'pattern',
-        'meta'
+        'meta',
     ];
 
     public function casts()
     {
         return [
-            'meta' => 'object'
+            'meta' => 'object',
         ];
     }
 

@@ -13,7 +13,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(SMSFactoryContract::class, fn($app) => new SMSManagerService($app));
+        $this->app->singleton(SMSFactoryContract::class, fn ($app) => new SMSManagerService($app));
     }
 
     /**

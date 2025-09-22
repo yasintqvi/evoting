@@ -8,8 +8,6 @@ use App\Http\Requests\User\UpdateGroupUserRequest;
 use App\Models\Group;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Hash;
 
 class GroupUserController extends Controller
 {
@@ -25,19 +23,17 @@ class GroupUserController extends Controller
             'users' => function ($query) use ($search) {
                 if ($search) {
                     $query->where(
-                        fn($q) =>
-                        $q->where('first_name', 'like', "%$search%")
+                        fn ($q) => $q->where('first_name', 'like', "%$search%")
                             ->orWhere('last_name', 'like', "%$search%")
                             ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$search%"])
                     );
                 }
 
                 $query->latest();
-            }
+            },
         ]);
 
         $users = $group->users;
-
 
         return view('app.group.users.index', compact('group', 'users'));
     }
@@ -53,8 +49,6 @@ class GroupUserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-
-
     public function store(StoreGroupUserRequest $request, Group $group)
     {
         $validated = $request->validated();
@@ -91,11 +85,9 @@ class GroupUserController extends Controller
         return view('app.group.users.edit', compact('group', 'user'));
     }
 
-
     /**
      * Update the specified resource in storage.
      */
-
     public function update(UpdateGroupUserRequest $request, Group $group, User $user)
     {
         $validated = $request->validated();
@@ -116,6 +108,7 @@ class GroupUserController extends Controller
     public function destroy(Group $group, User $user)
     {
         $group->users()->detach($user);
+
         return back()->with('success', __('messages.company_user_delete'));
     }
 

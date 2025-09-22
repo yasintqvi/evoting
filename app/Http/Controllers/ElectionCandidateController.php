@@ -2,13 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\CandidateType;
-use App\Enums\ElectionStatus;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Election\StoreCandidateRequest;
-use App\Models\Group;
 use App\Models\Election;
 use App\Models\Event;
+use App\Models\Group;
 use App\Services\CandidateService;
 use Exception;
 
@@ -20,6 +17,7 @@ class ElectionCandidateController extends Controller
     {
         $this->candidateService = $candidateService;
     }
+
     /**
      * Display a listing of the resource.
      */
@@ -68,9 +66,8 @@ class ElectionCandidateController extends Controller
     {
         $group->load('users');
 
-        return view('app.group.event.election.candidate.edit', compact('group', 'event', 'election',));
+        return view('app.group.event.election.candidate.edit', compact('group', 'event', 'election'));
     }
-
 
     /**
      * Update the specified resource in storage.

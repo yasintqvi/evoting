@@ -1,13 +1,9 @@
 <?php
 
-use App\Classes\V1\SettingHelper;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Jenssegers\Agent\Facades\Agent;
 
-
-
-if (!function_exists('convert_persian_to_english')) {
+if (! function_exists('convert_persian_to_english')) {
     function convert_persian_to_english($string)
     {
         $persian = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
@@ -79,14 +75,14 @@ if (! function_exists('format_phone')) {
         $phone = preg_replace('/^\+98/', '0', $phone);
 
         if (! preg_match('/^0/', $phone)) {
-            $phone = '0' . $phone;
+            $phone = '0'.$phone;
         }
 
         return ed($phone);
     }
 }
 
-if (!function_exists('is_active')) {
+if (! function_exists('is_active')) {
     function is_active(string $address_segment)
     {
         return str_contains(request()->uri(), $address_segment);

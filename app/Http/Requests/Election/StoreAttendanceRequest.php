@@ -32,14 +32,13 @@ class StoreAttendanceRequest extends FormRequest
 
             $statuses[] = [
                 'participant_id' => $participantId,
-                'status' => (bool) isset($data['status']) ? $data['status'] : false
+                'status' => (bool) isset($data['status']) ? $data['status'] : false,
             ];
-
 
             // if (!empty($data['attorney_id'])) {
             $attorneys[] = [
                 'participant_id' => $participantId,
-                'attorney_id' => $data['attorney_id']
+                'attorney_id' => $data['attorney_id'],
             ];
             // }
         }

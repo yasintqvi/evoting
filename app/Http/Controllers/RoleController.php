@@ -61,7 +61,7 @@ class RoleController extends Controller
     public function destroy(ModelsRole $role)
     {
         try {
-            if (!$this->aclService->deleteRole($role)) {
+            if (! $this->aclService->deleteRole($role)) {
 
                 return back()->with('error', __('messages.role.cannot_delete_system'));
             }

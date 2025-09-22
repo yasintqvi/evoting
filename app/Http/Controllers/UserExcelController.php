@@ -3,23 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ElectionStatus;
-use App\Imports\UsersImport;
-use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ParticipantsImport;
-use Illuminate\Http\Request;
+use App\Imports\UsersImport;
 use App\Models\Election;
 use App\Models\Group;
+use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UserExcelController extends Controller
 {
     public function uplodeExcel(Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:xlsx,xls'
+            'file' => 'required|mimes:xlsx,xls',
         ]);
 
         try {
             Excel::import(new UsersImport, $request->file('file'));
+
             return redirect()->back()->with('success', 'کاربران با موفقیت وارد شدند.');
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
             return redirect()->back()->withErrors($e->failures());
@@ -36,7 +37,7 @@ class UserExcelController extends Controller
             $import = new ParticipantsImport($group->id, $election->id);
             Excel::import($import, $request->file('file'));
 
-            $election->status = $election->quorum_required ?  ElectionStatus::PARTICIPANTS_ATTENDEES : ElectionStatus::WAITING_TO_START;
+            $election->status = $election->quorum_required ? ElectionStatus::PARTICIPANTS_ATTENDEES : ElectionStatus::WAITING_TO_START;
 
             $election->save();
 

@@ -23,7 +23,7 @@ class StoreElectionRequest extends FormRequest
             'quorum_required' => ['nullable', 'in:0,1'],
             'main_member_count' => ['nullable', 'integer', 'min:1'],
             'substitute_member_count' => ['nullable', 'integer', 'min:0'],
-            'incpector_main_member_count' => ['nullable', 'integer', "min:0"],
+            'incpector_main_member_count' => ['nullable', 'integer', 'min:0'],
             'incpector_substitute_member_count' => ['nullable', 'integer', 'min:0'],
         ];
     }

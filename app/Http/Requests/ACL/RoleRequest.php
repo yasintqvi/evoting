@@ -15,10 +15,10 @@ class RoleRequest extends FormRequest
             'name' => [
                 'required',
                 'string',
-                'unique:roles,name' . ($roleId ? ',' . $roleId : '')
+                'unique:roles,name'.($roleId ? ','.$roleId : ''),
             ],
             'permissions' => 'array',
-            'permissions.*' => 'exists:permissions,id'
+            'permissions.*' => 'exists:permissions,id',
         ];
     }
 

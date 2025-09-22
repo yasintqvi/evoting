@@ -28,7 +28,7 @@ class UserController extends Controller
             ->latest()
             ->get();
 
-        return view("app.users.index", compact('users'));
+        return view('app.users.index', compact('users'));
     }
 
     /**
@@ -38,7 +38,8 @@ class UserController extends Controller
     {
         $groups = Group::all();
         $users = User::all();
-        return view("app.users.create", compact("groups", "users"));
+
+        return view('app.users.create', compact('groups', 'users'));
     }
 
     /**
@@ -50,8 +51,6 @@ class UserController extends Controller
 
         return redirect()->route(route: 'users.index')->with('success', 'اطلاعات کاربر با موفقیت ایجاد شد.');
     }
-
-
 
     /**
      * Display the specified resource.
@@ -81,7 +80,6 @@ class UserController extends Controller
 
         return redirect()->route(route: 'users.index')->with('success', 'اطلاعات کاربر با موفقیت به‌روزرسانی شد.');
     }
-
 
     /**
      * Remove the specified resource from storage.

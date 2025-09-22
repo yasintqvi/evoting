@@ -3,9 +3,7 @@
 namespace App\Http\Requests\Election;
 
 use App\DTOs\Election\UpdateElectionDto;
-use App\Enums\ElectionType;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class UpdateElectionRequest extends FormRequest
 {

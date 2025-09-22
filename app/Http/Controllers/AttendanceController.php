@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
-use App\Models\Group;
 use App\Models\Event;
+use App\Models\Group;
 use App\Models\Participant;
 use App\Models\User;
 use App\Services\AttorneyService;
@@ -23,10 +23,10 @@ class AttendanceController extends Controller
     {
         $event = Event::find(1);
 
-        if (!$event) {
+        if (! $event) {
             return response()->json([
                 'presentCount' => 0,
-                'totalCount' => 0
+                'totalCount' => 0,
             ]);
         }
 
@@ -35,7 +35,7 @@ class AttendanceController extends Controller
 
         return response()->json([
             'presentCount' => $presentCount,
-            'totalCount' => $totalCount
+            'totalCount' => $totalCount,
         ]);
     }
 
@@ -44,9 +44,10 @@ class AttendanceController extends Controller
         $users = $group->users()->with([
             'attendances' => function ($q) use ($event) {
                 $q->where('event_id', $event->id);
-            }
+            },
         ])->get();
         $attorneyIds = array_filter($event->participants()->pluck('attorney_id')->toArray());
+
         return view('app.group.attendances.create', compact('group', 'event', 'users', 'attorneyIds'));
     }
 
@@ -55,7 +56,6 @@ class AttendanceController extends Controller
         $request->validate([
             'attendance.*.status' => 'required|in:0,1',
         ]);
-
 
         foreach ($request->attendance as $userid => $data) {
             Attendance::updateOrCreate(
@@ -75,8 +75,9 @@ class AttendanceController extends Controller
     public function setPresent(Participant $participant)
     {
         try {
-            $participant->is_present = !$participant->is_present;
+            $participant->is_present = ! $participant->is_present;
             $participant->save();
+
             return response()->json(['status' => 'success',
                 'message' => 'با موفقیت ثبت شد.', 200]);
         } catch (\Exception $exception) {
@@ -84,12 +85,14 @@ class AttendanceController extends Controller
                 'message' => 'با شکست مواجه شد.', 200]);
         }
     }
-    public function getUser(Request $request){
+
+    public function getUser(Request $request)
+    {
         $search = $request->input('q');   // search term
-        $page   = $request->input('page', 1);
+        $page = $request->input('page', 1);
         $perPage = 10;
 
-        $query = User::query()->select('id', 'phone','first_name','last_name');
+        $query = User::query()->select('id', 'phone', 'first_name', 'last_name');
 
         if ($search) {
             $query->where('phone', 'like', "%{$search}%");
@@ -99,7 +102,7 @@ class AttendanceController extends Controller
 
         return response()->json([
             'results' => $users->items(),
-            'pagination' => ['more' => $users->hasMorePages()]
+            'pagination' => ['more' => $users->hasMorePages()],
         ]);
     }
 }
