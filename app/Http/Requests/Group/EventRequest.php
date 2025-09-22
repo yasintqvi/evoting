@@ -14,6 +14,7 @@ class EventRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'name' => ['required', 'string', 'min:2', 'max:255'],
             'title' => ['required', 'string', 'min:2', 'max:255'],
             'description' => ['nullable', 'string', 'max:5000'],
             'logo' => ['file', 'mimes:jpg,png,jpeg,webp'],

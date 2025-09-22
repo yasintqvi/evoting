@@ -15,6 +15,7 @@ class Event extends Model
     use LogsActivity;
 
     protected $fillable = [
+        'name',
         'title',
         'logo',
         'description',

@@ -79,11 +79,10 @@
                                 <div class="mb-3">
                                     <label for="normal_stock_count" class="form-label">تعداد سهام عادی</label>
                                     <input type="number" name="normal_stock_count" class="form-control" min="0"
-                                        value="{{ old('normal_stock_count', $user->pivot->normal_stock_count ?? 0) }}"
-                                        @error('normal_stock_count')
+                                        value="{{ old('normal_stock_count', $user->pivot->normal_stock_count ?? 0) }}">
+                                    @error('normal_stock_count')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
-                                        </div>
                                 </div>
                             </div>
 
@@ -100,13 +99,13 @@
                         @endif
 
                         <div class="col-lg-6">
-                            <label for="is_active" class="form-label">وضعیت</label>
-                            <div class="mt-1">
-                                <input type="checkbox" value="1" name="is_active" id="is_active" data-switch="primary"
-                                    {{ old('is_active') ? 'checked' : '' }} />
-                                <label for="is_active" data-on-label="فعال" data-off-label="غیر فعال"></label>
-                            </div>
+                        <label for="is_active" class="form-label d-block">وضعیت</label>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1"
+                                @checked(old('is_active', $user->is_active))>
+                            <label class="form-check-label" for="is_active">فعال / غیر فعال</label>
                         </div>
+                    </div>
                     </div>
                 </div>
                 <div class="card-footer">
@@ -115,76 +114,6 @@
                     </div>
                 </div>
             </form>
-
-
-
-
-
         </div>
-        {{-- @if (in_array($group->type, [App\Enums\GroupType::SPECIAL]))
-            <div class="col-xl-6">
-                <div class="card">
-                    <div class="card-header border-bottom border-dashed d-flex align-items-center">
-                        <h4 class="header-title">جزئیات سهام گروه</h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="alert alert-info d-flex align-items-center justify-content-center text-center"
-                            role="alert">
-                            <iconify-icon class="fs-20 me-1"></iconify-icon>
-                            <div class="lh-1"> تعداد سهام کل گروه : <strong> {{ $group->total_prefered }} </strong>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-xl-6">
-                                <div class=" alert alert-success d-flex align-items-center mb-0" role="alert">
-                                    <iconify-icon class="fs-20 me-1"></iconify-icon>
-                                    <div class="lh-1">
-                                        تعداد کل سهام عادی : <strong>
-                                            {{ $group->normal_stock_count }}
-                                        </strong>
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <div class="col-xl-6">
-                                <div class=" alert alert-success d-flex align-items-center mb-0" role="alert">
-                                    <iconify-icon class="fs-20 me-1"></iconify-icon>
-                                    <div class="lh-1">
-                                        تعداد سهام ممتاز : <strong>
-                                            {{ $group->prefered_stock_count }}
-                                        </strong>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-xl-6 mt-2">
-                                <div class=" alert alert-danger d-flex align-items-center mb-0" role="alert">
-                                    <iconify-icon class="fs-20 me-1"></iconify-icon>
-                                    <div class="lh-1">
-                                        تعداد سهام عادی باقی مانده : <strong>
-                                            {{ $group->total_normal_stock }}
-                                        </strong>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-xl-6 mt-2">
-                                <div class=" alert alert-danger d-flex align-items-center mb-0" role="alert">
-                                    <iconify-icon class="fs-20 me-1"></iconify-icon>
-                                    <div class="lh-1">
-                                        تعداد سهام ممتاز باقی مانده : <strong>
-                                            {{ $group->total_prefered_stock }}
-                                        </strong>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div> <!-- end card-body-->
-                </div> <!-- end card-->
-            </div>
-        @endif --}}
     </div>
 @endsection

@@ -40,29 +40,15 @@ class UserController extends Controller
         $users = User::all();
         return view("app.users.create", compact("groups", "users"));
     }
-    
+
     /**
      * Store a newly created resource in storage.
      */
     public function store(StoreUserRequest $request)
     {
-        if ($request->has('phone')) {
-            $request->mergeIfMissing(['is_active' => 0]);
-            $inputs = $request->except('group_id');
-            $user = User::create($inputs);
+        $user = User::create($request->validated());
 
-
-            $groupId = $request->input('group_ids');
-            $user->groups()->sync($groupId);
-        } else {
-
-            foreach ($request->group_ids as $groupId) {
-                $group = Group::find($groupId);
-                $group->users()->syncWithoutDetaching($request->user_ids);
-            }
-        }
-
-        return redirect()->back()->with('success', 'کاربر جدید با موفقیت ایجاد و به گروه‌های انتخابی اضافه شد.');
+        return redirect()->route(route: 'users.index')->with('success', 'اطلاعات کاربر با موفقیت ایجاد شد.');
     }
 
 
@@ -90,14 +76,10 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user)
     {
-        $request->mergeIfMissing(['is_active' => 0]);
-        $inputs = $request->except('group_ids');
+        $inputs = $request->validated();
         $user->update($inputs);
 
-        $groupIds = $request->input('group_ids', []);
-        $user->groups()->sync($groupIds);
-
-        return redirect()->route('users.index')->with('success', 'اطلاعات کاربر با موفقیت به‌روزرسانی شد.');
+        return redirect()->route(route: 'users.index')->with('success', 'اطلاعات کاربر با موفقیت به‌روزرسانی شد.');
     }
 
 

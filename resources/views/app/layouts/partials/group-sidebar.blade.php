@@ -64,13 +64,16 @@
                      <li class="side-nav-item active">
                          <a data-bs-toggle="collapse" href="#event-{{ $event->id }}" aria-expanded="false"
                              aria-controls="sidebarHospital" class="side-nav-link collapsed">
-                             <span class="menu-icon"><img src="{{ asset($event->logo) }}"
-                                     class="rounded-circle me-lg-2 d-flex object-fit-cover" width="20" height="20"
-                                     alt="{{ $group->title }}"></i></span>
-                             <span class="menu-text text-wrap small" style="line-height: 1.2rem;"> {{ $event->title }}
+                             <span class="menu-icon">
+                                 <img src="{{ asset($event->logo) }}" class="rounded-circle me-lg-2 d-flex object-fit-cover"
+                                     width="20" height="20" alt="{{ $group->title }}">
+                             </span>
+                             <span class="menu-text text-wrap small" style="line-height: 1.2rem;">
+                                 {{ $event->title }}
                              </span>
                              <span class="menu-arrow"></span>
                          </a>
+
                          <div class="collapse" id="event-{{ $event->id }}">
                              <ul class="sub-menu">
                                  <li class="side-nav-item">
@@ -82,12 +85,12 @@
                                  <li class="side-nav-item">
                                      <a href="{{ route('elections.index', [$group->slug, $event->id]) }}"
                                          class="side-nav-link">
-                                         <span class="menu-text">انتخابات </span>
+                                         <span class="menu-text">انتخابات</span>
                                      </a>
                                  </li>
                                  <li class="side-nav-item">
                                      <a href="#" class="side-nav-link">
-                                         <span class="menu-text">نظرسنجی ها</span>
+                                         <span class="menu-text">نظرسنجی‌ها</span>
                                      </a>
                                  </li>
                              </ul>

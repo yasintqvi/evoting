@@ -2,7 +2,22 @@
 
 @section('content')
     <div class=" mt-3 p-1">
-        <h3>{{ $event->title }}</h3>
+        <h3>نمایش نمودار: {{ $event->name }}</h3>
+    </div>
+    <div class="position-relative overflow-hidden mb-4 rounded-4 shadow-sm"
+        style="
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(16px) saturate(180%);
+        -webkit-backdrop-filter: blur(16px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+     ">
+        <div class="p-3 text-center text-black">
+            <div class="m-2">
+                <i class="bi bi-people-fill fs-1"></i>
+            </div>
+            <h2 class="fw-bold mb-2">{{ $event->title }}</h2>
+            <p class="mb-0 fs-5">{{ $event->description }}</p>
+        </div>
     </div>
     <div class="row">
         <div class="col-xl-8">
@@ -104,7 +119,7 @@
                         // آپدیت کارت‌ها
                         presentEl.textContent = data.present;
                         absentEl.textContent = data.absent;
-                        
+
                     })
                     .catch(err => console.error("خطا: ", err));
             }

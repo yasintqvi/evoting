@@ -53,7 +53,6 @@ class EventController extends Controller
         return back();
     }
 
-   
 
     public function attendanceStats(Event $event)
     {
@@ -75,7 +74,7 @@ class EventController extends Controller
      */
     public function show(Group $group, Event $event)
     {
-        return view('app.group.event.show', compact('group', 'event'));
+        return view('app.group.attendances.show', compact('group', 'event'));
     }
 
     /**
@@ -83,15 +82,29 @@ class EventController extends Controller
      */
     public function edit(Group $group, Event $event)
     {
-        return view('app.group.event.edit', compact('group'));
+        return view('app.group.event.edit', compact('group', 'event'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Group $group, Event $event)
+    public function update(EventRequest $request, Group $group, Event $event, ImageService $imageService)
     {
-        //
+        $data = $request->validated();
+
+        if ($request->hasFile('logo')) {
+            if (!empty($event->logo)) {
+                $imageService->deleteImage($event->logo);
+            }
+
+            $data['logo'] = $imageService->setImage($data['logo'])
+                ->setExclusiveDirectory('images/events')
+                ->save();
+        }
+
+        $event->update($data);
+
+        return back()->with('success', 'رویداد با موفقیت بروزرسانی شد.');
     }
 
     /**

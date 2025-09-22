@@ -69,49 +69,6 @@ class GroupUserController extends Controller
         return back()->with('success', 'کاربر برای این گروه ایجاد شد');
     }
 
-    public function createParticipant(Group $group)
-    {
-        $search = request('search');
-
-        $group->load([
-            'users' => function ($query) use ($search) {
-                if ($search) {
-                    $query->where(
-                        fn($q) =>
-                        $q->where('first_name', 'like', "%$search%")
-                            ->orWhere('last_name', 'like', "%$search%")
-                            ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$search%"])
-                    );
-                }
-
-                $query->latest();
-            }
-        ]);
-
-        $users = $group->users;
-
-        return view('app.group.users.particpent', compact('group', 'users'));
-    }
-
-    public function storeParticipant(Request $request, Group $group)
-    {
-        $validated = $request->validate([
-            'users' => 'required|array',
-            'users.*.normal_stock_count' => 'required|integer|min:0',
-            'users.*.prefered_stock_count' => 'required|integer|min:0',
-        ]);
-
-        foreach ($validated['users'] as $userId => $stockData) {
-            $group->users()->syncWithoutDetaching([
-                $userId => [
-                    'normal_stock_count' => $stockData['normal_stock_count'],
-                    'prefered_stock_count' => $stockData['prefered_stock_count'],
-                ]
-            ]);
-        }
-
-        return redirect()->back()->with('success', 'کاربران با موفقیت به گروه اضافه شدند.');
-    }
 
     /**
      * Display the specified resource.
@@ -161,4 +118,51 @@ class GroupUserController extends Controller
         $group->users()->detach($user);
         return back()->with('success', __('messages.company_user_delete'));
     }
+
+
+    public function createParticipant(Group $group)
+    {
+        $search = request('search');
+
+        $group->load([
+            'users' => function ($query) use ($search) {
+                if ($search) {
+                    $query->where(
+                        fn($q) =>
+                        $q->where('first_name', 'like', "%$search%")
+                            ->orWhere('last_name', 'like', "%$search%")
+                            ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$search%"])
+                    );
+                }
+
+                $query->latest();
+            }
+        ]);
+
+        $users = $group->users;
+
+        return view('app.group.users.particpent', compact('group', 'users'));
+    }
+
+    public function storeParticipant(Request $request, Group $group)
+    {
+        $validated = $request->validate([
+            'users' => 'required|array',
+            'users.*.normal_stock_count' => 'required|integer|min:0',
+            'users.*.prefered_stock_count' => 'required|integer|min:0',
+        ]);
+
+        foreach ($validated['users'] as $userId => $stockData) {
+            $group->users()->syncWithoutDetaching([
+                $userId => [
+                    'normal_stock_count' => $stockData['normal_stock_count'],
+                    'prefered_stock_count' => $stockData['prefered_stock_count'],
+                ]
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'کاربران با موفقیت به گروه اضافه شدند.');
+    }
 }
+
+

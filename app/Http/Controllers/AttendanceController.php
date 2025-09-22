@@ -72,15 +72,6 @@ class AttendanceController extends Controller
         return back()->with('success', 'حضور و غیاب ثبت شد');
     }
 
-    public function show($groupId, $eventId)
-    {
-        $group = Group::findOrFail($groupId);
-        $event = Event::where('group_id', $groupId)->findOrFail($eventId);
-
-        return view('app.group.attendances.show', compact('group', 'event'));
-
-    }
-
     public function setPresent(Participant $participant)
     {
         try {

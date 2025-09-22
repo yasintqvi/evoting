@@ -35,7 +35,7 @@ class UpdateGroupUserRequest extends FormRequest
             $rules['normal_stock_count'] = [
                 'required',
                 'integer',
-                'min:1',
+                'min:0',
                 function ($attribute, $value, $fail) use ($currentUserId) {
                     $assignedToOthers = $this->group->users()
                         ->where('users.id', '!=', $currentUserId)
@@ -52,7 +52,7 @@ class UpdateGroupUserRequest extends FormRequest
             $rules['prefered_stock_count'] = [
                 'required',
                 'integer',
-                'min:1',
+                'min:0',
                 function ($attribute, $value, $fail) use ($currentUserId) {
                     $assignedToOthers = $this->group->users()
                         ->where('users.id', '!=', $currentUserId)
