@@ -49,6 +49,11 @@ class AttorneyController extends Controller
             $data = $request->validated();
             $participant = Participant::where('id', $request->input('participant_id'))
                 ->first();
+            if($participant->user->phone==$request->input('phone')){
+                return response()->json(['status' => 'error',
+                    'message' => 'کاربر نمیتواند وکیل خود باشد.', 200]);
+
+            }
             $dto = new CreateAttorneyDto(new User($data), $participant);
             $created = $this->attorneyService->create($dto);
 

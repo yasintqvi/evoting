@@ -46,6 +46,7 @@ class AttendanceController extends Controller
                 $q->where('event_id', $event->id);
             },
         ])->get();
+
         $attorneyIds = array_filter($event->participants()->pluck('attorney_id')->toArray());
 
         return view('app.group.attendances.create', compact('group', 'event', 'users', 'attorneyIds'));
@@ -68,6 +69,7 @@ class AttendanceController extends Controller
                 ]
             );
         }
+
 
         return back()->with('success', 'حضور و غیاب ثبت شد');
     }
