@@ -12,7 +12,7 @@ class AttorneyService
 {
     public function create(CreateAttorneyDto $attorneyDto)
     {
-        $password = substr($attorneyDto->user->phone,-4);
+        $password = substr($attorneyDto->user->phone, -4);
         $user = User::firstOrCreate(
             ['phone' => $attorneyDto->user->phone],
             [
@@ -35,7 +35,7 @@ class AttorneyService
             'is_present' => 0,
         ]);
 
-        $participant->is_present=1;
+        $participant->is_present = 1;
 
         $user->groups()->syncWithoutDetaching([$group->id]);
 

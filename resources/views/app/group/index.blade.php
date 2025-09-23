@@ -98,14 +98,14 @@
                                 <div class="icon-circle bg-success bg-opacity-10 text-success mb-2">
                                     <i class="fas fa-user-check"></i>
                                 </div>
-                                <span class="fw-semibold">{{ $event->present_count }}</span>
+                                <span class="fw-semibold">{{ $event->present_count1 }}</span>
                                 <small class="d-block text-muted">حاضر</small>
                             </div>
                             <div class="text-center flex-fill">
                                 <div class="icon-circle bg-danger bg-opacity-10 text-danger mb-2">
                                     <i class="fas fa-user-times"></i>
                                 </div>
-                                <span class="fw-semibold">{{ $event->absent_count }}</span>
+                                <span class="fw-semibold">{{ $event->absent_count1 }}</span>
                                 <small class="d-block text-muted">غایب</small>
                             </div>
                         </div>

@@ -66,7 +66,7 @@ class AttorneyController extends Controller
 
             return response()->json(['status' => 'error',
                 'message' => 'خطایی هنگام ایجاد وکیل رخ داد.', 200]);
-            //            'message' => $e->getMessage(), 200]);
+//                        'message' => $e->getMessage(), 200]);
         }
 
     }
