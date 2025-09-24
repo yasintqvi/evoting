@@ -89,7 +89,8 @@
                                      </a>
                                  </li>
                                  <li class="side-nav-item">
-                                     <a href="#" class="side-nav-link">
+                                     <a href="{{ route('surveys.index', [$group->slug, $event->id]) }}"
+                                         class="side-nav-link">
                                          <span class="menu-text">نظرسنجی‌ها</span>
                                      </a>
                                  </li>
