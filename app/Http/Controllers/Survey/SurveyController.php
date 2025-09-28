@@ -70,7 +70,14 @@ class SurveyController extends Controller
      */
     public function edit(Group $group, Event $event, Survey $survey)
     {
-        return view('app.group.event.survey.edit', compact('group', 'event', 'survey'));
+        return view('app.group.event.survey.create', [
+            'group' => $group,
+            'event' => $event,
+            'survey' => $survey,
+            'editSurvey' => $survey,
+            'showSurveyForm' => true,  // فرم نظرسنجی فعال باشه
+            'showQuestionForm' => false, // فرم سوال غیرفعال باشه
+        ]);
     }
 
 
@@ -141,7 +148,7 @@ class SurveyController extends Controller
             'group' => $group,
             'event' => $event,
             'survey' => $survey,
-            'editQuestion' => $question, 
+            'editQuestion' => $question,
         ]);
     }
 
