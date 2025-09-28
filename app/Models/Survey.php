@@ -17,5 +17,9 @@ class Survey extends Model
         "created_by"
     ];
 
+    public function questions()
+    {
+        return $this->hasMany(Question::class);
+    }
 
 }

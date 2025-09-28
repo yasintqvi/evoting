@@ -21,8 +21,14 @@ Route::prefix('{group:slug}/events/{event}')->group(function () {
     Route::put('/surveys/{survey}', [SurveyController::class, 'update'])
         ->name('surveys.update');
 
-    Route::delete('/surveys/delete/{event}', [SurveyController::class, 'destroy']);
+    Route::delete('/surveys/delete/{survey}', [SurveyController::class, 'destroy']);
 
     Route::post('/surveys/{survey}/questions', [SurveyController::class, 'storeQuestion'])
         ->name('questions.store');
+
+    Route::get('/surveys/{survey}/questions/{question}/edit', [SurveyController::class, 'editQuestion'])
+        ->name('questions.edit');
+
+    Route::put('/surveys/{survey}/questions/{question}', [SurveyController::class, 'updateQuestion'])
+        ->name('questions.update');
 });

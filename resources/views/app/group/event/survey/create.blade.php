@@ -14,45 +14,92 @@
         </div>
     </div>
 
+    <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between border-bottom border-light">
+            <h4 class="header-title">طراحی فرم</h4>
+            <div>
+                <a href="http://127.0.0.1:8000/Evoting-Test-Group/events/2/surveys/create" class="btn btn-primary"><i
+                        class="ti ti-plus me-1"></i>ایجاد نظرسنجی</a>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         @php
             $showSurveyForm = is_null($survey) || request()->get('back') === 'settings';
             $showQuestionForm = isset($survey) && request()->get('back') !== 'settings';
         @endphp
 
-        @if ($showSurveyForm)
+        @if ($showQuestionForm)
             <form class="col-xl-3"
-                action="{{ $survey
-                    ? route('surveys.update', [$group->slug, $event->id, $survey->id])
-                    : route('surveys.store', [$group->slug, $event->id]) }}"
+                action="{{ isset($editQuestion)
+                    ? route('questions.update', [$group->slug, $event->id, $survey->id, $editQuestion->id])
+                    : route('questions.store', [$group->slug, $event->id, $survey->id]) }}"
                 method="post">
+
                 @csrf
-                @if ($survey)
+                @if (isset($editQuestion))
                     @method('PUT')
                 @endif
+
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="mb-1 fs-16 fw-semibold border-bottom pb-2">
-                            {{ $survey ? 'ویرایش نظرسنجی' : 'ایجاد نظرسنجی جدید' }}
-                        </h5>
-                        <div class="mb-3">
-                            <label for="title" class="form-label">عنوان نظر سنجی</label>
-                            <input type="text" name="title" value="{{ old('title', $survey->title ?? '') }}"
-                                class="form-control" id="title">
-                            @error('title')
-                                <span class="text-danger font-weight-bold">{{ $message }}</span>
-                            @enderror
+                        <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                            <h5 class="mb-1 fs-16 fw-semibold">
+                                {{ isset($editQuestion) ? 'ویرایش سوال' : 'افزودن سوال' }}
+                            </h5>
+                            <a href="{{ route('surveys.create', [$group->slug, $event->id, 'survey_id' => $survey->id]) }}"
+                                class="btn btn-sm btn-outline-secondary">
+                                🔙 بازگشت
+                            </a>
                         </div>
+
+                        {{-- متن سوال --}}
                         <div class="mb-3">
-                            <label for="description" class="form-label">توضیحات (اختیاری)</label>
-                            <textarea class="form-control mt-1" name="description" id="description" rows="3">{{ old('description', $survey->description ?? '') }}</textarea>
-                            @error('description')
-                                <span class="text-danger font-weight-bold">{{ $message }}</span>
-                            @enderror
+                            <label for="question_text" class="form-label">متن سوال</label>
+                            <input type="text" name="question_text"
+                                value="{{ old('question_text', $editQuestion->question_text ?? '') }}" class="form-control"
+                                id="question_text">
                         </div>
+
+                        {{-- نوع سوال --}}
+                        <div class="mb-3">
+                            <label for="election_type" class="form-label">نوع همه پرسی</label>
+                            <select name="type" id="election_type" class="form-select"
+                                onchange="checkElectionType(event)">
+                                <option value="">-- انتخاب کنید --</option>
+                                <option value="1"
+                                    {{ isset($editQuestion) && $editQuestion->type == 1 ? 'selected' : '' }}>تک انتخابی
+                                </option>
+                                <option value="2"
+                                    {{ isset($editQuestion) && $editQuestion->type == 2 ? 'selected' : '' }}>چند انتخابی
+                                </option>
+                            </select>
+                        </div>
+
+                        {{-- گزینه‌ها --}}
+                        <div id="options-wrapper" class="mt-3"
+                            style="{{ isset($editQuestion) ? 'display:block;' : 'display:none;' }}">
+                            <label class="form-label">گزینه‌ها</label>
+                            <div id="options-list">
+                                @if (isset($editQuestion) && $editQuestion->options->count())
+                                    @foreach ($editQuestion->options as $i => $option)
+                                        <div class="input-group mb-2">
+                                            <input type="text" name="options[{{ $option->id }}]" class="form-control"
+                                                value="{{ $option->option_text }}">
+                                            <button type="button" class="btn btn-danger"
+                                                onclick="this.parentElement.remove()">❌</button>
+                                        </div>
+                                    @endforeach
+                                @endif
+                            </div>
+                            <button type="button" onclick="addOption()" class="btn btn-sm btn-soft-info mt-2">➕ افزودن
+                                گزینه</button>
+                        </div>
+
                         <div class="mt-2 d-flex justify-content-end">
                             <button type="submit" class="btn btn-primary">
-                                {{ $survey ? 'بروزرسانی' : 'ایجاد' }}
+                                {{ isset($editQuestion) ? 'بروزرسانی سوال' : 'ایجاد سوال' }}
                             </button>
                         </div>
                     </div>
@@ -60,87 +107,87 @@
             </form>
         @endif
 
-        @if ($showQuestionForm)
-            <form class="col-xl-3" action="{{ route('questions.store', [$group->slug, $event->id, $survey->id]) }}" @csrf
-                <div class="card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
-                        <h5 class="mb-1 fs-16 fw-semibold">افزودن سوال</h5>
-                        <a href="{{ route('surveys.create', [$group->slug, $event->id, 'survey_id' => $survey->id, 'back' => 'settings']) }}"
-                            class="btn btn-sm btn-outline-secondary">
-                            🔙 بازگشت به تنظیمات
-                        </a>
-                    </div>
 
-                    <div class="mb-3">
-                        <label for="question_text" class="form-label">متن سوال</label>
-                        <input type="text" name="question_text" class="form-control" id="question_text">
-                        @error('question_text')
-                            <span class="text-danger font-weight-bold">{{ $message }}</span>
-                        @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="election_type" class="form-label">نوع همه پرسی</label>
-                        <select name="type" onchange="checkElectionType(event)" id="election_type" class="form-select">
-                            <option value="">-- انتخاب کنید --</option>
-                            <option value="single">تک انتخابی</option>
-                            <option value="multiple">چند انتخابی</option>
-                        </select>
-                        @error('type')
-                            <span class="text-danger font-weight-bold">{{ $message }}</span>
-                        @enderror
-                    </div>
-
-                    <div id="options-wrapper" class="mt-3" style="display:none;">
-                        <label class="form-label">گزینه‌ها</label>
-                        <div id="options-list"></div>
-                        <button type="button" onclick="addOption()" class="btn btn-sm btn-soft-info mt-2">
-                            ➕ افزودن گزینه
-                        </button>
-                    </div>
-
-                    <div class="mt-2 d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary">ایجاد سوال</button>
-                    </div>
+        @if (isset($survey))
+            <div class="col-xl-9">
+                <div class="card p-2">
+                    <h4 class="header-title mt-2">{{ $survey->title }}</h4>
+                    @if ($survey->description)
+                        <p class="text-muted pt-1">{{ $survey->description }}</p>
+                    @endif
                 </div>
-    </div>
-    </form>
-    @endif
 
-    @if (isset($survey))
-        <div class="col-xl-6">
-            <div class="card p-2">
-                <h4 class="header-title">{{ $survey->title }}</h4>
-                @if ($survey->description)
-                    <p class="text-muted">{{ $survey->description }}</p>
+                @if ($survey->questions->count())
+                    @foreach ($survey->questions as $question)
+                        <div class="card p-3 mt-3">
+                            <div class="d-flex align-items-center mb-2 justify-content-between">
+                                {{-- شماره و متن سوال --}}
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-xs me-2">
+                                        <span class="avatar-title bg-secondary rounded-circle fw-bold">
+                                            {{ $loop->iteration }}
+                                        </span>
+                                    </div>
+                                    <h5 class="mb-0">{{ $question->question_text }}</h5>
+                                </div>
+
+                                {{-- دکمه‌های عملیات --}}
+                                <div class="d-flex gap-2">
+                                    {{-- دکمه ویرایش --}}
+                                    <a href="{{ route('questions.edit', [
+                                        'group' => $group->slug,
+                                        'event' => $event->id,
+                                        'survey' => $survey->id,
+                                        'question' => $question->id,
+                                    ]) }}"
+                                        class="btn btn-sm btn-outline-primary">
+                                        ✏️ ویرایش
+                                    </a>
+
+
+                                    {{-- دکمه حذف (اختیاری) --}}
+                                    <form action="#" method="POST"
+                                        onsubmit="return confirm('آیا مطمئن هستید که می‌خواهید این سوال را حذف کنید؟')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">🗑️ حذف</button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            {{-- نوع سوال --}}
+                            <span class="text-muted small">
+                                ({{ $question->type == 1 ? 'تک انتخابی' : 'چند انتخابی' }})
+                            </span>
+
+                            {{-- نمایش گزینه‌ها --}}
+                            @if ($question->options->count())
+                                <div class="d-flex flex-wrap gap-3 mt-3">
+                                    @foreach ($question->options as $option)
+                                        <label class="d-flex align-items-center gap-2 border p-2 rounded">
+                                            @if ($question->type == 1)
+                                                <input type="radio" disabled name="question_{{ $question->id }}"
+                                                    value="{{ $option->id }}">
+                                            @else
+                                                <input type="checkbox" disabled name="question_{{ $question->id }}[]"
+                                                    value="{{ $option->id }}">
+                                            @endif
+                                            {{ $option->option_text }}
+                                        </label>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
                 @endif
-                <a href="{{ route('surveys.edit', [$group->slug, $event->id, $survey->id]) }}"
-                    class="btn btn-warning mt-2">ویرایش نظرسنجی</a>
             </div>
-        </div>
-    @endif
+        @endif
     </div>
 
-    <div class="col-xl-9">
-        <div class="card p-2">
-            @if ($survey && $survey->questions->count())
-                <h4 class="header-title">{{ $survey->title }}</h4>
-                @foreach ($survey->questions as $question)
-                    <div class="mt-3 p-2 border rounded">
-                        <strong>{{ $question->text }}</strong>
-                        <span class="text-muted">({{ $question->type == 1 ? 'تک انتخابی' : 'چند انتخابی' }})</span>
-                        @if ($question->options->count())
-                            <ul class="mt-2">
-                                @foreach ($question->options as $option)
-                                    <li>{{ $option->text }}</li>
-                                @endforeach
-                            </ul>
-                        @endif
-                    </div>
-                @endforeach
-            @endif
-        </div>
+
+
+
+    </div>
     </div>
 @endsection
 
@@ -156,7 +203,7 @@
             const optionsWrapper = document.getElementById('options-wrapper');
             const optionsList = document.getElementById('options-list');
 
-            if (value === "single" || value === "multiple") {
+            if (value === "1" || value === "2") {
                 optionsWrapper.style.display = "block";
                 if (!optionsList.hasChildNodes()) {
                     addOption();

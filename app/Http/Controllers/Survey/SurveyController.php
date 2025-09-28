@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Survey;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\Group;
+use App\Models\Question;
 use App\Models\Survey;
 use Illuminate\Http\Request;
 
@@ -115,14 +116,14 @@ class SurveyController extends Controller
         ]);
 
         $question = $survey->questions()->create([
-            'text' => $data['question_text'],
+            'question_text' => $data['question_text'],
             'type' => $data['type'],
         ]);
 
         if (!empty($data['options'])) {
             foreach ($data['options'] as $optionText) {
                 $question->options()->create([
-                    'text' => $optionText,
+                    'option_text' => $optionText,
                 ]);
             }
         }
@@ -132,5 +133,41 @@ class SurveyController extends Controller
             $event->id,
             'survey_id' => $survey->id
         ])->with('success', 'سوال با موفقیت ایجاد شد.');
+    }
+
+    public function editQuestion(Group $group, Event $event, Survey $survey, Question $question)
+    {
+        return view('app.group.event.survey.create', [
+            'group' => $group,
+            'event' => $event,
+            'survey' => $survey,
+            'editQuestion' => $question, 
+        ]);
+    }
+
+    public function updateQuestion(Request $request, $group, $event, Survey $survey, Question $question)
+    {
+        $data = $request->validate([
+            'question_text' => 'required|string',
+            'type' => 'required|in:1,2',
+            'options' => 'nullable|array',
+            'options.*' => 'nullable|string'
+        ]);
+
+        $question->update([
+            'question_text' => $data['question_text'],
+            'type' => $data['type'],
+        ]);
+
+        $question->options()->delete();
+
+        if (!empty($data['options'])) {
+            foreach ($data['options'] as $option) {
+                $question->options()->create(['option_text' => $option]);
+            }
+        }
+
+        return redirect()->route('surveys.create', [$group, $event, 'survey_id' => $survey->id])
+            ->with('success', 'سوال بروزرسانی شد');
     }
 }
