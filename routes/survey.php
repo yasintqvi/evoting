@@ -12,9 +12,6 @@ Route::prefix('{group:slug}/events/{event}')->group(function () {
     Route::post('/surveys/create', [SurveyController::class, 'store'])
         ->name('surveys.store');
 
-    // Route::get('/surveys/show/{event}', [SurveyController::class, 'show'])
-    //     ->name('surveys.show');
-
     Route::get('/surveys/{survey}/edit', [SurveyController::class, 'edit'])
         ->name('surveys.edit');
 
@@ -31,4 +28,14 @@ Route::prefix('{group:slug}/events/{event}')->group(function () {
 
     Route::put('/surveys/{survey}/questions/{question}', [SurveyController::class, 'updateQuestion'])
         ->name('questions.update');
+
+    Route::delete('/surveys/{survey}/questions/{question}', [SurveyController::class, 'destroyQuestion'])->name('questions.destroy');
+
+    Route::get('/surveys/{survey}/answer', [SurveyController::class, 'showAnswerForm'])
+        ->name('surveys.answer');
+        
+    Route::post('/surveys/{survey}/answer', [SurveyController::class, 'storeAnswer'])
+        ->name('surveys.answer.store');
+
+
 });

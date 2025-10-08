@@ -7,6 +7,9 @@ use App\Models\Event;
 use App\Models\Group;
 use App\Models\Question;
 use App\Models\Survey;
+use App\Models\SurveyAnswer;
+use App\Models\SurveyResponse;
+use DB;
 use Illuminate\Http\Request;
 
 class SurveyController extends Controller
@@ -58,14 +61,6 @@ class SurveyController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    // public function show(string $id)
-    // {
-    //     //
-    // }
-
-    /**
      * Show the form for editing the specified resource.
      */
     public function edit(Group $group, Event $event, Survey $survey)
@@ -92,8 +87,6 @@ class SurveyController extends Controller
             'is_anonymous' => ['nullable', 'boolean'],
         ]);
 
-        $data["is_anonymous"] = $request->has('is_anonymous') ? 1 : 0;
-
         $survey->update($data);
 
         return redirect()
@@ -105,13 +98,6 @@ class SurveyController extends Controller
             ->with('success', 'نظرسنجی با موفقیت بروزرسانی شد.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 
     public function storeQuestion(Request $request, Group $group, Event $event, Survey $survey)
     {
@@ -158,12 +144,14 @@ class SurveyController extends Controller
             'question_text' => 'required|string',
             'type' => 'required|in:1,2',
             'options' => 'nullable|array',
-            'options.*' => 'nullable|string'
+            'options.*' => 'nullable|string',
+            'is_required' => 'required|boolean'
         ]);
 
         $question->update([
             'question_text' => $data['question_text'],
             'type' => $data['type'],
+            'is_required' => $data['is_required']
         ]);
 
         $question->options()->delete();
@@ -176,5 +164,58 @@ class SurveyController extends Controller
 
         return redirect()->route('surveys.create', [$group, $event, 'survey_id' => $survey->id])
             ->with('success', 'سوال بروزرسانی شد');
+    }
+
+    public function destroyQuestion(Group $group, Event $event, Survey $survey, Question $question)
+    {
+        $question->options()->delete();
+        $question->delete();
+
+        return redirect()
+            ->route('surveys.create', [$group->slug, $event->id, 'survey_id' => $survey->id])
+            ->with('success', 'سوال با موفقیت حذف شد.');
+    }
+
+    public function showAnswerForm(Group $group, Event $event, Survey $survey)
+    {
+        $survey->load('questions.options');
+        return view('app.group.event.survey.answer', compact('group', 'event', 'survey'));
+    }
+
+    public function storeAnswer(Request $request, Group $group, Event $event, Survey $survey)
+    {
+        DB::transaction(function () use ($request, $survey) {
+            $response = SurveyResponse::create([
+                'survey_id' => $survey->id,
+                'user_id' => auth()->id(),
+            ]);
+
+            foreach ($survey->questions as $question) {
+                $key = 'questions_' . $question->id;
+                $input = $request->input($key);
+
+                if ($question->type == 1) {
+                    if ($input) {
+                        SurveyAnswer::create([
+                            'response_id' => $response->id,
+                            'question_id' => $question->id,
+                            'option_id' => $input,
+                        ]);
+                    }
+                } else if ($question->type == 2) {
+                    foreach ($input ?? [] as $option_id) {
+                        SurveyAnswer::create([
+                            'response_id' => $response->id,
+                            'question_id' => $question->id,
+                            'option_id' => $option_id,
+                        ]);
+                    }
+                }
+
+            }
+        });
+
+        return redirect()->route('surveys.answer', [$group->slug, $event->id, $survey->id])
+            ->with('success', 'پاسخ شما با موفقیت ثبت شد.');
     }
 }

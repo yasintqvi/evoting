@@ -17,12 +17,9 @@
     </div>
 
     <div class="row">
-        {{-- ستون سمت راست: همیشه یکی هست، فقط محتوایش تغییر می‌کند --}}
-        <div class="col-xl-3">
+        <div class="col-xl-4">
             <div class="card">
                 <div class="card-body">
-
-                    {{-- فرم ویرایش نظرسنجی --}}
                     @if (request()->has('editSurvey') && $survey)
                         <h5 class="mb-3 fs-16 fw-semibold">ویرایش نظرسنجی</h5>
                         <form action="{{ route('surveys.update', [$group->slug, $event->id, $survey->id]) }}"
@@ -41,14 +38,22 @@
                                 <textarea name="description" class="form-control">{{ old('description', $survey->description) }}</textarea>
                             </div>
 
+
+
+                            <label for="is_anonymous" class="form-label d-block mt-2">نمایش ناشناس</label>
+                            <div class="form-check form-switch mb-2">
+                                <input type="hidden" name="is_anonymous" value="0">
+                                <input class="form-check-input" type="checkbox" id="is_anonymous" name="is_anonymous"
+                                    value="1" @checked(old('is_anonymous', $survey->is_anonymous ?? false))>
+                                <label class="form-check-label" for="is_anonymous">فعال / غیر فعال</label>
+                            </div>
+
                             <div class="d-flex justify-content-between">
                                 <a href="{{ route('surveys.create', [$group->slug, $event->id, 'survey_id' => $survey->id]) }}"
                                     class="btn btn-sm btn-outline-secondary">↩ بازگشت</a>
                                 <button type="submit" class="btn btn-primary">بروزرسانی</button>
                             </div>
                         </form>
-
-                        {{-- فرم افزودن / ویرایش سؤال --}}
                     @elseif ($survey)
                         <h5 class="mb-3 fs-16 fw-semibold">
                             {{ isset($editQuestion) ? 'ویرایش سوال' : 'افزودن سوال' }}
@@ -86,6 +91,15 @@
                                 </select>
                             </div>
 
+                            <label for="is_required" class="form-label d-block">این سؤال اجباری است؟</label>
+                            <div class="form-check form-switch">
+                                <input type="hidden" name="is_required" value="0">
+
+                                <input class="form-check-input" type="checkbox" id="is_required" name="is_required"
+                                    value="1" @checked(old('is_required', $editQuestion->is_required ?? false))>
+                                <label class="form-check-label" for="is_required">فعال / غیر فعال</label>
+                            </div>
+
                             <div id="options-wrapper" class="mt-3"
                                 style="{{ isset($editQuestion) ? 'display:block;' : 'display:none;' }}">
                                 <label class="form-label">گزینه‌ها</label>
@@ -106,14 +120,14 @@
                                 </button>
                             </div>
 
+
+
                             <div class="mt-2 d-flex justify-content-end">
                                 <button type="submit" class="btn btn-primary">
                                     {{ isset($editQuestion) ? 'بروزرسانی سوال' : 'ایجاد سوال' }}
                                 </button>
                             </div>
                         </form>
-
-                        {{-- حالت اولیه: هنوز نظرسنجی ساخته نشده --}}
                     @else
                         <h5 class="mb-3 fs-16 fw-semibold">ایجاد نظرسنجی جدید</h5>
                         <form action="{{ route('surveys.store', [$group->slug, $event->id]) }}" method="POST">
@@ -136,20 +150,18 @@
             </div>
         </div>
 
-        {{-- ستون سمت چپ: نمایش جزئیات نظرسنجی و سوالات --}}
         @if ($survey)
-            <div class="col-xl-9">
+            <div class="col-xl-8">
                 <div class="card p-2">
-                    <h4 class="header-title mt-2">{{ $survey->title }}</h4>
+
+                    <div class="d-flex align-items-center mb-2 justify-content-between ">
+                        <h4 class="header-title mt-2">{{ $survey->title }}</h4>
+                        <a href="{{ route('surveys.create', [$group->slug, $event->id, 'survey_id' => $survey->id, 'editSurvey' => 1]) }}"
+                            class="btn btn-sm btn-outline-primary"> ویرایش نظرسنجی</a>
+                    </div>
                     @if ($survey->description)
                         <p class="text-muted pt-1">{{ $survey->description }}</p>
                     @endif
-
-                    <a href="{{ route('surveys.create', [$group->slug, $event->id, 'survey_id' => $survey->id]) }}"
-                        class="btn btn-sm btn-outline-secondary">🔙 بازگشت به تنظیمات</a>
-
-                    <a href="{{ route('surveys.create', [$group->slug, $event->id, 'survey_id' => $survey->id, 'editSurvey' => 1]) }}"
-                        class="btn btn-sm btn-outline-primary">✏️ ویرایش نظرسنجی</a>
                 </div>
 
                 @if ($survey->questions->count())
@@ -174,7 +186,15 @@
                                     ]) }}"
                                         class="btn btn-sm btn-outline-primary">ویرایش</a>
 
-                                    <form action="#" method="POST" onsubmit="return confirm('آیا مطمئن هستید؟')">
+                                    <form
+                                        action="{{ route('questions.destroy', [
+                                            'group' => $group->slug,
+                                            'event' => $event->id,
+                                            'survey' => $survey->id,
+                                            'question' => $question->id,
+                                        ]) }}"
+                                        method="POST"
+                                        onsubmit="return confirm('آیا مطمئن هستید که می‌خواهید این سوال را حذف کنید؟')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-outline-danger">حذف</button>
@@ -183,6 +203,7 @@
                             </div>
 
                             <span class="text-muted small">
+                                <span class="text-danger">{{ $question->is_required ? ' *' : '' }}</span>
                                 ({{ $question->type == 1 ? 'تک انتخابی' : 'چند انتخابی' }})
                             </span>
 

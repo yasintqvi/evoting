@@ -43,35 +43,62 @@
                         <tbody>
                             @forelse ($surveys as $survey)
                                 <tr>
-                                    <td>
-                                        {{ $loop->iteration }}
-                                    </td>
-                                    <td>
+                                    <td>{{ $loop->iteration }}</td>
+
+                                    <td class="fw-semibold">
                                         {{ $survey->title }}
                                     </td>
+
                                     <td>
-                                        {{ $survey->is_anonymous }}
-                                    </td>
-                                    <td>
-                                        {{ $survey->status }}
-                                    </td>
-                                    <td class="pe-3">
-                                        <div class="hstack gap-1 justify-content-end">
-                                            <a href="{{ route('surveys.edit', [$group->slug, $event->id, $survey->id]) }}"
-                                                class="btn btn-secondary btn-sm">
-                                                <i class="ti ti-edit"></i>
-                                            </a>
-                                        </div>
+                                        @if ($survey->is_anonymous)
+                                            <span class="badge bg-info">بله</span>
+                                        @else
+                                            <span class="badge bg-secondary">خیر</span>
+                                        @endif
                                     </td>
 
+                                    <td>
+                                        @if ($survey->status == 1)
+                                            <span class="badge bg-success">فعال</span>
+                                        @else
+                                            <span class="badge bg-danger">غیرفعال</span>
+                                        @endif
+                                    </td>
+
+                                    <td class="text-center">
+                                        <div class="hstack gap-1 justify-content-center">
+                                            <a href="{{ route('surveys.edit', [$group->slug, $event->id, $survey->id]) }}"
+                                                class="btn btn-sm btn-outline-primary">
+                                                <i class="ti ti-edit"></i>
+                                            </a>
+                                            <a href="{{ route('surveys.answer', [$group->slug, $event->id, $survey->id]) }}"
+                                                class="btn btn-sm btn-outline-primary">
+                                                <i class="ti ti-edit"></i> نمایش نظرسنجی
+                                            </a>
+
+
+
+                                            {{-- <form
+                                                action="#"
+                                                method="POST"
+                                                onsubmit="return confirm('آیا مطمئن هستید که این نظرسنجی حذف شود؟')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    <i class="ti ti-trash"></i>
+                                                </button>
+                                            </form> --}}
+                                        </div>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td class="text-muted">هنوز هیچ نظرسنجی برگزار نشده است.</td>
+                                    <td colspan="5" class="text-center text-muted py-3">
+                                        هنوز هیچ نظرسنجی برگزار نشده است.
+                                    </td>
                                 </tr>
                             @endforelse
-
-                        </tbody><!-- end tbody -->
+                        </tbody>
                     </table><!-- end table -->
                 </div>
             </div>
