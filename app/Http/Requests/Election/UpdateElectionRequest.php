@@ -27,8 +27,6 @@ class UpdateElectionRequest extends FormRequest
             'quorum_required' => ['nullable', 'in:0,1'],
             'main_member_count' => ['required', 'integer', 'min:1'],
             'substitute_member_count' => ['required', 'integer', 'min:0'],
-            'incpector_main_member_count' => ['required', 'integer', 'min:0'],
-            'incpector_substitute_member_count' => ['required', 'integer', 'min:0'],
         ];
     }
 
@@ -39,8 +37,6 @@ class UpdateElectionRequest extends FormRequest
             (bool) $this->validated('quorum_required'),
             $this->validated('main_member_count'),
             $this->validated('substitute_member_count'),
-            $this->validated('incpector_main_member_count'),
-            $this->validated('incpector_substitute_member_count'),
         );
     }
 }

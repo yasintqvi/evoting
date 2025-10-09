@@ -49,21 +49,34 @@ class AttorneyController extends Controller
             $data = $request->validated();
             $participant = Participant::where('id', $request->input('participant_id'))
                 ->first();
+            if ($participant->user->phone == $request->input('phone')) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'کاربر نمیتواند وکیل خود باشد.',
+                    200
+                ]);
+            }
             $dto = new CreateAttorneyDto(new User($data), $participant);
             $created = $this->attorneyService->create($dto);
 
             DB::commit();
 
-            return response()->json(['status' => 'success',
-                'message' => 'وکیل با موفقیت ایجاد شد.', 'data' => $created, 200]);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'وکیل با موفقیت ایجاد شد.',
+                'data' => $created,
+                200
+            ]);
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json(['status' => 'error',
-                'message' => 'خطایی هنگام ایجاد وکیل رخ داد.', 200]);
-            //            'message' => $e->getMessage(), 200]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'خطایی هنگام ایجاد وکیل رخ داد.',
+                200
+            ]);
+            //                        'message' => $e->getMessage(), 200]);
         }
-
     }
 
     public function deleteAttorney(Participant $participant)
@@ -77,18 +90,27 @@ class AttorneyController extends Controller
             $deleted = $this->attorneyService->delete($dto);
             DB::commit();
             if ($deleted) {
-                return response()->json(['status' => 'success',
-                    'message' => 'وکیل با موفقیت حذف شد.', 'data' => $id, 200]);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'وکیل با موفقیت حذف شد.',
+                    'data' => $id,
+                    200
+                ]);
             } else {
-                return response()->json(['status' => 'error',
-                    'message' => 'خطایی هنگام حذف وکیل رخ داد.', 200]);
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'خطایی هنگام حذف وکیل رخ داد.',
+                    200
+                ]);
             }
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json(['status' => 'error',
-                'message' => 'خطایی هنگام حذف وکیل رخ داد.', 200]);
-
+            return response()->json([
+                'status' => 'error',
+                'message' => 'خطایی هنگام حذف وکیل رخ داد.',
+                200
+            ]);
         }
     }
 }

@@ -14,7 +14,19 @@ class GroupController extends Controller
     {
         $usersCount = $group->users()->count();
 
-        $events = $group->events()->orderBy('created_at')->get();
+        $events = $group->events()
+            ->withCount([
+                'participants as present_count1' => function ($q) {
+                    $q->whereNull('attorney_id')->where('is_present', 1);
+                },
+                'participants as absent_count1' => function ($q) {
+                    $q->whereNull('attorney_id')->where('is_present', 0);
+                },
+            ])
+            ->orderBy('created_at')
+            ->get();
+
+
 
         return view('app.group.index', compact('group', 'events', 'usersCount'));
     }

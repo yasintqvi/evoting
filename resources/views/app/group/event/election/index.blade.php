@@ -35,10 +35,9 @@
                             <th class="ps-3" style="width: 50px;">
                             </th>
                             <th>عنوان</th>
-                            <th>افراد حاضر</th>
-                            <th>درصد افراد حاضر</th>
                             <th>نوع همه پرسی</th>
                             <th>وضعیت</th>
+                            <th>موضوع</th>
                             <th class="text-center" style="width: 120px;">اقدامات</th>
                         </tr>
                     </thead><!-- end thead -->
@@ -56,33 +55,12 @@
                                 @endcan
                             </td>
                             <td>
-                                <div class="avatar-group">
-                                    @if($election['participants']->count() === 0)
-                                    <b>-</b>
-                                    @endif
-                                    @foreach ($election['participants'] as $participant)
-                                    <div class="avatar" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-secondary" data-bs-placement="top" aria-label="Vicki" data-bs-original-title="{{ $participant->user->full_name }}">
-                                        <img src="{{ asset($participant->user->profile_image) }}" alt="" class="rounded-circle avatar-sm">
-                                    </div>
-                                    @endforeach
-                                    @if($election['participants']->count() > 10)
-                                    <div class="avatar avatar-sm" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-danger" data-bs-placement="top" data-bs-original-title="">
-                                        <span class="avatar-title bg-danger rounded-circle fw-bold">
-                                            {{ $election['participants']->count() - 10 }}+
-                                        </span>
-                                    </div>
-                                    @endif
-                                </div>
-                            </td>
-                            <td>
-                                % {{ $election['participant_percent'] }}
-                            </td>
-                            <td>
                                 <small>{{ $election['fa_type'] }}</small>
                             </td>
                             <td>
                                 <span class="badge badge-soft-success">{{ $election['fa_status'] }}</span>
                             </td>
+                            <td>{{ $election['position'] }}</td>
                             <td class="pe-3">
                                 <div class="hstack gap-1 justify-content-end">
                                     @isset($election['operations']['next_step'])

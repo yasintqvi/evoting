@@ -53,7 +53,11 @@
                                                 <div id="present-{{$participant->id}}">
                                                 اهدای وکالت
                                                 </div>
+
+                                            @elseif(in_array($participant->id,$attorneyIds))
+                                                دارای وکالت
                                             @else
+
                                                 <div id="present-{{$participant->id}}">
                                                     <input type="hidden" name="" value="0">
                                                     <input type="checkbox"
@@ -86,6 +90,9 @@
                                                             data-participant-id="{{ $participant->id }}">
                                                         حذف
                                                     </button>
+
+                                                @elseif(in_array($participant->id,$attorneyIds))
+                                                    وکیل
                                                 @else
 
                                                     <button type="button"
@@ -269,17 +276,7 @@
     <td>${participant.user.first_name + " " + participant.user.last_name}</td>
     <td>
         <div id="present-${participant.id}">
-            <input type="hidden" name="" value="0">
-            <input type="checkbox"
-                   name="${participant.id}"
-                   id="participant-present-${participant.id}"
-                   value="1"
-                   data-switch="1">
-            <label for="participant-present-${participant.id}"
-                   data-on-label="حاضر"
-                    data-id="${participant.id}"
-                   data-off-label="غایب"
-                   class="mb-0 d-block present"></label>
+         دارای وکالت
         </div>
     </td>
     <td id="attorney-col-${participant.id}">
@@ -385,7 +382,7 @@
                                                            name="participant-present"
                                                            id="participant-present-${id}"
                                                            value="1"
-                                                           data-switch="1" >
+                                                           data-switch="1" checked >
                                                     <label for="participant-present-${id}"
                                                            data-on-label="حاضر"
                                                            data-off-label="غایب"

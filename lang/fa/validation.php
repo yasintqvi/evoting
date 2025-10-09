@@ -290,6 +290,7 @@ return [
         'participants.*.user_id' => 'مشارکت کننده',
         'participants.*.normal_stock_count' => 'تعدا سهام عادی',
         'participants.*.prefered_stock_count' => 'تعداد سهام ممتاز',
+        'position_id' => 'مقام انتخاباتی',
     ],
 
 ];

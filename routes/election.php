@@ -6,14 +6,30 @@ use App\Http\Controllers\ElectionCandidateController;
 use App\Http\Controllers\ElectionController;
 use App\Http\Controllers\ElectionParticipantController;
 use App\Http\Controllers\ElectionVotingController;
+use App\Http\Controllers\PositionController;
 use App\Http\Controllers\UserExcelController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('{group:slug}/events/{event}')->group(function () {
 
+Route::prefix('{group:slug}/events/{event}')->group(function () {
+    Route::get('elections/{election}/edit', [ElectionController::class, 'edit'])
+        ->name('elections.edit')
+        ->can(Permission::EDIT_ELECTIONS);
     // Election Routes
     Route::get('/elections', [ElectionController::class, 'index'])
         ->name('elections.index');
+
+    Route::put('/elections/{election}', [ElectionController::class, 'update'])
+        ->name('elections.update')
+        ->can(Permission::UPDATE_ELECTIONS);
+
+    Route::get('{election}/edit', [ElectionController::class, 'edit'])
+        ->name('elections.edit')
+        ->can(Permission::EDIT_ELECTIONS);
+
+    Route::delete('/elections/{election}', [ElectionController::class, 'destroy'])
+        ->name('elections.delete')
+        ->can(Permission::DELETE_ELECTIONS);
 
     Route::get('elections/{election}/show', [ElectionController::class, 'show'])
         ->name('elections.show')
@@ -26,18 +42,6 @@ Route::prefix('{group:slug}/events/{event}')->group(function () {
     Route::post('/elections/create', [ElectionController::class, 'store'])
         ->name('elections.store')
         ->can(Permission::CREATE_ELECTIONS);
-
-    Route::get('/elections/{election}/edit', [ElectionController::class, 'edit'])
-        ->name('elections.edit')
-        ->can(Permission::EDIT_ELECTIONS);
-
-    Route::put('/elections/{election}/update', [ElectionController::class, 'update'])
-        ->name('elections.update')
-        ->can(Permission::UPDATE_ELECTIONS);
-
-    Route::delete('/elections/{election}/delete', [ElectionController::class, 'destroy'])
-        ->name('elections.delete')
-        ->can(Permission::DELETE_ELECTIONS);
 
     // Election Candidates
     Route::get('/elections/{election}/candidates', [ElectionCandidateController::class, 'index'])
@@ -99,3 +103,6 @@ Route::prefix('{group:slug}/events/{event}')->group(function () {
             ->name('voting.terminate');
     });
 });
+
+Route::post('/positions', [PositionController::class, 'store'])
+    ->name('positions.store');
