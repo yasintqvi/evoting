@@ -68,7 +68,7 @@
                 </div>
                 <div class="col-lg-6">
                     <div class="mb-3">
-                        <label for="main_member_count" class="form-label">تعداد عضو اصلی هیت مدیره</label>
+                        <label for="main_member_count" class="form-label">تعداد عضو اصلی </label>
                         <input type="number" class="form-control" id="main_member_count" name="main_member_count" value="{{ old('main_member_count') }}">
                         @error('main_member_count')
                         <span class="strong text-danger font-weight-bold">{{ $message }}</span>
@@ -77,7 +77,7 @@
                 </div>
                 <div class="col-lg-6">
                     <div class="mb-3">
-                        <label for="substitute_member_count" class="form-label">تعداد عضو علی البدل هیت مدیره</label>
+                        <label for="substitute_member_count" class="form-label">تعداد عضو علی البدل </label>
                         <input type="number" class="form-control" name="substitute_member_count" value="{{ old('substitute_member_count') }}" id="substitute_member_count">
                         @error('substitute_member_count')
                         <span class="strong text-danger font-weight-bold">{{ $message }}</span>

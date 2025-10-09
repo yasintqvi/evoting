@@ -11,7 +11,5 @@ readonly class UpdateElectionDto extends BaseDataTransferObject
         public bool $quorumRequired,
         public int $mainMemberCount,
         public int $substituteMemberCount,
-        public int $incpectorMainMemberCount,
-        public int $incpectorSubstituteMemberCount
     ) {}
 }

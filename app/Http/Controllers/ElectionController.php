@@ -65,9 +65,9 @@ class ElectionController extends Controller
     {
         $users = User::select('id', 'first_name', 'last_name')->get();
 
-        $election = ElectionResource::make($election)->toArray($request);
+        $positions = Position::all();
 
-        return view('app.group.event.election.edit', compact('group', 'users', 'election'));
+        return view('app.group.event.election.edit', compact('group', 'event', 'users', 'election', 'positions'));
     }
 
     public function update(UpdateElectionRequest $request, Group $group, Event $event, Election $election): RedirectResponse
@@ -76,7 +76,7 @@ class ElectionController extends Controller
 
             $this->electionService->update($election, $request->toDto());
 
-            return to_route('elections.index', $group->slug)->with('success', __('messages.election.edited'));
+            return to_route('elections.index', [$group->slug, $event->id])->with('success', __('messages.election.edited'));
         } catch (Throwable $th) {
 
             return back()->with('error', $th->getMessage());
