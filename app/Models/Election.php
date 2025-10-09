@@ -19,6 +19,7 @@ class Election extends Model
     protected $fillable = [
         'group_id',
         'event_id',
+        'position_id',
         'owner_id',
         'title',
         'slug',
@@ -29,9 +30,6 @@ class Election extends Model
         'prefered_stock_weight',
         'main_member_count',
         'substitute_member_count',
-        'incpector_main_member_count',
-        'incpector_substitute_member_count',
-        'quorum_required',
     ];
 
     protected static $logAttributesToIgnore = ['updated_at'];
@@ -45,7 +43,7 @@ class Election extends Model
         return LogOptions::defaults()
             ->logOnly(static::$logAttributes)->dontLogIfAttributesChangedOnly(static::$logAttributesToIgnore)
             ->logOnlyDirty()
-            ->setDescriptionForEvent(fn (string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'همه پرسی', 'subject' => $this->title]))
+            ->setDescriptionForEvent(fn(string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'همه پرسی', 'subject' => $this->title]))
             ->dontSubmitEmptyLogs();
     }
 
@@ -75,6 +73,11 @@ class Election extends Model
     public function candidates(): HasMany
     {
         return $this->hasMany(Candidate::class);
+    }
+
+    public function position(): BelongsTo
+    {
+        return $this->belongsTo(Position::class);
     }
 
     public function precentParticipants()

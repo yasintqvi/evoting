@@ -8,11 +8,13 @@ use App\Http\Resources\ElectionResource;
 use App\Models\Election;
 use App\Models\Event;
 use App\Models\Group;
+use App\Models\Position;
 use App\Models\User;
 use App\Services\ElectionService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class ElectionController extends Controller
@@ -35,7 +37,9 @@ class ElectionController extends Controller
     {
         $users = User::select('id', 'first_name', 'last_name')->get();
 
-        return view('app.group.event.election.create', compact('group', 'event', 'users'));
+        $positions = Position::select('id', 'title')->get();
+
+        return view('app.group.event.election.create', compact('group', 'event', 'users', 'positions'));
     }
 
     public function store(StoreElectionRequest $request, Group $group, Event $event): RedirectResponse
@@ -45,6 +49,7 @@ class ElectionController extends Controller
 
             return to_route('elections.index', [$group->slug, $event->id])->with('success', __('messages.election.created'));
         } catch (Throwable $th) {
+
             return back()->with('error', 'خطایی هنگام ایجاد انتخابات رخ داد.');
         }
     }

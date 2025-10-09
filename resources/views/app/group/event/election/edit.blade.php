@@ -83,37 +83,6 @@
                         @enderror
                     </div>
                 </div>
-
-                <div class="col-lg-6">
-                    <div class="mb-3">
-                        <label for="incpector_main_member_count" class="form-label">تعداد عضو اصلی بازرس </label>
-                        <input type="number" class="form-control" name="incpector_main_member_count" value="{{ old('incpector_main_member_count' , $election['incpector_main_member_count']) }}" id="incpector_main_member_count">
-                        @error('incpector_main_member_count')
-                        <span class="strong text-danger font-weight-bold">{{ $message }}</span>
-                        @enderror
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="mb-3">
-                        <label for="incpector_substitute_member_count" class="form-label">تعداد عضو علی البدل بازرس </label>
-                        <input type="number" class="form-control" name="incpector_substitute_member_count" value="{{ old('incpector_substitute_member_count' , $election['incpector_substitute_member_count']) }}" id="incpector_substitute_member_count">
-                        @error('incpector_substitute_member_count')
-                        <span class="strong text-danger font-weight-bold">{{ $message }}</span>
-                        @enderror
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="form-check">
-                        <label for="quorum_required" class="form-label">فعال سازی قانون حدنصاب اعضا</label>
-                        <input type="checkbox" class="form-check-input" value="1" name="quorum_required" {{ old('quorum_required' , $election['quorum_required']) ?  'checked' : '' }} id="quorum_required">
-                        @error('quorum_required')
-                        <span class="strong text-danger font-weight-bold">{{ $message }}</span>
-                        @enderror
-                    </div>
-                    <small class="text-muted">
-                        برای برگزاری انتخابات، حضور حداقل نصف به علاوه یک اعضا الزامی است. در صورتی که این تعداد محقق نشود، انتخابات نمی‌تواند برگزار شود.
-                    </small>
-                </div>
             </div>
         </div>
         <div class="card-footer">

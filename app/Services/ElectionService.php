@@ -18,7 +18,7 @@ class ElectionService
 {
     public function getAll(Event $event): Collection
     {
-        $elections = $event->elections()->latest()->get();
+        $elections = $event->elections()->with('position')->latest()->get();
 
         return $elections;
     }
@@ -28,17 +28,17 @@ class ElectionService
         DB::beginTransaction();
 
         try {
-            $election = $event->elections()->create([
-                'group_id' => $group->id,
+            $event->elections()->create([
+                'event_id' => $event->id,
                 ...$createElectionDto->all(),
             ]);
-            event(new ElectionCreated($group, $election));
 
             DB::commit();
 
             return $group;
         } catch (Throwable $th) {
 
+            dd($th->getMessage());
             DB::rollBack();
 
             Log::info('Error while creating election', [

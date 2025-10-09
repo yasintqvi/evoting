@@ -35,7 +35,7 @@
                         @enderror
                     </div>
                 </div>
-                <div class="col-lg-12">
+                <div class="col-lg-6">
                     <div class="mb-3">
                         <label for="election_type" class="form-label">نوع همه پرسی</label>
                         <select name="type" onchange="checkElectionType(event)" id="election_type" data-toggle="select2" class="form-select">
@@ -48,6 +48,20 @@
                             @endif
                         </select>
                         @error('type')
+                        <span class="strong text-danger font-weight-bold">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="mb-3">
+                        <label for="position_id" class="form-label">مقام انتخاباتی</label>
+                        <select name="position_id" id="position_id" class="form-select">
+                            <option value="">یک مقام را انتخاب نمایید</option>
+                            @foreach ($positions as $position)
+                            <option value="{{ $position->id }}" @selected(old('position_id')==$position->id)>{{ $position->title }}</option>
+                            @endforeach
+                        </select>
+                        @error('position_id')
                         <span class="strong text-danger font-weight-bold">{{ $message }}</span>
                         @enderror
                     </div>
@@ -70,37 +84,6 @@
                         @enderror
                     </div>
                 </div>
-
-                <div class="col-lg-6">
-                    <div class="mb-3">
-                        <label for="incpector_main_member_count" class="form-label">تعداد عضو اصلی بازرس </label>
-                        <input type="number" class="form-control" name="incpector_main_member_count" value="{{ old('incpector_main_member_count') }}" id="incpector_main_member_count">
-                        @error('incpector_main_member_count')
-                        <span class="strong text-danger font-weight-bold">{{ $message }}</span>
-                        @enderror
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="mb-3">
-                        <label for="incpector_substitute_member_count" class="form-label">تعداد عضو علی البدل بازرس </label>
-                        <input type="number" class="form-control" name="incpector_substitute_member_count" value="{{ old('incpector_substitute_member_count') }}" id="incpector_substitute_member_count">
-                        @error('incpector_substitute_member_count')
-                        <span class="strong text-danger font-weight-bold">{{ $message }}</span>
-                        @enderror
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="form-check">
-                        <label for="quorum_required" class="form-label">فعال سازی قانون حدنصاب اعضا</label>
-                        <input type="checkbox" class="form-check-input" value="1" name="quorum_required" value="{{ old('quorum_required') }}" id="quorum_required">
-                        @error('quorum_required')
-                        <span class="strong text-danger font-weight-bold">{{ $message }}</span>
-                        @enderror
-                    </div>
-                    <small class="text-muted">
-                        برای برگزاری انتخابات، حضور حداقل نصف به علاوه یک اعضا الزامی است. در صورتی که این تعداد محقق نشود، انتخابات نمی‌تواند برگزار شود.
-                    </small>
-                </div>
             </div>
         </div>
         <div class="card-footer">
@@ -115,8 +98,6 @@
 
 @section('scripts')
 
-@include('app.alerts.toastr.success')
-@include('app.alerts.toastr.error')
 <script>
     function checkElectionType(event) {
         const privateJoint = "{{ App\Enums\ElectionType::PRIVATE_JOINT->value }}";
@@ -130,6 +111,88 @@
             preferredStockWeightField.classList.remove('d-none');
         } else {
             preferredStockWeightField.classList.add('d-none');
+        }
+    }
+
+    $("#position_id").select2({
+        tags: true,
+        createTag: function(params) {
+            return {
+                id: params.term,
+                text: params.term,
+                newOption: true
+            }
+        },
+        insertTag: function(data, tag) {
+            if (tag.newOption) {
+                data.push(tag);
+            }
+        }
+    }).on('select2:select', function(e) {
+        const selectedData = e.params.data;
+
+        if (selectedData.newOption) {
+            const newPositionTitle = selectedData.text;
+
+            createNewPosition(newPositionTitle);
+        }
+    });
+
+    function createNewPosition(positionTitle) {
+        const selectElement = $('#position_id');
+        selectElement.prop('disabled', true);
+
+        const formData = new FormData();
+        formData.append('title', positionTitle);
+        formData.append('_token', '{{ csrf_token() }}');
+
+        fetch('{{ route("positions.store") }}', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    $('#position_id').find('option[value="' + positionTitle + '"]').remove();
+                    
+                    const newOption = new Option(positionTitle, data.position_id, true, true);
+                    $('#position_id').append(newOption).trigger('change');
+                    
+                    showToast('success', 'مقام جدید با موفقیت ایجاد شد');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+
+                $('#position_id').find('option[value="' + positionTitle + '"]').remove();
+                $('#position_id').val('').trigger('change');
+
+                showToast('error', error.message || 'خطا در ایجاد مقام جدید');
+            })
+            .finally(() => {
+                selectElement.prop('disabled', false);
+            });
+    }
+
+    function showToast(type, message) {
+        if (typeof Toast !== 'undefined') {
+            Toast.create({
+                title: type === 'success' ? 'موفق' : 'خطا',
+                message: message,
+                type: type,
+                duration: 3000,
+            });
+        } else {
+            alert(message);
         }
     }
 </script>

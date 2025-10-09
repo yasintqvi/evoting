@@ -4,8 +4,10 @@ namespace Database\Seeders;
 
 use App\Enums\GroupStatus;
 use App\Enums\Permission;
+use App\Enums\PositionType;
 use App\Enums\Role;
 use App\Models\Group;
+use App\Models\Position;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission as ModelsPermission;
@@ -18,6 +20,7 @@ class DevEnvironmentSeeder extends Seeder
      */
     public function run(): void
     {
+        // create admin user
         $adminUser = User::factory()->create([
             'first_name' => 'مدیر سایت',
             'phone' => '09931623277',
@@ -48,5 +51,13 @@ class DevEnvironmentSeeder extends Seeder
 
         $adminUser->assignRole('admin');
         $adminUser->givePermissionTo(ModelsPermission::all());
+
+        // create default positions
+
+        foreach (PositionType::cases() as $position) {
+            Position::firstOrCreate([
+                'title' => $position->label(),
+            ]);
+        }
     }
 }
