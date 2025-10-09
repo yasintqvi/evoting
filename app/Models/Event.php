@@ -65,6 +65,11 @@ class Event extends Model
         return $this->hasMany(Attendance::class);
     }
 
+     public function surveys(): HasMany
+    {
+        return $this->hasMany(Survey::class);
+    }
+
     public function getPresentCountAttribute()
     {
         return $this->attendances()->where('status', 1)->count();

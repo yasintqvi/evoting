@@ -84,35 +84,36 @@
                             <span class="menu-arrow"></span>
                         </a>
 
-                        <div class="collapse" id="event-{{ $event->id }}">
-                            <ul class="sub-menu">
-                                <li class="side-nav-item">
-                                    <a href="{{ route('attendances.create', [$group->slug, $event->id]) }}"
-                                       class="side-nav-link">
-                                        <span class="menu-text">حضور و غیاب</span>
-                                    </a>
-                                </li>
-                                <li class="side-nav-item">
-                                    <a href="{{ route('elections.index', [$group->slug, $event->id]) }}"
-                                       class="side-nav-link">
-                                        <span class="menu-text">انتخابات</span>
-                                    </a>
-                                </li>
-                                <li class="side-nav-item">
-                                    <a href="#" class="side-nav-link">
-                                        <span class="menu-text">نظرسنجی‌ها</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                @empty
-                    <div class="d-flex justify-content-center align-items-center">
-                        <div class="d-flex flex-column">
-                            <div class="mt-2 side-nav-title"> هنوز هیچ رویدادی اضافه نشده است.</div>
-                        </div>
-                    </div>
-                @endforelse
+                         <div class="collapse" id="event-{{ $event->id }}">
+                             <ul class="sub-menu">
+                                 <li class="side-nav-item">
+                                     <a href="{{ route('attendances.create', [$group->slug, $event->id]) }}"
+                                         class="side-nav-link">
+                                         <span class="menu-text">حضور و غیاب</span>
+                                     </a>
+                                 </li>
+                                 <li class="side-nav-item">
+                                     <a href="{{ route('elections.index', [$group->slug, $event->id]) }}"
+                                         class="side-nav-link">
+                                         <span class="menu-text">انتخابات</span>
+                                     </a>
+                                 </li>
+                                 <li class="side-nav-item">
+                                     <a href="{{ route('surveys.index', [$group->slug, $event->id]) }}"
+                                         class="side-nav-link">
+                                         <span class="menu-text">نظرسنجی‌ها</span>
+                                     </a>
+                                 </li>
+                             </ul>
+                         </div>
+                     </li>
+                 @empty
+                     <div class="d-flex justify-content-center align-items-center">
+                         <div class="d-flex flex-column">
+                             <div class="mt-2 side-nav-title"> هنوز هیچ رویدادی اضافه نشده است.</div>
+                         </div>
+                     </div>
+                 @endforelse
 
                 @can(\App\Enums\Permission::CREATE_GROUP_EVENT->value)
                     <div class="d-flex flex-column mt-3">
