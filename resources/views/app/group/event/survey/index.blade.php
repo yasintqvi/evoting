@@ -73,7 +73,7 @@
                                             </a>
                                             <a href="{{ route('surveys.answer', [$group->slug, $event->id, $survey->id]) }}"
                                                 class="btn btn-sm btn-outline-primary">
-                                                <i class="ti ti-edit"></i> نمایش نظرسنجی
+                                                 نمایش نظرسنجی
                                             </a>
 
 

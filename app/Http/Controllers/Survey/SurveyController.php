@@ -11,6 +11,7 @@ use App\Models\SurveyAnswer;
 use App\Models\SurveyResponse;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class SurveyController extends Controller
 {
@@ -19,8 +20,8 @@ class SurveyController extends Controller
      */
     public function index(Group $group, Event $event)
     {
-        $surveys = Survey::all();
-
+        $surveys = Survey::where('event_id', $event->id)->get();
+        
         return view('app.group.event.survey.index', compact('group', 'event', 'surveys'));
     }
 
@@ -192,6 +193,12 @@ class SurveyController extends Controller
 
             foreach ($survey->questions as $question) {
                 $key = 'questions_' . $question->id;
+                if ($question->is_required && !$request->has($key)) {
+                    throw ValidationException::withMessages([
+                        $key => 'پاسخ به این سؤال الزامی است.',
+                    ]);
+                }
+
                 $input = $request->input($key);
 
                 if ($question->type == 1) {

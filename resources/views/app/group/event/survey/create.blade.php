@@ -10,8 +10,8 @@
         <div class="text-end">
             <ol class="breadcrumb m-0 py-0">
                 <li class="breadcrumb-item"><a href="javascript:void(0);">خانه</a></li>
-                <li class="breadcrumb-item"><a href="javascript:void(0);">انتخابات</a></li>
-                <li class="breadcrumb-item active">مدیریت</li>
+                <li class="breadcrumb-item"><a href="javascript:void(0);">نظرسنجی</a></li>
+                <li class="breadcrumb-item active">ایجاد نظرسنجی</li>
             </ol>
         </div>
     </div>
