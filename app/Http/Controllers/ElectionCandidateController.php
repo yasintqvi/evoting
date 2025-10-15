@@ -8,6 +8,7 @@ use App\Models\Event;
 use App\Models\Group;
 use App\Services\CandidateService;
 use Exception;
+use Log;
 
 class ElectionCandidateController extends Controller
 {
@@ -47,6 +48,14 @@ class ElectionCandidateController extends Controller
 
             return to_route('elections.index', $group->slug)->with('success', 'کاندید جدید اضافه شد');
         } catch (Exception $e) {
+            Log::error('Error creating candidate', [
+                'election_id' => $election->id,
+                'group_id' => $group->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'performed_by' => $request->user()?->id,
+            ]);
+
             return back()->with('error', $e->getMessage());
         }
     }
@@ -80,6 +89,13 @@ class ElectionCandidateController extends Controller
 
             return to_route('elections.index', $group->slug)->with('success', 'کاندیدها با موفقیت به‌روزرسانی شدند.');
         } catch (Exception $e) {
+            Log::error('Error updating candidates', [
+                'election_id' => $election->id,
+                'group_id' => $group->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'performed_by' => $request->user()?->id,
+            ]);
 
             return back()->with('error', $e->getMessage());
         }
