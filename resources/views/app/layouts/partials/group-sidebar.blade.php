@@ -87,19 +87,19 @@
                          <div class="collapse" id="event-{{ $event->id }}">
                              <ul class="sub-menu">
                                  <li class="side-nav-item">
-                                     <a href="{{ route('attendances.create', [$group->slug, $event->id]) }}"
+                                     <a href="{{ route('attendances.create', [$group->slug, $event]) }}"
                                          class="side-nav-link">
                                          <span class="menu-text">حضور و غیاب</span>
                                      </a>
                                  </li>
                                  <li class="side-nav-item">
-                                     <a href="{{ route('elections.index', [$group->slug, $event->id]) }}"
+                                     <a href="{{ route('elections.index', [$group->slug, $event]) }}"
                                          class="side-nav-link">
                                          <span class="menu-text">انتخابات</span>
                                      </a>
                                  </li>
                                  <li class="side-nav-item">
-                                     <a href="{{ route('surveys.index', [$group->slug, $event->id]) }}"
+                                     <a href="{{ route('surveys.index', [$group->slug, $event]) }}"
                                          class="side-nav-link">
                                          <span class="menu-text">نظرسنجی‌ها</span>
                                      </a>

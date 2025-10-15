@@ -112,11 +112,11 @@
 
                         <div class="mt-auto">
                             <div class="d-flex gap-2 flex-nowrap">
-                                <a href="{{ route('group.event.show', [$group->slug, $event->id]) }}"
+                                <a href="{{ route('group.event.show', [$group->slug, $event]) }}"
                                     class="btn btn-outline-primary rounded-pill flex-fill text-nowrap">
                                     مشاهده جزئیات
                                 </a>
-                                <a href="{{ route('group.event.edit', [$group->slug, $event->id]) }}"
+                                <a href="{{ route('group.event.edit', [$group->slug, $event]) }}"
                                     class="btn btn-outline-warning rounded-pill flex-fill text-nowrap">
                                     ویرایش رویداد
                                 </a>

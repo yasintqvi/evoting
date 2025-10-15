@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\EventStatus;
+use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -13,6 +14,7 @@ class Event extends Model
 {
     use LogsActivity;
     use SoftDeletes;
+    use Sluggable;
 
     protected $fillable = [
         'name',
@@ -34,6 +36,18 @@ class Event extends Model
         return [
             'status' => EventStatus::class,
         ];
+    }
+    public function sluggable(): array
+    {
+        return [
+            'slug' => [
+                'source' => 'title',
+            ],
+        ];
+    }
+    public function getRouteKeyName()
+    {
+        return 'slug';
     }
 
     public function getActivitylogOptions(): LogOptions

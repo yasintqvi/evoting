@@ -32,7 +32,7 @@
                 </div>
 
                 <div class="card-body">
-                    <form action="{{ route('attendances.store', [$group->slug, $event->id]) }}" method="post">
+                    <form action="{{ route('attendances.store', [$group->slug, $event]) }}" method="post">
                         @csrf
                         <div class="table-responsive-sm">
                             <table class="table mb-0">

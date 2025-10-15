@@ -23,7 +23,7 @@
                 <p class="text-muted">{{ $survey->description }}</p>
             @endif
 
-            <form action="{{ route('surveys.answer.store', [$group->slug, $event->id, $survey->id]) }}" method="POST">
+            <form action="{{ route('surveys.answer.store', [$group->slug, $event, $survey->id]) }}" method="POST">
                 @csrf
 
                 @foreach ($survey->questions as $question)

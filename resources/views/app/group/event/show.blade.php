@@ -28,7 +28,7 @@
                             <iconify-icon icon="solar:map-arrow-right-bold-duotone" class="me-2 fs-18 text-muted"></iconify-icon>
                             <span>همه</span>
                         </a>
-                        <a href="{{ route('elections.index', [$group->slug, $event->id]) }}" class="{{ is_active('elections') ? 'active' : '' }}">
+                        <a href="{{ route('elections.index', [$group->slug, $event]) }}" class="{{ is_active('elections') ? 'active' : '' }}">
                             <iconify-icon icon="solar:map-arrow-right-bold-duotone" class="me-2 fs-18 text-muted"></iconify-icon>
                             <span>انتخابات</span>
                         </a>
