@@ -9,12 +9,10 @@ readonly class CreateElectionDto extends BaseDataTransferObject
 {
     public function __construct(
         public string $title,
-        public int $owner_id,
+        public int $ownerId,
+        public int $positionId,
         public ElectionType $type,
-        public bool $quorumRequired,
         public int $mainMemberCount,
         public int $substituteMemberCount,
-        public int $incpectorMainMemberCount,
-        public int $incpectorSubstituteMemberCount
     ) {}
 }

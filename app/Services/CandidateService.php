@@ -77,7 +77,7 @@ class CandidateService
     {
         $duplicateCandidates = array_intersect($addCandidatesDto->mainCandidateIds, $addCandidatesDto->incpectorCandidatesIds);
 
-        if (!empty($duplicateCandidates)) {
+        if (! empty($duplicateCandidates)) {
             throw new Exception('یک نامزد نمی‌تواند همزمان در هیئت مدیره و بازرس باشد.');
         }
     }

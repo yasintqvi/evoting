@@ -3,25 +3,31 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Group\GroupRequest;
-use App\Models\Attendance;
 use App\Models\Group;
 use App\Services\Image\ImageService;
 
 class GroupController extends Controller
 {
-    public function __construct(protected ImageService $imageService)
-    {
-    }
+    public function __construct(protected ImageService $imageService) {}
 
     public function index(Group $group)
     {
         $usersCount = $group->users()->count();
 
-        $events = $group->events()->orderBy('created_at')->get();
+        $events = $group->events()
+            ->withCount([
+                'participants as present_count1' => function ($q) {
+                    $q->whereNull('attorney_id')->where('is_present', 1);
+                },
+                'participants as absent_count1' => function ($q) {
+                    $q->whereNull('attorney_id')->where('is_present', 0);
+                },
+            ])
+            ->orderBy('created_at')
+            ->get();
 
         return view('app.group.index', compact('group', 'events', 'usersCount'));
     }
-
 
     public function create()
     {

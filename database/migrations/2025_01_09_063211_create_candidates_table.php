@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('candidates', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users');
-            $table->foreignId("election_id")->constrained('elections');
+            $table->foreignId('election_id')->constrained('elections');
             $table->tinyInteger('candidate_type')->default(CandidateType::DIRECTOR);
             $table->timestamps();
         });

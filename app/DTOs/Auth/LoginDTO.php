@@ -2,7 +2,6 @@
 
 namespace App\DTOs\Auth;
 
-
 class LoginDTO
 {
     public function __construct(

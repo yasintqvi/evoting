@@ -12,13 +12,14 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Participant extends Model
 {
-    use SoftDeletes;
     use LogsActivity;
+    use SoftDeletes;
 
     protected $fillable = [
         'election_id',
         'user_id',
         'attorney_id',
+        'event_id',
         'normal_stock_count',
         'prefered_stock_count',
         'is_present',
@@ -36,14 +37,14 @@ class Participant extends Model
         return LogOptions::defaults()
             ->logOnly(static::$logAttributes)->dontLogIfAttributesChangedOnly(static::$logAttributesToIgnore)
             ->logOnlyDirty()
-            ->setDescriptionForEvent(fn(string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'گروه کننده', 'subject' => $this->user->full_name]))
+            ->setDescriptionForEvent(fn (string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'گروه کننده', 'subject' => $this->user->full_name]))
             ->dontSubmitEmptyLogs();
     }
 
     public function casts(): array
     {
         return [
-            'is_present' => 'boolean'
+            'is_present' => 'boolean',
         ];
     }
 
@@ -64,6 +65,21 @@ class Participant extends Model
 
     public function getTotalStockAttribute()
     {
-        return $this->election->type == ElectionType::PUBLIC_JOINT ?  1 : (int) ($this->normal_stock_count + ($this->prefered_stock_count * $this->election->prefered_stock_weight));
+        return $this->election->type == ElectionType::PUBLIC_JOINT ? 1 : (int) ($this->normal_stock_count + ($this->prefered_stock_count * $this->election->prefered_stock_weight));
+    }
+
+    public function event()
+    {
+        return $this->belongsTo(Event::class);
+    }
+
+    public function attorney(): BelongsTo
+    {
+        return $this->belongsTo(Participant::class, 'attorney_id');
+    }
+
+    public function is_attorney()
+    {
+        return $this->hasMany(Participant::class, 'attorney_id');
     }
 }

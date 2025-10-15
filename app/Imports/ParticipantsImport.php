@@ -2,18 +2,20 @@
 
 namespace App\Imports;
 
+use App\Models\Election;
 use App\Models\Participant;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use App\Models\Election;
 
 class ParticipantsImport implements ToCollection, WithHeadingRow
 {
     protected $groupId;
+
     protected $election;
+
     protected $participants = [];
 
     public function __construct($groupId, $electionId)
@@ -37,8 +39,8 @@ class ParticipantsImport implements ToCollection, WithHeadingRow
 
             $row = $row->toArray();
 
-            if (!isset($row['phone']) || empty($row['phone'])) {
-                throw new \Exception("تکمیل گزینه تلفن الزامی است.");
+            if (! isset($row['phone']) || empty($row['phone'])) {
+                throw new \Exception('تکمیل گزینه تلفن الزامی است.');
             }
 
             $phone = trim($row['phone']);
@@ -59,7 +61,7 @@ class ParticipantsImport implements ToCollection, WithHeadingRow
                         })->exists()) {
                             $fail('این شماره قبلاً در این انتخابات ثبت شده است.');
                         }
-                    }
+                    },
                 ],
                 'normal_stock_count' => ['required', 'integer', 'min:0'],
                 'prefered_stock_count' => ['required', 'integer', 'min:0'],
@@ -102,7 +104,7 @@ class ParticipantsImport implements ToCollection, WithHeadingRow
         }
 
         if (count($this->participants) < 3) {
-            throw new \Exception("حداقل ۳ گروه‌کننده باید ثبت شوند. تعداد ثبت‌شده: " . count($this->participants));
+            throw new \Exception('حداقل ۳ گروه‌کننده باید ثبت شوند. تعداد ثبت‌شده: '.count($this->participants));
         }
 
         foreach ($this->participants as $participant) {

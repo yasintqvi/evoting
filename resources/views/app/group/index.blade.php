@@ -27,14 +27,14 @@
 @section('content')
     <div class="page-title-head d-flex align-items-sm-center flex-sm-row flex-column gap-2">
         <div class="flex-grow-1">
-            <h4 class="fs-18 fw-semibold mb-0">{{ $group->title }}</h4>
+            <h4 class="fs-18 fw-semibold mb-0">{{ $group->name }}</h4>
         </div>
 
         <div class="text-end">
             <ol class="breadcrumb m-0 py-0">
                 <li class="breadcrumb-item"><a href="javascript: void(0);">داشبورد</a></li>
 
-                <li class="breadcrumb-item active">{{ $group->title }}</li>
+                <li class="breadcrumb-item active">{{ $group->name }}</li>
             </ol>
         </div>
     </div>
@@ -50,7 +50,6 @@
             <small class="text-success align-self-end">تکمیل شده</small>
         </div>
 
-        <!-- مرحله 2 -->
         @can(\App\Enums\Permission::VIEW_GROUP_USERS->value)
             @php
                 $isApproved = $usersCount >= 3;
@@ -82,7 +81,7 @@
 
         <!-- مرحله 3 -->
     </div>
-    <h4 class="mb-4 text-primary fw-bold">{{ $group->title }}</h4>
+    <h4 class="mb-4 text-primary fw-bold">{{ $group->name }}</h4>
 
     <div class="row g-4">
         @foreach ($events as $event)
@@ -91,7 +90,7 @@
                     <div class="card-body p-4 d-flex flex-column">
                         <h5 class="card-title fw-bold mb-3 text-primary">
                             <i class="fas fa-calendar-check me-2 text-primary"></i>
-                            {{ $event->title }}
+                            {{ $event->name }}
                         </h5>
 
                         <div class="d-flex justify-content-between mb-3">
@@ -99,23 +98,29 @@
                                 <div class="icon-circle bg-success bg-opacity-10 text-success mb-2">
                                     <i class="fas fa-user-check"></i>
                                 </div>
-                                <span class="fw-semibold">{{ $event->present_count }}</span>
+                                <span class="fw-semibold">{{ $event->present_count1 }}</span>
                                 <small class="d-block text-muted">حاضر</small>
                             </div>
                             <div class="text-center flex-fill">
                                 <div class="icon-circle bg-danger bg-opacity-10 text-danger mb-2">
                                     <i class="fas fa-user-times"></i>
                                 </div>
-                                <span class="fw-semibold">{{ $event->absent_count }}</span>
+                                <span class="fw-semibold">{{ $event->absent_count1 }}</span>
                                 <small class="d-block text-muted">غایب</small>
                             </div>
                         </div>
 
                         <div class="mt-auto">
-                            <a href="{{ route('group.event.show', [$group->id, $event->id]) }}"
-                                class="btn btn-outline-primary w-100 rounded-pill">
-                                مشاهده جزئیات
-                            </a>
+                            <div class="d-flex gap-2 flex-nowrap">
+                                <a href="{{ route('group.event.show', [$group->slug, $event]) }}"
+                                    class="btn btn-outline-primary rounded-pill flex-fill text-nowrap">
+                                    مشاهده جزئیات
+                                </a>
+                                <a href="{{ route('group.event.edit', [$group->slug, $event]) }}"
+                                    class="btn btn-outline-warning rounded-pill flex-fill text-nowrap">
+                                    ویرایش رویداد
+                                </a>
+                            </div>
                         </div>
                     </div>
 
@@ -132,7 +137,3 @@
 
     <canvas id="attendanceChart" style="max-height: 300px; width: 300%;"></canvas>
 @endsection
-
-
-
-

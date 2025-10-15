@@ -44,7 +44,7 @@ class SendOtpRequest extends FormRequest
             'success' => false,
             'message' => $validator->errors()->first(),
             'errors' => $validator->errors(),
-            'status' => Response::HTTP_UNPROCESSABLE_ENTITY
+            'status' => Response::HTTP_UNPROCESSABLE_ENTITY,
         ], Response::HTTP_UNPROCESSABLE_ENTITY));
     }
 }

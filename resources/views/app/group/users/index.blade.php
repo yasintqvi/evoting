@@ -119,38 +119,38 @@
                                 <h4 class="card-title mb-0">جزئیات سهام داران</h4>
                             </div>
                             <div class="ms-auto">
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="card bg-light px-3 py-1 border-0 shadow-sm mb-0" style="min-width: 240px;">
-                            <div class="d-flex align-items-center gap-2 mb-2">
-                                <i class="ti ti-chart-dots text-primary fs-5"></i>
-                                <span class="fw-bold text-primary">سهام اختصاص داده‌شده</span>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span>عادی:</span>
-                                <strong>{{ $group->users->sum('pivot.normal_stock_count') }}</strong>
-                                <span>ممتاز:</span>
-                                <strong>{{ $group->users->sum('pivot.prefered_stock_count') }}</strong>
                             </div>
                         </div>
+                        <div class="card-body">
+                            <div class="card bg-light px-3 py-1 border-0 shadow-sm mb-0" style="min-width: 240px;">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <i class="ti ti-chart-dots text-primary fs-5"></i>
+                                    <span class="fw-bold text-primary">سهام اختصاص داده‌شده</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>عادی:</span>
+                                    <strong>{{ $group->users->sum('pivot.normal_stock_count') }}</strong>
+                                    <span>ممتاز:</span>
+                                    <strong>{{ $group->users->sum('pivot.prefered_stock_count') }}</strong>
+                                </div>
+                            </div>
 
-                        <div class="card bg-light px-3 py-1 border-0 shadow-sm mb-0 mt-3" style="min-width: 240px;">
-                            <div class="d-flex align-items-center gap-2 mb-2">
-                                <i class="ti ti-box-multiple text-warning fs-5"></i>
-                                <span class="fw-bold text-warning">سهام باقیمانده</span>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span>عادی:</span>
-                                <strong>{{ $group->normal_stock_count - $group->users->sum('pivot.normal_stock_count') }}</strong>
-                                <span>ممتاز:</span>
-                                <strong>{{ $group->prefered_stock_count - $group->users->sum('pivot.prefered_stock_count') }}</strong>
+                            <div class="card bg-light px-3 py-1 border-0 shadow-sm mb-0 mt-3" style="min-width: 240px;">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <i class="ti ti-box-multiple text-warning fs-5"></i>
+                                    <span class="fw-bold text-warning">سهام باقیمانده</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>عادی:</span>
+                                    <strong>{{ $group->normal_stock_count - $group->users->sum('pivot.normal_stock_count') }}</strong>
+                                    <span>ممتاز:</span>
+                                    <strong>{{ $group->prefered_stock_count - $group->users->sum('pivot.prefered_stock_count') }}</strong>
+                                </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
-
-            </div>
         @endif
     @endsection
 

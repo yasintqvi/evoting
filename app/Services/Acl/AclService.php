@@ -2,15 +2,15 @@
 
 namespace App\Services\Acl;
 
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
-use Illuminate\Database\Eloquent\Collection;
-use App\Enums\Role as RoleEnum;
 use App\DTOs\ACL\RoleDto;
 use App\DTOs\ACL\UserAccessDto;
+use App\Enums\Role as RoleEnum;
 use App\Models\User;
-use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Log;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Throwable;
 
 class AclService
@@ -21,7 +21,7 @@ class AclService
             return Role::all();
         } catch (Exception $e) {
             Log::error('Failed to get all roles', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -33,7 +33,7 @@ class AclService
             return Permission::all();
         } catch (Exception $e) {
             Log::error('Failed to get all permissions', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -46,7 +46,7 @@ class AclService
         } catch (Exception $e) {
             Log::error('Failed to get role permissions', [
                 'role_id' => $role->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -57,21 +57,21 @@ class AclService
         try {
             $role = Role::create(['name' => $roleDto->name, 'guard_name' => 'web']);
 
-            if (!empty($roleDto->permissions)) {
+            if (! empty($roleDto->permissions)) {
                 $permissions = Permission::whereIn('id', $roleDto->permissions)->get();
                 $role->syncPermissions($permissions);
             }
 
             Log::info('Role created successfully', [
                 'role_id' => $role->id,
-                'role_name' => $role->name
+                'role_name' => $role->name,
             ]);
 
             return $role;
         } catch (Exception $e) {
             Log::error('Failed to create role', [
                 'role_name' => $roleDto->name,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -82,14 +82,14 @@ class AclService
         try {
             $role->update(['name' => $roleDto->name]);
 
-            if (!empty($roleDto->permissions)) {
+            if (! empty($roleDto->permissions)) {
                 $permissions = Permission::whereIn('id', $roleDto->permissions)->get();
                 $role->syncPermissions($permissions);
             }
 
             Log::info('Role updated successfully', [
                 'role_id' => $role->id,
-                'role_name' => $role->name
+                'role_name' => $role->name,
             ]);
 
             return $role;
@@ -97,7 +97,7 @@ class AclService
             Log::error('Failed to update role', [
                 'role_id' => $role->id,
                 'role_name' => $roleDto->name,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -112,7 +112,7 @@ class AclService
         } catch (Throwable $e) {
             Log::error('Failed to update role', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -123,16 +123,18 @@ class AclService
         try {
             if (in_array($role->name, [RoleEnum::Manager])) {
                 Log::warning('Attempted to delete manager role', [
-                    'role_id' => $role->id
+                    'role_id' => $role->id,
                 ]);
+
                 return false;
             }
 
-            if (!request()->user()->hasRole(RoleEnum::Manager)) {
+            if (! request()->user()->hasRole(RoleEnum::Manager)) {
                 Log::warning('Non-manager user attempted to delete role', [
                     'user_id' => request()->user()->id,
-                    'role_id' => $role->id
+                    'role_id' => $role->id,
                 ]);
+
                 return false;
             }
 
@@ -140,14 +142,14 @@ class AclService
 
             Log::info('Role deleted successfully', [
                 'role_id' => $role->id,
-                'role_name' => $role->name
+                'role_name' => $role->name,
             ]);
 
             return true;
         } catch (Exception $e) {
             Log::error('Failed to delete role', [
                 'role_id' => $role->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }

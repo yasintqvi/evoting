@@ -22,7 +22,7 @@ class OtpService
 
         $user = User::where($identifier, $sendOtpDTO->identifier)->first();
 
-        if (!$user) {
+        if (! $user) {
             throw new UserNotExistException;
         }
 
@@ -33,7 +33,7 @@ class OtpService
         return [
             'two_factor_type' => $user->two_factor_type,
             'identifier' => $user->$identifier,
-            'phone' => $user->phone
+            'phone' => $user->phone,
         ];
     }
 

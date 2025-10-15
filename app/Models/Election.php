@@ -6,7 +6,6 @@ use App\Enums\ElectionStatus;
 use App\Enums\ElectionType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
@@ -14,12 +13,13 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Election extends Model
 {
-    use SoftDeletes;
     use LogsActivity;
+    use SoftDeletes;
 
     protected $fillable = [
         'group_id',
         'event_id',
+        'position_id',
         'owner_id',
         'title',
         'slug',
@@ -30,9 +30,6 @@ class Election extends Model
         'prefered_stock_weight',
         'main_member_count',
         'substitute_member_count',
-        'incpector_main_member_count',
-        'incpector_substitute_member_count',
-        'quorum_required',
     ];
 
     protected static $logAttributesToIgnore = ['updated_at'];
@@ -76,6 +73,11 @@ class Election extends Model
     public function candidates(): HasMany
     {
         return $this->hasMany(Candidate::class);
+    }
+
+    public function position(): BelongsTo
+    {
+        return $this->belongsTo(Position::class);
     }
 
     public function precentParticipants()

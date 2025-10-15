@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\EventStatus;
+use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -11,14 +12,17 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Event extends Model
 {
-    use SoftDeletes;
     use LogsActivity;
+    use SoftDeletes;
+    use Sluggable;
 
     protected $fillable = [
+        'name',
         'title',
         'logo',
         'description',
         'status',
+        'quorum_percent',
     ];
 
     protected static $logAttributesToIgnore = ['updated_at'];
@@ -27,12 +31,23 @@ class Event extends Model
 
     protected static $logOnlyDirty = true;
 
-
     public function casts(): array
     {
         return [
-            'status' => EventStatus::class
+            'status' => EventStatus::class,
         ];
+    }
+    public function sluggable(): array
+    {
+        return [
+            'slug' => [
+                'source' => 'title',
+            ],
+        ];
+    }
+    public function getRouteKeyName()
+    {
+        return 'slug';
     }
 
     public function getActivitylogOptions(): LogOptions
@@ -40,13 +55,18 @@ class Event extends Model
         return LogOptions::defaults()
             ->logOnly(static::$logAttributes)->dontLogIfAttributesChangedOnly(static::$logAttributesToIgnore)
             ->logOnlyDirty()
-            ->setDescriptionForEvent(fn(string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'رویداد', 'subject' => $this->title]))
+            ->setDescriptionForEvent(fn (string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'رویداد', 'subject' => $this->title]))
             ->dontSubmitEmptyLogs();
     }
 
     public function group()
     {
         return $this->belongsTo(Group::class);
+    }
+
+    public function participants(): HasMany
+    {
+        return $this->hasMany(Participant::class);
     }
 
     public function elections(): HasMany
@@ -57,6 +77,11 @@ class Event extends Model
     public function attendances(): HasMany
     {
         return $this->hasMany(Attendance::class);
+    }
+
+     public function surveys(): HasMany
+    {
+        return $this->hasMany(Survey::class);
     }
 
     public function getPresentCountAttribute()

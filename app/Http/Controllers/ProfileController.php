@@ -43,9 +43,9 @@ class ProfileController extends Controller
     {
         $hashedPassword = user()->password;
 
-        if (!password_verify($request->validated('current_password'), $hashedPassword)) {
+        if (! password_verify($request->validated('current_password'), $hashedPassword)) {
             return back()->withErrors([
-                'current_password' => __('messages.current_password_invalid')
+                'current_password' => __('messages.current_password_invalid'),
             ]);
         }
 
@@ -54,7 +54,7 @@ class ProfileController extends Controller
 
     public function enableGoogle2FA(Request $request)
     {
-        $google2fa = new Google2FA();
+        $google2fa = new Google2FA;
 
         $secretKey = $google2fa->generateSecretKey();
 
@@ -70,24 +70,24 @@ class ProfileController extends Controller
 
         return back()->with('google_2fa_verify', [
             'qr_image' => $QRImage,
-            'secret_key' => $secretKey
+            'secret_key' => $secretKey,
         ]);
     }
 
     public function verifyGoogle2FA(Request $request)
     {
-        $google2fa = new Google2FA();
+        $google2fa = new Google2FA;
 
         $user = user();
 
         $valid = $google2fa->verifyKey($user->google2fa_secret, $request->input('otp'));
 
-        if (!$valid) {
+        if (! $valid) {
             return back()->withErrors(['otp' => __('messages.invalid_otp')]);
         }
 
         $user->update([
-            'two_factor_type' => TwoFactorType::GOOGLE_AUTHENTICATOR
+            'two_factor_type' => TwoFactorType::GOOGLE_AUTHENTICATOR,
         ]);
 
         return back()->with('google2fa_verified', __('messages.google2fa_verified'));

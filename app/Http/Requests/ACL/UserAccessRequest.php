@@ -14,7 +14,7 @@ class UserAccessRequest extends FormRequest
             'permissions' => 'array',
             'permissions.*' => 'exists:permissions,id',
             'roles' => 'array',
-            'roles.*' => 'exists:roles,id'
+            'roles.*' => 'exists:roles,id',
         ];
     }
 

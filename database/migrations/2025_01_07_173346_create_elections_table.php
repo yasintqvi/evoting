@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('elections', function (Blueprint $table) {
             $table->id();
             $table->foreignId('event_id')->constrained('events');
+            $table->foreignId('position_id')->constrained('positions');
             $table->string('title');
             $table->string('slug')->unique()->nullable();
             $table->string('type')->default(ElectionType::PUBLIC_JOINT);
@@ -25,9 +26,6 @@ return new class extends Migration
             $table->integer('prefered_stock_weight')->default(0);
             $table->integer('main_member_count')->default(0);
             $table->integer('substitute_member_count')->default(0);
-            $table->integer('incpector_main_member_count')->default(0);
-            $table->integer('incpector_substitute_member_count')->default(0);
-            $table->boolean('quorum_required')->default(false);
             $table->timestamps();
             $table->softDeletes();
         });

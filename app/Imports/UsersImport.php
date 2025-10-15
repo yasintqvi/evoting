@@ -3,21 +3,21 @@
 namespace App\Imports;
 
 use App\Models\User;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithValidation;
-use Illuminate\Support\Collection;
 
 class UsersImport implements ToCollection, WithValidation
 {
     public function collection(Collection $rows)
     {
-        $rows = $rows->slice(1); 
+        $rows = $rows->slice(1);
 
         foreach ($rows as $row) {
             User::create([
                 'first_name' => $row[0],
-                'last_name'  => $row[1],
-                'phone'      => $row[2],
+                'last_name' => $row[1],
+                'phone' => $row[2],
             ]);
         }
     }
@@ -25,7 +25,7 @@ class UsersImport implements ToCollection, WithValidation
     public function rules(): array
     {
         return [
-            '2' => 'required|string|unique:users,phone', 
+            '2' => 'required|string|unique:users,phone',
         ];
     }
 

@@ -20,7 +20,7 @@ class UpdateProfileRequest extends FormRequest
             'last_name' => 'required|string|max:255',
             'email' => 'nullable|string|max:255',
             'avatar' => 'nullable|file|mimes:jpg,png,jpeg,webp|max:2048',
-            'two_factor_type' => ['nullable', Rule::in(array_map(fn($value) => $value, TwoFactorType::cases()))]
+            'two_factor_type' => ['nullable', Rule::in(array_map(fn ($value) => $value, TwoFactorType::cases()))],
         ];
     }
 }

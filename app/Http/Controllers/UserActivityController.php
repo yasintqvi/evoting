@@ -13,7 +13,7 @@ class UserActivityController extends Controller
 
         $activities = Activity::query();
 
-        if ($request->has('user_id') && !empty($request->get('user_id'))) {
+        if ($request->has('user_id') && ! empty($request->get('user_id'))) {
             $activities->where('causer_id', $request->get('user_id'));
         }
 

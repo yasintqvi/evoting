@@ -9,7 +9,7 @@ class SMSPattern
     public static function getPatterns()
     {
         return [
-            self::OTP
+            self::OTP,
         ];
     }
 }

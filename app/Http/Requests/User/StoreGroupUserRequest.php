@@ -12,6 +12,7 @@ class StoreGroupUserRequest extends FormRequest
             'is_active' => $this->has('is_active') ? 1 : 0,
         ]);
     }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -36,7 +37,7 @@ class StoreGroupUserRequest extends FormRequest
                     if ($value > $this->group->total_normal_stock) {
                         $fail('مقدار سهام عادی بیشتر از مقدار باقیمانده است.');
                     }
-                }
+                },
             ];
 
             $rules['prefered_stock_count'] = [
@@ -47,9 +48,10 @@ class StoreGroupUserRequest extends FormRequest
                     if ($value > $this->group->total_prefered_stock) {
                         $fail('مقدار سهام ممتاز بیشتر از مقدار باقیمانده است.');
                     }
-                }
+                },
             ];
         }
+
         return $rules;
     }
 }

@@ -16,18 +16,9 @@ class ElectionResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $totalParticipants = $this->participants->count();
-
-        $presentCount = $this->participants->where('is_present', true)->count();
-
-        $participantPercent = $totalParticipants > 0
-            ? ($presentCount / $totalParticipants) * 100
-            : 0;
-
         return [
             'id' => $this->id,
             'title' => $this->title,
-            'participant_percent' => $participantPercent,
             'type' => $this->type,
             'fa_type' => $this->type->toFa(),
             'status' => $this->status,
@@ -40,17 +31,17 @@ class ElectionResource extends JsonResource
             'quorum_required' => $this->quorum_required,
             'prefered_stock_count' => $this->prefered_stock_count,
             'prefered_stock_weight' => $this->prefered_stock_weight,
+            'position' => $this->position->title,
             'operations' => [
-                'show' => route('elections.show', parameters: [$this->group->slug, $this->event->id, $this->id]),
-                'edit' => route('elections.edit', [$this->group->slug, $this->event->id, $this->id]),
-                'update' => route('elections.update', [$this->group->slug, $this->event->id, $this->id]),
-                'delete' => route('elections.delete', [$this->group->slug, $this->event->id, $this->id]),
-                'next_step' => $this->getNextStep()
+                'show' => route('elections.show', parameters: [$this->event->group->slug, $this->event->id, $this->id]),
+                'edit' => route('elections.edit', [$this->event->group->slug, $this->event->id, $this->id]),
+                'update' => route('elections.update', [$this->event->group->slug, $this->event->id, $this->id]),
+                'delete' => route('elections.delete', [$this->event->group->slug, $this->event->id, $this->id]),
+                'next_step' => $this->getNextStep(),
             ],
-            'created_at' => verta($this->created_at)->format("Y/m/d H:i"),
-            'updated_at' => verta($this->updated_at)->format("Y/m/d H:i"),
-            'participants' => $this->participants()->where('is_present', 1)->get(),
-            'rounds' => $this->whenLoaded('rounds', fn() => $this->rounds)
+            'created_at' => verta($this->created_at)->format('Y/m/d H:i'),
+            'updated_at' => verta($this->updated_at)->format('Y/m/d H:i'),
+            'rounds' => $this->whenLoaded('rounds', fn() => $this->rounds),
         ];
     }
 
@@ -58,22 +49,22 @@ class ElectionResource extends JsonResource
     {
         if ($this->status == ElectionStatus::CREATED && user()->hasPermissionTo(Permission::CREATE_CANDIDATES->value)) {
             return [
-                "title" => 'تعیین یا تغییر نامزد ها',
-                "url" => route('candidates.edit', [$this->group->slug, $this->event->id, $this->id])
+                'title' => 'تعیین یا تغییر نامزد ها',
+                'url' => route('candidates.edit', [$this->event->group->slug, $this->event->id, $this->id]),
             ];
         }
 
         if ($this->status == ElectionStatus::PARTICIPANTS_ATTENDEES && user()->hasPermissionTo(Permission::CREATE_ATTENDANCE->value)) {
             return [
-                "title" => 'حضور و غیاب و ثبت وکالت انتخاباتی',
-                "url" => route('attendances.create', [$this->group->slug, $this->event->id, $this->id])
+                'title' => 'حضور و غیاب و ثبت وکالت انتخاباتی',
+                'url' => route('attendances.create', [$this->event->group->slug, $this->event->id, $this->id]),
             ];
         }
 
         if ($this->status == ElectionStatus::WAITING_TO_START && user()->hasPermissionTo(Permission::CREATE_ELECTION_ROUNDS->value)) {
             return [
-                "title" => 'شروع انتخابات',
-                "url" => route('election-rounds.store', [$this->group->slug, $this->event->id, $this->id]),
+                'title' => 'شروع انتخابات',
+                'url' => route('election-rounds.store', [$this->event->group->slug, $this->event->id, $this->id]),
             ];
         }
 

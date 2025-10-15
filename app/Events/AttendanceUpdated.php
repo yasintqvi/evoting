@@ -2,17 +2,19 @@
 
 namespace App\Events;
 
+use App\Models\Group;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Queue\SerializesModels;
-use App\Models\Group;
 
 class AttendanceUpdated implements ShouldBroadcast
 {
     use SerializesModels;
 
     public $group;
+
     public $presentCount;
+
     public $totalCount;
 
     public function __construct(Group $group, int $presentCount, int $totalCount)
@@ -24,7 +26,7 @@ class AttendanceUpdated implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new Channel('group.' . $this->group->id . '.attendance');
+        return new Channel('group.'.$this->group->id.'.attendance');
     }
 
     public function broadcastWith()

@@ -20,11 +20,12 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
-    use Notifiable;
-    use SoftDeletes;
+
     use HasRoles;
     use LogsActivity;
     use Notifiable;
+    use Notifiable;
+    use SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -42,9 +43,8 @@ class User extends Authenticatable
         'is_active',
         'password',
         'google2fa_secret',
-        'two_factor_type'
+        'two_factor_type',
     ];
-
 
     /**
      * The attributes that should be hidden for serialization.
@@ -55,7 +55,6 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
-
 
     protected static $logAttributesToIgnore = ['updated_at'];
 
@@ -84,7 +83,7 @@ class User extends Authenticatable
         return LogOptions::defaults()
             ->logOnly(static::$logAttributes)->dontLogIfAttributesChangedOnly(static::$logAttributesToIgnore)
             ->logOnlyDirty()
-            ->setDescriptionForEvent(fn(string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'کاربر', 'subject' => $this->full_name]))
+            ->setDescriptionForEvent(fn (string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'کاربر', 'subject' => $this->full_name]))
             ->dontSubmitEmptyLogs();
     }
 
@@ -110,7 +109,7 @@ class User extends Authenticatable
 
     public function getFullNameAttribute()
     {
-        return $this->first_name . " " . $this->last_name;
+        return $this->first_name.' '.$this->last_name;
     }
 
     public function getProfileImageAttribute()

@@ -16,7 +16,7 @@ class StoreVotingRequest extends FormRequest
         return [
             'director_candidates' => ['nullable', 'array'],
             'inspector_candidates' => ['nullable', 'array'],
-            
+
         ];
     }
 }

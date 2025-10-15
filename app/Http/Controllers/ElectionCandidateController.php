@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\CandidateType;
-use App\Enums\ElectionStatus;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Election\StoreCandidateRequest;
-use App\Models\Group;
 use App\Models\Election;
 use App\Models\Event;
+use App\Models\Group;
 use App\Services\CandidateService;
 use Exception;
+use Log;
 
 class ElectionCandidateController extends Controller
 {
@@ -20,6 +18,7 @@ class ElectionCandidateController extends Controller
     {
         $this->candidateService = $candidateService;
     }
+
     /**
      * Display a listing of the resource.
      */
@@ -49,6 +48,14 @@ class ElectionCandidateController extends Controller
 
             return to_route('elections.index', $group->slug)->with('success', 'کاندید جدید اضافه شد');
         } catch (Exception $e) {
+            Log::error('Error creating candidate', [
+                'election_id' => $election->id,
+                'group_id' => $group->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'performed_by' => $request->user()?->id,
+            ]);
+
             return back()->with('error', $e->getMessage());
         }
     }
@@ -68,9 +75,8 @@ class ElectionCandidateController extends Controller
     {
         $group->load('users');
 
-        return view('app.group.event.election.candidate.edit', compact('group', 'event', 'election',));
+        return view('app.group.event.election.candidate.edit', compact('group', 'event', 'election'));
     }
-
 
     /**
      * Update the specified resource in storage.
@@ -83,6 +89,13 @@ class ElectionCandidateController extends Controller
 
             return to_route('elections.index', $group->slug)->with('success', 'کاندیدها با موفقیت به‌روزرسانی شدند.');
         } catch (Exception $e) {
+            Log::error('Error updating candidates', [
+                'election_id' => $election->id,
+                'group_id' => $group->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'performed_by' => $request->user()?->id,
+            ]);
 
             return back()->with('error', $e->getMessage());
         }

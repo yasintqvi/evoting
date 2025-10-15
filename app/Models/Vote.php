@@ -29,7 +29,7 @@ class Vote extends Model
         return LogOptions::defaults()
             ->logOnly(static::$logAttributes)->dontLogIfAttributesChangedOnly(static::$logAttributesToIgnore)
             ->logOnlyDirty()
-            ->setDescriptionForEvent(fn(string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'رای', 'subject' => $this->participant->user->full_name]))
+            ->setDescriptionForEvent(fn (string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'رای', 'subject' => $this->participant->user->full_name]))
             ->dontSubmitEmptyLogs();
     }
 

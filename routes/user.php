@@ -15,27 +15,26 @@ Route::get('/users', [UserController::class, 'index'])
     ->can(Permission::VIEW_USERS)
     ->name('users.index');
 
-Route::post('/users/{id}', [UserController::class, 'show'])
-    ->can(Permission::VIEW_USERS)
-    ->name('users.show');
-
 Route::get('/users/create', [UserController::class, 'create'])
     ->can(Permission::CREATE_USERS)
     ->name('users.create');
 
 Route::post('/users/create', [UserController::class, 'store'])
-    ->can(Permission::CREATE_USERS)
     ->name('users.store');
 
-Route::get('/users/{id}/edit', [UserController::class, 'edit'])
+Route::get('/users/{user}/edit', [UserController::class, 'edit'])
     ->can(Permission::UPDATE_USERS)
     ->name('users.edit');
 
-Route::put('users/{id}/update', [UserController::class, 'update'])
+Route::put('users/{user}/update', [UserController::class, 'update'])
     ->can(Permission::UPDATE_USERS)
     ->name('users.update');
 
-Route::delete('users/{id}/delete', [UserController::class, 'destroy'])
+Route::post('/users/{user}', [UserController::class, 'show'])
+    ->can(Permission::VIEW_USERS)
+    ->name('users.show');
+
+Route::delete('users/{user}/delete', [UserController::class, 'destroy'])
     ->can(Permission::DELETE_USERS)
     ->name('users.delete');
 
@@ -72,31 +71,32 @@ Route::prefix('{group:slug}')->group(function () {
     Route::get('/', [GroupController::class, 'index'])
         ->name('groups.index');
 
-    Route::get('/users', [UserController::class, 'index'])
+    Route::get('/users', [GroupUserController::class, 'index'])
         ->can(Permission::VIEW_USERS)
         ->name('group.users.index');
 
-    Route::post('/users/{id}', [UserController::class, 'show'])
-        ->can(Permission::VIEW_USERS)
-        ->name('group.users.show');
-
-    Route::get('/users/create', [UserController::class, 'create'])
-        ->can(Permission::CREATE_USERS)
-        ->name('group.users.create');
-
-    Route::post('/users/create', [UserController::class, 'store'])
-        ->can(Permission::CREATE_USERS)
-        ->name('group.users.store');
-
-    Route::get('/users/{id}/edit', [UserController::class, 'edit'])
+    Route::get('/users/{user}/edit', [GroupUserController::class, 'edit'])
         ->can(Permission::UPDATE_USERS)
         ->name('group.users.edit');
 
-    Route::put('users/{id}/update', [UserController::class, 'update'])
+
+    Route::get('/users/create', [GroupUserController::class, 'create'])
+        ->can(Permission::CREATE_USERS)
+        ->name('group.users.create');
+
+    Route::post('/users/create', [GroupUserController::class, 'store'])
+        ->name('group.users.store');
+
+
+    Route::put('users/{user}/update', [GroupUserController::class, 'update'])
         ->can(Permission::UPDATE_USERS)
         ->name('group.users.update');
 
-    Route::delete('users/{id}/delete', [UserController::class, 'destroy'])
+    Route::get('/users/{user}', [GroupUserController::class, 'show'])
+        ->can(Permission::VIEW_USERS)
+        ->name('group.users.show');
+
+    Route::delete('users/{user}/delete', [GroupUserController::class, 'destroy'])
         ->can(Permission::DELETE_USERS)
-        ->name('group.users.delete');
+        ->name('group.users.destroy');
 });

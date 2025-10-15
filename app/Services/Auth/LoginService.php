@@ -21,7 +21,7 @@ class LoginService
 
         $user = User::where($identifier_field, $loginDTO->identifier)->first();
 
-        if (!$user || !$user->password) {
+        if (! $user || ! $user->password) {
             return false;
         }
 
@@ -29,7 +29,7 @@ class LoginService
 
         return Auth::attempt([
             $identifier_field => $loginDTO->identifier,
-            'password' => $loginDTO->password
+            'password' => $loginDTO->password,
         ], $loginDTO->remember);
     }
 
@@ -40,7 +40,7 @@ class LoginService
 
         $user = User::where($identifier_field, $loginDTO->identifier)->first();
 
-        if (!$user) {
+        if (! $user) {
             return false;
         }
 
@@ -50,7 +50,7 @@ class LoginService
             $loginDTO->otp
         ));
 
-        if (!$response) {
+        if (! $response) {
             throw new InvalidOtpCodeException;
         }
 

@@ -77,7 +77,7 @@ abstract readonly class BaseDataTransferObject
     {
         $data = $this->getPropertiesAsArray();
 
-        return array_filter($data, fn($value) => ! is_null($value));
+        return array_filter($data, fn ($value) => ! is_null($value));
     }
 
     /**
