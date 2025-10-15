@@ -26,8 +26,6 @@ class GroupController extends Controller
             ->orderBy('created_at')
             ->get();
 
-
-
         return view('app.group.index', compact('group', 'events', 'usersCount'));
     }
 

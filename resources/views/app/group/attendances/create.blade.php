@@ -37,92 +37,84 @@
                         <div class="table-responsive-sm">
                             <table class="table mb-0">
                                 <thead>
-                                <tr>
-                                    <th>نام و نام خانوادگی</th>
-                                    <th>وضعیت حضور کاربر</th>
-                                    <th>واگذاری وکالت</th>
-                                    <th>نام وکیل</th>
-                                </tr>
+                                    <tr>
+                                        <th>نام و نام خانوادگی</th>
+                                        <th>وضعیت حضور کاربر</th>
+                                        <th>واگذاری وکالت</th>
+                                        <th>نام وکیل</th>
+                                    </tr>
                                 </thead>
                                 <tbody id="participants-table">
-                                @foreach($event->participants as $participant)
-                                    <tr id="participant-{{$participant->id}}" class="participant-{{$participant->id}}">
-                                        <td>{{ $participant->user->full_name }}</td>
-                                        <td>
-                                            @if($participant->attorney_id)
-                                                <div id="present-{{$participant->id}}">
-                                                اهدای وکالت
-                                                </div>
-
-                                            @elseif(in_array($participant->id,$attorneyIds))
-                                                دارای وکالت
-                                            @else
-
-                                                <div id="present-{{$participant->id}}">
-                                                    <input type="hidden" name="" value="0">
-                                                    <input type="checkbox"
-                                                           name="participant-present"
-                                                           id="participant-present-{{$participant->id}}"
-                                                           value="1"
-                                                           data-switch="1" {{$participant->is_present?'checked':''}}>
-                                                    <label for="participant-present-{{$participant->id}}"
-                                                           data-on-label="حاضر"
-                                                           data-off-label="غایب"
-                                                           data-id="{{$participant->id}}"
-                                                           class="mb-0 d-block present"></label>
-                                                </div>
-                                            @endif
-                                        </td>
-                                        <td id="attorney-col-{{$participant->id}}">
-                                            @if(!in_array($participant->id,$attorneyIds))
-                                                <input type="hidden"
-                                                       name="attendance[{{ $participant->id }}][attorney_id]"
-                                                       id="attorney-id-{{ $participant->id }}"
-                                                       value="{{ old("attendance.{$participant->id}.attorney_id", $participant->attorney_id ?? '') }}">
-                                                @if($participant->attorney_id)
-                                                    <button type="button"
-                                                            class="btn btn-warning btn-sm attorney-btn"
+                                    @foreach ($event->participants as $participant)
+                                        <tr id="participant-{{ $participant->id }}"
+                                            class="participant-{{ $participant->id }}">
+                                            <td>{{ $participant->user->full_name }}</td>
+                                            <td>
+                                                @if ($participant->attorney_id)
+                                                    <div id="present-{{ $participant->id }}">
+                                                        اهدای وکالت
+                                                    </div>
+                                                @elseif(in_array($participant->id, $attorneyIds))
+                                                    دارای وکالت
+                                                @else
+                                                    <div id="present-{{ $participant->id }}">
+                                                        <input type="hidden" name="" value="0">
+                                                        <input type="checkbox" name="participant-present"
+                                                            id="participant-present-{{ $participant->id }}" value="1"
+                                                            data-switch="1" {{ $participant->is_present ? 'checked' : '' }}>
+                                                        <label for="participant-present-{{ $participant->id }}"
+                                                            data-on-label="حاضر" data-off-label="غایب"
+                                                            data-id="{{ $participant->id }}"
+                                                            class="mb-0 d-block present"></label>
+                                                    </div>
+                                                @endif
+                                            </td>
+                                            <td id="attorney-col-{{ $participant->id }}">
+                                                @if (!in_array($participant->id, $attorneyIds))
+                                                    <input type="hidden"
+                                                        name="attendance[{{ $participant->id }}][attorney_id]"
+                                                        id="attorney-id-{{ $participant->id }}"
+                                                        value="{{ old("attendance.{$participant->id}.attorney_id", $participant->attorney_id ?? '') }}">
+                                                    @if ($participant->attorney_id)
+                                                        <button type="button" class="btn btn-warning btn-sm attorney-btn"
                                                             data-participant-id="{{ $participant->id }}">
-                                                        ویرایش
-                                                    </button>
-                                                    <button type="button"
+                                                            ویرایش
+                                                        </button>
+                                                        <button type="button"
                                                             class="btn btn-danger btn-sm attorney-delete-btn"
                                                             data-participant-id="{{ $participant->id }}">
-                                                        حذف
-                                                    </button>
-
-                                                @elseif(in_array($participant->id,$attorneyIds))
-                                                    وکیل
-                                                @else
-
-                                                    <button type="button"
-                                                            class="btn btn-secondary btn-sm attorney-btn"
+                                                            حذف
+                                                        </button>
+                                                    @elseif(in_array($participant->id, $attorneyIds))
+                                                        وکیل
+                                                    @else
+                                                        <button type="button" class="btn btn-secondary btn-sm attorney-btn"
                                                             data-participant-id="{{ $participant->id }}">
-                                                        انتخاب
-                                                    </button>
-                                                @endif
+                                                            انتخاب
+                                                        </button>
+                                                    @endif
 
 
-                                        </td>
-                                        <td>
+                                            </td>
+                                            <td>
 
-     <span id="attorney-{{ $participant->id }}-name" class="ms-2">
-                                            @if($participant->attorney_id)
-             {{ $participant->attorney->user->first_name   }}
-         @endif
-                                        </span>
-                                            <span id="attorney-{{ $participant->id }}-last-name" class="">
-                                            @if($participant->attorney_id)
-                                                    {{ $participant->attorney->user->last_name   }}
-                                                @endif
-                                        </span>
+                                                <span id="attorney-{{ $participant->id }}-name" class="ms-2">
+                                                    @if ($participant->attorney_id)
+                                                        {{ $participant->attorney->user->first_name }}
+                                                    @endif
+                                                </span>
+                                                <span id="attorney-{{ $participant->id }}-last-name" class="">
+                                                    @if ($participant->attorney_id)
+                                                        {{ $participant->attorney->user->last_name }}
+                                                    @endif
+                                                </span>
                                             @else
                                                 دارای وکالت
-                                            @endif
-                                        </td>
+                                    @endif
+                                    </td>
 
                                     </tr>
-                                @endforeach
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -146,7 +138,8 @@
                             <label for="attorney-phone" class="form-label">شماره تلفن</label>
                             <select id="attorney-phone" class="form-control" style="direction: rtl; width: 100%;" required>
                             </select>
-                        </div>                       <div class="mb-3">
+                        </div>
+                        <div class="mb-3">
                             <label for="attorney-name" class="form-label">نام وکیل</label>
                             <input type="text" class="form-control" id="attorney-name" required>
                         </div>
@@ -165,7 +158,6 @@
             </div>
         </div>
     </div>
-
 @endsection
 
 @section('scripts')
@@ -182,18 +174,19 @@
                     url: '/user/select2',
                     dataType: 'json',
                     delay: 250,
-                    data: function (params) {
+                    data: function(params) {
                         return {
-                            q: params.term,   // search term
+                            q: params.term, // search term
                             page: params.page || 1
                         };
                     },
-                    processResults: function (data) {
+                    processResults: function(data) {
                         return {
-                            results: $.map(data.results, function (item) {
+                            results: $.map(data.results, function(item) {
                                 return {
                                     id: item.phone,
-                                    text: item.first_name +" "+item.last_name +'-'+ item.phone
+                                    text: item.first_name + " " + item.last_name + '-' + item
+                                        .phone
                                 }
                             }),
                             pagination: {
@@ -206,7 +199,7 @@
                 minimumInputLength: 0 // only start searching after typing 1 char
             });
         });
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const modal = new bootstrap.Modal(document.getElementById('attorneyModal'));
             const attorneyForm = document.getElementById('attorneyForm');
             const currentParticipantId = document.getElementById('current-participant-id');
@@ -214,7 +207,7 @@
             const attorneyLastNameInput = document.getElementById('attorney-l-name');
             const attorneyPhoneInput = document.getElementById('attorney-phone');
 
-            document.addEventListener('click', function (event) {
+            document.addEventListener('click', function(event) {
                 if (event.target.classList.contains('attorney-btn')) {
                     const participantId = event.target.getAttribute('data-participant-id');
                     currentParticipantId.value = participantId;
@@ -224,7 +217,8 @@
 
                     if (attorneyIdInput?.value && attorneyNameSpan?.textContent) {
                         attorneyNameInput.value = attorneyNameSpan.textContent.trim();
-                        attorneyLastNameInput.value = document.getElementById(`attorney-${participantId}-last-name`).textContent.trim() ?? '';
+                        attorneyLastNameInput.value = document.getElementById(
+                            `attorney-${participantId}-last-name`).textContent.trim() ?? '';
                     } else {
                         attorneyNameInput.value = '';
                     }
@@ -234,7 +228,7 @@
                 }
             });
 
-            document.getElementById('save-attorney').addEventListener('click', function () {
+            document.getElementById('save-attorney').addEventListener('click', function() {
                 const participantId = currentParticipantId.value;
                 const attorneyName = attorneyNameInput.value.trim();
                 const attorneyLastName = attorneyLastNameInput.value.trim();
@@ -245,12 +239,12 @@
                     return;
                 }
 
-                axios.post('{{route('attorneys.store')}}', {
-                    first_name: attorneyName,
-                    last_name: attorneyLastName,
-                    phone: attorneyPhone,
-                    participant_id: participantId
-                })
+                axios.post('{{ route('attorneys.store') }}', {
+                        first_name: attorneyName,
+                        last_name: attorneyLastName,
+                        phone: attorneyPhone,
+                        participant_id: participantId
+                    })
                     .then(response => {
                         if (response.data && response.data.status == 'error') {
                             const errorMessage = response.data.message;
@@ -261,7 +255,8 @@
 
                             console.log(data);
                             if (data.data[1]?.id) {
-                                document.getElementById('participant-' + data.data[1].id).style.display = 'none';
+                                document.getElementById('participant-' + data.data[1].id).style
+                                    .display = 'none';
                             }
 
                             $('#present-' + participantId).html('اهدای وکالت');
@@ -284,7 +279,6 @@
 دارای وکالت
     </td>
 `;
-
                             tbody.appendChild(tr);
 
 
@@ -323,38 +317,40 @@
                 modal.hide();
             });
 
-            document.getElementById('attorneyModal').addEventListener('hidden.bs.modal', function () {
+            document.getElementById('attorneyModal').addEventListener('hidden.bs.modal', function() {
                 attorneyForm.reset();
             });
 
-            $('#attorney-phone').on('change', function () {
+            $('#attorney-phone').on('change', function() {
                 const value = $(this).val(); // selected value
                 if (value) {
-                    axios.post('{{route('attorneys.index')}}', {phone: value})
+                    axios.post('{{ route('attorneys.index') }}', {
+                            phone: value
+                        })
                         .then(response => {
                             const data = response.data
                             document.getElementById('attorney-name').value = data.first_name ?? '';
                             document.getElementById('attorney-l-name').value = data.last_name ?? '';
                         })
-                        .catch(error => {
-                        });
+                        .catch(error => {});
                 }
             });
-            $('#attorneyModal').on('shown.bs.modal', function () {
+            $('#attorneyModal').on('shown.bs.modal', function() {
                 const value = $('#attorney-phone').val(); // selected value
                 console.log(value);
                 if (value) {
-                    axios.post('{{route('attorneys.index')}}', {phone: value})
+                    axios.post('{{ route('attorneys.index') }}', {
+                            phone: value
+                        })
                         .then(response => {
                             const data = response.data
                             document.getElementById('attorney-name').value = data.first_name ?? '';
                             document.getElementById('attorney-l-name').value = data.last_name ?? '';
                         })
-                        .catch(error => {
-                        });
+                        .catch(error => {});
                 }
             });
-            document.addEventListener('click', function (e) {
+            document.addEventListener('click', function(e) {
                 if (e.target.matches('.present')) {
                     const id = e.target.dataset.id;
                     axios.post('/present/' + id)
@@ -368,14 +364,15 @@
             });
 
 
-            document.addEventListener('click', function (event) {
+            document.addEventListener('click', function(event) {
                 if (event.target.classList.contains('attorney-delete-btn')) {
                     const id = event.target.dataset.participantId;
                     axios.post('/delete-attorney/' + id, {}).then(response => {
                         const data = response.data;
                         if (data.status == 'success') {
                             Swal.fire('موفق', 'وکیل با موفقیت حذف شد.', 'success');
-                            document.getElementById('participant-' + data.data).style.display = 'none';
+                            document.getElementById('participant-' + data.data).style.display =
+                                'none';
                             $('#present-' + id).html(`
                              <input type="hidden" name="" value="0">
                                                     <input type="checkbox"
@@ -405,8 +402,6 @@
                     });
                 }
             });
-
         });
-
     </script>
 @endsection
