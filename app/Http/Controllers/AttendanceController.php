@@ -9,6 +9,8 @@ use App\Models\Participant;
 use App\Models\User;
 use App\Services\AttorneyService;
 use Illuminate\Http\Request;
+use Log;
+use Throwable;
 
 class AttendanceController extends Controller
 {
@@ -17,26 +19,6 @@ class AttendanceController extends Controller
     public function __construct(AttorneyService $attendanceService)
     {
         $this->attendanceService = $attendanceService;
-    }
-
-    public function index(Event $event)
-    {
-        $event = Event::find(1);
-
-        if (! $event) {
-            return response()->json([
-                'presentCount' => 0,
-                'totalCount' => 0,
-            ]);
-        }
-
-        $totalCount = $event->group->users()->count();
-        $presentCount = $event->attendances()->where('status', 1)->count();
-
-        return response()->json([
-            'presentCount' => $presentCount,
-            'totalCount' => $totalCount,
-        ]);
     }
 
     public function create(Group $group, Event $event)
@@ -52,59 +34,59 @@ class AttendanceController extends Controller
         return view('app.group.attendances.create', compact('group', 'event', 'users', 'attorneyIds'));
     }
 
-    public function store(Request $request, Group $group, Event $event)
-    {
-        $request->validate([
-            'attendance.*.status' => 'required|in:0,1',
-        ]);
-
-        foreach ($request->attendance as $userid => $data) {
-            Attendance::updateOrCreate(
-                [
-                    'event_id' => $event->id,
-                    'user_id' => $userid,
-                ],
-                [
-                    'status' => $data['status'] ?? 0,
-                ]
-            );
-        }
-
-
-        return back()->with('success', 'حضور و غیاب ثبت شد');
-    }
-
     public function setPresent(Participant $participant)
     {
         try {
-            $participant->is_present = ! $participant->is_present;
+            $participant->is_present = !$participant->is_present;
             $participant->save();
 
-            return response()->json(['status' => 'success',
-                'message' => 'با موفقیت ثبت شد.', 200]);
-        } catch (\Exception $exception) {
-            return response()->json(['status' => 'error',
-                'message' => 'با شکست مواجه شد.', 200]);
+            return response()->json([
+                'status' => 'success',
+                'message' => __('messages.attendances.successfully'),
+                200
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Error toggling participant presence', [
+                'participant_id' => $participant->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => __('messages.attendances.error'),
+            ], 500);
         }
     }
 
     public function getUser(Request $request)
     {
-        $search = $request->input('q');   // search term
-        $page = $request->input('page', 1);
-        $perPage = 10;
+        try {
+            $search = $request->input('q');
+            $page = $request->input('page', 1);
+            $perPage = 10;
 
-        $query = User::query()->select('id', 'phone', 'first_name', 'last_name');
+            $query = User::query()->select('id', 'phone', 'first_name', 'last_name');
 
-        if ($search) {
-            $query->where('phone', 'like', "%{$search}%");
+            if ($search) {
+                $query->where('phone', 'like', "%{$search}%");
+            }
+
+            $users = $query->paginate($perPage, ['*'], 'page', $page);
+
+            return response()->json([
+                'results' => $users->items(),
+                'pagination' => ['more' => $users->hasMorePages()],
+            ]);
+        } catch (\Throwable $exception) {
+            Log::error('Error fetching users', [
+                'error' => $exception->getMessage(),
+                'trace' => $exception->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => __('messages.attendances.user_error'),
+            ], 500);
         }
-
-        $users = $query->paginate($perPage, ['*'], 'page', $page);
-
-        return response()->json([
-            'results' => $users->items(),
-            'pagination' => ['more' => $users->hasMorePages()],
-        ]);
     }
 }

@@ -75,7 +75,6 @@ class AttorneyController extends Controller
                 'message' => 'خطایی هنگام ایجاد وکیل رخ داد.',
                 200
             ]);
-            //                        'message' => $e->getMessage(), 200]);
         }
     }
 
