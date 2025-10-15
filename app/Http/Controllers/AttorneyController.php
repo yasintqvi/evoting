@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Services\AttorneyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Log;
 
 class AttorneyController extends Controller
 {
@@ -31,13 +32,26 @@ class AttorneyController extends Controller
             ]);
             $users = User::where($data)->select('first_name', 'last_name', 'phone')
                 ->first();
-            if (! $users) {
-                return response()->json(['error' => 'User not found'], 200);
+            if (!$users) {
+                return response()->json(
+                    [
+                        'error' => __('messages.user.user_not_found')
+                    ],
+                    200
+                );
             }
 
             return response()->json($users);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'User not found'], 200);
+            Log::error('Error fetching user by phone', [
+                'phone' => $request->input('phone'),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'error' => __('messages.user.user_not_found')
+            ], 200);
         }
     }
 
@@ -49,13 +63,13 @@ class AttorneyController extends Controller
             $data = $request->validated();
             $participant = Participant::where('id', $request->input('participant_id'))
                 ->first();
-            if ($participant->user->phone == $request->input('phone')) {
+            if ($participant->user->phone == $data['phone']) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'کاربر نمیتواند وکیل خود باشد.',
-                    200
-                ]);
+                    'message' => __('messages.attorneys.cannot_self')
+                ], 400);
             }
+
             $dto = new CreateAttorneyDto(new User($data), $participant);
             $created = $this->attorneyService->create($dto);
 
@@ -63,18 +77,22 @@ class AttorneyController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'وکیل با موفقیت ایجاد شد.',
-                'data' => $created,
-                200
-            ]);
+                'message' => __('messages.attorneys.created'),
+                'data' => $created
+            ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
 
+            Log::error('Error creating attorney', [
+                'participant_id' => $request->input('participant_id'),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             return response()->json([
                 'status' => 'error',
-                'message' => 'خطایی هنگام ایجاد وکیل رخ داد.',
-                200
-            ]);
+                'message' => __('messages.attorneys.error')
+            ], 500);
         }
     }
 
@@ -91,25 +109,29 @@ class AttorneyController extends Controller
             if ($deleted) {
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'وکیل با موفقیت حذف شد.',
-                    'data' => $id,
-                    200
-                ]);
+                    'message' => __('messages.attorneys.deleted'),
+                    'data' => $id
+                ], 200);
+
             } else {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'خطایی هنگام حذف وکیل رخ داد.',
-                    200
-                ]);
+                    'message' => __('messages.attorneys.error')
+                ], 500);
             }
         } catch (\Exception $e) {
             DB::rollBack();
 
+            Log::error('Error deleting attorney', [
+                'participant_id' => $participant->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             return response()->json([
                 'status' => 'error',
-                'message' => 'خطایی هنگام حذف وکیل رخ داد.',
-                200
-            ]);
+                'message' => __('messages.attorneys.error')
+            ], 500);
         }
     }
 }
