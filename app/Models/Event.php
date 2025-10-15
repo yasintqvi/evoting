@@ -45,7 +45,10 @@ class Event extends Model
             ],
         ];
     }
-
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 
     public function getActivitylogOptions(): LogOptions
     {
