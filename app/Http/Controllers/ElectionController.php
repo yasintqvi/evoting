@@ -49,8 +49,15 @@ class ElectionController extends Controller
 
             return to_route('elections.index', [$group->slug, $event->id])->with('success', __('messages.election.created'));
         } catch (Throwable $th) {
+            Log::error('Error creating election', [
+                'group_id' => $group->id,
+                'event_id' => $event->id,
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+                'performed_by' => $request->user()?->id,
+            ]);
 
-            return back()->with('error', 'خطایی هنگام ایجاد انتخابات رخ داد.');
+            return back()->with('error', __('messages.election.error'));
         }
     }
 
@@ -78,6 +85,14 @@ class ElectionController extends Controller
 
             return to_route('elections.index', [$group->slug, $event->id])->with('success', __('messages.election.edited'));
         } catch (Throwable $th) {
+            Log::error('Error updating election', [
+                'election_id' => $election->id,
+                'group_id' => $group->id,
+                'event_id' => $event->id,
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+                'performed_by' => $request->user()?->id,
+            ]);
 
             return back()->with('error', $th->getMessage());
         }
@@ -91,6 +106,14 @@ class ElectionController extends Controller
 
             return back()->with('success', __('messages.election.deleted'));
         } catch (Throwable $th) {
+            Log::error('Error deleting election', [
+                'election_id' => $election->id,
+                'group_id' => $group->id,
+                'event_id' => $event->id,
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+                'performed_by' => auth()->id(),
+            ]);
 
             return back()->with('error', $th->getMessage());
         }
