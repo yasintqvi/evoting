@@ -17,7 +17,7 @@
     </div>
 </div>
 
-<form action="{{ route('elections.store', [$group->slug, $event->id]) }}" method="post">
+<form action="{{ route('elections.store', [$group->slug, $event]) }}" method="post">
     @csrf
     <div class="card col-lg-6">
         <div class="card-header border-bottom border-dashed">
@@ -163,10 +163,10 @@
             .then(data => {
                 if (data.success) {
                     $('#position_id').find('option[value="' + positionTitle + '"]').remove();
-                    
+
                     const newOption = new Option(positionTitle, data.position_id, true, true);
                     $('#position_id').append(newOption).trigger('change');
-                    
+
                     showToast('success', 'مقام جدید با موفقیت ایجاد شد');
                 }
             })

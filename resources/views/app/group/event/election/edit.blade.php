@@ -17,7 +17,7 @@
     </div>
 </div>
 
-<form action="{{ route('elections.update', [$group->slug, $event->id, $election->id]) }}" method="post">
+<form action="{{ route('elections.update', [$group->slug, $event, $election->id]) }}" method="post">
     @csrf
     @method('PUT')
     <div class="card col-lg-6">
@@ -89,7 +89,7 @@
         </div>
         <div class="card-footer">
             <div class="text-end mb-3 d-flex gap-2">
-                <a href="{{ route('elections.index', [$group->slug, $event->id]) }}" class="btn btn-secondary">انصراف</a>
+                <a href="{{ route('elections.index', [$group->slug, $event]) }}" class="btn btn-secondary">انصراف</a>
                 <button type="submit" class="btn btn-primary">بروزرسانی</button>
             </div>
         </div>

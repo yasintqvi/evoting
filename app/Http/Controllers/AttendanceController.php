@@ -21,7 +21,6 @@ class AttendanceController extends Controller
 
     public function index(Event $event)
     {
-        $event = Event::find(1);
 
         if (! $event) {
             return response()->json([
