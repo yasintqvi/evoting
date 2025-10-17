@@ -7,6 +7,7 @@ use App\Models\Event;
 use App\Models\Group;
 use App\Services\Image\ImageService;
 use Illuminate\Http\Request;
+use Log;
 
 class EventController extends Controller
 {
@@ -30,41 +31,37 @@ class EventController extends Controller
      */
     public function store(EventRequest $request, Group $group, ImageService $imageService)
     {
-        $data = $request->validated();
+        try {
+            $data = $request->validated();
 
-        if ($request->hasFile('logo')) {
-            $data['logo'] = $imageService->setImage($data['logo'])
-                ->setExclusiveDirectory('images/events')
-                ->save();
-        }
+            if ($request->hasFile('logo')) {
+                $data['logo'] = $imageService->setImage($data['logo'])
+                    ->setExclusiveDirectory('images/events')
+                    ->save();
+            }
 
-        $event = $group->events()->create($data);
+            $event = $group->events()->create($data);
 
-        foreach ($group->users as $user) {
-            $event->participants()->create([
-                'user_id' => $user->id,
-                'normal_stock_count' => $user->pivot->normal_stock_count,
-                'prefered_stock_count' => $user->pivot->prefered_stock_count,
+            foreach ($group->users as $user) {
+                $event->participants()->create([
+                    'user_id' => $user->id,
+                    'normal_stock_count' => $user->pivot->normal_stock_count,
+                    'prefered_stock_count' => $user->pivot->prefered_stock_count,
+                ]);
+            }
+
+            return back()->with('success', __('messages.event.created'));
+
+        } catch (\Throwable $th) {
+            Log::error('Error while creating event', [
+                'group_id' => $group->id,
+                'user_id' => auth()->id(),
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
             ]);
+
+            return back()->with('error', __('messages.event.create_error'));
         }
-
-        return back();
-    }
-
-
-    public function attendanceStats(Event $event)
-    {
-        $participants = $event->participants;
-
-        $map = [
-            'absent' => 0,
-            'present' => 1,
-        ];
-
-        return response()->json([
-            'present' => $event->participants()->where('is_present', $map['present'])->count(),
-            'absent' => $event->participants()->where('is_present', $map['absent'])->count(),
-        ]);
     }
 
     /**
@@ -88,25 +85,41 @@ class EventController extends Controller
      */
     public function update(EventRequest $request, Group $group, Event $event, ImageService $imageService)
     {
-        $data = $request->validated();
+        try {
+            $data = $request->validated();
 
-        if ($request->hasFile('logo')) {
-            if (!empty($event->logo)) {
-                $imageService->deleteImage($event->logo);
+            if ($request->hasFile('logo')) {
+                if (!empty($event->logo)) {
+                    $imageService->deleteImage($event->logo);
+                }
+
+                $data['logo'] = $imageService->setImage($data['logo'])
+                    ->setExclusiveDirectory('images/events')
+                    ->save();
             }
 
-            $data['logo'] = $imageService->setImage($data['logo'])
-                ->setExclusiveDirectory('images/events')
-                ->save();
+            $event->update($data);
+
+            return back()->with('success', __('messages.event.updated'));
+
+        } catch (\Throwable $th) {
+            Log::error('Error while updating event', [
+                'event_id' => $event->id,
+                'group_id' => $group->id,
+                'user_id' => auth()->id(),
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+
+            return back()->with('error', __('messages.event.update_error'));
         }
-
-        $event->update($data);
-
-        return back()->with('success', 'رویداد با موفقیت بروزرسانی شد.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Group $group, Event $event) {}
+    public function destroy(Group $group, Event $event)
+    {
+
+    }
 }
