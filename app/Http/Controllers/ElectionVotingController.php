@@ -114,7 +114,7 @@ class ElectionVotingController extends Controller
             ]);
         });
 
-        return to_route('elections.index', $group->slug)->with('success', 'رای‌های شما با موفقیت ثبت شدند.');
+        return to_route('elections.index', $group)->with('success', 'رای‌های شما با موفقیت ثبت شدند.');
     }
 
     /**

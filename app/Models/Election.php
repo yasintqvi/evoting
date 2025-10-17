@@ -54,6 +54,10 @@ class Election extends Model
             'status' => ElectionStatus::class,
         ];
     }
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 
     public function group(): BelongsTo
     {

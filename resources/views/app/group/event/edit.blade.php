@@ -24,7 +24,7 @@
                     <h4 class="card-title mb-0">ویرایش رویداد</h4>
                 </div>
 
-                <form action="{{ route('events.update', [$group->slug, $event]) }}" method="post"
+                <form action="{{ route('events.update', [$group, $event]) }}" method="post"
                       enctype="multipart/form-data">
                     @csrf
                     @method('PUT')

@@ -41,7 +41,7 @@ class UserExcelController extends Controller
 
             $election->save();
 
-            return to_route('elections.index', $group->slug)
+            return to_route('elections.index', $group)
                 ->with('success', 'سهام‌داران با موفقیت وارد شدند.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());

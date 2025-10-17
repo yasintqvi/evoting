@@ -45,7 +45,7 @@ class ElectionCandidateController extends Controller
 
             $this->candidateService->create($election, $request->toDto());
 
-            return to_route('elections.index', $group->slug)->with('success', 'کاندید جدید اضافه شد');
+            return to_route('elections.index', $group)->with('success', 'کاندید جدید اضافه شد');
         } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -78,7 +78,7 @@ class ElectionCandidateController extends Controller
 
             $this->candidateService->update($election, $request->toDto());
 
-            return to_route('elections.index', $group->slug)->with('success', 'کاندیدها با موفقیت به‌روزرسانی شدند.');
+            return to_route('elections.index', $group)->with('success', 'کاندیدها با موفقیت به‌روزرسانی شدند.');
         } catch (Exception $e) {
 
             return back()->with('error', $e->getMessage());

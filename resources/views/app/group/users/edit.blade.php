@@ -26,7 +26,7 @@
             </div>
 
             <!-- فرم ویرایش کاربر جدید -->
-            <form id="new-user-form" action="{{ route('group.users.update', [$group->slug, $user->id]) }}" method="post"
+            <form id="new-user-form" action="{{ route('group.users.update', [$group, $user]) }}" method="post"
                 style="display: block;">
                 @csrf
                 @method('PUT')

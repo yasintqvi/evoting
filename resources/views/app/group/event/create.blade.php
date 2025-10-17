@@ -25,7 +25,7 @@
                     </div>
 
 
-                    <form action="{{ route('events.store', $group->slug) }}" method="post" enctype="multipart/form-data">
+                    <form action="{{ route('events.store', $group) }}" method="post" enctype="multipart/form-data">
                         @csrf
                         <div class="card-body">
                             <div class="row">

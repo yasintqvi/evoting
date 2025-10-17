@@ -19,7 +19,7 @@
     </div>
 </div>
 
-<form action="{{ route('candidates.update', [$group->slug,$event, $election->id]) }}" method="post">
+<form action="{{ route('candidates.update', [$group,$event, $election]) }}" method="post">
     @csrf
     @method('put')
     <div class="card col-lg-6">

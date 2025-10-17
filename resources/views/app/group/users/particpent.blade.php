@@ -23,7 +23,7 @@
         </div>
     </form>
 
-    <form action="{{ route('group.users.store-participant', $group->slug) }}" method="POST">
+    <form action="{{ route('group.users.store-participant', $group) }}" method="POST">
         @csrf
         <div class="card">
             <div class="card-header">

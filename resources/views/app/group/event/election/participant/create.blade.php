@@ -87,7 +87,7 @@
                 <div class="tab-content">
                     <div class="tab-pane active show" id="description" role="tabpanel">
                         <form class="col-lg-12"
-                            action="{{ route('participants.store', [$group->slug, $election->id]) }}" method="post">
+                            action="{{ route('participants.store', [$group, $election]) }}" method="post">
                             @csrf
                             <div>
                                 <div class="card-header border-bottom border-dashed">
@@ -197,7 +197,7 @@
                     <div class="tab-pane" id="review" role="tabpanel">
                         <div class="row ">
                             <form
-                                action="{{ route('participants.store-table-participen', [$group->slug, $election->id]) }}"
+                                action="{{ route('participants.store-table-participen', [$group, $election]) }}"
                                 method="post" class="col-lg-12">
                                 @csrf
                                 <div>
@@ -318,7 +318,7 @@
 </div>
 
 @if (in_array($election->type, [App\Enums\ElectionType::PRIVATE_JOINT, App\Enums\ElectionType::PRIVATE_JOINT_WITH_88]))
-<form class="card col-lg-5" action="{{ route('participants.import', [$group->slug, $election->id]) }}"
+<form class="card col-lg-5" action="{{ route('participants.import', [$group, $election]) }}"
     method="POST" enctype="multipart/form-data">
     @csrf
     <div>

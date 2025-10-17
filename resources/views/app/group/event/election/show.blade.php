@@ -105,9 +105,9 @@
             <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center">
                 <h4 class="card-title mb-0">دور {{ $key + 1 }} انتخابات</h4>
                 <div class="d-flex align-items-center">
-                    <a href="{{ route('election-rounds.show', [$group->slug, $election->id, $electionRound->id]) }}" class="btn btn-outline-success mx-2">دیدن نتایج</a>
+                    <a href="{{ route('election-rounds.show', [$group, $election, $electionRound->id]) }}" class="btn btn-outline-success mx-2">دیدن نتایج</a>
                     @if ($election['rounds']->where('is_active', true)->exists())
-                    <form action="{{ route('voting.terminate', [$group->slug, $election->id]) }}" class="p-0 m-0" method="post">
+                    <form action="{{ route('voting.terminate', [$group, $election]) }}" class="p-0 m-0" method="post">
                         @csrf
                         <button class="btn btn-danger">خاتمه دادن</a>
                     </form>

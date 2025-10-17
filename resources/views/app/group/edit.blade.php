@@ -29,7 +29,7 @@
                 <h4 class="card-title mb-0">ویرایش گروه</h4>
             </div>
 
-            <form action="{{ route('groups.update', $group->slug) }}" method="post" enctype="multipart/form-data">
+            <form action="{{ route('groups.update', $group) }}" method="post" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <div class="card-body">
