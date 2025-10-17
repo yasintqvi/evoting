@@ -10,11 +10,14 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Log;
 use PragmaRX\Google2FAQRCode\Google2FA;
 
 class ProfileController extends Controller
 {
-    public function __construct(protected ImageService $imageService) {}
+    public function __construct(protected ImageService $imageService)
+    {
+    }
 
     public function show(): View
     {
@@ -25,72 +28,118 @@ class ProfileController extends Controller
     {
         $user = user();
 
-        $validated = $request->validated();
+        try {
+            $validated = $request->validated();
 
-        if ($request->hasFile('avatar')) {
-            $validated['avatar'] = $this->imageService
-                ->setImage($request->file('avatar'))
-                ->setExclusiveDirectory('images/profiles')
-                ->save();
+            if ($request->hasFile('avatar')) {
+                $validated['avatar'] = $this->imageService
+                    ->setImage($request->file('avatar'))
+                    ->setExclusiveDirectory('images/profiles')
+                    ->save();
+            }
+
+            $user->update($validated);
+
+            Log::info('User profile updated', [
+                'user_id' => $user->id,
+                'performed_by' => $user->id,
+            ]);
+
+            return back()->with('success', __('messages.profile_updated'));
+
+        } catch (\Throwable $th) {
+            Log::error('Error updating user profile', [
+                'user_id' => $user->id,
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+
+            return back()->with('error', __('messages.profile_update_error'));
         }
-
-        $user->update($validated);
-
-        return back()->with('profile_updated', __('messages.profile_updated'));
     }
 
     public function changePassword(ChangePasswordRequest $request): RedirectResponse
     {
-        $hashedPassword = user()->password;
+        try {
+            $hashedPassword = user()->password;
 
-        if (! password_verify($request->validated('current_password'), $hashedPassword)) {
-            return back()->withErrors([
-                'current_password' => __('messages.current_password_invalid'),
+            if (!password_verify($request->validated('current_password'), $hashedPassword)) {
+                return back()->withErrors([
+                    'current_password' => __('messages.current_password_invalid'),
+                ]);
+            }
+
+            return back()->with('password_changed', __('messages.password_changed'));
+        } catch (\Throwable $th) {
+            Log::error('Error changing user password', [
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
             ]);
-        }
 
-        return back()->with('password_changed', __('messages.password_changed'));
+            return back()->with('error', __('messages.password_change_error'));
+        }
     }
 
     public function enableGoogle2FA(Request $request)
     {
-        $google2fa = new Google2FA;
+        try {
+            $google2fa = new Google2FA;
 
-        $secretKey = $google2fa->generateSecretKey();
+            $secretKey = $google2fa->generateSecretKey();
 
-        $user = user();
-        $user->google2fa_secret = $secretKey;
-        $user->save();
+            $user = user();
+            $user->google2fa_secret = $secretKey;
+            $user->save();
 
-        $QRImage = $google2fa->getQRCodeInline(
-            config('app.name'),
-            $user->phone,
-            $secretKey
-        );
+            $QRImage = $google2fa->getQRCodeInline(
+                config('app.name'),
+                $user->phone,
+                $secretKey
+            );
 
-        return back()->with('google_2fa_verify', [
-            'qr_image' => $QRImage,
-            'secret_key' => $secretKey,
-        ]);
+            return back()->with('google_2fa_verify', [
+                'qr_image' => $QRImage,
+                'secret_key' => $secretKey,
+            ]);
+        } catch (\Throwable $th) {
+            Log::error('Error enabling Google 2FA', [
+                'user_id' => user()->id ?? null,
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+
+            return back()->with('error', __('messages.google2fa.enable_error'));
+        }
     }
 
     public function verifyGoogle2FA(Request $request)
     {
-        $google2fa = new Google2FA;
+        try {
+            $google2fa = new Google2FA;
 
-        $user = user();
+            $user = user();
 
-        $valid = $google2fa->verifyKey($user->google2fa_secret, $request->input('otp'));
+            $valid = $google2fa->verifyKey($user->google2fa_secret, $request->input('otp'));
 
-        if (! $valid) {
-            return back()->withErrors(['otp' => __('messages.invalid_otp')]);
+            if (!$valid) {
+                return back()->withErrors(['otp' => __('messages.invalid_otp')]);
+            }
+
+            $user->update([
+                'two_factor_type' => TwoFactorType::GOOGLE_AUTHENTICATOR,
+            ]);
+
+            return back()->with('google2fa_verified', __('messages.google2fa_verified'));
+        } catch (\Throwable $th) {
+            Log::error('Error verifying Google 2FA', [
+                'user_id' => user()->id ?? null,
+                'otp' => $request->input('otp'),
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+
+            return back()->with('error', __('messages.google2fa.verify_error'));
         }
-
-        $user->update([
-            'two_factor_type' => TwoFactorType::GOOGLE_AUTHENTICATOR,
-        ]);
-
-        return back()->with('google2fa_verified', __('messages.google2fa_verified'));
     }
 
     public function logout(): RedirectResponse
