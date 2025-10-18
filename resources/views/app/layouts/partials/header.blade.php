@@ -17,12 +17,12 @@
                     style="position: absolute; inset: 0px 0px auto auto; margin: 0px; transform: translate(0px, 40px);">
                     @foreach (user()->groups->except($group->id) as $otherGroup)
                     <a class="dropdown-item"
-                        href="{{ route('groups.index', $otherGroup->slug) }}">{{ $otherGroup->title }}</a>
+                        href="{{ route('groups.index', $otherGroup) }}">{{ $otherGroup->title }}</a>
                     @endforeach
                     <hr>
                     <a class="dropdown-item" href="{{ route('app.index') }}">همه گروه ها</a>
                     <a class="dropdown-item text-primary"
-                        href="{{ route('groups.edit', $group->slug) }}">ویرایش</a>
+                        href="{{ route('groups.edit', $group) }}">ویرایش</a>
                     <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#leave-group" href="#!">ترک
                         کردن</a>
                     <a class="dropdown-item active fw-semibold text-danger" data-bs-toggle="modal"
@@ -290,7 +290,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">انصراف</button>
-                <form action="{{ route('groups.delete', $group->slug) }}" method="post">
+                <form action="{{ route('groups.delete', $group) }}" method="post">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger">بله مطمئن هستم</button>
@@ -315,7 +315,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">انصراف</button>
-                <form action="{{ route('groups.leave', $group->slug) }}" method="post">
+                <form action="{{ route('groups.leave', $group) }}" method="post">
                     @csrf
                     <button type="submit" class="btn btn-danger">بله مطمئن هستم</button>
                 </form>

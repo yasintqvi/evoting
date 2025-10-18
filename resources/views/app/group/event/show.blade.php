@@ -11,7 +11,7 @@
         <ol class="breadcrumb m-0 py-0">
             <li class="breadcrumb-item"><a href="javascript: void(0);">داشبورد</a></li>
 
-            <li class="breadcrumb-item"><a href="{{ route('groups.index', $group->slug) }}">{{ $group->title }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('groups.index', $group) }}">{{ $group->title }}</a></li>
             <li class="breadcrumb-item active">ساخت رویداد جدید</li>
         </ol>
 
@@ -28,7 +28,7 @@
                             <iconify-icon icon="solar:map-arrow-right-bold-duotone" class="me-2 fs-18 text-muted"></iconify-icon>
                             <span>همه</span>
                         </a>
-                        <a href="{{ route('elections.index', [$group->slug, $event]) }}" class="{{ is_active('elections') ? 'active' : '' }}">
+                        <a href="{{ route('elections.index', [$group, $event]) }}" class="{{ is_active('elections') ? 'active' : '' }}">
                             <iconify-icon icon="solar:map-arrow-right-bold-duotone" class="me-2 fs-18 text-muted"></iconify-icon>
                             <span>انتخابات</span>
                         </a>

@@ -36,7 +36,7 @@
                     </div>
                     <div class="p-3">
                         <div class="d-flex flex-column">
-                            <a type="button" href="{{ route('elections.show', [$group->slug, $election->id]) }}"
+                            <a type="button" href="{{ route('elections.show', [$group, $election]) }}"
                                 class="btn fw-medium btn-success drop-arrow-none dropdown-toggle w-100 mb-3">
                                 بازگشت به جزئیات
                             </a>

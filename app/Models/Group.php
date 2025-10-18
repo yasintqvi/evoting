@@ -57,6 +57,10 @@ class Group extends Model
             ],
         ];
     }
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 
     protected function casts()
     {

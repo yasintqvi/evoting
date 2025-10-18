@@ -32,7 +32,7 @@
         <!--- Sidenav Menu -->
         <ul class="side-nav">
             <li class="side-nav-item">
-                <a href="{{ route('groups.index', $group->slug) }}" class="side-nav-link">
+                <a href="{{ route('groups.index', $group) }}" class="side-nav-link">
                      <span class="menu-icon">
                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                               class="bi bi-house-door-fill" viewBox="0 0 16 16">
@@ -45,7 +45,7 @@
             </li>
             @can(\App\Enums\Permission::VIEW_GROUP_USERS->value)
                 <li class="side-nav-item">
-                    <a href="{{ route('group.users.index', $group->slug) }}" class="side-nav-link">
+                    <a href="{{ route('group.users.index', $group) }}" class="side-nav-link">
                          <span class="menu-icon">
                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                  <circle cx="15" cy="6" r="3" fill="currentColor" opacity="0.4"/>
@@ -87,19 +87,19 @@
                          <div class="collapse" id="event-{{ $event->id }}">
                              <ul class="sub-menu">
                                  <li class="side-nav-item">
-                                     <a href="{{ route('attendances.create', [$group->slug, $event]) }}"
+                                     <a href="{{ route('attendances.create', [$group, $event]) }}"
                                          class="side-nav-link">
                                          <span class="menu-text">حضور و غیاب</span>
                                      </a>
                                  </li>
                                  <li class="side-nav-item">
-                                     <a href="{{ route('elections.index', [$group->slug, $event]) }}"
+                                     <a href="{{ route('elections.index', [$group, $event]) }}"
                                          class="side-nav-link">
                                          <span class="menu-text">انتخابات</span>
                                      </a>
                                  </li>
                                  <li class="side-nav-item">
-                                     <a href="{{ route('surveys.index', [$group->slug, $event]) }}"
+                                     <a href="{{ route('surveys.index', [$group, $event]) }}"
                                          class="side-nav-link">
                                          <span class="menu-text">نظرسنجی‌ها</span>
                                      </a>
@@ -117,7 +117,7 @@
 
                 @can(\App\Enums\Permission::CREATE_GROUP_EVENT->value)
                     <div class="d-flex flex-column mt-3">
-                        <a href="{{ route('events.create', $group->slug) }}" class="btn btn-secondary btn-sm mx-auto">رویداد
+                        <a href="{{ route('events.create', $group) }}" class="btn btn-secondary btn-sm mx-auto">رویداد
                             جدید</a>
                     </div>
                 @endcan

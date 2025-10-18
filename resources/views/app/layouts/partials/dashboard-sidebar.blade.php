@@ -32,7 +32,7 @@
 
              @forelse(user()->groups as $group)
              <li class="side-nav-item">
-                 <a href="{{route('groups.index', $group->slug)}}" class="side-nav-link">
+                 <a href="{{route('groups.index', $group)}}" class="side-nav-link">
                      <span class="menu-icon"><img src="{{asset($group->logo) }}" class="rounded-circle me-lg-2 d-flex object-fit-cover" width="20" height="20" alt="{{$group->title}}"></span>
                      <span class="menu-text">{{$group->title}}</span>
                  </a>

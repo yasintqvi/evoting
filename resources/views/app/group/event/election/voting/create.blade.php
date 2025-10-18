@@ -15,7 +15,7 @@
         </ol>
     </div>
 </div>
-<form action="{{ route('voting.store', [$group->slug, $election->id]) }}" method="post">
+<form action="{{ route('voting.store', [$group, $election]) }}" method="post">
     @csrf
     <div class="row">
         <div class="col-xl-4 col-lg-12">

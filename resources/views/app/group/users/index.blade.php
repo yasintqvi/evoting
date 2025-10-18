@@ -33,7 +33,7 @@
                         </form>
 
 
-                        <a href="{{ route('group.users.create', $group->slug) }}"
+                        <a href="{{ route('group.users.create', $group) }}"
                             class="btn btn-success bg-gradient h-100 p-2">
                             <i class="ti ti-plus me-1"></i>افزودن کاربر به این گروه
                         </a>
@@ -81,10 +81,10 @@
 
                                     <td class="pe-3">
                                         <div class="hstack gap-1 justify-content-end">
-                                            <a href="{{ route('group.users.edit', [$group->slug, $user->id]) }}"
+                                            <a href="{{ route('group.users.edit', [$group, $user]) }}"
                                                 class="btn btn-secondary btn-sm">
                                                 <i class="ti ti-edit"></i></a>
-                                            <form action="{{ route('group.users.destroy', [$group->slug, $user->id]) }}"
+                                            <form action="{{ route('group.users.destroy', [$group, $user]) }}"
                                                 method="POST" class="d-inline delete-role-form">
                                                 @csrf
                                                 @method('DELETE')

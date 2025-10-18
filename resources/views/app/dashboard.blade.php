@@ -20,7 +20,7 @@
     <div class="col">
         <div class="card">
             <div class="card-body">
-                <a href="{{ route('groups.edit', $group->slug) }}" class="text-muted float-end mt-n1 fs-18"><i class="ti ti-edit"></i></a>
+                <a href="{{ route('groups.edit', $group) }}" class="text-muted float-end mt-n1 fs-18"><i class="ti ti-edit"></i></a>
                 <h5 class="text-muted fs-13 text-uppercase" title="Number of Orders">{{ $group->title }}</h5>
                 <div class="d-flex align-items-center gap-2 my-3">
                     <div class="avatar-md flex-shrink-0">

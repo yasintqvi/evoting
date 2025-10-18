@@ -60,7 +60,7 @@
         {{ $isApproved ? 'border-success' : 'border-primary bg-white' }}
         transition-all hover:shadow-lg">
 
-                <a href="{{ route('group.users.index', $group->slug) }}"
+                <a href="{{ route('group.users.index', $group) }}"
                     class="text-decoration-none {{ $isApproved ? 'text-success' : 'text-primary' }}">
                     <div class="d-flex align-items-center gap-3 mb-2">
                         <div
@@ -112,11 +112,11 @@
 
                         <div class="mt-auto">
                             <div class="d-flex gap-2 flex-nowrap">
-                                <a href="{{ route('group.event.show', [$group->slug, $event]) }}"
+                                <a href="{{ route('group.event.show', [$group, $event]) }}"
                                     class="btn btn-outline-primary rounded-pill flex-fill text-nowrap">
                                     مشاهده جزئیات
                                 </a>
-                                <a href="{{ route('group.event.edit', [$group->slug, $event]) }}"
+                                <a href="{{ route('group.event.edit', [$group, $event]) }}"
                                     class="btn btn-outline-warning rounded-pill flex-fill text-nowrap">
                                     ویرایش رویداد
                                 </a>

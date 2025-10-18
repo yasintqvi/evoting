@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Group\GroupRequest;
 use App\Models\Group;
 use App\Services\Image\ImageService;
+use Log;
 
 class GroupController extends Controller
 {
-    public function __construct(protected ImageService $imageService) {}
+    public function __construct(protected ImageService $imageService)
+    {
+    }
 
     public function index(Group $group)
     {
@@ -36,20 +39,30 @@ class GroupController extends Controller
 
     public function store(GroupRequest $request)
     {
-        $validated = $request->validated();
+        try {
+            $validated = $request->validated();
 
-        if ($request->hasFile('logo')) {
-            $validated['logo'] = $this->imageService
-                ->setImage($request->file('logo'))
-                ->setExclusiveDirectory('images/companies')
-                ->save();
+            if ($request->hasFile('logo')) {
+                $validated['logo'] = $this->imageService
+                    ->setImage($request->file('logo'))
+                    ->setExclusiveDirectory('images/companies')
+                    ->save();
+            }
+
+            $group = user()->ownerCompanies()->create($validated);
+            $group->users()->attach(user()->id);
+
+            return back()->with('success', __('messages.company.created'));
+
+        } catch (\Throwable $th) {
+            Log::error('Error while creating company', [
+                'user_id' => auth()->id(),
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+
+            return back()->with('error', __('messages.company.create_error'));
         }
-
-        $group = user()->ownerCompanies()->create($validated);
-
-        $group->users()->attach(user()->id);
-
-        return back()->with('success', __('messages.company_updated'));
     }
 
     public function edit(Group $group)
@@ -59,18 +72,29 @@ class GroupController extends Controller
 
     public function update(GroupRequest $request, Group $group)
     {
-        $validated = $request->validated();
+        try {
+            $validated = $request->validated();
 
-        if ($request->hasFile('logo')) {
-            $validated['logo'] = $this->imageService
-                ->setImage($request->file('logo'))
-                ->setExclusiveDirectory('images/companies')
-                ->save();
+            if ($request->hasFile('logo')) {
+                $validated['logo'] = $this->imageService
+                    ->setImage($request->file('logo'))
+                    ->setExclusiveDirectory('images/companies')
+                    ->save();
+            }
+
+            $group = $group->update($validated);
+
+            return back()->with('success', __('messages.company.updated'));
+        } catch (\Throwable $th) {
+            Log::error('Error while updating company', [
+                'group_id' => $group->id,
+                'user_id' => auth()->id(),
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+
+            return back()->with('error', __('messages.company.update_error'));
         }
-
-        $group = $group->update($validated);
-
-        return back()->with('success', __('messages.company_updated'));
     }
 
     public function destroy(Group $group)

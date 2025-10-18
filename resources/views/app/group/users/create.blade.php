@@ -22,7 +22,7 @@
             </div>
         </div>
 
-        <form id="new-user-form" action="{{ route('group.users.store', $group->slug) }}" method="post" style="display: block;">
+        <form id="new-user-form" action="{{ route('group.users.store', $group) }}" method="post" style="display: block;">
             @csrf
             <div class="card-body">
                 <div class="row">

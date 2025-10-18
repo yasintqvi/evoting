@@ -7,6 +7,7 @@ use App\Http\Requests\User\UpdateUserRequest;
 use App\Models\Group;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Log;
 
 class UserController extends Controller
 {
@@ -47,9 +48,21 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
-        $user = User::create($request->validated());
+        try {
+            $user = User::create($request->validated());
 
-        return redirect()->route(route: 'users.index')->with('success', 'اطلاعات کاربر با موفقیت ایجاد شد.');
+            return redirect()->route('users.index')
+                ->with('success', __('messages.user.created'));
+        } catch (\Throwable $th) {
+            Log::error('Error creating user', [
+                'performed_by' => user()->id ?? null,
+                'request_data' => $request->all(),
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+
+            return back()->with('error', __('messages.user.create_error'));
+        }
     }
 
     /**
@@ -75,10 +88,23 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user)
     {
-        $inputs = $request->validated();
-        $user->update($inputs);
+        try {
+            $inputs = $request->validated();
+            $user->update($inputs);
 
-        return redirect()->route(route: 'users.index')->with('success', 'اطلاعات کاربر با موفقیت به‌روزرسانی شد.');
+            return redirect()->route('users.index')
+                ->with('success', __('messages.user.updated'));
+        } catch (\Throwable $th) {
+            Log::error('Error updating user', [
+                'performed_by' => user()->id ?? null,
+                'user_id' => $user->id,
+                'request_data' => $request->all(),
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+
+            return back()->with('error', __('messages.user.update_error'));
+        }
     }
 
     /**

@@ -9,13 +9,16 @@ use App\Models\Election;
 use App\Models\Group;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Log;
 
 class ElectionVotingController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index() {}
+    public function index()
+    {
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -26,7 +29,7 @@ class ElectionVotingController extends Controller
             return back();
         }
 
-        if (! $election->participants()->where('user_id', user()->id)->exists()) {
+        if (!$election->participants()->where('user_id', user()->id)->exists()) {
             return back();
         }
 
@@ -48,73 +51,86 @@ class ElectionVotingController extends Controller
      */
     public function store(StoreVotingRequest $request, Group $group, Election $election)
     {
-        $data = $request->validated();
+        try {
+            $data = $request->validated();
 
-        if (! isset($data['director_candidates']) || empty($data['director_candidates'])) {
-            $data['director_candidates'] = [];
-            foreach ($election->candidates()->where('candidate_type', CandidateType::DIRECTOR)->get() as $candidate) {
-                $data['director_candidates'][$candidate->id] = 0;
-            }
-        }
-
-        if (! isset($data['inspector_candidates']) || empty($data['inspector_candidates'])) {
-            $data['inspector_candidates'] = [];
-            foreach ($election->candidates()->where('candidate_type', CandidateType::INSPECTOR)->get() as $candidate) {
-                $data['inspector_candidates'][$candidate->id] = 0;
-            }
-        }
-
-        if (count(array_filter($data['director_candidates'], fn ($item) => $item > 0)) > $election->main_member_count) {
-            return back()->withErrors(['director_candidates' => 'تعداد کاندیداهای مدیر بیش از حد مجاز است.']);
-        }
-
-        if (count(array_filter($data['inspector_candidates'], fn ($item) => $item > 0)) > $election->incpector_main_member_count) {
-            return back()->withErrors(['inspector_candidates' => 'تعداد کاندیداهای بازرس بیش از حد مجاز است.']);
-        }
-
-        DB::transaction(function () use ($election, $data) {
-            $participant = $election->participants()->where('user_id', user()->id)->first();
-
-            $activeRound = $election->rounds()->where('is_active', true)->first();
-
-            if (! $activeRound) {
-                $activeRound = $election->rounds()->create(['is_active' => true]);
+            if (!isset($data['director_candidates']) || empty($data['director_candidates'])) {
+                $data['director_candidates'] = [];
+                foreach ($election->candidates()->where('candidate_type', CandidateType::DIRECTOR)->get() as $candidate) {
+                    $data['director_candidates'][$candidate->id] = 0;
+                }
             }
 
-            foreach ($election->candidates()->where('candidate_type', CandidateType::DIRECTOR)->get() as $candidate) {
-                $voteCount = $data['director_candidates'][$candidate->id] ?? 0;
+            if (!isset($data['inspector_candidates']) || empty($data['inspector_candidates'])) {
+                $data['inspector_candidates'] = [];
+                foreach ($election->candidates()->where('candidate_type', CandidateType::INSPECTOR)->get() as $candidate) {
+                    $data['inspector_candidates'][$candidate->id] = 0;
+                }
+            }
 
-                if ($participant->total_stock < (int) $voteCount) {
-                    return back()->withErrors(['director_candidates' => 'تعداد سهام شما کافی نیست.']);
+            if (count(array_filter($data['director_candidates'], fn($item) => $item > 0)) > $election->main_member_count) {
+                return back()->withErrors(['director_candidates' => __('messages.voting.director_limit')]);
+            }
+
+            if (count(array_filter($data['inspector_candidates'], fn($item) => $item > 0)) > $election->incpector_main_member_count) {
+                return back()->withErrors(['inspector_candidates' => __('messages.voting.inspector_limit')]);
+            }
+
+            DB::transaction(function () use ($election, $data) {
+                $participant = $election->participants()->where('user_id', user()->id)->first();
+
+                $activeRound = $election->rounds()->where('is_active', true)->first();
+
+                if (!$activeRound) {
+                    $activeRound = $election->rounds()->create(['is_active' => true]);
                 }
 
-                $participant->votes()->create([
-                    'election_round_id' => $activeRound->id,
-                    'candidate_id' => $candidate->id,
-                    'vote_count' => (int) $voteCount,
-                ]);
-            }
+                foreach ($election->candidates()->where('candidate_type', CandidateType::DIRECTOR)->get() as $candidate) {
+                    $voteCount = $data['director_candidates'][$candidate->id] ?? 0;
 
-            foreach ($election->candidates()->where('candidate_type', CandidateType::INSPECTOR)->get() as $candidate) {
-                $voteCount = $data['inspector_candidates'][$candidate->id] ?? 0;
+                    if ($participant->total_stock < (int) $voteCount) {
+                        throw new \Exception(__('messages.voting.insufficient_stock'));
+                    }
 
-                if ($participant->total_stock < (int) $voteCount) {
-                    return back()->withErrors(['inspector_candidates' => 'تعداد سهام شما کافی نیست.']);
+                    $participant->votes()->create([
+                        'election_round_id' => $activeRound->id,
+                        'candidate_id' => $candidate->id,
+                        'vote_count' => (int) $voteCount,
+                    ]);
                 }
 
-                $participant->votes()->create([
-                    'election_round_id' => $activeRound->id,
-                    'candidate_id' => $candidate->id,
-                    'vote_count' => (int) $voteCount,
-                ]);
-            }
+                foreach ($election->candidates()->where('candidate_type', CandidateType::INSPECTOR)->get() as $candidate) {
+                    $voteCount = $data['inspector_candidates'][$candidate->id] ?? 0;
 
-            $participant->update([
-                'is_present' => true,
+                    if ($participant->total_stock < (int) $voteCount) {
+                        throw new \Exception(__('messages.voting.insufficient_stock'));
+                    }
+
+                    $participant->votes()->create([
+                        'election_round_id' => $activeRound->id,
+                        'candidate_id' => $candidate->id,
+                        'vote_count' => (int) $voteCount,
+                    ]);
+                }
+
+                $participant->update([
+                    'is_present' => true,
+                ]);
+            });
+
+            return to_route('elections.index', $group->slug)->with('success', __('messages.voting.success'));
+
+        } catch (\Throwable $th) {
+            Log::error('Error while storing votes', [
+                'election_id' => $election->id,
+                'group_id' => $group->id,
+                'user_id' => auth()->id(),
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
             ]);
-        });
 
-        return to_route('elections.index', $group->slug)->with('success', 'رای‌های شما با موفقیت ثبت شدند.');
+            return back()->with('error', __('messages.voting.error'));
+        }
     }
 
     /**
@@ -151,14 +167,27 @@ class ElectionVotingController extends Controller
 
     public function terminate(Request $request, Group $group, Election $election)
     {
-        $election->rounds->map(fn ($round) => $round->update([
-            'is_active' => false,
-        ]));
+        try {
+            $election->rounds->map(fn($round) => $round->update([
+                'is_active' => false,
+            ]));
 
-        $election->update([
-            'status' => ElectionStatus::COMPLETED,
-        ]);
+            $election->update([
+                'status' => ElectionStatus::COMPLETED,
+            ]);
 
-        return back();
+            return back()->with('success', __('messages.voting.terminated'));
+
+        } catch (\Throwable $th) {
+            Log::error('Error while terminating election', [
+                'election_id' => $election->id,
+                'group_id' => $group->id,
+                'user_id' => auth()->id(),
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+
+            return back()->with('error', __('messages.voting.terminate_error'));
+        }
     }
 }
