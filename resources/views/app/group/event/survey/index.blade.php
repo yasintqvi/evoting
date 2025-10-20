@@ -23,7 +23,7 @@
                 <div class="card-header d-flex align-items-center justify-content-between border-bottom border-light">
                     <h4 class="header-title">لیست نظرسنجی</h4>
                     <div>
-                        <a href="{{ route('surveys.create', [$group->slug, $event->id]) }}"
+                        <a href="{{ route('surveys.create', [$group->slug, $event->slug]) }}"
                             class="btn btn-success bg-gradient"><i class="ti ti-plus me-1"></i>ایجاد نظرسنجی</a>
                     </div>
                 </div>

@@ -18,7 +18,7 @@ class UserController extends Controller
     {
         $search = $request->input('search');
 
-        $users = User::query()
+        $users = User::query()->filter($request->all())
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('first_name', 'like', "%$search%")

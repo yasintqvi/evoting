@@ -21,7 +21,7 @@ class SurveyController extends Controller
     public function index(Group $group, Event $event)
     {
         $surveys = Survey::where('event_id', $event->id)->get();
-        
+
         return view('app.group.event.survey.index', compact('group', 'event', 'surveys'));
     }
 
@@ -33,12 +33,12 @@ class SurveyController extends Controller
         $survey = null;
 
         if ($request->has('survey_id')) {
-            $survey = $event->surveys()->where('id', $request->get('survey_id'))->first();
+            // همیشه Model تکی برگردان
+            $survey = $event->surveys()->where('id', $request->get('survey_id'))->first(); // or firstOrFail()
         }
 
         return view('app.group.event.survey.create', compact('group', 'event', 'survey'));
     }
-
     /**
      * Store a newly created resource in storage.
      */

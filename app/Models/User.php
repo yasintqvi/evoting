@@ -78,12 +78,23 @@ class User extends Authenticatable
         ];
     }
 
+    public function scopeFilter($query, $filters)
+    {
+        if ($filters['status']==1) {
+            $query->where('is_active', 1);
+        }
+        if ($filters['status']==2) {
+            $query->where('is_active', 2);
+        }
+        return $query;
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->logOnly(static::$logAttributes)->dontLogIfAttributesChangedOnly(static::$logAttributesToIgnore)
             ->logOnlyDirty()
-            ->setDescriptionForEvent(fn (string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'کاربر', 'subject' => $this->full_name]))
+            ->setDescriptionForEvent(fn(string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'کاربر', 'subject' => $this->full_name]))
             ->dontSubmitEmptyLogs();
     }
 
@@ -109,7 +120,7 @@ class User extends Authenticatable
 
     public function getFullNameAttribute()
     {
-        return $this->first_name.' '.$this->last_name;
+        return $this->first_name . ' ' . $this->last_name;
     }
 
     public function getProfileImageAttribute()

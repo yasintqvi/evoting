@@ -17,6 +17,11 @@ class Survey extends Model
         "created_by"
     ];
 
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
     public function questions()
     {
         return $this->hasMany(Question::class);
