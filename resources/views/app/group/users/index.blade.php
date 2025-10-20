@@ -17,20 +17,32 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-xl-9 col-lg-12">
+    <div class="row ">
+        <div class="col-12">
             <div class="card">
                 <div class="card-header border-bottom border-light">
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
 
-                        <h4 class="header-title mb-0">لیست کاربران</h4>
-                        <form method="GET" action="" class="col-lg-3">
-                            <div class="position-relative">
-                                <input type="text" name="search" value="{{ request('search') }}"
-                                    class="form-control ps-4" placeholder="جستجو...">
-                                <i class="ti ti-search position-absolute top-50 translate-middle-y ms-2"></i>
-                            </div>
-                        </form>
+                         <form class="col-lg-8 gap-2 d-flex" method="get" action="">
+                        <h4 class="header-title mt-2">لیست کاربران</h4>
+                                <div class="position-relative">
+                                    <input type="text" name="search" value="{{ request('search') }}"
+                                           class="form-control ps-4" placeholder="جستجو...">
+                                    <i class="ti ti-search position-absolute top-50 translate-middle-y ms-2"></i>
+                                </div>
+                        <div class="position-relative">
+                            <select class="form-control" name="status">
+                                <option value="">همه</option>
+                                <option value="1" @selected(request('status')==1)>فعال</option>
+                                <option value="2" @selected(request('status')==2)>غیر فعال</option>
+                            </select>
+                        </div>
+
+                        <button class=" btn btn-primary bg-gradient">جست و جو
+                        </button>
+                        <a href="{{route('group.users.index',$group)}}" class="btn btn-danger bg-gradient">حذف فیلتر </a>
+
+                    </form>
 
 
                         <a href="{{ route('group.users.create', $group) }}"
