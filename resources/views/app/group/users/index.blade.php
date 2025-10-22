@@ -123,7 +123,7 @@
             </div>
         </div>
         @if (in_array($group->type, [App\Enums\GroupType::SPECIAL]))
-            <div class="col-xl-3 col-lg-12">
+            <div class="col-lg-12">
                 <div class="card">
                     <div class="card-header border-bottom border-dashed">
                         <div class="d-flex align-items-center gap-2">
