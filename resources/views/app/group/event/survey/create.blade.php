@@ -7,21 +7,21 @@
         </div>
         <div class="text-end">
             <ol class="breadcrumb m-0 py-0">
-                <li class="breadcrumb-item"><a href="javascript:void(0);">خانه</a></li>
-                <li class="breadcrumb-item"><a href="javascript:void(0);">نظرسنجی</a></li>
+                <li class="breadcrumb-item"><a href="{{route("groups.index",$group)}}">داشبورد</a></li>
+                <li class="breadcrumb-item"><a href="{{route('surveys.index',['group'=>$group,'event'=>$event])}}">نظرسنجی</a></li>
                 <li class="breadcrumb-item active">ایجاد نظرسنجی</li>
             </ol>
         </div>
     </div>
 
-    <div class="row">
+    <div class="row d-flex justify-content-center">
         <div class="col-xl-4">
             <div class="card">
                 <div class="card-body">
                     {{-- ویرایش نظرسنجی --}}
                     @if ($survey && request()->has('editSurvey'))
                         <h5 class="mb-3 fs-16 fw-semibold">ویرایش نظرسنجی</h5>
-                        <form action="{{ route('surveys.update', [$group->slug, $event->id, $survey->id]) }}"
+                        <form action="{{ route('surveys.update', [$group, $event, $survey]) }}"
                             method="POST">
                             @csrf
                             @method('PUT')
@@ -46,7 +46,7 @@
                             </div>
 
                             <div class="d-flex justify-content-between">
-                                <a href="{{ route('surveys.create', [$group->slug, $event->id, 'survey_id' => $survey->id]) }}"
+                                <a href="{{ route('surveys.create', [$group, $event, 'survey_id' => $survey->slug]) }}"
                                     class="btn btn-sm btn-outline-secondary">↩ بازگشت</a>
                                 <button type="submit" class="btn btn-primary">بروزرسانی</button>
                             </div>
@@ -119,7 +119,7 @@
                 {{-- ایجاد نظرسنجی جدید --}}
             @else
                 <h5 class="mb-3 fs-16 fw-semibold">ایجاد نظرسنجی جدید</h5>
-                <form action="{{ route('surveys.store', [$group->slug, $event->id]) }}" method="POST">
+                <form action="{{ route('surveys.store', [$group, $event]) }}" method="POST">
                     @csrf
                     <div class="mb-3">
                         <label class="form-label">عنوان</label>
@@ -144,7 +144,7 @@
             <div class="card p-2 mb-3">
                 <div class="d-flex align-items-center justify-content-between">
                     <h4 class="header-title mt-2">{{ $survey->title }}</h4>
-                    <a href="{{ route('surveys.create', [$group->slug, $event->id, 'survey_id' => $survey->id, 'editSurvey' => 1]) }}"
+                    <a href="{{ route('surveys.create', [$group, $event, 'survey_id' => $survey->slug, 'editSurvey' => 1]) }}"
                         class="btn btn-sm btn-outline-primary">ویرایش نظرسنجی</a>
                 </div>
                 @if ($survey->description)
@@ -164,10 +164,10 @@
                             <h5 class="mb-0">{{ $question->question_text }}</h5>
                         </div>
                         <div class="d-flex gap-2">
-                            <a href="{{ route('questions.edit', [$group->slug, $event->id, $survey->id, $question->id]) }}"
+                            <a href="{{ route('questions.edit', [$group, $event, $survey, $question->id]) }}"
                                 class="btn btn-sm btn-outline-primary">ویرایش</a>
                             <form
-                                action="{{ route('questions.destroy', [$group->slug, $event->id, $survey->id, $question->id]) }}"
+                                action="{{ route('questions.destroy', [$group, $event, $survey, $question->id]) }}"
                                 method="POST"
                                 onsubmit="return confirm('آیا مطمئن هستید که می‌خواهید این سوال را حذف کنید؟')">
                                 @csrf

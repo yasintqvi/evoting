@@ -8,9 +8,9 @@
 
         <div class="text-end">
             <ol class="breadcrumb m-0 py-0">
-                <li class="breadcrumb-item"><a href="javascript: void(0);">خانه</a></li>
+                <li class="breadcrumb-item"><a href="{{route('groups.index',$group)}}">داشبورد</a></li>
 
-                <li class="breadcrumb-item"><a href="javascript: void(0);">کاربران</a></li>
+                <li class="breadcrumb-item"><a href="{{route('group.users.index',$group)}}">کاربران</a></li>
 
                 <li class="breadcrumb-item active">همه</li>
             </ol>

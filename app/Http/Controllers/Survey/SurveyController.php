@@ -20,7 +20,7 @@ class SurveyController extends Controller
      */
     public function index(Group $group, Event $event)
     {
-        $surveys = Survey::where('event_id', $event->id)->get();
+        $surveys = Survey::where('event_id', $event->id)->filter(\request()->all())->get();
 
         return view('app.group.event.survey.index', compact('group', 'event', 'surveys'));
     }
