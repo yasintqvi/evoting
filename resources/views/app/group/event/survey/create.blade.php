@@ -9,15 +9,17 @@
             <ol class="breadcrumb m-0 py-0">
                 <li class="breadcrumb-item"><a href="javascript:void(0);">خانه</a></li>
                 <li class="breadcrumb-item"><a href="javascript:void(0);">نظرسنجی</a></li>
-                <li class="breadcrumb-item active">ایجاد نظرسنجی</li>
+                <li class="breadcrumb-item active">{{ $survey ? 'ویرایش نظرسنجی' : 'ایجاد نظرسنجی' }}</li>
             </ol>
         </div>
     </div>
 
     <div class="row">
+        {{-- ستون سمت چپ: فرم ایجاد یا ویرایش نظرسنجی / سوال --}}
         <div class="col-xl-4">
             <div class="card">
                 <div class="card-body">
+
                     {{-- ویرایش نظرسنجی --}}
                     @if ($survey && request()->has('editSurvey'))
                         <h5 class="mb-3 fs-16 fw-semibold">ویرایش نظرسنجی</h5>
@@ -41,7 +43,7 @@
                             <div class="form-check form-switch mb-2">
                                 <input type="hidden" name="is_anonymous" value="0">
                                 <input class="form-check-input" type="checkbox" id="is_anonymous" name="is_anonymous"
-                                    value="1" @checked(old('is_anonymous', $survey->is_anonymous ?? false))>
+                                    value="1" @checked(old('is_anonymous', $survey->is_anonymous))>
                                 <label class="form-check-label" for="is_anonymous">فعال / غیر فعال</label>
                             </div>
 
@@ -54,17 +56,17 @@
 
                         {{-- اضافه یا ویرایش سوال --}}
                     @elseif ($survey)
-                        <h5 class="mb-3 fs-16 fw-semibold">
-                            {{ isset($editQuestion) ? 'ویرایش سوال' : 'افزودن سوال' }}
-                        </h5>
+                        <h5 class="mb-3 fs-16 fw-semibold">{{ isset($editQuestion) ? 'ویرایش سوال' : 'افزودن سوال' }}</h5>
                         <form
                             action="{{ isset($editQuestion)
-                                ? route('questions.update', [$group, $event, $survey, $editQuestion])
-                                : route('questions.store', [$group, $event, $survey]) }}"
+                                ? route('questions.update', [$group->slug, $event->slug, $survey->slug, $editQuestion->id])
+                                : route('questions.store', [$group->slug, $event->slug, $survey->slug]) }}"
                             method="POST">
-                            @csrf @if (isset($editQuestion))
+                            @csrf
+                            @if (isset($editQuestion))
                                 @method('PUT')
                             @endif
+
                             <div class="mb-3">
                                 <label class="form-label">متن سوال</label>
                                 <input type="text" name="question_text" class="form-control"
@@ -116,9 +118,8 @@
                                 <label class="form-check-label">الزامی</label>
                             </div>
 
-                            <button type="submit" class="btn btn-primary mt-3">
-                                {{ isset($editQuestion) ? 'بروزرسانی سوال' : 'افزودن سوال' }}
-                            </button>
+                            <button type="submit"
+                                class="btn btn-primary mt-3">{{ isset($editQuestion) ? 'بروزرسانی سوال' : 'افزودن سوال' }}</button>
                         </form>
 
                         {{-- ایجاد نظرسنجی جدید --}}
@@ -140,11 +141,12 @@
                             <button type="submit" class="btn btn-primary">ایجاد</button>
                         </form>
                     @endif
+
                 </div>
             </div>
         </div>
 
-        {{-- لیست سوالات و جزئیات نظرسنجی --}}
+        {{-- ستون سمت راست: نمایش جزئیات نظرسنجی و لیست سوالات --}}
         @if ($survey)
             <div class="col-xl-8">
                 <div class="card p-2 mb-3">
@@ -163,9 +165,8 @@
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <div class="d-flex align-items-center">
                                 <div class="avatar avatar-xs me-2">
-                                    <span class="avatar-title bg-secondary rounded-circle fw-bold">
-                                        {{ $loop->iteration }}
-                                    </span>
+                                    <span
+                                        class="avatar-title bg-secondary rounded-circle fw-bold">{{ $loop->iteration }}</span>
                                 </div>
                                 <h5 class="mb-0">{{ $question->question_text }}</h5>
                             </div>
@@ -209,7 +210,6 @@
     </div>
 @endsection
 
-
 @section('scripts')
     <script>
         let optionCount = 0;
@@ -237,9 +237,9 @@
             const div = document.createElement('div');
             div.classList.add("input-group", "mb-2");
             div.innerHTML = `
-                <input type="text" name="options[]" class="form-control" placeholder="گزینه ${optionCount}">
-                <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">❌</button>
-            `;
+        <input type="text" name="options[]" class="form-control" placeholder="گزینه ${optionCount}">
+        <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">❌</button>
+    `;
             optionsList.appendChild(div);
         }
     </script>
