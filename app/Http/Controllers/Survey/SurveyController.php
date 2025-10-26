@@ -33,7 +33,6 @@ class SurveyController extends Controller
         $survey = null;
 
         if ($request->has('survey_id')) {
-            // همیشه Model تکی برگردان
             $survey = $event->surveys()->where('id', $request->get('survey_id'))->first(); // or firstOrFail()
         }
 
@@ -57,7 +56,7 @@ class SurveyController extends Controller
 
 
         return redirect()
-            ->route('surveys.create', [$group->slug, $event->id, 'survey_id' => $survey->id])
+            ->route('surveys.create', [$group->slug, $event->slug, 'survey_id' => $survey->slug])
             ->with('success', 'نظرسنجی با موفقیت ایجاد شد.');
     }
 
@@ -93,8 +92,8 @@ class SurveyController extends Controller
         return redirect()
             ->route('surveys.create', [
                 $group->slug,
-                $event->id,
-                'survey_id' => $survey->id
+                $event->slug,
+                'survey_id' => $survey->slug
             ])
             ->with('success', 'نظرسنجی با موفقیت بروزرسانی شد.');
     }
@@ -124,8 +123,8 @@ class SurveyController extends Controller
 
         return redirect()->route('surveys.create', [
             $group->slug,
-            $event->id,
-            'survey_id' => $survey->id
+            $event->slug,
+            'survey_id' => $survey->slug
         ])->with('success', 'سوال با موفقیت ایجاد شد.');
     }
 
@@ -163,7 +162,7 @@ class SurveyController extends Controller
             }
         }
 
-        return redirect()->route('surveys.create', [$group, $event, 'survey_id' => $survey->id])
+        return redirect()->route('surveys.create', [$group, $event, 'survey_id' => $survey->slug])
             ->with('success', 'سوال بروزرسانی شد');
     }
 
@@ -173,7 +172,7 @@ class SurveyController extends Controller
         $question->delete();
 
         return redirect()
-            ->route('surveys.create', [$group->slug, $event->id, 'survey_id' => $survey->id])
+            ->route('surveys.create', [$group->slug, $event->slug, 'survey_id' => $survey->slug])
             ->with('success', 'سوال با موفقیت حذف شد.');
     }
 
@@ -222,7 +221,7 @@ class SurveyController extends Controller
             }
         });
 
-        return redirect()->route('surveys.answer', [$group->slug, $event->id, $survey->id])
+        return redirect()->route('surveys.answer', [$group->slug, $event->slug, $survey->slug])
             ->with('success', 'پاسخ شما با موفقیت ثبت شد.');
     }
 }
