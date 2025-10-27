@@ -80,9 +80,7 @@ class ElectionController extends Controller
     public function update(UpdateElectionRequest $request, Group $group, Event $event, Election $election): RedirectResponse
     {
         try {
-
             $this->electionService->update($election, $request->toDto());
-
             return to_route('elections.index', [$group, $event])->with('success', __('messages.election.edited'));
         } catch (Throwable $th) {
             Log::error('Error updating election', [

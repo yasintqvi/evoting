@@ -80,11 +80,13 @@ class User extends Authenticatable
 
     public function scopeFilter($query, $filters)
     {
-        if ($filters['status']==1) {
-            $query->where('is_active', 1);
-        }
-        if ($filters['status']==2) {
-            $query->where('is_active', 2);
+        if(isset($filters['status'])){
+            if ($filters['status'] == 1) {
+                $query->where('is_active', 1);
+            }
+            if ($filters['status'] == 2) {
+                $query->where('is_active', 0);
+            }
         }
         return $query;
     }

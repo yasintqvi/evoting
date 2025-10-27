@@ -19,7 +19,7 @@
 
 <form action="{{ route('elections.store', [$group, $event]) }}" method="post">
     @csrf
-    <div class="card col-lg-6">
+    <div class="card col-lg-12">
         <div class="card-header border-bottom border-dashed">
             <h4 class="card-title">اطلاعات مربوط به همه پرسی</h4>
             <p class="text-muted mb-0">شما در حال ایجاد همه پرسی جدید هستید</p>

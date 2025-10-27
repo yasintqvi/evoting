@@ -11,14 +11,14 @@
 
         <div class="text-end">
             <ol class="breadcrumb m-0 py-0">
-                <li class="breadcrumb-item"><a href="javascript: void(0);">داشبورد</a></li>
+                <li class="breadcrumb-item"><a href="{{route('groups.index',$group)}}">داشبورد</a></li>
                 <li class="breadcrumb-item active">ویرایش رویداد</li>
             </ol>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-lg-7">
+        <div class="col-lg-12">
             <div class="card">
                 <div class="card-header border-bottom border-dashed">
                     <h4 class="card-title mb-0">ویرایش رویداد</h4>

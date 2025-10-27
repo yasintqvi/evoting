@@ -32,9 +32,9 @@
 
         <div class="text-end">
             <ol class="breadcrumb m-0 py-0">
-                <li class="breadcrumb-item"><a href="javascript: void(0);">داشبورد</a></li>
+                <li class="breadcrumb-item"><a href="{{route('groups.index',$group)}}">داشبورد</a></li>
 
-                <li class="breadcrumb-item active">{{ $group->name }}</li>
+                <li class="breadcrumb-item active">{{ $group->title}}</li>
             </ol>
         </div>
     </div>
@@ -111,13 +111,16 @@
                         </div>
 
                         <div class="mt-auto">
-                            <div class="d-flex gap-2 flex-nowrap">
+                            <div class="d-flex justify-content-between gap-2">
                                 <a href="{{ route('group.event.show', [$group, $event]) }}"
-                                    class="btn btn-outline-primary rounded-pill flex-fill text-nowrap">
+                                   class="d-inline-block p-1 border border-primary text-primary rounded-pill text-decoration-none text-center"
+                                   style="transition: 0.2s; font-weight: 500;">
                                     مشاهده جزئیات
                                 </a>
+
                                 <a href="{{ route('group.event.edit', [$group, $event]) }}"
-                                    class="btn btn-outline-warning rounded-pill flex-fill text-nowrap">
+                                   class="d p-1 border border-warning text-warning rounded-pill text-decoration-none text-center"
+                                   style="transition: 0.2s; font-weight: 500;">
                                     ویرایش رویداد
                                 </a>
                             </div>

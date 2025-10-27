@@ -19,9 +19,10 @@ class GroupUserController extends Controller
     {
 
         $search = request('search');
+        $filters = request()->all(); // get request filters
 
         $group->load([
-            'users' => function ($query) use ($search) {
+            'users' => function ($query) use ($search,$filters) {
                 if ($search) {
                     $query->where(
                         fn($q) => $q->where('first_name', 'like', "%$search%")
@@ -29,7 +30,10 @@ class GroupUserController extends Controller
                             ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$search%"])
                     );
                 }
-
+                if (isset($filters['status'])) {
+                    if ($filters['status'] == 1) $query->where('is_active', 1);
+                    if ($filters['status'] == 2) $query->where('is_active', 0);
+                }
                 $query->latest();
             },
         ]);
