@@ -13,7 +13,7 @@ class EventController extends Controller
 {
     public function index(Group $group)
     {
-        $events = Event::all();
+        $events = Event::latest()->filter(\request()->all())->get();
 
         return view('app.group.event.index', compact('group', 'events'));
     }
