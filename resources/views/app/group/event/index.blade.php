@@ -64,6 +64,7 @@
                             <th><span class="m-3">عنوان رویداد</span></th>
                             <th><span class="m-3">حد نصاب مشارکت</span></th>
                             <th><span class="m-3">وضعیت</span></th>
+                            <th><span class="m-3">عملیات</span></th>
                         </tr>
                         </thead>
 
@@ -96,6 +97,13 @@
                                     @else
                                         <a href="#" class="badge badge-soft-success p-1">درحال اجرا</a>
                                     @endif
+                                </td>
+                                <td>
+                                    <div class="hstack gap-1 ">
+                                        <a href="{{ route('events.edit', [$group, $event]) }}"
+                                           class="btn btn-secondary btn-sm">
+                                            <i class="ti ti-edit"></i></a>
+
                                 </td>
                             </tr>
                         @empty

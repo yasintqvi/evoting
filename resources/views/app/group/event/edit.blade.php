@@ -74,7 +74,7 @@
 
                                 @if($event->logo)
                                     <div class="mt-2">
-                                        <img src="{{ asset('storage/' . $event->logo) }}"
+                                        <img src="{{ asset($event->logo) }}"
                                              alt="لوگو" class="img-thumbnail" width="120">
                                     </div>
                                 @endif
