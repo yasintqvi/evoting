@@ -7,21 +7,23 @@
         </div>
         <div class="text-end">
             <ol class="breadcrumb m-0 py-0">
-                <li class="breadcrumb-item"><a href="{{route("groups.index",$group)}}">داشبورد</a></li>
-                <li class="breadcrumb-item"><a href="{{route('surveys.index',['group'=>$group,'event'=>$event])}}">نظرسنجی</a></li>
-                <li class="breadcrumb-item active">ایجاد نظرسنجی</li>
+                <li class="breadcrumb-item"><a href="javascript:void(0);">خانه</a></li>
+                <li class="breadcrumb-item"><a href="javascript:void(0);">نظرسنجی</a></li>
+                <li class="breadcrumb-item active">{{ $survey ? 'ویرایش نظرسنجی' : 'ایجاد نظرسنجی' }}</li>
             </ol>
         </div>
     </div>
 
-    <div class="row d-flex justify-content-center">
+    <div class="row">
+        {{-- ستون سمت چپ: فرم ایجاد یا ویرایش نظرسنجی / سوال --}}
         <div class="col-xl-4">
             <div class="card">
                 <div class="card-body">
+
                     {{-- ویرایش نظرسنجی --}}
                     @if ($survey && request()->has('editSurvey'))
                         <h5 class="mb-3 fs-16 fw-semibold">ویرایش نظرسنجی</h5>
-                        <form action="{{ route('surveys.update', [$group, $event, $survey]) }}"
+                        <form action="{{ route('surveys.update', [$group->slug, $event->slug, $survey->slug]) }}"
                             method="POST">
                             @csrf
                             @method('PUT')
@@ -41,12 +43,12 @@
                             <div class="form-check form-switch mb-2">
                                 <input type="hidden" name="is_anonymous" value="0">
                                 <input class="form-check-input" type="checkbox" id="is_anonymous" name="is_anonymous"
-                                    value="1" @checked(old('is_anonymous', $survey->is_anonymous ?? false))>
+                                    value="1" @checked(old('is_anonymous', $survey->is_anonymous))>
                                 <label class="form-check-label" for="is_anonymous">فعال / غیر فعال</label>
                             </div>
 
                             <div class="d-flex justify-content-between">
-                                <a href="{{ route('surveys.create', [$group, $event, 'survey_id' => $survey->slug]) }}"
+                                <a href="{{ route('surveys.create', [$group->slug, $event->slug, 'survey_id' => $survey->slug]) }}"
                                     class="btn btn-sm btn-outline-secondary">↩ بازگشت</a>
                                 <button type="submit" class="btn btn-primary">بروزرسانی</button>
                             </div>
@@ -54,155 +56,159 @@
 
                         {{-- اضافه یا ویرایش سوال --}}
                     @elseif ($survey)
-                        <h5 class="mb-3 fs-16 fw-semibold">
-                            {{ isset($editQuestion) ? 'ویرایش سوال' : 'افزودن سوال' }}
-                        </h5>
+                        <h5 class="mb-3 fs-16 fw-semibold">{{ isset($editQuestion) ? 'ویرایش سوال' : 'افزودن سوال' }}</h5>
                         <form
                             action="{{ isset($editQuestion)
-                                ? route('questions.update', [$group, $event, $survey, $editQuestion])
-                                : route('questions.store', [$group, $event, $survey]) }}"
-                            @csrf @if (isset($editQuestion)) @method('PUT') @endif <div class="mb-3">
-                            <label class="form-label">متن سوال</label>
-                            <input type="text" name="question_text" class="form-control"
-                                value="{{ old('question_text', $editQuestion->question_text ?? '') }}" required>
-                </div>
+                                ? route('questions.update', [$group->slug, $event->slug, $survey->slug, $editQuestion->id])
+                                : route('questions.store', [$group->slug, $event->slug, $survey->slug]) }}"
+                            method="POST">
+                            @csrf
+                            @if (isset($editQuestion))
+                                @method('PUT')
+                            @endif
 
-                <div class="mb-3">
-                    <label class="form-label">نوع سوال</label>
-                    <select name="type" class="form-control" onchange="checkElectionType(event)" required>
-                        <option value="">انتخاب کنید</option>
-                        <option value="1" @selected(old('type', $editQuestion->type ?? '') == 1)>تک انتخابی</option>
-                        <option value="2" @selected(old('type', $editQuestion->type ?? '') == 2)>چند انتخابی</option>
-                    </select>
-                </div>
+                            <div class="mb-3">
+                                <label class="form-label">متن سوال</label>
+                                <input type="text" name="question_text" class="form-control"
+                                    value="{{ old('question_text', $editQuestion->question_text ?? '') }}" required>
+                            </div>
 
-                <div id="options-wrapper"
-                    style="display: {{ old('type', $editQuestion->type ?? '') == 1 || old('type', $editQuestion->type ?? '') == 2 ? 'block' : 'none' }}">
-                    <label class="form-label">گزینه‌ها</label>
-                    <div id="options-list">
-                        @if (!empty(old('options')))
-                            @foreach (old('options') as $key => $option)
-                                <div class="input-group mb-2">
-                                    <input type="text" name="options[]" class="form-control" value="{{ $option }}"
-                                        placeholder="گزینه {{ $loop->iteration }}">
-                                    <button type="button" class="btn btn-danger"
-                                        onclick="this.parentElement.remove()">❌</button>
+                            <div class="mb-3">
+                                <label class="form-label">نوع سوال</label>
+                                <select name="type" class="form-control" onchange="checkElectionType(event)" required>
+                                    <option value="">انتخاب کنید</option>
+                                    <option value="1" @selected(old('type', $editQuestion->type ?? '') == 1)>تک انتخابی</option>
+                                    <option value="2" @selected(old('type', $editQuestion->type ?? '') == 2)>چند انتخابی</option>
+                                </select>
+                            </div>
+
+                            <div id="options-wrapper"
+                                style="display: {{ old('type', $editQuestion->type ?? '') == 1 || old('type', $editQuestion->type ?? '') == 2 ? 'block' : 'none' }}">
+                                <label class="form-label">گزینه‌ها</label>
+                                <div id="options-list">
+                                    @if (!empty(old('options')))
+                                        @foreach (old('options') as $key => $option)
+                                            <div class="input-group mb-2">
+                                                <input type="text" name="options[]" class="form-control"
+                                                    value="{{ $option }}" placeholder="گزینه {{ $loop->iteration }}">
+                                                <button type="button" class="btn btn-danger"
+                                                    onclick="this.parentElement.remove()">❌</button>
+                                            </div>
+                                        @endforeach
+                                    @elseif(isset($editQuestion) && $editQuestion->options->count())
+                                        @foreach ($editQuestion->options as $key => $option)
+                                            <div class="input-group mb-2">
+                                                <input type="text" name="options[]" class="form-control"
+                                                    value="{{ $option->option_text }}"
+                                                    placeholder="گزینه {{ $loop->iteration }}">
+                                                <button type="button" class="btn btn-danger"
+                                                    onclick="this.parentElement.remove()">❌</button>
+                                            </div>
+                                        @endforeach
+                                    @endif
                                 </div>
-                            @endforeach
-                        @elseif(isset($editQuestion) && $editQuestion->options->count())
-                            @foreach ($editQuestion->options as $key => $option)
-                                <div class="input-group mb-2">
-                                    <input type="text" name="options[]" class="form-control"
-                                        value="{{ $option->option_text }}" placeholder="گزینه {{ $loop->iteration }}">
-                                    <button type="button" class="btn btn-danger"
-                                        onclick="this.parentElement.remove()">❌</button>
-                                </div>
-                            @endforeach
-                        @endif
-                    </div>
-                    <button type="button" class="btn btn-sm btn-success mt-2" onclick="addOption()">افزودن
-                        گزینه</button>
+                                <button type="button" class="btn btn-sm btn-success mt-2" onclick="addOption()">افزودن
+                                    گزینه</button>
+                            </div>
+
+                            <div class="form-check mt-2">
+                                <input type="hidden" name="is_required" value="0">
+                                <input type="checkbox" name="is_required" class="form-check-input" value="1"
+                                    @checked(old('is_required', $editQuestion->is_required ?? false))>
+                                <label class="form-check-label">الزامی</label>
+                            </div>
+
+                            <button type="submit"
+                                class="btn btn-primary mt-3">{{ isset($editQuestion) ? 'بروزرسانی سوال' : 'افزودن سوال' }}</button>
+                        </form>
+
+                        {{-- ایجاد نظرسنجی جدید --}}
+                    @else
+                        <h5 class="mb-3 fs-16 fw-semibold">ایجاد نظرسنجی جدید</h5>
+                        <form action="{{ route('surveys.store', [$group->slug, $event->slug]) }}" method="POST">
+                            @csrf
+                            <div class="mb-3">
+                                <label class="form-label">عنوان</label>
+                                <input type="text" name="title" class="form-control" value="{{ old('title') }}"
+                                    required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">توضیحات</label>
+                                <textarea name="description" class="form-control">{{ old('description') }}</textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">ایجاد</button>
+                        </form>
+                    @endif
+
                 </div>
-
-                <div class="form-check mt-2">
-                    <input type="hidden" name="is_required" value="0">
-                    <input type="checkbox" name="is_required" class="form-check-input" value="1"
-                        @checked(old('is_required', $editQuestion->is_required ?? false))>
-                    <label class="form-check-label">الزامی</label>
-                </div>
-
-                <button type="submit" class="btn btn-primary mt-3">
-                    {{ isset($editQuestion) ? 'بروزرسانی سوال' : 'افزودن سوال' }}
-                </button>
-                </form>
-
-                {{-- ایجاد نظرسنجی جدید --}}
-            @else
-                <h5 class="mb-3 fs-16 fw-semibold">ایجاد نظرسنجی جدید</h5>
-                <form action="{{ route('surveys.store', [$group, $event]) }}" method="POST">
-                    @csrf
-                    <div class="mb-3">
-                        <label class="form-label">عنوان</label>
-                        <input type="text" name="title" class="form-control" value="{{ old('title') }}" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">توضیحات</label>
-                        <textarea name="description" class="form-control">{{ old('description') }}</textarea>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">ایجاد</button>
-                </form>
-                @endif
             </div>
         </div>
-    </div>
 
-    {{-- لیست سوالات و جزئیات نظرسنجی --}}
-    @if ($survey)
-        <div class="col-xl-8">
-            <div class="card p-2 mb-3">
-                <div class="d-flex align-items-center justify-content-between">
-                    <h4 class="header-title mt-2">{{ $survey->title }}</h4>
-                    <a href="{{ route('surveys.create', [$group, $event, 'survey_id' => $survey->slug, 'editSurvey' => 1]) }}"
-                        class="btn btn-sm btn-outline-primary">ویرایش نظرسنجی</a>
-                </div>
-                @if ($survey->description)
-                    <p class="text-muted pt-1">{{ $survey->description }}</p>
-                @endif
-            </div>
-
-            @foreach ($survey->questions as $question)
-                <div class="card p-3 mb-3">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <div class="d-flex align-items-center">
-                            <div class="avatar avatar-xs me-2">
-                                <span class="avatar-title bg-secondary rounded-circle fw-bold">
-                                    {{ $loop->iteration }}
-                                </span>
-                            </div>
-                            <h5 class="mb-0">{{ $question->question_text }}</h5>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <a href="{{ route('questions.edit', [$group, $event, $survey, $question->id]) }}"
-                                class="btn btn-sm btn-outline-primary">ویرایش</a>
-                            <form
-                                action="{{ route('questions.destroy', [$group, $event, $survey, $question->id]) }}"
-                                method="POST"
-                                onsubmit="return confirm('آیا مطمئن هستید که می‌خواهید این سوال را حذف کنید؟')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-outline-danger">حذف</button>
-                            </form>
-                        </div>
+        {{-- ستون سمت راست: نمایش جزئیات نظرسنجی و لیست سوالات --}}
+        @if ($survey)
+            <div class="col-xl-8">
+                <div class="card p-2 mb-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h4 class="header-title mt-2">{{ $survey->title }}</h4>
+                        <a href="{{ route('surveys.create', [$group->slug, $event->slug, 'survey_id' => $survey->slug, 'editSurvey' => 1]) }}"
+                            class="btn btn-sm btn-outline-primary">ویرایش نظرسنجی</a>
                     </div>
-
-                    <span class="text-muted small">
-                        <span class="text-danger">{{ $question->is_required ? ' *' : '' }}</span>
-                        ({{ $question->type == 1 ? 'تک انتخابی' : 'چند انتخابی' }})
-                    </span>
-
-                    @if ($question->options->count())
-                        <div class="d-flex flex-wrap gap-3 mt-3">
-                            @foreach ($question->options as $option)
-                                <label class="d-flex align-items-center gap-2 border p-2 rounded">
-                                    @if ($question->type == 1)
-                                        <input type="radio" disabled>
-                                    @else
-                                        <input type="checkbox" disabled>
-                                    @endif
-                                    {{ $option->option_text }}
-                                </label>
-                            @endforeach
-                        </div>
+                    @if ($survey->description)
+                        <p class="text-muted pt-1">{{ $survey->description }}</p>
                     @endif
                 </div>
-            @endforeach
-        </div>
-    @endif
+
+                @foreach ($survey->questions as $question)
+                    <div class="card p-3 mb-3">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar avatar-xs me-2">
+                                    <span
+                                        class="avatar-title bg-secondary rounded-circle fw-bold">{{ $loop->iteration }}</span>
+                                </div>
+                                <h5 class="mb-0">{{ $question->question_text }}</h5>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="{{ route('questions.edit', [$group->slug, $event->slug, $survey->slug, $question->id]) }}"
+                                    class="btn btn-sm btn-outline-primary">ویرایش</a>
+                                <form
+                                    action="{{ route('questions.destroy', [$group->slug, $event->slug, $survey->slug, $question->id]) }}"
+                                    method="POST"
+                                    onsubmit="return confirm('آیا مطمئن هستید که می‌خواهید این سوال را حذف کنید؟')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">حذف</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <span class="text-muted small">
+                            <span class="text-danger">{{ $question->is_required ? ' *' : '' }}</span>
+                            ({{ $question->type == 1 ? 'تک انتخابی' : 'چند انتخابی' }})
+                        </span>
+
+                        @if ($question->options->count())
+                            <div class="d-flex flex-wrap gap-3 mt-3">
+                                @foreach ($question->options as $option)
+                                    <label class="d-flex align-items-center gap-2 border p-2 rounded">
+                                        @if ($question->type == 1)
+                                            <input type="radio" disabled>
+                                        @else
+                                            <input type="checkbox" disabled>
+                                        @endif
+                                        {{ $option->option_text }}
+                                    </label>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        @endif
     </div>
 @endsection
-
 
 @section('scripts')
     <script>
@@ -231,9 +237,9 @@
             const div = document.createElement('div');
             div.classList.add("input-group", "mb-2");
             div.innerHTML = `
-                <input type="text" name="options[]" class="form-control" placeholder="گزینه ${optionCount}">
-                <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">❌</button>
-            `;
+        <input type="text" name="options[]" class="form-control" placeholder="گزینه ${optionCount}">
+        <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">❌</button>
+    `;
             optionsList.appendChild(div);
         }
     </script>

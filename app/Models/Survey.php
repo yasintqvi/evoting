@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
 
 class Survey extends Model
 {
+    use Sluggable;
     protected $fillable = [
         "event_id",
         "title",
@@ -15,7 +17,6 @@ class Survey extends Model
         "end_at",
         "status",
         "created_by",
-        'slug'
     ];
 
     public function sluggable(): array
@@ -40,7 +41,7 @@ class Survey extends Model
     public function scopeFilter($query, $filters)
     {
         if (isset($filters['search'])) {
-            $query->where('title','like', '%'.$filters['search'].'%');
+            $query->where('title', 'like', '%' . $filters['search'] . '%');
         }
         if (isset($filters['status'])) {
             if ($filters['status'] == 1) {
