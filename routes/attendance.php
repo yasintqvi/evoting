@@ -1,16 +1,11 @@
 <?php
 
-use App\Http\Controllers\AttendanceChartController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttorneyController;
 use App\Http\Controllers\EventController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/attendance/stats', [AttendanceChartController::class, 'stats']);
-// routes/web.php
-Route::get('/attendance', function () {
-    return view('test-broadcast');
-});
+
 
 
 Route::post('/get-attorney', [AttorneyController::class, 'getAttorney'])->name('attorneys.index');

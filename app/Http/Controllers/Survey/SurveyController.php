@@ -233,4 +233,28 @@ class SurveyController extends Controller
             ->route('surveys.answer', [$group->slug, $event->slug, $survey->slug])
             ->with('success', 'پاسخ شما با موفقیت ثبت شد.');
     }
+
+    public function statistics(Group $group, Event $event, Survey $survey)
+    {
+        $stats = \DB::table('survey_answers')
+            ->join('survey_responses', 'survey_answers.response_id', '=', 'survey_responses.id')
+            ->join('survey_questions', 'survey_answers.question_id', '=', 'survey_questions.id')
+            ->leftJoin('survey_options', 'survey_answers.option_id', '=', 'survey_options.id')
+            ->select(
+                'survey_questions.id as question_id',
+                'survey_questions.question_text as question_title',
+                'survey_options.id as option_id',
+                'survey_options.option_text as option_title',
+                \DB::raw('COUNT(survey_answers.id) as count'),
+                \DB::raw('ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY survey_questions.id), 1) as percent')
+            )
+            ->where('survey_responses.survey_id', $survey->id)
+            ->groupBy('survey_questions.id', 'survey_questions.question_text', 'survey_options.id', 'survey_options.option_text')
+            ->get()
+            ->groupBy('question_id');
+
+        return view('app.group.event.survey.statistics', compact('group', 'event', 'survey', 'stats'));
+    }
 }
+
+

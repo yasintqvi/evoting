@@ -33,9 +33,11 @@ Route::prefix('{group:slug}/events/{event}')->group(function () {
 
     Route::get('/surveys/{survey}/answer', [SurveyController::class, 'showAnswerForm'])
         ->name('surveys.answer');
-        
+
     Route::post('/surveys/{survey}/answer', [SurveyController::class, 'storeAnswer'])
         ->name('surveys.answer.store');
 
+    Route::get('/surveys/{survey}/statistics', [SurveyController::class, 'statistics'])
+        ->name('surveys.statistics');
 
 });
