@@ -23,11 +23,7 @@ class AttendanceController extends Controller
 
     public function create(Group $group, Event $event)
     {
-        $users = $group->users()->with([
-            'attendances' => function ($q) use ($event) {
-                $q->where('event_id', $event->id);
-            },
-        ])->get();
+        $users = $group->users()->get();
 
         $attorneyIds = array_filter($event->participants()->pluck('attorney_id')->toArray());
 
