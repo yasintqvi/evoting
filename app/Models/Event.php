@@ -86,12 +86,12 @@ class Event extends Model
 
     public function getPresentCountAttribute()
     {
-        return $this->attendances()->where('status', 1)->count();
+        return $this->participants()->where('is_present', 1)->count();
     }
 
     public function getAbsentCountAttribute()
     {
-        return $this->attendances()->where('status', 0)->count();
+        return $this->participants()->where('is_present', 0)->count();
     }
 
     public function scopeFilter($query,$filters){
