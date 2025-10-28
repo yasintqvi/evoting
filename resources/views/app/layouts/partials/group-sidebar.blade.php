@@ -60,7 +60,7 @@
                 </li>
                 <br>
                 <li class="side-nav-title">لیست آخرین رویداد ها</li>
-                @forelse($group->events()->latest()->take(10)->get() as $event)
+                @forelse($group->events()->latest()->take(5)->get() as $event)
                     <li class="side-nav-item active">
                         <a data-bs-toggle="collapse" href="#event-{{ $event->id }}" aria-expanded="false"
                             aria-controls="sidebarHospital" class="side-nav-link collapsed">
@@ -117,6 +117,12 @@
                             جدید</a>
                     </div>
                 @endcan
+                @can(\App\Enums\Permission::VIEW_GROUP_EVENT->value)
+                    <div class="d-flex flex-column mt-3">
+                        <a href="{{ route('events.index', $group) }}" class="btn btn-secondary btn-sm mx-auto">نمایش همه</a>
+                    </div>
+                @endcan
+
 
             @endcan
         </ul>

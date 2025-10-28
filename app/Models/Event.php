@@ -93,4 +93,24 @@ class Event extends Model
     {
         return $this->attendances()->where('status', 0)->count();
     }
+
+    public function scopeFilter($query,$filters){
+
+        if(isset($filters['search'])){
+           $query->where('title','like','%'.$filters['search'].'%')->orWhere('name','like','%'.$filters['search'].'%');
+        }
+        if(isset($filters['status'])){
+            if ($filters['status'] == 1) {
+                $query->where('status', 0);
+            }
+            if ($filters['status'] == 2) {
+                $query->where('status', 1);
+            }
+            if ($filters['status'] == 3) {
+                $query->where('status', 3);
+            }
+        }
+
+       return $query;
+    }
 }
