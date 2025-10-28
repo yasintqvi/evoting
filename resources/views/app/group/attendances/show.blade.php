@@ -103,7 +103,7 @@
                 }
             });
 
-            const eventId = {{ $event->slug }};
+            const eventId = "{{ $event->slug }}";
 
             function fetchStats(eventId) {
                 fetch(`/events/${eventId}/attendance-stats`)
