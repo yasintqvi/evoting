@@ -99,12 +99,52 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <div class="hstack gap-1 ">
+                                    <div class="hstack gap-1">
+                                        <!-- دکمه ساده (مثلاً ویرایش) -->
                                         <a href="{{ route('events.edit', [$group, $event]) }}"
                                            class="btn btn-secondary btn-sm">
-                                            <i class="ti ti-edit"></i></a>
+                                            <i class="ti ti-edit"></i>
+                                        </a>
 
+                                        <!-- دکمه منوی کشویی -->
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light dropdown-toggle"
+                                                    type="button"
+                                                    data-bs-toggle="dropdown"
+                                                    aria-expanded="false">
+                                                <i class="ti ti-dots-vertical"></i>
+                                            </button>
+
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <a class="dropdown-item"
+                                                       href="{{ route('attendances.create', [$group, $event]) }}">
+                                                        حضور غیاب
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item"
+                                                       href="{{ route('elections.index', [$group, $event]) }}" >
+                                                       انتخابات
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item"
+                                                       href="{{ route('surveys.index', [$group, $event]) }}">
+                                                       نظرسنجی
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item text-danger"
+                                                       href=>
+                                                    کلون گیری
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
                                 </td>
+
                             </tr>
                         @empty
                             <tr>
