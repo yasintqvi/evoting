@@ -136,7 +136,7 @@
                                                 </li>
                                                 <li>
                                                     <a class="dropdown-item text-danger"
-                                                       href=>
+                                                       href={{route('clone.event',[$group,$event])}}>
                                                     کلون گیری
                                                     </a>
                                                 </li>
