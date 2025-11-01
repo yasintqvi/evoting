@@ -13,7 +13,7 @@ class EventController extends Controller
 {
     public function index(Group $group)
     {
-        $events = Event::all();
+        $events = Event::latest()->filter(\request()->all())->get();
 
         return view('app.group.event.index', compact('group', 'events'));
     }
@@ -62,6 +62,21 @@ class EventController extends Controller
 
             return back()->with('error', __('messages.event.create_error'));
         }
+    }
+
+    public function attendanceStats(Event $event)
+    {
+        $participants = $event->participants;
+
+        $map = [
+            'absent' => 0,
+            'present' => 1,
+        ];
+
+        return response()->json([
+            'present' => $event->participants()->where('is_present', $map['present'])->count(),
+            'absent' => $event->participants()->where('is_present', $map['absent'])->count(),
+        ]);
     }
 
     /**

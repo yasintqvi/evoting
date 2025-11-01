@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\EventStatus;
+use App\Traits\Cloneable;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,6 +16,7 @@ class Event extends Model
     use LogsActivity;
     use SoftDeletes;
     use Sluggable;
+    use Cloneable;
 
     protected $fillable = [
         'name',
@@ -86,11 +88,31 @@ class Event extends Model
 
     public function getPresentCountAttribute()
     {
-        return $this->attendances()->where('status', 1)->count();
+        return $this->participants()->where('is_present', 1)->count();
     }
 
     public function getAbsentCountAttribute()
     {
-        return $this->attendances()->where('status', 0)->count();
+        return $this->participants()->where('is_present', 0)->count();
+    }
+
+    public function scopeFilter($query,$filters){
+
+        if(isset($filters['search'])){
+           $query->where('title','like','%'.$filters['search'].'%')->orWhere('name','like','%'.$filters['search'].'%');
+        }
+        if(isset($filters['status'])){
+            if ($filters['status'] == 1) {
+                $query->where('status', 0);
+            }
+            if ($filters['status'] == 2) {
+                $query->where('status', 1);
+            }
+            if ($filters['status'] == 3) {
+                $query->where('status', 3);
+            }
+        }
+
+       return $query;
     }
 }
