@@ -36,8 +36,6 @@
 
                         $allAllocated = $remainingNormal === 0 && $remainingPrefered === 0;
                         $canCreate = !$isSpecial || $allAllocated;
-                        // dd($group->type, $remainingNormal, $remainingPrefered);
-
                     @endphp
 
                     <div>

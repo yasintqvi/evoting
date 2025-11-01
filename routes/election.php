@@ -44,8 +44,10 @@ Route::prefix('{group:slug}/events/{event}')->group(function () {
         ->can(Permission::CREATE_ELECTIONS);
 
     // Election Candidates
-    Route::get('/elections/{election}/candidates', [ElectionCandidateController::class, 'index'])
-        ->name('candidates.index');
+    // Route::get('/elections/{election}/candidates', [ElectionCandidateController::class, 'index'])
+    //     ->name('candidates.index');
+
+    Route::get('/groups/{group}/events/{event}/election', [ElectionController::class, 'index']);
 
     Route::get('/elections/{election}/candidates/create', [ElectionCandidateController::class, 'create'])
         ->name('candidates.create');
@@ -57,8 +59,13 @@ Route::prefix('{group:slug}/events/{event}')->group(function () {
         ->name('candidates.edit')
         ->can(Permission::EDIT_CANDIDATES);
 
-    Route::put('/elections/{election}/update', [ElectionCandidateController::class, 'update'])->name('candidates.update')
+    // Route::put('/elections/{election}/update', [ElectionCandidateController::class, 'update'])->name('candidates.update')
+    //     ->can(Permission::UPDATE_CANDIDATES);
+
+    Route::put('/elections/{election:slug}/update', [ElectionCandidateController::class, 'update'])
+        ->name('candidates.update')
         ->can(Permission::UPDATE_CANDIDATES);
+
 
     // ATTENDANCE
     Route::get('attendances', [AttendanceController::class, 'create'])->name('attendances.create')

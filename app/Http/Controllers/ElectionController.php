@@ -35,9 +35,9 @@ class ElectionController extends Controller
 
     public function create(Group $group, Event $event)
     {
-        $group->load('users'); // اضافه شد 👈
+        $group->load('users');
 
-        if ($group->type === \App\Enums\GroupType::SPECIAL->value) {
+        if ($group->type->value === \App\Enums\GroupType::SPECIAL->value) {
             $totalNormal = (int) $group->normal_stock_count;
             $totalPrefered = (int) $group->prefered_stock_count;
 
