@@ -33,10 +33,10 @@ class ElectionResource extends JsonResource
             'prefered_stock_weight' => $this->prefered_stock_weight,
             'position' => $this->position->title,
             'operations' => [
-                'show' => route('elections.show', parameters: [$this->event->group->slug, $this->event->id, $this->id]),
-                'edit' => route('elections.edit', [$this->event->group->slug, $this->event->id, $this->id]),
-                'update' => route('elections.update', [$this->event->group->slug, $this->event->id, $this->id]),
-                'delete' => route('elections.delete', [$this->event->group->slug, $this->event->id, $this->id]),
+                'show' => route('elections.show', [$this->event->group->slug, $this->event->slug, $this->id]),
+                'edit' => route('elections.edit', [$this->event->group->slug, $this->event->slug, $this->id]),
+                'update' => route('elections.update', [$this->event->group->slug, $this->event->slug, $this->id]),
+                'delete' => route('elections.delete', [$this->event->group->slug, $this->event->slug, $this->id]),
                 'next_step' => $this->getNextStep(),
             ],
             'created_at' => verta($this->created_at)->format('Y/m/d H:i'),
@@ -50,21 +50,14 @@ class ElectionResource extends JsonResource
         if ($this->status == ElectionStatus::CREATED && user()->hasPermissionTo(Permission::CREATE_CANDIDATES->value)) {
             return [
                 'title' => 'تعیین یا تغییر نامزد ها',
-                'url' => route('candidates.edit', [$this->event->group->slug, $this->event->id, $this->id]),
-            ];
-        }
-
-        if ($this->status == ElectionStatus::PARTICIPANTS_ATTENDEES && user()->hasPermissionTo(Permission::CREATE_ATTENDANCE->value)) {
-            return [
-                'title' => 'حضور و غیاب و ثبت وکالت انتخاباتی',
-                'url' => route('attendances.create', [$this->event->group->slug, $this->event->id, $this->id]),
+                'url' => route('candidates.edit', [$this->event->group->slug, $this->event->slug, $this->slug]),
             ];
         }
 
         if ($this->status == ElectionStatus::WAITING_TO_START && user()->hasPermissionTo(Permission::CREATE_ELECTION_ROUNDS->value)) {
             return [
                 'title' => 'شروع انتخابات',
-                'url' => route('election-rounds.store', [$this->event->group->slug, $this->event->id, $this->id]),
+                'url' => route('candidates.edit', [$this->event->group->slug, $this->event->slug, $this->id]),
             ];
         }
 

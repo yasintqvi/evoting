@@ -16,7 +16,7 @@ class StoreCandidateRequest extends FormRequest
                 'required',
                 'array',
                 'distinct',
-                'min:'.$election->main_member_count,
+                'min:' . ($election->main_member_count ?? 0),
             ],
             'main_candidates_ids.*' => ['exists:users,id'],
 
@@ -24,7 +24,7 @@ class StoreCandidateRequest extends FormRequest
                 'required',
                 'array',
                 'distinct',
-                'min:'.$election->incpector_main_member_count,
+                'min:' . ($election->incpector_main_member_count ?? 0),
             ],
             'incpector_candidates_ids.*' => ['exists:users,id'],
         ];

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ElectionStatus;
 use App\Enums\ElectionType;
+use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,6 +16,8 @@ class Election extends Model
 {
     use LogsActivity;
     use SoftDeletes;
+    use Sluggable;
+
 
     protected $fillable = [
         'group_id',
@@ -31,6 +34,15 @@ class Election extends Model
         'main_member_count',
         'substitute_member_count',
     ];
+
+    public function sluggable(): array
+    {
+        return [
+            'slug' => [
+                'source' => 'title',
+            ],
+        ];
+    }
 
     protected static $logAttributesToIgnore = ['updated_at'];
 

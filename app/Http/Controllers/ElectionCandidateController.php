@@ -81,13 +81,16 @@ class ElectionCandidateController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StoreCandidateRequest $request, Group $group, Election $election)
+    public function update(StoreCandidateRequest $request, Group $group, Event $event, Election $election)
     {
         try {
 
             $this->candidateService->update($election, $request->toDto());
 
-            return to_route('elections.index', $group)->with('success', 'کاندیدها با موفقیت به‌روزرسانی شدند.');
+            return to_route('elections.index', [
+                'group' => $group->slug,
+                'event' => $event->slug,
+            ])->with('success', 'کاندیدها با موفقیت به‌روزرسانی شدند.');
         } catch (Exception $e) {
             Log::error('Error updating candidates', [
                 'election_id' => $election->id,

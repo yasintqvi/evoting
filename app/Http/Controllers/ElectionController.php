@@ -35,8 +35,25 @@ class ElectionController extends Controller
 
     public function create(Group $group, Event $event)
     {
-        $users = User::select('id', 'first_name', 'last_name')->get();
+        $group->load('users');
 
+        if ($group->type->value === \App\Enums\GroupType::SPECIAL->value) {
+            $totalNormal = (int) $group->normal_stock_count;
+            $totalPrefered = (int) $group->prefered_stock_count;
+
+            $allocatedNormal = (int) $group->users->sum('pivot.normal_stock_count');
+            $allocatedPrefered = (int) $group->users->sum('pivot.prefered_stock_count');
+
+            $remainingNormal = $totalNormal - $allocatedNormal;
+            $remainingPrefered = $totalPrefered - $allocatedPrefered;
+
+            if ($remainingNormal !== 0 || $remainingPrefered !== 0) {
+                return redirect()->back()
+                    ->with('error', 'تمام سهام (عادی و ممتاز) باید تخصیص داده شود تا بتوانید همه‌پرسی ایجاد کنید.');
+            }
+        }
+
+        $users = User::select('id', 'first_name', 'last_name')->get();
         $positions = Position::select('id', 'title')->get();
 
         return view('app.group.event.election.create', compact('group', 'event', 'users', 'positions'));
