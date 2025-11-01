@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Permission;
+use App\Http\Controllers\CloneEventController;
 use App\Http\Controllers\EventController;
 use Illuminate\Support\Facades\Route;
 
@@ -12,6 +13,7 @@ Route::prefix('/{group:slug}')->group(function () {
      Route::get('/events/edit/{event}', [EventController::class, 'edit'])->can(Permission::EDIT_GROUP_EVENT)->name('events.edit');
     Route::put('/events/update/{event}', [EventController::class, 'update'])->can(Permission::EDIT_GROUP_EVENT)->name('events.update');
     Route::delete('/events/delete/{event}', [EventController::class, 'destroy'])->can(Permission::DELETE_GROUP_EVENT)->name('events.delete');
+    Route::get('clone-event/{event}',CloneEventController::class)->name('clone.event');
 });
 
 

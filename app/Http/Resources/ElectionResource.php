@@ -57,7 +57,7 @@ class ElectionResource extends JsonResource
         if ($this->status == ElectionStatus::WAITING_TO_START && user()->hasPermissionTo(Permission::CREATE_ELECTION_ROUNDS->value)) {
             return [
                 'title' => 'شروع انتخابات',
-                'url' => route('election-rounds.store', [$this->event->group->slug, $this->event->slug, $this->id]),
+                'url' => route('candidates.edit', [$this->event->group->slug, $this->event->slug, $this->id]),
             ];
         }
 

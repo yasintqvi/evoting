@@ -89,7 +89,7 @@ class ElectionCandidateController extends Controller
 
             return to_route('elections.index', [
                 'group' => $group->slug,
-                'event' => $event->slug, 
+                'event' => $event->slug,
             ])->with('success', 'کاندیدها با موفقیت به‌روزرسانی شدند.');
         } catch (Exception $e) {
             Log::error('Error updating candidates', [

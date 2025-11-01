@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\EventStatus;
+use App\Traits\Cloneable;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,6 +16,7 @@ class Event extends Model
     use LogsActivity;
     use SoftDeletes;
     use Sluggable;
+    use Cloneable;
 
     protected $fillable = [
         'name',
