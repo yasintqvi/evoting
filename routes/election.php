@@ -11,7 +11,7 @@ use App\Http\Controllers\UserExcelController;
 use Illuminate\Support\Facades\Route;
 
 
-Route::prefix('{group:slug}/events/{event}')->group(function () {
+Route::prefix('{group:slug}/events/{event:slug}')->group(function () {
     Route::get('elections/{election}/edit', [ElectionController::class, 'edit'])
         ->name('elections.edit')
         ->can(Permission::EDIT_ELECTIONS);
@@ -47,7 +47,7 @@ Route::prefix('{group:slug}/events/{event}')->group(function () {
     // Route::get('/elections/{election}/candidates', [ElectionCandidateController::class, 'index'])
     //     ->name('candidates.index');
 
-    Route::get('/groups/{group}/events/{event}/election', [ElectionController::class, 'index']);
+    // Route::get('/groups/{group}/events/{event}/election', [ElectionController::class, 'index']);
 
     Route::get('/elections/{election}/candidates/create', [ElectionCandidateController::class, 'create'])
         ->name('candidates.create');
@@ -58,6 +58,10 @@ Route::prefix('{group:slug}/events/{event}')->group(function () {
     Route::get('/elections/{election}/edit', [ElectionCandidateController::class, 'edit'])
         ->name('candidates.edit')
         ->can(Permission::EDIT_CANDIDATES);
+
+    Route::post('/elections/{election}/start', [ElectionController::class, 'start'])
+        ->name('elections.start')
+        ->can(Permission::CREATE_ELECTION_ROUNDS);
 
     // Route::put('/elections/{election}/update', [ElectionCandidateController::class, 'update'])->name('candidates.update')
     //     ->can(Permission::UPDATE_CANDIDATES);

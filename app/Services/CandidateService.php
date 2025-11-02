@@ -6,7 +6,10 @@ use App\DTOs\Election\ElectionCandidatesDto;
 use App\Enums\CandidateType;
 use App\Enums\ElectionStatus;
 use App\Models\Election;
+use App\Models\Group;
+use Event;
 use Exception;
+use Log;
 
 class CandidateService
 {
@@ -66,6 +69,9 @@ class CandidateService
         $election->save();
     }
 
+ 
+
+
     private function ensureCanAddCandidates(Election $election): void
     {
         if ($election->status->isImmutableStatuses()) {
@@ -77,7 +83,7 @@ class CandidateService
     {
         $duplicateCandidates = array_intersect($addCandidatesDto->mainCandidateIds, $addCandidatesDto->incpectorCandidatesIds);
 
-        if (! empty($duplicateCandidates)) {
+        if (!empty($duplicateCandidates)) {
             throw new Exception('یک نامزد نمی‌تواند همزمان در هیئت مدیره و بازرس باشد.');
         }
     }

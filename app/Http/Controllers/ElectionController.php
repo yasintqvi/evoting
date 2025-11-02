@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ElectionStatus;
 use App\Http\Requests\Election\StoreElectionRequest;
 use App\Http\Requests\Election\UpdateElectionRequest;
 use App\Http\Resources\ElectionResource;
@@ -78,11 +79,11 @@ class ElectionController extends Controller
         }
     }
 
-    public function show(Request $request, Group $group, Election $election, Event $event): View
+    public function show(Request $request, Group $group, Event $event, Election $election): View
     {
         $election = ElectionResource::make($election)->toArray($request);
 
-        return view('app.group.event.election.show', compact('group', 'election'));
+        return view('app.group.event.election.show', compact('group', 'event', 'election'));
     }
 
     public function edit(Request $request, Group $group, Event $event, Election $election): View
@@ -131,6 +132,31 @@ class ElectionController extends Controller
             ]);
 
             return back()->with('error', $th->getMessage());
+        }
+    }
+
+    public function start(Group $group, Event $event, Election $election)
+    {
+        try {
+            if ($election->status !== ElectionStatus::WAITING_TO_START) {
+                return back()->with('error', 'وضعیت فعلی انتخابات قابل شروع نیست.');
+            }
+
+            $election->status = ElectionStatus::ONGOING;
+            $election->save();
+
+            return to_route('elections.show', [
+                'group' => $group->slug,
+                'event' => $event->slug,
+                'election' => $election->id
+            ])->with('success', 'انتخابات با موفقیت شروع شد.');
+        } catch (\Exception $e) {
+            Log::error('Error starting election', [
+                'election_id' => $election->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return back()->with('error', 'خطایی در شروع انتخابات رخ داد.');
         }
     }
 }

@@ -90,11 +90,27 @@
                                     <td>{{ $election['position'] }}</td>
                                     <td class="pe-3">
                                         <div class="hstack gap-1 justify-content-end">
-                                            @isset($election['operations']['next_step'])
+                                            {{-- @isset($election['operations']['next_step'])
                                                 <a href="{{ $election['operations']['next_step']['url'] }}"
                                                     class="btn btn-primary btn-sm">
                                                     {{ $election['operations']['next_step']['title'] }}
                                                 </a>
+                                            @endisset --}}
+                                            @isset($election['operations']['next_step'])
+                                                @if ($election['operations']['next_step']['method'] === 'POST')
+                                                    <form action="{{ $election['operations']['next_step']['url'] }}"
+                                                        method="POST" class="d-inline">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-primary btn-sm">
+                                                            {{ $election['operations']['next_step']['title'] }}
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    <a href="{{ $election['operations']['next_step']['url'] }}"
+                                                        class="btn btn-primary btn-sm">
+                                                        {{ $election['operations']['next_step']['title'] }}
+                                                    </a>
+                                                @endif
                                             @endisset
                                             @can(\App\Enums\Permission::SHOW_ELECTION->value)
                                                 <a href="{{ $election['operations']['show'] }}"
@@ -104,10 +120,10 @@
                                                 <a href="{{ $election['operations']['edit'] }}"
                                                     class="btn btn-secondary btn-sm"><i class="ti ti-edit"></i></a>
                                             @endcan
-                                            @can(\App\Enums\Permission::DELETE_ELECTIONS->value)
-                                                <a href="javascript:void(0);" class="btn btn-danger btn-sm"><i
-                                                        class="ti ti-trash"></i></a>
-                                            @endcan
+                                                {{-- @can(\App\Enums\Permission::DELETE_ELECTIONS->value)
+                                                    <a href="javascript:void(0);" class="btn btn-danger btn-sm"><i
+                                                            class="ti ti-trash"></i></a>
+                                                @endcan --}}
                                         </div>
                                     </td>
                                 </tr>
