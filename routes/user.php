@@ -72,16 +72,16 @@ Route::prefix('{group:slug}')->group(function () {
         ->name('groups.index');
 
     Route::get('/users', [GroupUserController::class, 'index'])
-        ->can(Permission::VIEW_USERS)
+        ->can(Permission::VIEW_GROUP_USERS)
         ->name('group.users.index');
 
     Route::get('/users/{user}/edit', [GroupUserController::class, 'edit'])
-        ->can(Permission::UPDATE_USERS)
+        ->can(Permission::UPDATE_GROUP_USERS)
         ->name('group.users.edit');
 
 
     Route::get('/users/create', [GroupUserController::class, 'create'])
-        ->can(Permission::CREATE_USERS)
+        ->can(Permission::CREATE_GROUP_USERS)
         ->name('group.users.create');
 
     Route::post('/users/create', [GroupUserController::class, 'store'])
@@ -89,14 +89,14 @@ Route::prefix('{group:slug}')->group(function () {
 
 
     Route::put('users/{user}/update', [GroupUserController::class, 'update'])
-        ->can(Permission::UPDATE_USERS)
+        ->can(Permission::UPDATE_GROUP_USERS)
         ->name('group.users.update');
 
     Route::get('/users/{user}', [GroupUserController::class, 'show'])
-        ->can(Permission::VIEW_USERS)
+        ->can(Permission::VIEW_GROUP_USERS)
         ->name('group.users.show');
 
     Route::delete('users/{user}/delete', [GroupUserController::class, 'destroy'])
-        ->can(Permission::DELETE_USERS)
+        ->can(Permission::DELETE_GROUP_USERS)
         ->name('group.users.destroy');
 });

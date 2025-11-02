@@ -66,6 +66,17 @@
                         </div>
                         <div class="display-4 text-primary"><i class="bi bi-calendar3"></i></div>
                     </div>
+                    <button type="button"
+                            class="d-flex justify-content-between mt-5 align-items-center p-3 bg-success rounded-3 border-0 w-100 text-start"
+                            onclick="window.location.href='{{route('event.start',[$group,$event])}}'">
+                        <div>
+                            <h5 class="fw-bold text-white">شروع رویداد</h5>
+                        </div>
+                        <div class="display-4 text-primary">
+                            <i class="bi bi-calendar3"></i>
+                        </div>
+                    </button>
+
                 </div>
             </div>
         </div>

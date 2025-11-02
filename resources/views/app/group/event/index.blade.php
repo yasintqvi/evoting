@@ -135,6 +135,12 @@
                                                     </a>
                                                 </li>
                                                 <li>
+                                                    <a class="dropdown-item"
+                                                       href="{{ route('group.event.show', [$group, $event]) }}">
+                                                       نمایش جزئیات
+                                                    </a>
+                                                </li>
+                                                <li>
                                                     <a class="dropdown-item text-danger"
                                                        href={{route('clone.event',[$group,$event])}}>
                                                     کلون گیری
