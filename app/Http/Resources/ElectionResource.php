@@ -33,8 +33,8 @@ class ElectionResource extends JsonResource
             'prefered_stock_weight' => $this->prefered_stock_weight,
             'position' => $this->position->title,
             'operations' => [
-                'show' => route('elections.show', [$this->event->group->slug, $this->event->slug, $this->id]),
-                'edit' => route('elections.edit', [$this->event->group->slug, $this->event->slug, $this->id]),
+                'show' => route('elections.show', [$this->event->group->slug, $this->event->slug, $this->slug]),
+                'edit' => route('elections.edit', [$this->event->group->slug, $this->event->slug, $this->slug]),
                 'update' => route('elections.update', [$this->event->group->slug, $this->event->slug, $this->id]),
                 'delete' => route('elections.delete', [$this->event->group->slug, $this->event->slug, $this->id]),
                 'next_step' => $this->getNextStep(),
@@ -51,13 +51,15 @@ class ElectionResource extends JsonResource
             return [
                 'title' => 'تعیین یا تغییر نامزد ها',
                 'url' => route('candidates.edit', [$this->event->group->slug, $this->event->slug, $this->slug]),
+                'method' => 'GET',
             ];
         }
 
         if ($this->status == ElectionStatus::WAITING_TO_START && user()->hasPermissionTo(Permission::CREATE_ELECTION_ROUNDS->value)) {
             return [
                 'title' => 'شروع انتخابات',
-                'url' => route('candidates.edit', [$this->event->group->slug, $this->event->slug, $this->id]),
+                'url' => route('elections.start', [$this->event->group->slug, $this->event->slug, $this->slug]),
+                'method' => 'POST',
             ];
         }
 
