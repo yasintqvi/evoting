@@ -26,7 +26,7 @@ class ElectionResource extends JsonResource
             'main_member_count' => $this->main_member_count,
             'substitute_member_count' => $this->substitute_member_count,
             'normal_stock_count' => $this->normal_stock_count,
-            'incpector_main_member_count' => $this->incpector_main_member_count,
+            'incpector_main_memberphp_count' => $this->incpector_main_member_count,
             'incpector_substitute_member_count' => $this->incpector_substitute_member_count,
             'quorum_required' => $this->quorum_required,
             'prefered_stock_count' => $this->prefered_stock_count,
