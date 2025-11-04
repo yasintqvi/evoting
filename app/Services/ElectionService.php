@@ -38,7 +38,6 @@ class ElectionService
             return $group;
         } catch (Throwable $th) {
 
-            dd($th->getMessage());
             DB::rollBack();
 
             Log::info('Error while creating election', [
