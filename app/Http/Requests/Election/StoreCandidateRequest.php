@@ -20,13 +20,13 @@ class StoreCandidateRequest extends FormRequest
             ],
             'main_candidates_ids.*' => ['exists:users,id'],
 
-            'incpector_candidates_ids' => [
-                'required',
-                'array',
-                'distinct',
-                'min:' . ($election->incpector_main_member_count ?? 0),
-            ],
-            'incpector_candidates_ids.*' => ['exists:users,id'],
+            // 'incpector_candidates_ids' => [
+            //     'required',
+            //     'array',
+            //     'distinct',
+            //     'min:' . ($election->incpector_main_member_count ?? 0),
+            // ],
+            // 'incpector_candidates_ids.*' => ['exists:users,id'],
         ];
     }
 
@@ -34,7 +34,7 @@ class StoreCandidateRequest extends FormRequest
     {
         return new ElectionCandidatesDto(
             $this->validated('main_candidates_ids'),
-            $this->validated('incpector_candidates_ids')
+            // $this->validated('incpector_candidates_ids')
         );
     }
 }

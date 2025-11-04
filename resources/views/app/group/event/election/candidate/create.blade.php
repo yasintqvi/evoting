@@ -51,7 +51,7 @@
                         @enderror
                     </div>
                 </div>
-                <div class="col-md-12">
+                {{-- <div class="col-md-12">
                     <div class="mb-3">
                         <label for="incpector_candidates" class="form-label">انتخاب نامزد های بازرس </label>
                         <small class="text-muted">(حداقل {{ $election->incpector_main_member_count }} نامزد را انتخاب کنید)</small>
@@ -73,7 +73,7 @@
                         <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
         <div class="card-footer">
