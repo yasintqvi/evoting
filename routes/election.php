@@ -31,7 +31,7 @@ Route::prefix('{group:slug}/events/{event:slug}')->group(function () {
         ->name('elections.delete')
         ->can(Permission::DELETE_ELECTIONS);
 
-    Route::get('elections/{election}/show', [ElectionController::class, 'show'])
+    Route::get('elections/{election:slug}/show', [ElectionController::class, 'show'])
         ->name('elections.show')
         ->can(Permission::SHOW_ELECTION);
 
@@ -44,11 +44,6 @@ Route::prefix('{group:slug}/events/{event:slug}')->group(function () {
         ->can(Permission::CREATE_ELECTIONS);
 
     // Election Candidates
-    // Route::get('/elections/{election}/candidates', [ElectionCandidateController::class, 'index'])
-    //     ->name('candidates.index');
-
-    // Route::get('/groups/{group}/events/{event}/election', [ElectionController::class, 'index']);
-
     Route::get('/elections/{election}/candidates/create', [ElectionCandidateController::class, 'create'])
         ->name('candidates.create');
 
@@ -59,7 +54,7 @@ Route::prefix('{group:slug}/events/{event:slug}')->group(function () {
         ->name('candidates.edit')
         ->can(Permission::EDIT_CANDIDATES);
 
-    Route::post('/elections/{election}/start', [ElectionController::class, 'start'])
+    Route::post('/elections/{election:slug}/start', [ElectionController::class, 'start'])
         ->name('elections.start')
         ->can(Permission::CREATE_ELECTION_ROUNDS);
 
@@ -78,7 +73,7 @@ Route::prefix('{group:slug}/events/{event:slug}')->group(function () {
     Route::post('/attendances', [AttendanceController::class, 'store'])->name('attendances.store')
         ->can(Permission::STORE_ATTENDANCE);
 
-    Route::prefix('/elections/{election}')->group(function () {
+    Route::prefix('/elections/{election:slug}')->group(function () {
         Route::get('/participants', [ElectionParticipantController::class, 'index'])
             ->name('participants.index');
 
@@ -110,7 +105,7 @@ Route::prefix('{group:slug}/events/{event:slug}')->group(function () {
         Route::post('/voting', [ElectionVotingController::class, 'store'])
             ->name('voting.store');
 
-        Route::post('/voting/terminate', [ElectionVotingController::class, 'terminate'])
+        Route::post('elections/voting/terminate', [ElectionVotingController::class, 'terminate'])
             ->name('voting.terminate');
     });
 });

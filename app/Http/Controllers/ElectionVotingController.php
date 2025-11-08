@@ -6,10 +6,11 @@ use App\Enums\CandidateType;
 use App\Enums\ElectionStatus;
 use App\Http\Requests\Election\StoreVotingRequest;
 use App\Models\Election;
+use App\Models\Event;
 use App\Models\Group;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class ElectionVotingController extends Controller
 {
@@ -23,7 +24,7 @@ class ElectionVotingController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Group $group, Election $election)
+    public function create(Group $group, Event $event, Election $election)
     {
         if ($election->status != ElectionStatus::ONGOING) {
             return back();
@@ -43,13 +44,13 @@ class ElectionVotingController extends Controller
 
         $election->load('candidates');
 
-        return view('app.group.election.voting.create', compact('group', 'election', 'participant'));
+        return view('app.group.election.voting.create', compact('group', 'event', 'election', 'participant'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreVotingRequest $request, Group $group, Election $election)
+    public function store(StoreVotingRequest $request, Group $group, Event $event, Election $election)
     {
         try {
             $data = $request->validated();

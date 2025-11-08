@@ -18,6 +18,7 @@ class ElectionResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'slug' => $this->slug,
             'title' => $this->title,
             'type' => $this->type,
             'fa_type' => $this->type->toFa(),

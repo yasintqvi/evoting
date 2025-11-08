@@ -148,7 +148,7 @@ class ElectionController extends Controller
             return to_route('elections.show', [
                 'group' => $group->slug,
                 'event' => $event->slug,
-                'election' => $election->id
+                'election' => $election->slug
             ])->with('success', 'انتخابات با موفقیت شروع شد.');
         } catch (\Exception $e) {
             Log::error('Error starting election', [
