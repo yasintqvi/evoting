@@ -22,7 +22,6 @@ Route::prefix('/{group:slug}')->group(function () {
 Route::get('/groups/{group:slug}/events/{event}', [EventController::class, 'show'])
     ->name('group.event.show');
 
-Route::get('/groups/{group}/events/{event}/start',EventStartController::class)->name('event.start');
 
 
 
