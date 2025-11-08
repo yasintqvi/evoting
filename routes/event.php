@@ -3,6 +3,7 @@
 use App\Enums\Permission;
 use App\Http\Controllers\CloneEventController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\EventStartController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('/{group:slug}')->group(function () {
@@ -20,6 +21,9 @@ Route::prefix('/{group:slug}')->group(function () {
 
 Route::get('/groups/{group:slug}/events/{event}', [EventController::class, 'show'])
     ->name('group.event.show');
+
+
+
 
 Route::get('/groups/{group:slug}/events/{event}/edit', [EventController::class, 'edit'])
     ->name('group.event.edit');

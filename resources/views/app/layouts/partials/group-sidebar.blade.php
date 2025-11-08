@@ -59,6 +59,7 @@
                     </a>
                 </li>
                 <br>
+            @can(\App\Enums\Permission::VIEW_GROUP_EVENT->value)
                 <li class="side-nav-title">لیست آخرین رویداد ها</li>
                 @forelse($group->events()->latest()->take(5)->get() as $event)
                     <li class="side-nav-item active">
@@ -100,6 +101,11 @@
                                         <span class="menu-text">نظرسنجی‌ها</span>
                                     </a>
                                 </li>
+                                <li class="side-nav-item">
+                                    <a href="{{ route('group.event.show', [$group, $event]) }}" class="side-nav-link">
+                                        <span class="menu-text">نمایش جزئیات</span>
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </li>
@@ -111,6 +117,7 @@
                     </div>
                 @endforelse
 
+                @endcan
                 @can(\App\Enums\Permission::CREATE_GROUP_EVENT->value)
                     <div class="d-flex flex-column mt-3">
                         <a href="{{ route('events.create', $group) }}" class="btn btn-secondary btn-sm mx-auto">رویداد

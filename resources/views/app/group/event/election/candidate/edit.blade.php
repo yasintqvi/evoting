@@ -22,7 +22,7 @@
 <form action="{{ route('candidates.update', [$group,$event, $election]) }}" method="post">
     @csrf
     @method('put')
-    <div class="card col-lg-6">
+    <div class="card col-lg-5">
         <div class="card-header border-bottom border-dashed">
             <h4 class="card-title">انتخاب نامزد های همه پرسی</h4>
             <p class="text-muted mb-0">شما در حال انتخاب نامزد های همه پرسی هستید</p>
@@ -31,7 +31,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="mb-3">
-                        <label for="main_candidates" class="form-label">انتخاب نامزد های هیت میره</label>
+                        <label for="main_candidates" class="form-label">انتخاب نامزد</label>
                         <small class="text-muted">(حداقل {{ $election->main_member_count }} نامزد را انتخاب کنید)</small>
                         <select
                             class="form-select my-1 my-md-0 me-sm-3"
@@ -48,29 +48,6 @@
                             @endforeach
                         </select>
                         @error('main_candidates_ids')
-                        <span class="text-danger">{{ $message }}</span>
-                        @enderror
-                    </div>
-                </div>
-                <div class="col-md-12">
-                    <div class="mb-3">
-                        <label for="incpector_candidates" class="form-label">انتخاب نامزد های بازرس </label>
-                        <small class="text-muted">(حداقل {{ $election->incpector_main_member_count }} نامزد را انتخاب کنید)</small>
-                        <select
-                            class="form-select my-1 my-md-0 me-sm-3"
-                            name="incpector_candidates_ids[]"
-                            id="incpector_candidates"
-                            data-toggle="select2"
-                            multiple>
-                            @foreach ($group->users as $user)
-                            <option
-                                value="{{ $user->id }}"
-                                {{ collect(old('incpector_candidates_ids', $election->candidates()->where('candidate_type', App\Enums\CandidateType::INSPECTOR)->get()->pluck('user_id')->toArray()))->contains($user->id) ? 'selected' : '' }}>
-                                {{ $user->fullName }}
-                            </option>
-                            @endforeach
-                        </select>
-                        @error('incpector_candidates_ids')
                         <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>

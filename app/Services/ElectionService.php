@@ -38,7 +38,6 @@ class ElectionService
             return $group;
         } catch (Throwable $th) {
 
-            dd($th->getMessage());
             DB::rollBack();
 
             Log::info('Error while creating election', [
@@ -68,6 +67,26 @@ class ElectionService
 
         $election->update($updateData);
     }
+
+    // public function update(Election $election, UpdateElectionDto $updateElectionDto): void
+    // {
+    //     $updateData = $updateElectionDto->all();
+
+    //     dd($updateData);
+    //     $isDirty = false;
+    //     foreach ($updateData as $key => $value) {
+    //         if ($key !== 'title' && (string) $value !== (string) $election->$key) {
+    //             $isDirty = true;
+    //             break;
+    //         }
+    //     }
+
+    //     if ($isDirty) {
+    //         $updateData['status'] = ElectionStatus::CREATED;
+    //     }
+
+    //     $election->update($updateData);
+    // }
 
     public function delete(Election $election): ?bool
     {

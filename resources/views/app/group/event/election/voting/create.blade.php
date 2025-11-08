@@ -194,7 +194,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const maxDirectorCandidates = parseInt("{{ $election->main_member_count }}");
-        const maxInspectorCandidates = parseInt("{{ $election->incpector_main_member_count }}");
+        // const maxInspectorCandidates = parseInt("{{ $election->incpector_main_member_count }}");
 
         const directorRanges = document.querySelectorAll('input[name^="director_candidates"][type="range"]');
         const inspectorRanges = document.querySelectorAll('input[name^="inspector_candidates"][type="range"]');
@@ -233,7 +233,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const maxDirectorCandidates = "{{ $election->main_member_count }}";
-        const maxInspectorCandidates = "{{ $election->incpector_main_member_count }}";
+        // const maxInspectorCandidates = "{{ $election->incpector_main_member_count }}";
 
         const directorCheckboxes = document.querySelectorAll('input[name^="director_candidates"]');
         const inspectorCheckboxes = document.querySelectorAll('input[name^="inspector_candidates"]');

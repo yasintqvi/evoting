@@ -112,6 +112,25 @@
                                                     </a>
                                                 @endif
                                             @endisset
+                                            @php
+                                                $isOngoing =
+                                                    $election['status'] === \App\Enums\ElectionStatus::ONGOING ||
+                                                    (is_object($election['status']) &&
+                                                        $election['status']->value === 'ongoing') ||
+                                                    (is_string($election['status']) &&
+                                                        $election['status'] === 'ongoing');
+                                            @endphp
+                                            @if ($isOngoing)
+                                                <a href="{{ route('voting.create', [$group, $event, $election['slug']]) }}"
+                                                    class="btn btn-info btn-sm">
+                                                    <i class="ti ti-vote me-1"></i>رای گیری
+                                                </a>
+                                            @else
+                                                <button class="btn btn-info btn-sm" disabled
+                                                    title="انتخابات هنوز شروع نشده است">
+                                                    <i class="ti ti-vote me-1"></i>رای گیری
+                                                </button>
+                                            @endif
                                             @can(\App\Enums\Permission::SHOW_ELECTION->value)
                                                 <a href="{{ $election['operations']['show'] }}"
                                                     class="btn btn-success btn-sm"><i class="ti ti-eye"></i></a>
@@ -120,7 +139,7 @@
                                                 <a href="{{ $election['operations']['edit'] }}"
                                                     class="btn btn-secondary btn-sm"><i class="ti ti-edit"></i></a>
                                             @endcan
-                                                {{-- @can(\App\Enums\Permission::DELETE_ELECTIONS->value)
+                                            {{-- @can(\App\Enums\Permission::DELETE_ELECTIONS->value)
                                                     <a href="javascript:void(0);" class="btn btn-danger btn-sm"><i
                                                             class="ti ti-trash"></i></a>
                                                 @endcan --}}
