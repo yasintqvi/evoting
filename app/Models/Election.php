@@ -96,6 +96,11 @@ class Election extends Model
         return $this->belongsTo(Position::class);
     }
 
+    public function rounds()
+    {
+        return $this->hasMany(Round::class);
+    }
+
     public function precentParticipants()
     {
         $totalParticipants = $this->participants->count();
