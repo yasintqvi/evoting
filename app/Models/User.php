@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Traits\HasRoles;
@@ -128,6 +129,10 @@ class User extends Authenticatable
     public function getProfileImageAttribute()
     {
         return $this->avatar ?? asset('assets/img/profile.png');
+    }
+    public function getMainPermissions(): Collection
+    {
+        return $this->getAllPermissions()->where('group_id',null);
     }
 
     public function attendances()

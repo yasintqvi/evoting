@@ -2,6 +2,7 @@
 
 use App\Enums\Permission;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\GroupPermissionController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('groups')->group(function () {
@@ -27,4 +28,12 @@ Route::prefix('groups')->group(function () {
 
     Route::post('/leave/{group:slug}', [GroupController::class, 'leave'])
         ->name('groups.leave');
+
+    Route::get('/roles/{group}',[GroupPermissionController::class,'index'])->name('group.permissions');
+    Route::get('/roles/{group}/create',[GroupPermissionController::class,'create'])->name('group.permissions.create');
+    Route::post('/role/{group}/store',[GroupPermissionController::class,'store'])->name('group.permissions.store');
+
+    Route::get('/roles/{group}/edit/{role}',[GroupPermissionController::class,'edit'])->name('group.permissions.edit');
+    Route::put('/roles/{group}/update/{role}',[GroupPermissionController::class,'update'])->name('group.permissions.update');
+    Route::delete('/roles/{group}/delete/{role}',[GroupPermissionController::class,'destroy'])->name('group.permissions.destroy');
 });

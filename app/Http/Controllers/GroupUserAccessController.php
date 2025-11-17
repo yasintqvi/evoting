@@ -11,7 +11,7 @@ use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Throwable;
 
-class UserAccessController extends Controller
+class GroupUserAccessController extends Controller
 {
     private AclService $aclService;
 

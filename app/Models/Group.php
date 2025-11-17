@@ -95,6 +95,9 @@ class Group extends Model
         return $this->hasMany(Election::class);
     }
 
+    public function surveys(){
+        return $this->hasMany(Survey::class);
+    }
     public function getTotalPreferedAttribute()
     {
         return $this->prefered_stock_count + $this->normal_stock_count;

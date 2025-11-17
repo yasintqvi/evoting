@@ -66,7 +66,7 @@
                         </div>
                         <div class="display-4 text-primary"><i class="bi bi-calendar3"></i></div>
                     </div>
-                </div>
+            </div>
             </div>
         </div>
 

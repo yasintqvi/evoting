@@ -35,8 +35,8 @@
                                     <div class="form-check mb-2">
                                         <input type="checkbox" class="form-check-input @error('permissions') is-invalid @enderror" id="permission_{{ $permission->id }}"
                                             name="permissions[]" value="{{ $permission->id }}"
-                                            {{ (is_array(old('permissions')) && in_array($permission->id, old('permissions'))) || 
-                                               (!old() && in_array($permission->id, $user->getAllPermissions()->pluck('id')->toArray())) ? 'checked' : '' }}>
+                                            {{ (is_array(old('permissions')) && in_array($permission->id, old('permissions'))) ||
+                                               (!old() && in_array($permission->id, $user->getMainPermissions()->pluck('id')->toArray())) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="permission_{{ $permission->id }}">
                                             {{ \App\Enums\Permission::from($permission->name)->fa() }}
                                         </label>
@@ -62,7 +62,7 @@
                                     <div class="form-check mb-2">
                                         <input type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" id="role_{{ $role->id }}"
                                             name="roles[]" value="{{ $role->id }}"
-                                            {{ (is_array(old('roles')) && in_array($role->id, haystack: old('roles'))) || 
+                                            {{ (is_array(old('roles')) && in_array($role->id, haystack: old('roles'))) ||
                                                (!old() && in_array($role->id, $userRoles->pluck('id')->toArray())) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="role_{{ $role->id }}">
                                             {{ $role->name }}

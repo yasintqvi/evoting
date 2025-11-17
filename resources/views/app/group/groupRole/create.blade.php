@@ -1,0 +1,207 @@
+@extends('app.layouts.app')
+
+@section('content')
+<div class="page-title-head d-flex align-items-sm-center flex-sm-row flex-column gap-2">
+    <div class="flex-grow-1">
+        <h4 class="fs-18 fw-semibold mb-0">ایجاد نقش جدید</h4>
+    </div>
+
+    <div class="text-end">
+        <ol class="breadcrumb m-0 py-0">
+            <li class="breadcrumb-item"><a href="">داشبورد</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('group.permissions',$group) }}">دسترسی ها</a></li>
+            <li class="breadcrumb-item active">ایجاد</li>
+        </ol>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header border-bottom border-light">
+                <h4 class="card-title">فرم ایجاد نقش</h4>
+                <p class="text-muted mb-0">لطفا اطلاعات نقش جدید را وارد کنید</p>
+            </div>
+
+            <div class="card-body">
+                @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
+
+                <form action="{{ route('group.permissions.store',$group) }}" method="POST">
+                    @csrf
+
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">نام نقش</label>
+                                <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}" required>
+                                @error('name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5>دسترسی‌ها</h5>
+                            <div class="row">
+                                @foreach($permissions as $permission)
+                                <div class="col-lg-3 col-md-4 col-sm-6">
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox" class="form-check-input @error('permissions') is-invalid @enderror" id="permission_{{ $permission->id }}"
+                                            name="permissions[]" value="{{ $permission->id }}"
+                                            {{ (is_array(old('permissions')) && in_array($permission->id, old('permissions'))) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="permission_{{ $permission->id }}">
+                                            {{ $permission->name }}
+                                        </label>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                            @error('permissions')
+                            <div class="text-danger mt-2">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="card mt-4">
+                        <h5 class="card-header">مدیریت دسترسی رکوردی</h5>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label>انتخاب ماژول</label>
+                                <select id="module-select" class="form-select">
+                                    <option value="">انتخاب کنید</option>
+                                    <option value="events">رویدادها</option>
+                                    <option value="elections">انتخابات</option>
+                                    <option value="surveys">نظرسنجی‌ها</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label>انتخاب رکورد</label>
+                                <select id="record-select" class="form-select select2" disabled></select>
+                            </div>
+
+                            <div id="permissions-area" class="mt-3" style="display:none;">
+                                <h6>نوع دسترسی</h6>
+                                <div class="form-check">
+                                    <input type="checkbox" id="create" value="create" class="form-check-input">
+                                    <label for="create" class="form-check-label">ایجاد</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" id="edit" value="edit" class="form-check-input">
+                                    <label for="edit" class="form-check-label">ویرایش</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" id="delete" value="delete" class="form-check-input">
+                                    <label for="delete" class="form-check-label">حذف</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" id="attendance" value="attendance" class="form-check-input">
+                                    <label for="attendance" class="form-check-label">حضور غیاب (مخصوص ماژول رویداد)</label>
+                                </div>
+
+                                <button id="add-permission" type="button" class="btn btn-outline-primary mt-3">افزودن دسترسی</button>
+                            </div>
+
+                            <div id="selected-permissions" class="mt-4"></div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">ذخیره</button>
+                            <a href="{{ route('roles.index') }}" class="btn btn-secondary">انصراف</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@section('scripts')
+    <script>
+        const moduleSelect = document.getElementById('module-select');
+        const recordSelect = document.getElementById('record-select');
+        const permissionsArea = document.getElementById('permissions-area');
+        const selectedPermissions = document.getElementById('selected-permissions');
+
+        moduleSelect.addEventListener('change', async () => {
+            const module = moduleSelect.value;
+            recordSelect.innerHTML = '';
+            permissionsArea.style.display = 'none';
+
+            if (!module) return;
+
+            // با API رکوردهای اون ماژول رو بیار
+            const res = await fetch(`/api/get/${module}/group/{{$group->slug}}`);
+            const data = await res.json();
+
+            data.forEach(record => {
+                const opt = document.createElement('option');
+                opt.value = record.id;
+                opt.textContent = record.title || `#${record.id}`;
+                recordSelect.appendChild(opt);
+            });
+            permissionsArea.style.display = recordSelect.value ? 'block' : 'none';
+
+            recordSelect.disabled = false;
+        });
+
+        recordSelect.addEventListener('change', () => {
+            permissionsArea.style.display = recordSelect.value ? 'block' : 'none';
+        });
+
+        document.getElementById('add-permission').addEventListener('click', () => {
+            const module = moduleSelect.value;
+            const recordId = recordSelect.value;
+            const actions = Array.from(
+                document.querySelectorAll('#permissions-area input[type=checkbox]:checked')
+            ).map(i => i.value);
+
+            actions.forEach(action => {
+                const value = `${module}_${action}_${recordId}`;
+
+                const div = document.createElement('div');
+                div.className = 'badge bg-primary me-2 mb-2 d-inline-flex align-items-center';
+
+                // Text
+                const span = document.createElement('span');
+                span.textContent = value;
+                div.appendChild(span);
+
+                // Hidden input (IMPORTANT)
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'permissionsRecord[]';
+                input.value = value;
+                div.appendChild(input);
+
+                // Delete button
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'btn-close btn-close-white ms-2';
+                btn.style.fontSize = '0.6rem';
+                btn.addEventListener('click', () => {
+                    div.remove();
+                });
+                div.appendChild(btn);
+
+                selectedPermissions.appendChild(div);
+            });
+        });
+
+
+
+    </script>
+@include('app.alerts.toastr.error')
+@endsection
