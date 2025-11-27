@@ -37,7 +37,7 @@ class Participant extends Model
         return LogOptions::defaults()
             ->logOnly(static::$logAttributes)->dontLogIfAttributesChangedOnly(static::$logAttributesToIgnore)
             ->logOnlyDirty()
-            ->setDescriptionForEvent(fn (string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'گروه کننده', 'subject' => $this->user->full_name]))
+            ->setDescriptionForEvent(fn(string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'گروه کننده', 'subject' => $this->user->full_name]))
             ->dontSubmitEmptyLogs();
     }
 
@@ -63,9 +63,23 @@ class Participant extends Model
         return $this->hasMany(Vote::class);
     }
 
+    // public function getTotalStockAttribute()
+    // {
+    //     return $this->election->type == ElectionType::PUBLIC_JOINT ? 1 : (int) ($this->normal_stock_count + ($this->prefered_stock_count * $this->election->prefered_stock_weight));
+    // }
+
     public function getTotalStockAttribute()
     {
-        return $this->election->type == ElectionType::PUBLIC_JOINT ? 1 : (int) ($this->normal_stock_count + ($this->prefered_stock_count * $this->election->prefered_stock_weight));
+        $event = $this->event; // از رابطه event
+        $election = $event?->elections()?->first(); // یا هر منطق مناسب برای پیدا کردن election
+
+        if (!$election) {
+            return 0;
+        }
+
+        return $election->type == ElectionType::PUBLIC_JOINT
+            ? 1
+            : (int) ($this->normal_stock_count + ($this->prefered_stock_count * $election->prefered_stock_weight));
     }
 
     public function event()
