@@ -3,7 +3,10 @@
 namespace App\Http\Requests\Election;
 
 use App\DTOs\Election\UpdateElectionDto;
+use App\Enums\ElectionType;
+use Auth;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateElectionRequest extends FormRequest
 {
@@ -27,6 +30,9 @@ class UpdateElectionRequest extends FormRequest
             'quorum_required' => ['nullable', 'in:0,1'],
             'main_member_count' => ['required', 'integer', 'min:1'],
             'substitute_member_count' => ['required', 'integer', 'min:0'],
+            'type' => ['required', Rule::in(ElectionType::values())],
+            'position_id' => ['required', 'exists:positions,id'],
+
         ];
     }
 
@@ -35,6 +41,9 @@ class UpdateElectionRequest extends FormRequest
         return new UpdateElectionDto(
             $this->validated('title'),
             (bool) $this->validated('quorum_required'),
+            Auth::user()->getAuthIdentifier(),
+            $this->validated('position_id'),
+            ElectionType::from($this->validated('type')),
             $this->validated('main_member_count'),
             $this->validated('substitute_member_count'),
         );

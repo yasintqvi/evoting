@@ -59,18 +59,13 @@
                                         </td>
                                         <td class="px-2 text-dark fw-medium fs-14"> {{ $election['substitute_member_count'] }}</td>
                                     </tr>
-                                    <tr>
+                                    {{-- <tr>
                                         <td>
                                             <p class="mb-0">تعداد عضو اصلی بازرس: </p>
                                         </td>
                                         <td class="px-2 text-dark fw-medium fs-14">{{ $election['incpector_main_member_count'] }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <p class="mb-0">تعداد عضو علی البدل بازرس: </p>
-                                        </td>
-                                        <td class="px-2 text-dark fw-medium fs-14">{{ $election['incpector_substitute_member_count'] }}</td>
-                                    </tr>
+                                    </tr> --}}
+                                
                                     <tr>
                                         <td>
                                             <p class="d-flex mb-0 align-items-center gap-1">تاریخ ایجاد : </p>

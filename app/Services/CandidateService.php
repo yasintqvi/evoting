@@ -15,7 +15,7 @@ class CandidateService
 {
     public function create(Election $election, ElectionCandidatesDto $addCandidatesDto)
     {
-        $this->ensureCandidatesNotDuplicate($addCandidatesDto);
+        // $this->ensureCandidatesNotDuplicate($addCandidatesDto);
 
         $this->ensureCanAddCandidates($election);
 
@@ -28,12 +28,12 @@ class CandidateService
             ]);
         }
 
-        foreach ($addCandidatesDto->incpectorCandidatesIds as $incpectorCandidateId) {
-            $election->candidates()->create([
-                'user_id' => $incpectorCandidateId,
-                'candidate_type' => CandidateType::INSPECTOR,
-            ]);
-        }
+        // foreach ($addCandidatesDto->incpectorCandidatesIds as $incpectorCandidateId) {
+        //     $election->candidates()->create([
+        //         'user_id' => $incpectorCandidateId,
+        //         'candidate_type' => CandidateType::INSPECTOR,
+        //     ]);
+        // }
 
         $election->status = ElectionStatus::PARTICIPANTS_ATTENDEES;
 
@@ -42,12 +42,12 @@ class CandidateService
 
     public function update(Election $election, ElectionCandidatesDto $dto): void
     {
-        $this->ensureCandidatesNotDuplicate($dto);
+        // $this->ensureCandidatesNotDuplicate($dto);
 
         $this->ensureCanAddCandidates($election);
 
         $election->candidates()
-            ->whereNotIn('user_id', array_merge($dto->mainCandidateIds, $dto->incpectorCandidatesIds))
+            ->whereNotIn('user_id', array_merge($dto->mainCandidateIds))
             ->delete();
 
         foreach ($dto->mainCandidateIds as $mainCandidateId) {
@@ -57,19 +57,19 @@ class CandidateService
             );
         }
 
-        foreach ($dto->incpectorCandidatesIds as $incpectorCandidateId) {
-            $election->candidates()->updateOrCreate(
-                ['user_id' => $incpectorCandidateId],
-                ['candidate_type' => CandidateType::INSPECTOR]
-            );
-        }
+        // foreach ($dto->incpectorCandidatesIds as $incpectorCandidateId) {
+        //     $election->candidates()->updateOrCreate(
+        //         ['user_id' => $incpectorCandidateId],
+        //         ['candidate_type' => CandidateType::INSPECTOR]
+        //     );
+        // }
 
         $election->status = $election->quorum_required ? ElectionStatus::PARTICIPANTS_ATTENDEES : ElectionStatus::WAITING_TO_START;
 
         $election->save();
     }
 
- 
+
 
 
     private function ensureCanAddCandidates(Election $election): void
@@ -81,7 +81,7 @@ class CandidateService
 
     private function ensureCandidatesNotDuplicate(ElectionCandidatesDto $addCandidatesDto)
     {
-        $duplicateCandidates = array_intersect($addCandidatesDto->mainCandidateIds, $addCandidatesDto->incpectorCandidatesIds);
+        $duplicateCandidates = array_intersect($addCandidatesDto->mainCandidateIds);
 
         if (!empty($duplicateCandidates)) {
             throw new Exception('یک نامزد نمی‌تواند همزمان در هیئت مدیره و بازرس باشد.');

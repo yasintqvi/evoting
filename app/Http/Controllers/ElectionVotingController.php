@@ -6,10 +6,11 @@ use App\Enums\CandidateType;
 use App\Enums\ElectionStatus;
 use App\Http\Requests\Election\StoreVotingRequest;
 use App\Models\Election;
+use App\Models\Event;
 use App\Models\Group;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class ElectionVotingController extends Controller
 {
@@ -23,33 +24,35 @@ class ElectionVotingController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Group $group, Election $election)
+    public function create(Group $group, Event $event, Election $election)
     {
         if ($election->status != ElectionStatus::ONGOING) {
             return back();
         }
 
-        if (!$election->participants()->where('user_id', user()->id)->exists()) {
+        $participant = $event->participants()
+            ->where('user_id', user()->id)
+            ->first();
+
+        if (!$participant) {
             return back();
         }
 
-        $participant = $election->participants()->where('user_id', user()->id)->first();
+        // $activeRound = $election->rounds()->where('is_active', true)->first();
 
-        $activeRound = $election->rounds()->where('is_active', true)->first();
-
-        if ($participant->votes()->where('election_round_id', $activeRound->id)->first()) {
-            return back();
-        }
+        // if ($participant->votes()->where('election_round_id', $activeRound->id)->exists()) {
+        //     return back();
+        // }
 
         $election->load('candidates');
 
-        return view('app.group.election.voting.create', compact('group', 'election', 'participant'));
+        return view('app.group.event.election.voting.create', compact('group', 'event', 'election', 'participant'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreVotingRequest $request, Group $group, Election $election)
+    public function store(StoreVotingRequest $request, Group $group, Event $event, Election $election)
     {
         try {
             $data = $request->validated();
