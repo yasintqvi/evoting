@@ -8,6 +8,7 @@ use App\Services\Image\ImageService;
 use Illuminate\Support\Facades\DB;
 use Log;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\PermissionRegistrar;
 
 class GroupController extends Controller
 {
@@ -56,7 +57,7 @@ class GroupController extends Controller
             $group = user()->ownerCompanies()->create($validated);
             $group->users()->attach(user()->id);
             $permissions = [
-                ['name' => \App\Enums\Permission::GROUP_OWNER_GROUP_ID->value . $group->id, 'guard_name' => "web", 'group_id' => $group->id],
+                ['name' => \App\Enums\Permission::GROUP_OWNER_GROUPID->value . $group->id, 'guard_name' => "web", 'group_id' => $group->id],
                 ['name' => \App\Enums\Permission::DELETE_GROUP_USERS_GROUPID->value  . $group->id, 'guard_name' => "web", 'group_id' => $group->id],
                 ['name' => \App\Enums\Permission::CREATE_GROUP_USERS_GROUPID->value  . $group->id, 'guard_name' => "web", 'group_id' => $group->id],
                 ['name' => \App\Enums\Permission::VIEW_GROUP_USERS_GROUPID->value  . $group->id, 'guard_name' => "web", 'group_id' => $group->id],
@@ -68,8 +69,12 @@ class GroupController extends Controller
                 ['name' => \App\Enums\Permission::CREATE_ATTENDANCE_GROUPID->value  . $group->id, 'guard_name' => "web", 'group_id' => $group->id],
             ];
             Permission::insert($permissions);
+            app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
             DB::commit();
+            $user=auth()->user();
+            $user->givePermissionTo(\App\Enums\Permission::GROUP_OWNER_GROUPID->value . $group->id);
+
             return back()->with('success', __('messages.company.created'));
 
         } catch (\Throwable $th) {

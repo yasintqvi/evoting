@@ -92,7 +92,13 @@
                                     </td>
 
                                     <td class="pe-3">
+
                                         <div class="hstack gap-1 justify-content-end">
+                                                @can(\App\Enums\Permission::CHANGE_ACCESS->value)
+                                                    <a href="{{ route('user.group.permissions', [$group,$user]) }}"
+                                                       class="btn btn-soft-primary btn-sm">تغییر دسترسی</a>
+                                                @endcan
+
                                             <a href="{{ route('group.users.edit', [$group, $user]) }}"
                                                 class="btn btn-secondary btn-sm">
                                                 <i class="ti ti-edit"></i></a>

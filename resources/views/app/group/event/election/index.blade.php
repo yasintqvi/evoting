@@ -112,11 +112,11 @@
                                                     </a>
                                                 @endif
                                             @endisset
-                                            @can(\App\Enums\Permission::SHOW_ELECTION->value)
+                                            @canany([\App\Enums\Permission::SHOW_ELECTION->value,\App\Enums\Permission::SHOW_ELECTION_GROUPID->value.$group->id,\App\Enums\Permission::GROUP_OWNER_GROUPID->value.$group->id])
                                                 <a href="{{ $election['operations']['show'] }}"
                                                     class="btn btn-success btn-sm"><i class="ti ti-eye"></i></a>
                                             @endcan
-                                            @can(\App\Enums\Permission::EDIT_ELECTIONS->value)
+                                            @canany([\App\Enums\Permission::EDIT_ELECTIONS->value,\App\Enums\Permission::UPDATE_ELECTION_GROUPID->value.$group->id,\App\Enums\Permission::GROUP_OWNER_GROUPID->value.$group->id])
                                                 <a href="{{ $election['operations']['edit'] }}"
                                                     class="btn btn-secondary btn-sm"><i class="ti ti-edit"></i></a>
                                             @endcan

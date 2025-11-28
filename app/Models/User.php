@@ -134,6 +134,10 @@ class User extends Authenticatable
     {
         return $this->getAllPermissions()->where('group_id',null);
     }
+    public function getGroupPermissions(Group $group){
+
+        return $this->getAllPermissions()->where('group_id',$group->id);
+    }
 
     public function attendances()
     {

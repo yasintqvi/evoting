@@ -26,7 +26,7 @@
                             <h4 class="header-title mt-2">لیست رویداد ها</h4>
                             <div class="position-relative">
                                 <input type="text" name="search" value="{{ request('search') }}"
-                                    class="form-control ps-4" placeholder="جستجو...">
+                                       class="form-control ps-4" placeholder="جستجو...">
                                 <i class="ti ti-search position-absolute top-50 translate-middle-y ms-2"></i>
                             </div>
 
@@ -42,7 +42,8 @@
 
                             <button class=" btn btn-primary bg-gradient">جست و جو
                             </button>
-                            <a href="{{ route('events.index', $group) }}" class="btn btn-danger bg-gradient">حذف فیلتر </a>
+                            <a href="{{ route('events.index', $group) }}" class="btn btn-danger bg-gradient">حذف
+                                فیلتر </a>
 
                         </form>
 
@@ -56,130 +57,133 @@
                 <div class="table-responsive">
                     <table class="table table-nowrap mb-0 align-items-center text-center">
                         <thead class="bg-light-subtle">
-                            <tr>
-                                <th><span class="m-3">شناسه</span></th>
-                                <th><span class="m-3">لوگو</span></th>
-                                <th><span class="m-3">نام رویداد</span></th>
-                                <th><span class="m-3">عنوان رویداد</span></th>
-                                <th><span class="m-3">حد نصاب مشارکت</span></th>
-                                <th><span class="m-3">وضعیت</span></th>
-                                <th><span class="m-3">عملیات</span></th>
-                            </tr>
+                        <tr>
+                            <th><span class="m-3">شناسه</span></th>
+                            <th><span class="m-3">لوگو</span></th>
+                            <th><span class="m-3">نام رویداد</span></th>
+                            <th><span class="m-3">عنوان رویداد</span></th>
+                            <th><span class="m-3">حد نصاب مشارکت</span></th>
+                            <th><span class="m-3">وضعیت</span></th>
+                            <th><span class="m-3">عملیات</span></th>
+                        </tr>
                         </thead>
 
                         <tbody>
-                            @forelse ($events as $event)
-                                <tr>
-                                    <td>{{ $event->id }}</td>
-                                    <td>
-                                        @if ($event->logo)
-                                            <a target="_blank" href="{{ asset($event->logo) }}">
-                                                <img src="{{ asset($event->logo) }}" alt="لوگوی رویداد"
-                                                    class="img-thumbnail rounded-circle" width="50" height="50">
-                                            </a>
-                                        @else
-                                            <span class="text-muted">بدون لوگو</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <a href="#" class="text-dark fw-medium">{{ $event->name }}</a>
-                                    </td>
-                                    <td>{{ $event->title }}</td>
-                                    <td>{{ $event->quorum_percent ?? '-' }}</td>
-                                    <td>
-                                        @if ($event->status == App\Enums\EventStatus::Created)
-                                            <a href="#" class="badge badge-soft-warning p-1">ایجاد شده</a>
-                                        @elseif($event->status == App\Enums\EventStatus::Finished)
-                                            <a href="#" class="badge badge-soft-danger p-1">به اتمام رسیده</a>
-                                        @else
-                                            <a href="#" class="badge badge-soft-success p-1">درحال اجرا</a>
-                                        @endif
-                                    </td>
-                                    <td class="reletive">
-                                        <div class="hstack gap-1">
-                                            <!-- دکمه ساده (مثلاً ویرایش) -->
-                                            <a href="{{ route('events.edit', [$group, $event]) }}"
-                                                class="btn btn-secondary btn-sm">
-                                                <i class="ti ti-edit"></i>
-                                            </a>
+                        @forelse ($events as $event)
+                            <tr>
+                                <td>{{ $event->id }}</td>
+                                <td>
+                                    @if ($event->logo)
+                                        <a target="_blank" href="{{ asset($event->logo) }}">
+                                            <img src="{{ asset($event->logo) }}" alt="لوگوی رویداد"
+                                                 class="img-thumbnail rounded-circle" width="50" height="50">
+                                        </a>
+                                    @else
+                                        <span class="text-muted">بدون لوگو</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <a href="#" class="text-dark fw-medium">{{ $event->name }}</a>
+                                </td>
+                                <td>{{ $event->title }}</td>
+                                <td>{{ $event->quorum_percent ?? '-' }}</td>
+                                <td>
+                                    @if ($event->status == App\Enums\EventStatus::Created)
+                                        <a href="#" class="badge badge-soft-warning p-1">ایجاد شده</a>
+                                    @elseif($event->status == App\Enums\EventStatus::Finished)
+                                        <a href="#" class="badge badge-soft-danger p-1">به اتمام رسیده</a>
+                                    @else
+                                        <a href="#" class="badge badge-soft-success p-1">درحال اجرا</a>
+                                    @endif
+                                </td>
+                                <td class="reletive">
+                                    <div class="hstack gap-1">
+                                        <!-- دکمه ساده (مثلاً ویرایش) -->
+                                        <a href="{{ route('events.edit', [$group, $event]) }}"
+                                           class="btn btn-secondary btn-sm">
+                                            <i class="ti ti-edit"></i>
+                                        </a>
 
-                                            <!-- دکمه منوی کشویی -->
-                                            <div class="dropdown">
-                                                <button class="btn btn-sm btn-light dropdown-toggle" type="button"
+                                        <!-- دکمه منوی کشویی -->
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light dropdown-toggle" type="button"
                                                     data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i class="ti ti-dots-vertical"></i>
-                                                </button>
+                                                <i class="ti ti-dots-vertical"></i>
+                                            </button>
 
-                                                <ul class="dropdown-menu dropdown-menu-end">
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                @canany([\App\Enums\Permission::ATTENDANCE_EVENT_GROUPID->value.$event->id,\App\Enums\Permission::GROUP_OWNER_GROUP_ID->value.$group->id])
                                                     <li>
                                                         <a class="dropdown-item"
-                                                            href="{{ route('attendances.create', [$group, $event]) }}">
+                                                           href="{{ route('attendances.create', [$group, $event]) }}">
                                                             حضور غیاب
                                                         </a>
                                                     </li>
+                                                @endcanany
+
                                                     <li>
                                                         <a class="dropdown-item"
-                                                            href="{{ route('elections.index', [$group, $event]) }}">
+                                                           href="{{ route('elections.index', [$group, $event]) }}">
                                                             انتخابات
                                                         </a>
                                                     </li>
-                                                    <li>
-                                                        <a class="dropdown-item"
-                                                            href="{{ route('surveys.index', [$group, $event]) }}">
-                                                            نظرسنجی
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a class="dropdown-item"
-                                                            href="{{ route('group.event.show', [$group, $event]) }}">
-                                                            نمایش جزئیات
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a class="dropdown-item text-danger"
-                                                            href={{ route('clone.event', [$group, $event]) }}>
-                                                            کلون گیری
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </div>
+                                                <li>
+                                                    <a class="dropdown-item"
+                                                       href="{{ route('surveys.index', [$group, $event]) }}">
+                                                        نظرسنجی
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item"
+                                                       href="{{ route('group.event.show', [$group, $event]) }}">
+                                                        نمایش جزئیات
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item text-danger"
+                                                       href={{ route('clone.event', [$group, $event]) }}>
+                                                        کلون گیری
+                                                    </a>
+                                                </li>
+                                            </ul>
                                         </div>
-                                    </td>
+                                    </div>
+                                </td>
 
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="text-muted text-center">هیچ رویدادی وجود ندارد.</td>
-                                </tr>
-                            @endforelse
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-muted text-center">هیچ رویدادی وجود ندارد.</td>
+                            </tr>
+                        @endforelse
                         </tbody>
                     </table>
                 </div>
 
             </div>
-        @endsection
+            @endsection
 
-        @section('scripts')
-            <script>
-                document.querySelectorAll('.delete-role-btn').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const form = this.closest('.delete-role-form');
+            @section('scripts')
+                <script>
+                    document.querySelectorAll('.delete-role-btn').forEach(button => {
+                        button.addEventListener('click', function () {
+                            const form = this.closest('.delete-role-form');
 
-                        Swal.fire({
-                            title: 'آیا مطمئن هستید؟',
-                            text: "این عملیات غیرقابل برگشت است!",
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonColor: '#3085d6',
-                            cancelButtonColor: '#d33',
-                            confirmButtonText: 'بله، حذف شود',
-                            cancelButtonText: 'انصراف'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                form.submit();
-                            }
+                            Swal.fire({
+                                title: 'آیا مطمئن هستید؟',
+                                text: "این عملیات غیرقابل برگشت است!",
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'بله، حذف شود',
+                                cancelButtonText: 'انصراف'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    form.submit();
+                                }
+                            });
                         });
                     });
-                });
-            </script>
-        @endsection
+                </script>
+@endsection

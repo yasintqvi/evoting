@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ACL\UserAccessRequest;
+use App\Models\Group;
 use App\Models\User;
 use App\Services\Acl\AclService;
 use Illuminate\Http\Request;
@@ -20,24 +21,47 @@ class GroupUserAccessController extends Controller
         $this->aclService = $aclService;
     }
 
-    public function edit(User $user)
+    public function edit(Group $group, User $user)
     {
-        $permissions = Permission::where('group_id',null)->get();
+        $roles = $user->roles;
+        $permissions = $this->aclService->getGroupPermissions($group);
+        $otherPermissions = [];
+        $otherRolePermissions = [];
+        $rolePermissions = [];
+        foreach ($permissions as $perm) {
+            if (preg_match('/_group_\d+$/', $perm->name)) {
+                $groupPermissions[] = $perm; // ends with group_<number>
+            }
+        }
+        $permissions = $groupPermissions;
+        foreach ($roles as $role) {
+            $rolePermissions += $this->aclService->getRolePermissions($role);
+        }
 
-        $roles = Role::all();
+        $otherRolePermissions[] =$user->getGroupPermissions($group);
+        foreach ($otherRolePermissions as $perm) {
+            foreach ($perm as $subperm) {
+                if (!preg_match('/_group_\d+$/', $subperm->name)) {
+                    $otherPermissions[] = $subperm; // ends with group_<number>
+                }
+            }
+        }
 
-        return view('app.users.edit-access', compact('user', 'permissions', 'roles'));
+        $roles = Role::where('group_id', $group->id)->get();
+
+        return view('app.group.users.edit-access', compact('user', 'permissions', 'roles', 'group', 'otherPermissions', 'rolePermissions'));
     }
 
     /**
      * Handle the incoming request.
      */
-    public function update(UserAccessRequest $request, User $user)
+    public function update(UserAccessRequest $request,Group $group, User $user)
     {
         try {
-            $this->aclService->updateUserAccess($user, $request->toDto());
+            $otherPermissions=$request->input('permissionsRecord');
+            $this->aclService->updateGroupUserAccess($user, $request->toDto(),$group,$otherPermissions);
 
-            return to_route('users.index')->with('success', __('messages.user.access_changed'));
+            return back()->with('success', __('messages.user.access_changed'));
         } catch (Throwable $th) {
             Log::error('Error updating user access', [
                 'performed_by' => user()->id ?? null,

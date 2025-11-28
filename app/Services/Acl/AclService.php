@@ -144,6 +144,56 @@ class AclService
         }
     }
 
+    public function updateGroupUserAccess(User $user, UserAccessDto $userAccessDto, Group $group, $otherPermissions = null)
+    {
+        try {
+            //this code is for not sync other roles group or other
+            //main roles and permission here just for group
+            $allGroupPermissions = Permission::where('group_id', $group->id)->get();
+            $allGroupRoles = Role::where("group_id", $group->id)->pluck('id')->toArray();
+            $user->revokePermissionTo($allGroupPermissions);
+
+
+            $collectPermissions = [];
+            if ($otherPermissions) {
+                $otherPermissions = array_unique($otherPermissions);
+                $permissionsRecord = array_values($otherPermissions);
+
+                $permissionsRecord = array_map(function ($permission) use ($group) {
+                    return [
+                        'name' => $permission,
+                        'guard_name' => 'web',
+                        'group_id' => $group->id
+                    ];
+                }, $permissionsRecord);
+
+                if (!empty($permissionsRecord)) {
+                    // Create permissions if they don't exist, and collect the models
+                    foreach ($permissionsRecord as $permission) {
+                        $model = Permission::firstOrCreate(['name' => $permission['name']], $permission);
+                        $collectPermissions[] = $model;
+                    }
+                }
+            }
+
+            $permissionIds = array_merge($userAccessDto->permission_ids, collect($collectPermissions)->pluck('id')->toArray());
+
+            $permissions = Permission::whereIn('id', $permissionIds)->get();
+
+            $user->givePermissionTo($permissions);
+
+
+            $user->roles()->detach($allGroupRoles);
+            $user->roles()->attach($userAccessDto->role_ids);
+        } catch (Throwable $e) {
+            Log::error('Failed to update role', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+            throw $e;
+        }
+    }
+
     public function deleteRole(Role $role): bool
     {
         try {

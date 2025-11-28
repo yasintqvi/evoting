@@ -8,7 +8,7 @@ enum Permission: string
 {
     use EnumValues;
 
-    case GROUP_OWNER_GROUP_ID='group_owner_';
+    case GROUP_OWNER_GROUP_ID = 'group_owner_';
     case CREATE_GROUP = 'create group';
     case VIEW_GROUP = 'view group';
     case EDIT_GROUP = 'edit group';
@@ -79,28 +79,41 @@ enum Permission: string
     case DELETE_GROUP_EVENT = 'delete group event';
 
 
-
-
     // Group owner & user permissions
     case GROUP_OWNER_GROUPID = 'group_owner_group_';
     case DELETE_GROUP_USERS_GROUPID = 'delete_group_users_group_';
     case CREATE_GROUP_USERS_GROUPID = 'create_group_users_group_';
-    case VIEW_GROUP_USERS_GROUPID   = 'view_group_users_group_';
+    case VIEW_GROUP_USERS_GROUPID = 'view_group_users_group_';
     case UPDATE_GROUP_USERS_GROUPID = 'update_group_users_group_';
 
     // Group event permissions
     case CREATE_GROUP_EVENT_GROUPID = 'create_group_event_group_';
-    case VIEW_GROUP_EVENT_GROUPID   = 'view_group_event_group_';
-    case EDIT_GROUP_EVENT_GROUPID   = 'edit_group_event_group_';
+    case VIEW_GROUP_EVENT_GROUPID = 'view_group_event_group_';
+    case EDIT_GROUP_EVENT_GROUPID = 'edit_group_event_group_';
     case DELETE_GROUP_EVENT_GROUPID = 'delete_group_event_group_';
 
     // Attendance permissions
     case CREATE_ATTENDANCE_GROUPID = 'create_attendance_group_';
-    case VIEW_ATTENDANCE_GROUPID   = 'view_attendance_group_';
-    case EDIT_ATTENDANCE_GROUPID   = 'edit_attendance_group_';
+    case VIEW_ATTENDANCE_GROUPID = 'view_attendance_group_';
+    case EDIT_ATTENDANCE_GROUPID = 'edit_attendance_group_';
     case DELETE_ATTENDANCE_GROUPID = 'delete_attendance_group_';
 
+    case CREATE_EVENT_GROUPID = 'events_create_';
+    case UPDATE_EVENT_GROUPID = 'events_update_';
+    case DELETE_EVENT_GROUPID = 'events_delete_';
+    case SHOW_EVENT_GROUPID = 'events_show_';
+    case ATTENDANCE_EVENT_GROUPID = 'events_attendance_';
 
+
+    case CREATE_ELECTION_GROUPID = 'elections_create_';
+    case UPDATE_ELECTION_GROUPID = 'elections_update_';
+    case DELETE_ELECTION_GROUPID = 'elections_delete_';
+    case SHOW_ELECTION_GROUPID = 'elections_show_';
+
+    case CREATE_SURVEY_GROUPID = 'survey_create_';
+    case UPDATE_SURVEY_GROUPID = 'survey_update_';
+    case SHOW_SURVEY_GROUPID = 'survey_show_';
+    case DELETE_SURVEY_GROUPID = 'survey_delete_';
 
 
     /**
@@ -246,36 +259,39 @@ enum Permission: string
 
         };
     }
-    public function withIdFa(){
-        if (!preg_match("/\d+$/", $this->value)) {
-            return $this->fa(); // return normal label
-        }
-        preg_match("/(\d+)$/", $this->value, $matches);
+
+    public static function withIdFa($permission)
+    {
+//        if (!preg_match("/\d+$/", $permission)) {
+//            return $permission->fa(); // return normal label
+//        }
+        preg_match("/(\d+)$/", $permission, $matches);
         $id = $matches[1] ?? null;
 
-    // Remove the trailing number to get the base string
-        $base = preg_replace("/\d+$/", '', $this->value);
+        // Remove the trailing number to get the base string
+        $base = preg_replace("/\d+$/", '', $permission);
 
         $label = match ($base) {
             self::GROUP_OWNER_GROUPID->value => 'مدیر گروه',
             self::DELETE_GROUP_USERS_GROUPID->value => 'حذف کاربران گروه',
             self::CREATE_GROUP_USERS_GROUPID->value => 'ایجاد کاربران گروه',
-            self::VIEW_GROUP_USERS_GROUPID->value   => 'مشاهده کاربران گروه',
+            self::VIEW_GROUP_USERS_GROUPID->value => 'مشاهده کاربران گروه',
             self::UPDATE_GROUP_USERS_GROUPID->value => 'ویرایش کاربران گروه',
 
             self::CREATE_GROUP_EVENT_GROUPID->value => 'ایجاد رویداد گروه',
-            self::VIEW_GROUP_EVENT_GROUPID->value   => 'مشاهده رویداد گروه',
-            self::EDIT_GROUP_EVENT_GROUPID->value   => 'ویرایش رویداد گروه',
+            self::VIEW_GROUP_EVENT_GROUPID->value => 'مشاهده رویداد گروه',
+            self::EDIT_GROUP_EVENT_GROUPID->value => 'ویرایش رویداد گروه',
             self::DELETE_GROUP_EVENT_GROUPID->value => 'حذف رویداد گروه',
 
             self::CREATE_ATTENDANCE_GROUPID->value => 'ایجاد حضور و غیاب',
-            self::VIEW_ATTENDANCE_GROUPID->value   => 'مشاهده حضور و غیاب',
-            self::EDIT_ATTENDANCE_GROUPID->value   => 'ویرایش حضور و غیاب',
+            self::VIEW_ATTENDANCE_GROUPID->value => 'مشاهده حضور و غیاب',
+            self::EDIT_ATTENDANCE_GROUPID->value => 'ویرایش حضور و غیاب',
             self::DELETE_ATTENDANCE_GROUPID->value => 'حذف حضور و غیاب',
+            self::SHOW_EVENT_GROUPID->value=>"نمایش رویداد",
 
             default => 'نامشخص',
         };
 
-        return $id ? "$label (ID: $id)" : $label;
+        return $id ? "$label (شناسه: $id)" : $label;
     }
 }
