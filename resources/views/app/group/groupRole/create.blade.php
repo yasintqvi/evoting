@@ -60,7 +60,7 @@
                                             name="permissions[]" value="{{ $permission->id }}"
                                             {{ (is_array(old('permissions')) && in_array($permission->id, old('permissions'))) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="permission_{{ $permission->id }}">
-                                            {{ $permission->name }}
+                                          {{ \App\Enums\Permission::withIdFa($permission->name) }}
                                         </label>
                                     </div>
                                 </div>
@@ -92,9 +92,14 @@
                             <div id="permissions-area" class="mt-3" style="display:none;">
                                 <h6>نوع دسترسی</h6>
                                 <div class="form-check">
+                                    <input type="checkbox" id="show" value="show" class="form-check-input">
+                                    <label for="show" class="form-check-label">مشاهده</label>
+                                </div>
+                                <div class="form-check">
                                     <input type="checkbox" id="create" value="create" class="form-check-input">
                                     <label for="create" class="form-check-label">ایجاد</label>
                                 </div>
+
                                 <div class="form-check">
                                     <input type="checkbox" id="edit" value="edit" class="form-check-input">
                                     <label for="edit" class="form-check-label">ویرایش</label>
@@ -104,11 +109,24 @@
                                     <label for="delete" class="form-check-label">حذف</label>
                                 </div>
                                 <div class="form-check">
-                                    <input type="checkbox" id="attendance" value="attendance" class="form-check-input">
-                                    <label for="attendance" class="form-check-label">حضور غیاب (مخصوص ماژول رویداد)</label>
+                                    <input type="checkbox" id="attendance" value="attendance"
+                                           class="form-check-input event-permission">
+                                    <label for="attendance" class="form-check-label event-permission">حضور
+                                        غیاب</label>
                                 </div>
-
-                                <button id="add-permission" type="button" class="btn btn-outline-primary mt-3">افزودن دسترسی</button>
+                                <div class="form-check">
+                                    <input type="checkbox" id="electionevent" value="electionevent"
+                                           class="form-check-input event-permission">
+                                    <label for="electionevent" class="form-check-label event-permission">انتخابات</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" id="surveyevent" value="surveyevent"
+                                           class="form-check-input event-permission">
+                                    <label for="surveyevent" class="form-check-label event-permission">نظرسنجی</label>
+                                </div>
+                                <button id="add-permission" type="button" class="btn btn-outline-primary mt-3">
+                                    افزودن دسترسی
+                                </button>
                             </div>
 
                             <div id="selected-permissions" class="mt-4"></div>
@@ -136,12 +154,19 @@
         const selectedPermissions = document.getElementById('selected-permissions');
 
         moduleSelect.addEventListener('change', async () => {
+            document.querySelectorAll('.event-permission').forEach(el => {
+                el.style.display = 'none';
+            });
             const module = moduleSelect.value;
             recordSelect.innerHTML = '';
             permissionsArea.style.display = 'none';
-
+            if (module === 'events') {
+                document.querySelectorAll('.event-permission').forEach(el => {
+                    el.style.display = 'block';
+                });
+                permissionsArea.style.display = 'block';
+            }
             if (!module) return;
-
             // با API رکوردهای اون ماژول رو بیار
             const res = await fetch(`/api/get/${module}/group/{{$group->slug}}`);
             const data = await res.json();
@@ -164,6 +189,25 @@
         document.getElementById('add-permission').addEventListener('click', () => {
             const module = moduleSelect.value;
             const recordId = recordSelect.value;
+
+            const translations = {
+                // Modules
+                surveys: "نظرسنجی",
+                elections: "انتخابات",
+                events: "رویداد",
+                electionevent: "انتخابات کامل",
+                surveyevent: "رویداد کامل",
+
+                // Actions
+                show: "مشاهده",
+                create: "ایجاد",
+                edit: "ویرایش",
+                delete: "حذف",
+
+                // Special action for event
+                attendance: "حضور و غیاب"
+            };
+
             const actions = Array.from(
                 document.querySelectorAll('#permissions-area input[type=checkbox]:checked')
             ).map(i => i.value);
@@ -176,7 +220,7 @@
 
                 // Text
                 const span = document.createElement('span');
-                span.textContent = value;
+                span.textContent = translatePermission(value);
                 div.appendChild(span);
 
                 // Hidden input (IMPORTANT)
@@ -198,8 +242,18 @@
 
                 selectedPermissions.appendChild(div);
             });
-        });
 
+            function translatePermission(value) {
+                // مثال value:  "event_attendance_44"
+                const parts = value.split("_");
+
+                const module = translations[parts[0]] || parts[0];
+                const action = translations[parts[1]] || parts[1];
+                const recordId = parts[2];
+
+                return `${action} ${module} (شناسه ${recordId})`;
+            }
+        });
 
 
     </script>

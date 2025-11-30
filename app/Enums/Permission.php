@@ -98,22 +98,25 @@ enum Permission: string
     case EDIT_ATTENDANCE_GROUPID = 'edit_attendance_group_';
     case DELETE_ATTENDANCE_GROUPID = 'delete_attendance_group_';
 
-    case CREATE_EVENT_GROUPID = 'events_create_';
-    case UPDATE_EVENT_GROUPID = 'events_update_';
-    case DELETE_EVENT_GROUPID = 'events_delete_';
-    case SHOW_EVENT_GROUPID = 'events_show_';
-    case ATTENDANCE_EVENT_GROUPID = 'events_attendance_';
+    case CREATE_EVENT_EVENTID = 'events_create_';
+    case UPDATE_EVENT_EVENTID = 'events_update_';
+    case DELETE_EVENT_EVENTID = 'events_delete_';
+    case SHOW_EVENT_EVENTID = 'events_show_';
+    case ATTENDANCE_EVENT_EVENTID = 'events_attendance_';
 
 
-    case CREATE_ELECTION_GROUPID = 'elections_create_';
-    case UPDATE_ELECTION_GROUPID = 'elections_update_';
-    case DELETE_ELECTION_GROUPID = 'elections_delete_';
-    case SHOW_ELECTION_GROUPID = 'elections_show_';
+    case CREATE_ELECTION_ELECTIONID = 'elections_create_';
+    case UPDATE_ELECTION_ELECTIONID = 'elections_update_';
+    case DELETE_ELECTION_ELECTIONID = 'elections_delete_';
+    case SHOW_ELECTION_ELECTIONID = 'elections_show_';
 
-    case CREATE_SURVEY_GROUPID = 'survey_create_';
-    case UPDATE_SURVEY_GROUPID = 'survey_update_';
-    case SHOW_SURVEY_GROUPID = 'survey_show_';
-    case DELETE_SURVEY_GROUPID = 'survey_delete_';
+    case CREATE_SURVEY_SURVEYID = 'survey_create_';
+    case UPDATE_SURVEY_SURVEYID = 'survey_update_';
+    case SHOW_SURVEY_SURVEYID = 'survey_show_';
+    case DELETE_SURVEY_SURVEYID = 'survey_delete_';
+
+    case EVENT_ELECTION_EVENTID = 'events_electionevent_';
+    case EVENT_SURVEY_EVENTID = 'events_surveyevent_';
 
 
     /**
@@ -287,7 +290,10 @@ enum Permission: string
             self::VIEW_ATTENDANCE_GROUPID->value => 'مشاهده حضور و غیاب',
             self::EDIT_ATTENDANCE_GROUPID->value => 'ویرایش حضور و غیاب',
             self::DELETE_ATTENDANCE_GROUPID->value => 'حذف حضور و غیاب',
-            self::SHOW_EVENT_GROUPID->value=>"نمایش رویداد",
+            self::SHOW_EVENT_EVENTID->value => "نمایش رویداد",
+
+            self::EVENT_SURVEY_EVENTID->value=>'نظر سنجی های رویداد',
+            self::EVENT_ELECTION_EVENTID->value=>"انتخابات رویداد",
 
             default => 'نامشخص',
         };

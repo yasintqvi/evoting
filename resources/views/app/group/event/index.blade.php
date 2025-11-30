@@ -48,9 +48,11 @@
                         </form>
 
 
+                        @canany([\App\Enums\Permission::CREATE_GROUP_EVENT_GROUPID->value.$group->id,\App\Enums\Permission::GROUP_OWNER_GROUPID->value.$group->id,\App\Enums\Permission::CREATE_GROUP_EVENT->value])
                         <a href="{{ route('events.create', $group) }}" class="btn btn-success bg-gradient h-100 p-2">
                             <i class="ti ti-plus me-1"></i>افزودن رویداد
                         </a>
+                        @endcanany
                     </div>
                 </div>
 
@@ -98,11 +100,13 @@
                                 </td>
                                 <td class="reletive">
                                     <div class="hstack gap-1">
+                                        @canany([\App\Enums\Permission::EDIT_GROUP_EVENT_GROUPID->value.$group->id,\App\Enums\Permission::EDIT_GROUP_EVENT->value,\App\Enums\Permission::UPDATE_EVENT_EVENTID->value.$event->id])
                                         <!-- دکمه ساده (مثلاً ویرایش) -->
                                         <a href="{{ route('events.edit', [$group, $event]) }}"
                                            class="btn btn-secondary btn-sm">
                                             <i class="ti ti-edit"></i>
                                         </a>
+                                        @endcanany
 
                                         <!-- دکمه منوی کشویی -->
                                         <div class="dropdown">
@@ -112,7 +116,7 @@
                                             </button>
 
                                             <ul class="dropdown-menu dropdown-menu-end">
-                                                @canany([\App\Enums\Permission::ATTENDANCE_EVENT_GROUPID->value.$event->id,\App\Enums\Permission::GROUP_OWNER_GROUP_ID->value.$group->id])
+                                                @canany([\App\Enums\Permission::ATTENDANCE_EVENT_EVENTID->value.$event->id,[\App\Enums\Permission::CREATE_ATTENDANCE_GROUPID->value.$group->id,\App\Enums\Permission::GROUP_OWNER_GROUPID->value.$group->id,\App\Enums\Permission::VIEW_GROUP_EVENT->value]])
                                                     <li>
                                                         <a class="dropdown-item"
                                                            href="{{ route('attendances.create', [$group, $event]) }}">

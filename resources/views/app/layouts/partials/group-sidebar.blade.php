@@ -45,7 +45,6 @@
             </li>
 
 
-
             @can(\App\Enums\Permission::VIEW_GROUP_USERS->value)
                 <li class="side-nav-item">
                     <a href="{{ route('group.users.index', $group) }}" class="side-nav-link">
@@ -86,11 +85,12 @@
                             ->latest()
                             ->take(5)
                             ->get()
-                            ->filter(function ($event) {
-                                $permission = \App\Enums\Permission::SHOW_EVENT_GROUPID->value . $event->id;
-                                $manage = \App\Enums\Permission::GROUP_OWNER_GROUPID->value . $event->id;
+                            ->filter(function ($event)use($group) {
+                                $permission = \App\Enums\Permission::SHOW_EVENT_EVENTID->value . $event->id;
+                                $manage = \App\Enums\Permission::GROUP_OWNER_GROUPID->value . $group->id;
+                                $admin=\App\Enums\Permission::VIEW_GROUP_EVENT->value;
 
-                                return auth()->user()->can($permission) || auth()->user()->can($manage);
+                                return auth()->user()->can($permission) || auth()->user()->can($manage)||auth()->user()->can($admin);
                             });
                     @endphp
 
@@ -116,15 +116,17 @@
                             </span>
                                 <span class="menu-arrow"></span>
                             </a>
-
                             <div class="collapse" id="event-{{ $event->id }}">
                                 <ul class="sub-menu">
+
+                                    @canany([\App\Enums\Permission::CREATE_ATTENDANCE_GROUPID->value.$group->id,\App\Enums\Permission::GROUP_OWNER_GROUPID->value.$group->id,\App\Enums\Permission::VIEW_GROUP_EVENT->value])
                                     <li class="side-nav-item">
                                         <a href="{{ route('attendances.create', [$group, $event]) }}"
                                            class="side-nav-link">
                                             <span class="menu-text">حضور و غیاب</span>
                                         </a>
                                     </li>
+                                    @endcanany
                                     <li class="side-nav-item">
                                         <a href="{{ route('elections.index', [$group, $event]) }}"
                                            class="side-nav-link">

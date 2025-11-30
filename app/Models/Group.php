@@ -39,6 +39,29 @@ class Group extends Model
     protected static $logAttributes = ['*'];
 
     protected static $logOnlyDirty = true;
+    public function elections()
+    {
+        return $this->hasManyThrough(
+            Election::class,
+            Event::class,
+            'group_id',   // foreign key in events table
+            'event_id',   // foreign key in elections table
+            'id',         // local key in groups table
+            'id'          // local key in events table
+        );
+    }
+    public function surveys()
+    {
+        return $this->hasManyThrough(
+            Survey::class,
+            Event::class,
+            'group_id',   // foreign key in events table
+            'event_id',   // foreign key in elections table
+            'id',         // local key in groups table
+            'id'          // local key in events table
+        );
+    }
+
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -90,14 +113,14 @@ class Group extends Model
         return $this->hasMany(Event::class);
     }
 
-    public function elections(): HasMany
-    {
-        return $this->hasMany(Election::class);
-    }
-
-    public function surveys(){
-        return $this->hasMany(Survey::class);
-    }
+//    public function elections(): HasMany
+//    {
+//        return $this->hasMany(Election::class);
+//    }
+//
+//    public function surveys(){
+//        return $this->hasMany(Survey::class);
+//    }
     public function getTotalPreferedAttribute()
     {
         return $this->prefered_stock_count + $this->normal_stock_count;
