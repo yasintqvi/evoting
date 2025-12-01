@@ -64,6 +64,17 @@ class ElectionResource extends JsonResource
             ];
         }
 
+        if (
+            $this->status == ElectionStatus::ONGOING
+            && user()->hasPermissionTo(Permission::CREATE_ELECTION_ROUNDS->value)
+        ) {
+            return [
+                'title' => 'پایان انتخابات',
+                'url' => route('elections.end', [$this->event->group->slug, $this->event->slug, $this->slug]),
+                'method' => 'POST',
+            ];
+        }
+
         return null;
     }
 }
