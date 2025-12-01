@@ -145,11 +145,13 @@ class ElectionController extends Controller
             $election->status = ElectionStatus::ONGOING;
             $election->save();
 
-            return to_route('elections.show', [
-                'group' => $group->slug,
-                'event' => $event->slug,
-                'election' => $election->slug
-            ])->with('success', 'انتخابات با موفقیت شروع شد.');
+            // return to_route('elections.show', [
+            //     'group' => $group->slug,
+            //     'event' => $event->slug,
+            //     'election' => $election->slug
+            // ])->with('success', 'انتخابات با موفقیت شروع شد.');
+
+            return back()->with('success', 'انتخابات با موفقیت شروع شد.');
         } catch (\Exception $e) {
             Log::error('Error starting election', [
                 'election_id' => $election->id,
@@ -157,6 +159,27 @@ class ElectionController extends Controller
             ]);
 
             return back()->with('error', 'خطایی در شروع انتخابات رخ داد.');
+        }
+    }
+
+    public function end(Group $group, Event $event, Election $election)
+    {
+        try {
+            if ($election->status !== ElectionStatus::ONGOING) {
+                return back()->with('error', 'وضعیت فعلی انتخابات قابل شروع نیست.');
+            }
+
+            $election->status = ElectionStatus::COMPLETED;
+            $election->save();
+
+            return back()->with('success', 'انتخابات با موفقیت به پایان رسید.');
+        } catch (\Exception $e) {
+            Log::error('Error starting election', [
+                'election_id' => $election->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return back()->with('error', 'خطایی در پایان انتخابات رخ داد.');
         }
     }
 }

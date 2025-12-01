@@ -52,13 +52,8 @@
                                     <p class="mb-0 text-muted lh-lg"> کاندیدای هیت مدیره </p>
                                 </div>
                                 <div class="col-lg-4 col-6">
-                                    <h4 class="fw-medium mb-0">
-                                        {{ $election->candidates()->where('candidate_type', App\Enums\CandidateType::INSPECTOR)->count() }}
+                                    <h4 class="fw-medium mb-0">{{ $event->participants()->where('is_present', 1)->count() }}
                                     </h4>
-                                    <p class="mb-0 text-muted lh-lg"> کاندیدای بازرس </p>
-                                </div>
-                                <div class="col-lg-4 col-6">
-                                    <h4 class="fw-medium mb-0">{{ $event->participants()->count() }}</h4>
                                     <p class="mb-0 text-muted lh-lg">تعداد مشارکت کنندگان</p>
                                 </div>
                                 <div class="col-lg-4 col-6">
@@ -119,14 +114,16 @@
                                             <div class="mt-3 d-flex gap-2 justify-content-center">
                                                 @if (in_array($election->type, [App\Enums\ElectionType::PUBLIC_JOINT, App\Enums\ElectionType::PRIVATE_JOINT]))
                                                     <div class="form-check form-checkbox-secondary mb-2">
-                                                        <input name="director_candidates[{{ $candidate->id }}]"
-                                                            @checked(old('inspector_candidates.{{ $candidate->id }}'))
-                                                            value="{{ $participant->total_stock }}" type="checkbox"
-                                                            class="form-check-input"
-                                                            id="candidate-director-{{ $candidate->id }}">
+                                                        <input class="form-check-input" type="checkbox"
+                                                            name="director_candidates[{{ $candidate->id }}]"
+                                                            value="{{ $participant->total_stock }}"
+                                                            id="candidate_{{ $candidate->id }}"
+                                                            @checked(old('director_candidates.' . $candidate->id))>
+
                                                         <label class="form-check-label"
-                                                            for="candidate-director-{{ $candidate->id }}">انتخاب
-                                                            کردن</label>
+                                                            for="candidate_{{ $candidate->id }}">
+                                                            انتخاب
+                                                        </label>
                                                     </div>
                                                 @else
                                                     <div class="mt-2">

@@ -58,6 +58,9 @@ Route::prefix('{group:slug}/events/{event:slug}')->group(function () {
         ->name('elections.start')
         ->can(Permission::CREATE_ELECTION_ROUNDS);
 
+    Route::post('/elections/{election:slug}/end', [ElectionController::class, 'end'])
+        ->name('elections.end');
+
     // Route::put('/elections/{election}/update', [ElectionCandidateController::class, 'update'])->name('candidates.update')
     //     ->can(Permission::UPDATE_CANDIDATES);
 
@@ -102,8 +105,16 @@ Route::prefix('{group:slug}/events/{event:slug}')->group(function () {
         Route::get('/voting', [ElectionVotingController::class, 'create'])
             ->name('voting.create');
 
+        // Route::post('/voting', [ElectionVotingController::class, 'store'])
+        //     ->name('voting.store');
+
+
         Route::post('/voting', [ElectionVotingController::class, 'store'])
             ->name('voting.store');
+
+
+
+
 
         Route::post('elections/voting/terminate', [ElectionVotingController::class, 'terminate'])
             ->name('voting.terminate');

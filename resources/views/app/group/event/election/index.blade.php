@@ -97,17 +97,26 @@
                                                 </a>
                                             @endisset --}}
                                             @isset($election['operations']['next_step'])
+                                                @php
+                                                    $isFinish =
+                                                        $election['operations']['next_step']['title'] ===
+                                                        'پایان انتخابات';
+                                                    $btnClass = $isFinish
+                                                        ? 'btn btn-danger btn-sm'
+                                                        : 'btn btn-primary btn-sm';
+                                                @endphp
+
                                                 @if ($election['operations']['next_step']['method'] === 'POST')
                                                     <form action="{{ $election['operations']['next_step']['url'] }}"
                                                         method="POST" class="d-inline">
                                                         @csrf
-                                                        <button type="submit" class="btn btn-primary btn-sm">
+                                                        <button type="submit" class="{{ $btnClass }}">
                                                             {{ $election['operations']['next_step']['title'] }}
                                                         </button>
                                                     </form>
                                                 @else
                                                     <a href="{{ $election['operations']['next_step']['url'] }}"
-                                                        class="btn btn-primary btn-sm">
+                                                        class="{{ $btnClass }}">
                                                         {{ $election['operations']['next_step']['title'] }}
                                                     </a>
                                                 @endif
