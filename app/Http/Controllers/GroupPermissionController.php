@@ -46,7 +46,7 @@ class GroupPermissionController extends Controller
 
             $this->aclService->createGroupRole($name, $permissionsRecord, $permissions, $group);
 
-            return to_route('group.permissions')->with('success', __('messages.role.created'));
+            return to_route('group.permissions',$group)->with('success', __('messages.role.created'));
         } catch (Throwable $th) {
             Log::error('Error creating role', [
                 'user_id' => user()->id ?? null,

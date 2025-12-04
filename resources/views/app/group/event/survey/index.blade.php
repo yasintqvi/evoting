@@ -28,7 +28,7 @@
 
                         <div class="position-relative">
                             <input type="text" name="search" value="{{ request('search') }}" class="form-control ps-4"
-                                placeholder="جستجو...">
+                                   placeholder="جستجو...">
                         </div>
                         <div class="position-relative">
                             <select class="form-control" name="status">
@@ -55,83 +55,91 @@
 
                     </form>
 
-                    <a href="{{ route('surveys.create', [$group, $event]) }}" class="btn btn-success bg-gradient"><i
-                            class="ti ti-plus me-1"></i>ایجاد نظرسنجی</a>
+                    @canany([\App\Enums\Permission::GROUP_EVENT_CREATE_SURVEY_GROUPID->value.$group->id,\App\Enums\Permission::GROUP_OWNER_GROUPID->value.$group->id,\App\Enums\Permission::VIEW_GROUP_EVENT->value])
+                        <a href="{{ route('surveys.create', [$group, $event]) }}" class="btn btn-success bg-gradient"><i
+                                class="ti ti-plus me-1"></i>ایجاد نظرسنجی</a>
+                    @endcanany
                 </div>
                 <div class="table-responsive">
                     <table class="table table-nowrap mb-0">
                         <thead class="bg-light-subtle">
-                            <tr>
-                                <th class="ps-3" style="width: 50px;">
-                                </th>
-                                <th>عنوان</th>
-                                <th>ناشناس</th>
-                                <th>وضعیت</th>
-                                <th class="text-center" style="width: 120px;">اقدامات</th>
-                            </tr>
+                        <tr>
+                            <th class="ps-3" style="width: 50px;">
+                            </th>
+                            <th>عنوان</th>
+                            <th>ناشناس</th>
+                            <th>وضعیت</th>
+                            <th class="text-center" style="width: 120px;">اقدامات</th>
+                        </tr>
                         </thead><!-- end thead -->
 
                         <tbody>
-                            @forelse ($surveys as $survey)
+                        @forelse ($surveys as $survey)
+                            @canany([\App\Enums\Permission::SHOW_SURVEY_SURVEYID->value . $survey->id,\App\Enums\Permission::GROUP_OWNER_GROUPID->value.$group->id,\App\Enums\Permission::VIEW_GROUP_EVENT->value,\App\Enums\Permission::EVENT_SURVEY_EVENTID->value.$event->id])
                                 <tr>
-                                    <td>{{ $loop->iteration }}</td>
+                                <td>{{ $loop->iteration }}</td>
 
-                                    <td class="fw-semibold">
-                                        {{ $survey->title }}
-                                    </td>
+                                <td class="fw-semibold">
+                                    {{ $survey->title }}
+                                </td>
 
-                                    <td>
-                                        @if ($survey->is_anonymous)
-                                            <span class="badge bg-info">بله</span>
-                                        @else
-                                            <span class="badge bg-secondary">خیر</span>
-                                        @endif
-                                    </td>
+                                <td>
+                                    @if ($survey->is_anonymous)
+                                        <span class="badge bg-info">بله</span>
+                                    @else
+                                        <span class="badge bg-secondary">خیر</span>
+                                    @endif
+                                </td>
 
-                                    <td>
-                                        @if ($survey->status == 1)
-                                            <span class="badge bg-success">فعال</span>
-                                        @else
-                                            <span class="badge bg-danger">غیرفعال</span>
-                                        @endif
-                                    </td>
+                                <td>
+                                    @if ($survey->status == 1)
+                                        <span class="badge bg-success">فعال</span>
+                                    @else
+                                        <span class="badge bg-danger">غیرفعال</span>
+                                    @endif
+                                </td>
 
-                                    <td class="text-center">
-                                        <div class="hstack gap-1 justify-content-center">
-                                            <a href="{{ route('surveys.edit', ['group' => $group, 'event' => $event, 'survey' => $survey]) }}"
-                                                class="btn btn-sm btn-outline-primary">
-                                                <i class="ti ti-edit"></i>
-                                            </a>
-                                            <a href="{{ route('surveys.answer', [$group, $event, $survey]) }}"
-                                                class="btn btn-sm btn-outline-primary">
-                                                نمایش نظرسنجی
-                                            </a>
-                                            <a href="{{ route('surveys.statistics', [$group, $event, $survey]) }}"
-                                                class="btn btn-sm btn-outline-primary">
-                                                آمار
-                                            </a>
+                                <td class="text-center">
+                                    <div class="hstack gap-1 justify-content-center">
+
+                                        @canany([\App\Enums\Permission::GROUP_EVENT_EDIT_SURVEY_GROUPID->value.$group->id,\App\Enums\Permission::GROUP_OWNER_GROUPID->value.$group->id,\App\Enums\Permission::VIEW_GROUP_EVENT->value,\App\Enums\Permission::UPDATE_SURVEY_SURVEYID->value.$survey->id,\App\Enums\Permission::EVENT_SURVEY_EVENTID->value.$event->id])
+                                        <a href="{{ route('surveys.edit', ['group' => $group, 'event' => $event, 'survey' => $survey]) }}"
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="ti ti-edit"></i>
+                                        </a>
+                                        @endcanany
+
+                                        <a href="{{ route('surveys.answer', [$group, $event, $survey]) }}"
+                                           class="btn btn-sm btn-outline-primary">
+                                            نمایش نظرسنجی
+                                        </a>
+                                        <a href="{{ route('surveys.statistics', [$group, $event, $survey]) }}"
+                                           class="btn btn-sm btn-outline-primary">
+                                            آمار
+                                        </a>
 
 
-                                            {{-- <form
-                                            action="#"
-                                            method="POST"
-                                            onsubmit="return confirm('آیا مطمئن هستید که این نظرسنجی حذف شود؟')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                <i class="ti ti-trash"></i>
-                                            </button>
-                                        </form> --}}
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="text-center text-muted py-3">
-                                        هنوز هیچ نظرسنجی برگزار نشده است.
-                                    </td>
-                                </tr>
-                            @endforelse
+                                        {{-- <form
+                                        action="#"
+                                        method="POST"
+                                        onsubmit="return confirm('آیا مطمئن هستید که این نظرسنجی حذف شود؟')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="ti ti-trash"></i>
+                                        </button>
+                                    </form> --}}
+                                    </div>
+                                </td>
+                            </tr>
+                            @endcanany
+                        @empty
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-3">
+                                    هنوز هیچ نظرسنجی برگزار نشده است.
+                                </td>
+                            </tr>
+                        @endforelse
                         </tbody>
                     </table><!-- end table -->
                 </div>

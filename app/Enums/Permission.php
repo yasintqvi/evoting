@@ -8,7 +8,6 @@ enum Permission: string
 {
     use EnumValues;
 
-    case GROUP_OWNER_GROUP_ID = 'group_owner_';
     case CREATE_GROUP = 'create group';
     case VIEW_GROUP = 'view group';
     case EDIT_GROUP = 'edit group';
@@ -86,17 +85,23 @@ enum Permission: string
     case VIEW_GROUP_USERS_GROUPID = 'view_group_users_group_';
     case UPDATE_GROUP_USERS_GROUPID = 'update_group_users_group_';
 
+
     // Group event permissions
     case CREATE_GROUP_EVENT_GROUPID = 'create_group_event_group_';
     case VIEW_GROUP_EVENT_GROUPID = 'view_group_event_group_';
     case EDIT_GROUP_EVENT_GROUPID = 'edit_group_event_group_';
-    case DELETE_GROUP_EVENT_GROUPID = 'delete_group_event_group_';
+    case CLONE_GROUP_EVENT_GROUPID = 'clone_group_event_group_';
+    case GROUP_EVENT_ELECTION_GROUPID = 'group_event_elections_group_';
+
+    case GROUP_EVENT_SURVEY_GROUPID = 'group_event_survey_group_';
+    case GROUP_EVENT_EDIT_SURVEY_GROUPID = 'group_event_edit_survey_group_';
+    case GROUP_EVENT_CREATE_SURVEY_GROUPID = 'group_event_create_survey_group_'; //    case DELETE_GROUP_EVENT_GROUPID = 'delete_group_event_group_';
 
     // Attendance permissions
     case CREATE_ATTENDANCE_GROUPID = 'create_attendance_group_';
-    case VIEW_ATTENDANCE_GROUPID = 'view_attendance_group_';
-    case EDIT_ATTENDANCE_GROUPID = 'edit_attendance_group_';
-    case DELETE_ATTENDANCE_GROUPID = 'delete_attendance_group_';
+//    case VIEW_ATTENDANCE_GROUPID = 'view_attendance_group_';
+//    case EDIT_ATTENDANCE_GROUPID = 'edit_attendance_group_';
+//    case DELETE_ATTENDANCE_GROUPID = 'delete_attendance_group_';
 
     case CREATE_EVENT_EVENTID = 'events_create_';
     case UPDATE_EVENT_EVENTID = 'events_update_';
@@ -284,12 +289,8 @@ enum Permission: string
             self::CREATE_GROUP_EVENT_GROUPID->value => 'ایجاد رویداد گروه',
             self::VIEW_GROUP_EVENT_GROUPID->value => 'مشاهده رویداد گروه',
             self::EDIT_GROUP_EVENT_GROUPID->value => 'ویرایش رویداد گروه',
-            self::DELETE_GROUP_EVENT_GROUPID->value => 'حذف رویداد گروه',
 
             self::CREATE_ATTENDANCE_GROUPID->value => 'ایجاد حضور و غیاب',
-            self::VIEW_ATTENDANCE_GROUPID->value => 'مشاهده حضور و غیاب',
-            self::EDIT_ATTENDANCE_GROUPID->value => 'ویرایش حضور و غیاب',
-            self::DELETE_ATTENDANCE_GROUPID->value => 'حذف حضور و غیاب',
             self::SHOW_EVENT_EVENTID->value => "نمایش رویداد",
 
             self::EVENT_SURVEY_EVENTID->value=>'نظر سنجی های رویداد',

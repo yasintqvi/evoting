@@ -6,14 +6,14 @@
         <span class="logo-light">
             <span class="logo-lg"><img src="/assets/img/logo.webp" alt="logo" style="width: 3rem; height: 3rem"></span>
             <span class="logo-sm"><img src="/assets/img/logo.webp" alt="small logo"
-                    style="width: 3rem; height: 3rem"></span>
+                                       style="width: 3rem; height: 3rem"></span>
         </span>
 
         <span class="logo-dark">
             <span class="logo-lg"><img src="/assets/img/logo.webp" alt="dark logo"
-                    style="width: 3rem; height: 3rem"></span>
+                                       style="width: 3rem; height: 3rem"></span>
             <span class="logo-sm"><img src="/assets/img/logo.webp" alt="small logo"
-                    style="width: 3rem; height: 3rem"></span>
+                                       style="width: 3rem; height: 3rem"></span>
         </span>
     </a>
 
@@ -45,7 +45,7 @@
             </li>
 
 
-            @can(\App\Enums\Permission::VIEW_GROUP_USERS->value)
+            @canany([\App\Enums\Permission::VIEW_GROUP_USERS->value,\App\Enums\Permission::VIEW_GROUP_USERS_GROUPID->value.$group->id,\App\Enums\Permission::GROUP_OWNER_GROUPID->value.$group->id])
                 <li class="side-nav-item">
                     <a href="{{ route('group.users.index', $group) }}" class="side-nav-link">
                         <span class="menu-icon">
@@ -119,26 +119,30 @@
                             <div class="collapse" id="event-{{ $event->id }}">
                                 <ul class="sub-menu">
 
-                                    @canany([\App\Enums\Permission::CREATE_ATTENDANCE_GROUPID->value.$group->id,\App\Enums\Permission::GROUP_OWNER_GROUPID->value.$group->id,\App\Enums\Permission::VIEW_GROUP_EVENT->value])
-                                    <li class="side-nav-item">
-                                        <a href="{{ route('attendances.create', [$group, $event]) }}"
-                                           class="side-nav-link">
-                                            <span class="menu-text">حضور و غیاب</span>
-                                        </a>
-                                    </li>
+                                    @canany([\App\Enums\Permission::CREATE_ATTENDANCE_GROUPID->value.$group->id,\App\Enums\Permission::GROUP_OWNER_GROUPID->value.$group->id,\App\Enums\Permission::VIEW_GROUP_EVENT->value,\App\Enums\Permission::ATTENDANCE_EVENT_EVENTID->value.$event->id])
+                                        <li class="side-nav-item">
+                                            <a href="{{ route('attendances.create', [$group, $event]) }}"
+                                               class="side-nav-link">
+                                                <span class="menu-text">حضور و غیاب</span>
+                                            </a>
+                                        </li>
                                     @endcanany
-                                    <li class="side-nav-item">
-                                        <a href="{{ route('elections.index', [$group, $event]) }}"
-                                           class="side-nav-link">
-                                            <span class="menu-text">انتخابات</span>
-                                        </a>
-                                    </li>
+
+                                    @canany([\App\Enums\Permission::EVENT_ELECTION_EVENTID->value.$event->id,\App\Enums\Permission::GROUP_OWNER_GROUPID->value.$group->id,\App\Enums\Permission::VIEW_GROUP_EVENT->value,\App\Enums\Permission::GROUP_EVENT_ELECTION_GROUPID->value.$group->id])
+                                        <li class="side-nav-item">
+                                            <a href="{{ route('elections.index', [$group, $event]) }}"
+                                               class="side-nav-link">
+                                                <span class="menu-text">انتخابات</span>
+                                            </a>
+                                        </li>
+                                    @endcanany
+                                        @canany([\App\Enums\Permission::EVENT_SURVEY_EVENTID->value.$event->id,\App\Enums\Permission::GROUP_EVENT_SURVEY_GROUPID->value.$group->id,\App\Enums\Permission::VIEW_GROUP_EVENT->value,\App\Enums\Permission::GROUP_OWNER_GROUPID->value.$group->id])
                                     <li class="side-nav-item">
                                         <a href="{{ route('surveys.index', [$group, $event]) }}" class="side-nav-link">
                                             <span class="menu-text">نظرسنجی‌ها</span>
                                         </a>
                                     </li>
-
+                                        @endcanany
                                     <li class="side-nav-item">
                                         <a href="{{ route('group.event.show', [$group, $event]) }}"
                                            class="side-nav-link">
@@ -165,9 +169,9 @@
                 @endcan
                 @canany([\App\Enums\Permission::VIEW_GROUP_EVENT_GROUPID->value.$group->id,\App\Enums\Permission::GROUP_OWNER_GROUPID->value.$group->id,\App\Enums\Permission::VIEW_GROUP_EVENT->value])
                     <div class="d-flex flex-column mt-3">
-                        <a href="{{ route('events.index', $group) }}" class="btn btn-secondary btn-sm mx-auto">نمایش همه</a>
+                        <a href="{{ route('events.index', $group) }}" class="btn btn-secondary btn-sm mx-auto">نمایش
+                            همه</a>
                 @endcanany
-
 
             @endcan
         </ul>

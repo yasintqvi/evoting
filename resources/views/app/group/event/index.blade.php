@@ -49,9 +49,10 @@
 
 
                         @canany([\App\Enums\Permission::CREATE_GROUP_EVENT_GROUPID->value.$group->id,\App\Enums\Permission::GROUP_OWNER_GROUPID->value.$group->id,\App\Enums\Permission::CREATE_GROUP_EVENT->value])
-                        <a href="{{ route('events.create', $group) }}" class="btn btn-success bg-gradient h-100 p-2">
-                            <i class="ti ti-plus me-1"></i>افزودن رویداد
-                        </a>
+                            <a href="{{ route('events.create', $group) }}"
+                               class="btn btn-success bg-gradient h-100 p-2">
+                                <i class="ti ti-plus me-1"></i>افزودن رویداد
+                            </a>
                         @endcanany
                     </div>
                 </div>
@@ -72,6 +73,7 @@
 
                         <tbody>
                         @forelse ($events as $event)
+                            @canany([\App\Enums\Permission::SHOW_EVENT_EVENTID->value . $event->id,\App\Enums\Permission::GROUP_OWNER_GROUPID->value.$group->id,\App\Enums\Permission::VIEW_GROUP_EVENT->value])
                             <tr>
                                 <td>{{ $event->id }}</td>
                                 <td>
@@ -101,11 +103,11 @@
                                 <td class="reletive">
                                     <div class="hstack gap-1">
                                         @canany([\App\Enums\Permission::EDIT_GROUP_EVENT_GROUPID->value.$group->id,\App\Enums\Permission::EDIT_GROUP_EVENT->value,\App\Enums\Permission::UPDATE_EVENT_EVENTID->value.$event->id])
-                                        <!-- دکمه ساده (مثلاً ویرایش) -->
-                                        <a href="{{ route('events.edit', [$group, $event]) }}"
-                                           class="btn btn-secondary btn-sm">
-                                            <i class="ti ti-edit"></i>
-                                        </a>
+                                            <!-- دکمه ساده (مثلاً ویرایش) -->
+                                            <a href="{{ route('events.edit', [$group, $event]) }}"
+                                               class="btn btn-secondary btn-sm">
+                                                <i class="ti ti-edit"></i>
+                                            </a>
                                         @endcanany
 
                                         <!-- دکمه منوی کشویی -->
@@ -116,7 +118,7 @@
                                             </button>
 
                                             <ul class="dropdown-menu dropdown-menu-end">
-                                                @canany([\App\Enums\Permission::ATTENDANCE_EVENT_EVENTID->value.$event->id,[\App\Enums\Permission::CREATE_ATTENDANCE_GROUPID->value.$group->id,\App\Enums\Permission::GROUP_OWNER_GROUPID->value.$group->id,\App\Enums\Permission::VIEW_GROUP_EVENT->value]])
+                                                @canany([\App\Enums\Permission::CREATE_ATTENDANCE_GROUPID->value.$group->id,\App\Enums\Permission::GROUP_OWNER_GROUPID->value.$group->id,\App\Enums\Permission::VIEW_GROUP_EVENT->value,\App\Enums\Permission::ATTENDANCE_EVENT_EVENTID->value.$event->id])
                                                     <li>
                                                         <a class="dropdown-item"
                                                            href="{{ route('attendances.create', [$group, $event]) }}">
@@ -124,19 +126,23 @@
                                                         </a>
                                                     </li>
                                                 @endcanany
-
+                                                @canany([\App\Enums\Permission::EVENT_ELECTION_EVENTID->value.$event->id,\App\Enums\Permission::GROUP_OWNER_GROUPID->value.$group->id,\App\Enums\Permission::VIEW_GROUP_EVENT->value,\App\Enums\Permission::GROUP_EVENT_ELECTION_GROUPID->value.$group->id])
                                                     <li>
                                                         <a class="dropdown-item"
                                                            href="{{ route('elections.index', [$group, $event]) }}">
                                                             انتخابات
                                                         </a>
                                                     </li>
-                                                <li>
-                                                    <a class="dropdown-item"
-                                                       href="{{ route('surveys.index', [$group, $event]) }}">
-                                                        نظرسنجی
-                                                    </a>
-                                                </li>
+                                                @endcanany
+                                                @canany([\App\Enums\Permission::EVENT_SURVEY_EVENTID->value.$event->id,\App\Enums\Permission::GROUP_EVENT_SURVEY_GROUPID->value.$group->id,\App\Enums\Permission::VIEW_GROUP_EVENT->value,\App\Enums\Permission::GROUP_OWNER_GROUPID->value.$group->id])
+
+                                                    <li>
+                                                        <a class="dropdown-item"
+                                                           href="{{ route('surveys.index', [$group, $event]) }}">
+                                                            نظرسنجی
+                                                        </a>
+                                                    </li>
+                                                @endcanany
                                                 <li>
                                                     <a class="dropdown-item"
                                                        href="{{ route('group.event.show', [$group, $event]) }}">
@@ -155,6 +161,7 @@
                                 </td>
 
                             </tr>
+                            @endcanany
                         @empty
                             <tr>
                                 <td colspan="6" class="text-muted text-center">هیچ رویدادی وجود ندارد.</td>

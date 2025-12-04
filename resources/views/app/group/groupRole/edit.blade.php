@@ -50,7 +50,7 @@
                                             {{ (is_array(old('permissions')) && in_array($permission->id, old('permissions'))) ||
                                                (!old() && in_array($permission->id, $rolePermissions)) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="permission_{{ $permission->id }}">
-                                            {{$permission->name }}
+                                            {{\App\Enums\Permission::withIdFa($permission->name) }}
                                         </label>
                                     </div>
                                 </div>
@@ -85,19 +85,19 @@
                                     <input type="checkbox" id="show" value="show" class="form-check-input">
                                     <label for="show" class="form-check-label">مشاهده</label>
                                 </div>
-                                <div class="form-check">
-                                    <input type="checkbox" id="create" value="create" class="form-check-input">
-                                    <label for="create" class="form-check-label">ایجاد</label>
-                                </div>
+{{--                                <div class="form-check">--}}
+{{--                                    <input type="checkbox" id="create" value="create" class="form-check-input">--}}
+{{--                                    <label for="create" class="form-check-label">ایجاد</label>--}}
+{{--                                </div>--}}
 
                                 <div class="form-check">
                                     <input type="checkbox" id="edit" value="edit" class="form-check-input">
                                     <label for="edit" class="form-check-label">ویرایش</label>
                                 </div>
-                                <div class="form-check">
-                                    <input type="checkbox" id="delete" value="delete" class="form-check-input">
-                                    <label for="delete" class="form-check-label">حذف</label>
-                                </div>
+{{--                                <div class="form-check">--}}
+{{--                                    <input type="checkbox" id="delete" value="delete" class="form-check-input">--}}
+{{--                                    <label for="delete" class="form-check-label">حذف</label>--}}
+{{--                                </div>--}}
                                 <div class="form-check">
                                     <input type="checkbox" id="attendance" value="attendance"
                                            class="form-check-input event-permission">

@@ -64,8 +64,12 @@ class GroupController extends Controller
                 ['name' => \App\Enums\Permission::UPDATE_GROUP_USERS_GROUPID->value  . $group->id, 'guard_name' => "web", 'group_id' => $group->id],
                 ['name' => \App\Enums\Permission::CREATE_GROUP_EVENT_GROUPID->value  . $group->id, 'guard_name' => "web", 'group_id' => $group->id],
                 ['name' => \App\Enums\Permission::VIEW_GROUP_EVENT_GROUPID->value  . $group->id, 'guard_name' => "web", 'group_id' => $group->id],
-                ['name' => \App\Enums\Permission::EDIT_GROUP_EVENT_GROUPID->value  . $group->id, 'guard_name' => "web", 'group_id' => $group->id],
-                ['name' => \App\Enums\Permission::DELETE_GROUP_EVENT_GROUPID->value  . $group->id, 'guard_name' => "web", 'group_id' => $group->id],
+                ['name' => \App\Enums\Permission::CLONE_GROUP_EVENT_GROUPID->value  . $group->id, 'guard_name' => "web", 'group_id' => $group->id],
+                ['name' => \App\Enums\Permission::GROUP_EVENT_ELECTION_GROUPID->value  . $group->id, 'guard_name' => "web", 'group_id' => $group->id],
+                ['name' => \App\Enums\Permission::GROUP_EVENT_SURVEY_GROUPID->value  . $group->id, 'guard_name' => "web", 'group_id' => $group->id],
+                ['name' => \App\Enums\Permission::GROUP_EVENT_EDIT_SURVEY_GROUPID->value  . $group->id, 'guard_name' => "web", 'group_id' => $group->id],
+                ['name' => \App\Enums\Permission::GROUP_EVENT_CREATE_SURVEY_GROUPID->value  . $group->id, 'guard_name' => "web", 'group_id' => $group->id],
+                ['name' => \App\Enums\Permission::CREATE_ATTENDANCE_GROUPID->value  . $group->id, 'guard_name' => "web", 'group_id' => $group->id],
                 ['name' => \App\Enums\Permission::CREATE_ATTENDANCE_GROUPID->value  . $group->id, 'guard_name' => "web", 'group_id' => $group->id],
             ];
             Permission::insert($permissions);

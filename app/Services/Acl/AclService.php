@@ -44,7 +44,7 @@ class AclService
     public function getAllPermissions(): Collection
     {
         try {
-            return Permission::all();
+            return Permission::where('group_id',null)->get();
         } catch (Exception $e) {
             Log::error('Failed to get all permissions', [
                 'error' => $e->getMessage(),
