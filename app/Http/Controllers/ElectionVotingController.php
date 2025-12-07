@@ -32,10 +32,14 @@ class ElectionVotingController extends Controller
             return back();
         }
 
+        // $participant = $event->participants()
+        //     ->where('user_id', user()->id)
+        //     ->first();
+        
         $participant = $event->participants()
+            ->with('group')
             ->where('user_id', user()->id)
             ->first();
-
 
         if (!$participant) {
             return back();

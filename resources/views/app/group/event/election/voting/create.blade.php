@@ -77,9 +77,7 @@
                                         <p class="mb-0 text-muted lh-lg">میزان سهم ممتاز</p>
                                     </div>
                                     <div class="col-lg-4 col-6">
-                                        <h4 class="fw-medium mb-0">
-                                            {{ $participant->normal_stock_count + $participant->prefered_stock_count * $election->prefered_stock_weight }}
-                                        </h4>
+                                        <h4 class="fw-medium mb-0">{{ $participant->total_stock }}</h4>
                                         <p class="mb-0 text-muted lh-lg">کل سهم</p>
                                     </div>
                                 @else
@@ -112,35 +110,50 @@
                                             </div>
                                             <h5>{{ $candidate->user->full_name }}</h5>
                                             <div class="mt-3 d-flex gap-2 justify-content-center">
-                                                @if (in_array($election->type, [App\Enums\ElectionType::PUBLIC_JOINT, App\Enums\ElectionType::PRIVATE_JOINT]))
+
+                                                {{-- تعاونی: PUBLIC_JOINT --}}
+                                                @if ($election->type == App\Enums\ElectionType::PUBLIC_JOINT)
                                                     <div class="form-check form-checkbox-secondary mb-2">
-                                                        <input class="form-check-input" type="checkbox"
+                                                        <input type="checkbox" class="form-check-input"
+                                                            name="director_candidates[{{ $candidate->id }}]" value="1"
+                                                            id="candidate_{{ $candidate->id }}">
+                                                        <label for="candidate_{{ $candidate->id }}"
+                                                            class="form-check-label">انتخاب</label>
+                                                    </div>
+
+                                                    {{-- خصوصی: PRIVATE_JOINT --}}
+                                                @elseif ($election->type == App\Enums\ElectionType::PRIVATE_JOINT)
+                                                    <div class="form-check form-checkbox-secondary mb-2">
+                                                        <input type="checkbox" class="form-check-input"
                                                             name="director_candidates[{{ $candidate->id }}]"
                                                             value="{{ $participant->total_stock }}"
-                                                            id="candidate_{{ $candidate->id }}"
-                                                            @checked(old('director_candidates.' . $candidate->id))>
-
-                                                        <label class="form-check-label"
-                                                            for="candidate_{{ $candidate->id }}">
-                                                            انتخاب
-                                                        </label>
+                                                            id="candidate_{{ $candidate->id }}">
+                                                        <label for="candidate_{{ $candidate->id }}"
+                                                            class="form-check-label">انتخاب</label>
                                                     </div>
-                                                @else
+
+                                                    {{-- ماده ۸۸: PRIVATE_JOINT_WITH_88 --}}
+                                                @elseif ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
                                                     <div class="mt-2">
                                                         <label for="director-candidate-range-{{ $candidate->id }}"
-                                                            class="form-label">مقدار سهم:</label>
+                                                            class="form-label">
+                                                            مقدار سهم قابل تخصیص:
+                                                        </label>
+
                                                         <input type="range"
                                                             name="director_candidates[{{ $candidate->id }}]"
                                                             id="director-candidate-range-{{ $candidate->id }}"
                                                             class="form-range" min="0"
                                                             max="{{ $participant->total_stock }}" value="0"
                                                             oninput="updateRangeValue('director-candidate-range-{{ $candidate->id }}', 'director-candidate-value-{{ $candidate->id }}')">
+
                                                         <div class="d-flex justify-content-center">
                                                             <h4 id="director-candidate-value-{{ $candidate->id }}">0</h4>
-                                                            <span>&nbsp; &nbsp; سهم </span>
+                                                            <span>&nbsp; سهم</span>
                                                         </div>
                                                     </div>
                                                 @endif
+
                                             </div>
                                         </div>
                                     </div>
