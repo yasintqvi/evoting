@@ -65,6 +65,7 @@ class Event extends Model
     {
         return $this->belongsTo(Group::class);
     }
+    
 
     public function participants(): HasMany
     {

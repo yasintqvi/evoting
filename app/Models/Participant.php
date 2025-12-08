@@ -68,23 +68,16 @@ class Participant extends Model
     //     return $this->election->type == ElectionType::PUBLIC_JOINT ? 1 : (int) ($this->normal_stock_count + ($this->prefered_stock_count * $this->election->prefered_stock_weight));
     // }
 
-    public function getTotalStockAttribute()
-    {
-        $event = $this->event; // از رابطه event
-        $election = $event?->elections()?->first(); // یا هر منطق مناسب برای پیدا کردن election
 
-        if (!$election) {
-            return 0;
-        }
-
-        return $election->type == ElectionType::PUBLIC_JOINT
-            ? 1
-            : (int) ($this->normal_stock_count + ($this->prefered_stock_count * $election->prefered_stock_weight));
-    }
 
     public function event()
     {
         return $this->belongsTo(Event::class);
+    }
+
+    public function group()
+    {
+        return $this->belongsTo(Group::class);
     }
 
     public function attorney(): BelongsTo
@@ -96,4 +89,27 @@ class Participant extends Model
     {
         return $this->hasMany(Participant::class, 'attorney_id');
     }
+
+    public function getTotalStockAttribute()
+    {
+        $group = $this->event?->group; // گروه رویدادی که این فرد در آن حضور دارد
+
+        return
+            $this->normal_stock_count +
+            $this->prefered_stock_count * $group->prefered_stock_weight;
+    }
+
+    //   public function getTotalStockAttribute()
+    // {
+    //     $event = $this->event; // از رابطه event
+    //     $election = $event?->elections()?->first(); // یا هر منطق مناسب برای پیدا کردن election
+
+    //     if (!$election) {
+    //         return 0;
+    //     }
+
+    //     return $election->type == ElectionType::PUBLIC_JOINT
+    //         ? 1
+    //         : (int) ($this->normal_stock_count + ($this->prefered_stock_count * $election->prefered_stock_weight));
+    // }
 }
