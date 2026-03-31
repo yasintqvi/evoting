@@ -1,0 +1,120 @@
+<?php
+
+namespace App\Providers;
+
+use App\Enums\ElectionStatus;
+use App\Models\Participant;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\ServiceProvider;
+
+class ViewServiceProvider extends ServiceProvider
+{
+    /**
+     * Register services.
+     */
+    public function register(): void
+    {
+        //
+    }
+
+    /**
+     * Bootstrap services.
+     */
+    public function boot(): void
+    {
+        View::composer('app.*', function ($view) {
+            $user = auth()->user();
+
+            $participants = Participant::where('user_id', $user->id)
+                ->where('is_present', true)
+                ->with([
+                    'event.group',
+                    'event.elections.candidates.user',
+                    'event.elections.position',
+                    'event.surveys.questions',
+                ])
+                ->get();
+
+            $now = now();
+            $availableElections = collect();
+            $unavailableElections = collect();
+            $availableSurveys = collect();
+
+            foreach ($participants as $participant) {
+                $event = $participant->event;
+                if (! $event) {
+                    continue;
+                }
+
+                foreach ($event->elections()->latest()->get() as $election) {
+                    if ($election->candidates->isEmpty()) {
+                        continue;
+                    }
+
+                    $hasVoted = $election->votes()
+                        ->where('participant_id', $participant->id)
+                        ->exists();
+
+                    if (! $hasVoted && $election->status == ElectionStatus::ONGOING) {
+                        $availableElections->push([
+                            'election' => $election,
+                            'event' => $event,
+                            'group' => $event->group,
+                            'participant' => $participant,
+                            'has_voted' => false,
+                        ]);
+                    } else if (in_array($election->status, [ElectionStatus::COMPLETED, ElectionStatus::CANCELED, ElectionStatus::ONGOING])) {
+                        $unavailableElections->push([
+                            'election' => $election,
+                            'event' => $event,
+                            'group' => $event->group,
+                            'participant' => $participant,
+                            'has_voted' => $hasVoted,
+                        ]);
+                    }
+                }
+
+                foreach ($event->surveys->where('status', 1) as $survey) {
+                    if (
+                        ($survey->start_at && $now->lt($survey->start_at)) ||
+                        ($survey->end_at && $now->gt($survey->end_at))
+                    ) {
+                        continue;
+                    }
+
+                    $hasAnswered = $survey->responses()
+                        ->where('user_id', $user->id)
+                        ->exists();
+
+                    if (! $hasAnswered) {
+                        $availableSurveys->push([
+                            'survey' => $survey,
+                            'event' => $event,
+                            'group' => $event->group,
+                            'participant' => $participant,
+                            'has_answered' => false,
+                        ]);
+                    }
+                }
+            }
+
+            $view->with(compact('availableElections', 'availableSurveys', 'unavailableElections'));
+        });
+
+        View::composer('app.group.*', function ($view) {
+            $group = request()->route('group');
+            $allocatedNormal = $group?->users()?->sum('group_user.normal_stock_count');
+            $allocatedPrefered = $group?->users()?->sum('group_user.prefered_stock_count');
+
+            $remainingNormal = $group?->normal_stock_count - $allocatedNormal;
+            $remainingPrefered = $group?->prefered_stock_count - $allocatedPrefered;
+
+            $view->with([
+                'allocatedNormal' => $allocatedNormal,
+                'allocatedPrefered' => $allocatedPrefered,
+                'remainingNormal' => $remainingNormal,
+                'remainingPrefered' => $remainingPrefered,
+            ]);
+        });
+    }
+}

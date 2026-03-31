@@ -1,0 +1,119 @@
+<?php
+
+namespace App\Models;
+
+use App\Enums\EventStatus;
+use App\Traits\Cloneable;
+use Cviebrock\EloquentSluggable\Sluggable;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
+
+class Event extends Model
+{
+    use LogsActivity;
+    use SoftDeletes;
+    use Sluggable;
+    use Cloneable;
+
+    protected $fillable = [
+        'name',
+        'title',
+        'logo',
+        'description',
+        'status',
+        'quorum_percent',
+    ];
+
+    protected static $logAttributesToIgnore = ['updated_at'];
+
+    protected static $logAttributes = ['*'];
+
+    protected static $logOnlyDirty = true;
+
+    public function casts(): array
+    {
+        return [
+            'status' => EventStatus::class,
+        ];
+    }
+    public function sluggable(): array
+    {
+        return [
+            'slug' => [
+                'source' => 'title',
+            ],
+        ];
+    }
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(static::$logAttributes)->dontLogIfAttributesChangedOnly(static::$logAttributesToIgnore)
+            ->logOnlyDirty()
+            ->setDescriptionForEvent(fn (string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'رویداد', 'subject' => $this->title]))
+            ->dontSubmitEmptyLogs();
+    }
+
+    public function group()
+    {
+        return $this->belongsTo(Group::class);
+    }
+    
+
+    public function participants(): HasMany
+    {
+        return $this->hasMany(Participant::class);
+    }
+
+    public function elections(): HasMany
+    {
+        return $this->hasMany(Election::class);
+    }
+
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+     public function surveys(): HasMany
+    {
+        return $this->hasMany(Survey::class);
+    }
+
+    public function getPresentCountAttribute()
+    {
+        return $this->participants()->where('is_present', 1)->count();
+    }
+
+    public function getAbsentCountAttribute()
+    {
+        return $this->participants()->where('is_present', 0)->count();
+    }
+
+    public function scopeFilter($query,$filters){
+
+        if(isset($filters['search'])){
+           $query->where('title','like','%'.$filters['search'].'%')->orWhere('name','like','%'.$filters['search'].'%');
+        }
+        if(isset($filters['status'])){
+            if ($filters['status'] == 1) {
+                $query->where('status', 0);
+            }
+            if ($filters['status'] == 2) {
+                $query->where('status', 1);
+            }
+            if ($filters['status'] == 3) {
+                $query->where('status', 3);
+            }
+        }
+
+       return $query;
+    }
+}
