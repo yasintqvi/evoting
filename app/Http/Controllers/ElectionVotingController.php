@@ -29,41 +29,68 @@ class ElectionVotingController extends Controller
             return redirect()->route('login');
         }
 
+        $hiddenPastElectionIds = collect((array) data_get($user->meta, 'hidden_past_election_ids', []))
+            ->map(fn($id) => (int) $id)
+            ->filter()
+            ->values();
+
         $participants = \App\Models\Participant::where('user_id', $user->id)
             ->where('is_present', true)
             ->with([
                 'event.group',
                 'event.elections' => function ($query) {
-                    $query->where('status', \App\Enums\ElectionStatus::ONGOING)
-                        ->with('candidates.user', 'position');
-                }
+                    $query->whereIn('status', [
+                        \App\Enums\ElectionStatus::ONGOING,
+                        \App\Enums\ElectionStatus::COMPLETED,
+                        \App\Enums\ElectionStatus::CANCELED,
+                    ])->with('candidates.user', 'position');
+                },
+                'votes',
             ])
             ->get();
 
         $availableElections = collect();
+        $unavailableElections = collect();
 
         foreach ($participants as $participant) {
             $event = $participant->event;
             if ($event && $event->elections) {
                 foreach ($event->elections as $election) {
-                    $hasVoted = \App\Models\Vote::where('election_id', $election->id)
-                        ->where('participant_id', $participant->id)
-                        ->exists();
+                    if ($election->status === \App\Enums\ElectionStatus::ONGOING) {
+                        $hasVoted = \App\Models\Vote::where('election_id', $election->id)
+                            ->where('participant_id', $participant->id)
+                            ->exists();
 
-                    if (!$hasVoted && ($election->candidates->count() > 0 || $election->type === \App\Enums\ElectionType::SURVEY)) {
-                        $availableElections->push([
-                            'election' => $election,
-                            'event' => $event,
-                            'group' => $event->group,
-                            'participant' => $participant,
-                            'has_voted' => false,
-                        ]);
+                        if (!$hasVoted && ($election->candidates->count() > 0 || $election->type === \App\Enums\ElectionType::SURVEY)) {
+                            $availableElections->push([
+                                'election' => $election,
+                                'event' => $event,
+                                'group' => $event->group,
+                                'participant' => $participant,
+                                'has_voted' => false,
+                            ]);
+                        }
+                    }
+
+                    if (in_array($election->status, [\App\Enums\ElectionStatus::COMPLETED, \App\Enums\ElectionStatus::CANCELED], true)) {
+                        if (!$hiddenPastElectionIds->contains((int) $election->id)) {
+                            $unavailableElections->push([
+                                'election' => $election,
+                                'event' => $event,
+                                'group' => $event->group,
+                                'participant' => $participant,
+                            ]);
+                        }
                     }
                 }
             }
         }
 
-        return view('app.elections.my-elections', ['availableElections' => $availableElections, 'title' => 'انتخابات من']);
+        return view('app.elections.my-elections', [
+            'availableElections' => $availableElections,
+            'unavailableElections' => $unavailableElections,
+            'title' => 'انتخابات من',
+        ]);
     }
 
     /**
@@ -220,7 +247,7 @@ class ElectionVotingController extends Controller
             if ($election->status !== ElectionStatus::ONGOING) {
                 if (in_array($election->status, [ElectionStatus::COMPLETED, ElectionStatus::CANCELED])) {
                     return back()->with('error', 'همه پرسی مورد نظر به پایان رسیده است.');
-                    
+
                 }
                 return back()->with('error', 'در حال حاضر این همه پرسی در دسترس نیست.');
             }
@@ -284,13 +311,13 @@ class ElectionVotingController extends Controller
             $votedCandidatesCount = 0;
 
             DB::transaction(function () use ($election, $participant, $directorVotes, &$totalVotesGiven, $user, &$votedCandidatesCount) {
-                
-            $userVoteCount = $participant->normal_stock_count + ($participant->prefered_stock_count * $election->prefered_stock_weight);
+
+                $userVoteCount = $participant->normal_stock_count + ($participant->prefered_stock_count * $election->prefered_stock_weight);
 
                 foreach ($directorVotes as $candidateId => $voteCount) {
                     $voteValue = is_numeric($voteCount) ? (float) $voteCount : (is_string($voteCount) && $voteCount === '1' ? 1 : 0);
 
-                    if ($voteValue > $userVoteCount) { 
+                    if ($voteValue > $userVoteCount) {
                         throw new Exception("شما نمی‌توانید بیش از {$userVoteCount} رای ثبت کنید.");
                     }
 
@@ -330,7 +357,7 @@ class ElectionVotingController extends Controller
 
             $totalAvailableStock = $participant->total_stock;
             $remainingStock = $totalAvailableStock - $totalVotesGiven;
-                                    
+
         } catch (\Throwable $th) {
             Log::error('Error while storing votes', [
                 'election_id' => $election->id,
@@ -346,7 +373,7 @@ class ElectionVotingController extends Controller
         }
 
         return to_route('my-elections.index', $group->slug)
-                ->with('success', 'رأی شما با موفقیت ثبت شد.');
+            ->with('success', 'رأی شما با موفقیت ثبت شد.');
     }
 
 
@@ -377,9 +404,41 @@ class ElectionVotingController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, Election $election)
     {
-        //
+        $user = auth()->user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        if (!in_array($election->status, [ElectionStatus::COMPLETED, ElectionStatus::CANCELED], true)) {
+            return back()->with('error', 'فقط انتخابات گذشته قابل حذف از لیست هستند.');
+        }
+
+        $isParticipant = \App\Models\Participant::query()
+            ->where('user_id', $user->id)
+            ->where('event_id', $election->event_id)
+            ->exists();
+
+        if (!$isParticipant) {
+            return back()->with('error', 'شما به این انتخابات دسترسی ندارید.');
+        }
+
+        $meta = (array) ($user->meta ?? []);
+        $hidden = (array) data_get($meta, 'hidden_past_election_ids', []);
+        $hidden[] = (int) $election->id;
+        $meta['hidden_past_election_ids'] = collect($hidden)
+            ->map(fn($id) => (int) $id)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        $user->meta = $meta;
+        $user->save();
+
+        return back()->with('success', 'انتخابات از لیست شما حذف شد.');
     }
 
     public function terminate(Request $request, Group $group, Election $election)
@@ -449,7 +508,11 @@ class ElectionVotingController extends Controller
             }
         }
 
-        return view('app.elections.my-elections', ['availableElections' => $availableElections, 'title' => 'نظرسنجی‌های من']);
+        return view('app.elections.my-elections', [
+            'availableElections' => $availableElections,
+            'unavailableElections' => collect(),
+            'title' => 'نظرسنجی‌های من',
+        ]);
     }
 
     public function liveStats(Event $event)

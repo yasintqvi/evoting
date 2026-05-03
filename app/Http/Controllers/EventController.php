@@ -111,6 +111,14 @@ class EventController extends Controller
     }
 
     /**
+     * Show attendance chart for the event
+     */
+    public function showAttendance(Group $group, Event $event)
+    {
+        return view('app.group.attendances.show', compact('group', 'event'));
+    }
+
+    /**
      * Show the form for editing the specified resource.
      */
     public function edit(Group $group, Event $event)

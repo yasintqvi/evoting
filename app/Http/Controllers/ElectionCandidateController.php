@@ -8,7 +8,7 @@ use App\Models\Event;
 use App\Models\Group;
 use App\Services\CandidateService;
 use Exception;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class ElectionCandidateController extends Controller
 {
@@ -24,7 +24,7 @@ class ElectionCandidateController extends Controller
      */
     public function index(Group $group, Election $election)
     {
-        return view('app.group.election.candidate.index', compact('group', 'election'));
+        return view('app.group.event.election.candidate.index', compact('group', 'election'));
     }
 
     /**
@@ -34,19 +34,19 @@ class ElectionCandidateController extends Controller
     {
         $group->load('users');
 
-        return view('app.group.election.candidate.create', compact('group', 'election'));
+        return view('app.group.event.election.candidate.create', compact('group', 'event', 'election'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreCandidateRequest $request, Group $group, Election $election)
+    public function store(StoreCandidateRequest $request, Group $group, Event $event, Election $election)
     {
         try {
 
             $this->candidateService->create($election, $request->toDto());
 
-            return to_route('elections.index', $group)->with('success', 'کاندید جدید اضافه شد');
+            return to_route('elections.index', [$group, $event])->with('success', 'کاندید جدید اضافه شد');
         } catch (Exception $e) {
             Log::error('Error creating candidate', [
                 'election_id' => $election->id,

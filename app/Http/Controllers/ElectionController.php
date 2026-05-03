@@ -285,6 +285,54 @@ class ElectionController extends Controller
         $totalParticipants = $electionVotes->groupBy('participant_id')->count();
         $totalCandidates = $candidateVotes->count();
 
+        // Calculate detailed votes for PDF report
+        $votes = Vote::where('election_id', $election->id)
+            ->with(['participant.user', 'candidate.user'])
+            ->get();
+
+        // Calculate mode for vote chunking
+        $voteCounts = $votes->pluck('vote_count')->filter()->toArray();
+        $mode = 10;
+
+        if (!empty($voteCounts)) {
+            $frequencies = array_count_values($voteCounts);
+            arsort($frequencies);
+            $mode = array_key_first($frequencies);
+        }
+
+        $detailedVotes = collect();
+
+        foreach ($votes as $vote) {
+            $user = $vote->participant?->user;
+            $nationalCode = $user?->nationalcode ?? '';
+
+            if (mb_strlen($nationalCode) === 10) {
+                $maskedCode =
+                    mb_substr($nationalCode, 0, 3) .
+                    '***' .
+                    mb_substr($nationalCode, 6, 4);
+            } else {
+                $maskedCode = '**********';
+            }
+
+            $candidateName = $vote->candidate?->user?->full_name ?? '---';
+            $remainingVotes = (int) $vote->vote_count;
+
+            while ($remainingVotes > 0) {
+                $chunk = min($mode, $remainingVotes);
+
+                $detailedVotes->push([
+                    'masked_national_code' => $maskedCode,
+                    'candidate_name' => $candidateName,
+                    'vote_chunk' => $chunk,
+                ]);
+
+                $remainingVotes -= $chunk;
+            }
+        }
+
+        $detailedVotes = $detailedVotes->shuffle()->values();
+
         if ($request->has('download_pdf')) {
             $pdf = Pdf::loadView('app.group.event.election.report-pdf', compact(
                 'group',
@@ -293,7 +341,8 @@ class ElectionController extends Controller
                 'candidateVotes',
                 'totalVotes',
                 'totalParticipants',
-                'totalCandidates'
+                'totalCandidates',
+                'detailedVotes'
             ), [], [
                 'format' => 'A4-L',
                 'orientation' => 'L',
@@ -334,11 +383,8 @@ class ElectionController extends Controller
             ->with(['participant.user', 'candidate.user'])
             ->get();
 
-        // ۱. محاسبه مود (نما) سهام‌ها
+        // Calculate mode for vote chunking (to obscure total vote count per person)
         $voteCounts = $votes->pluck('vote_count')->filter()->toArray();
-
-        // مقدار پیش‌فرض برای مود (اگر داده‌ای نبود یا همه یکسان بودند)
-        // این عدد تعیین می‌کند هر سطر حداکثر چند رای داشته باشد
         $mode = 10;
 
         if (!empty($voteCounts)) {
@@ -351,25 +397,23 @@ class ElectionController extends Controller
 
         foreach ($votes as $vote) {
             $user = $vote->participant?->user;
-            $nationalCode = $user?->nationalcode ?? '---';
+            $nationalCode = $user?->nationalcode ?? '';
 
-            // ۲. ماسک کردن کد ملی
-            if ($nationalCode !== '---' && mb_strlen($nationalCode) >= 4) {
-                $end = mb_substr($nationalCode, -4);
-                $maskedCode = '******' . $end;
+            if (mb_strlen($nationalCode) === 10) {
+                $maskedCode =
+                    mb_substr($nationalCode, 0, 3) .
+                    '***' .
+                    mb_substr($nationalCode, 6, 4);
             } else {
-                $maskedCode = '****';
+                $maskedCode = '**********';
             }
 
             $candidateName = $vote->candidate?->user?->full_name ?? '---';
-            $totalShares = $vote->vote_count;
+            $remainingVotes = (int) $vote->vote_count;
 
-            // ۳. شکستن سهام‌ها (Chunking) بر اساس مود محاسبه شده
-            $remainingShares = $totalShares;
-
-            while ($remainingShares > 0) {
-                // اینجا حتما از متغیر $mode استفاده می‌شود
-                $chunk = min($remainingShares, $mode);
+            // Break votes into smaller chunks to obscure total count
+            while ($remainingVotes > 0) {
+                $chunk = min($mode, $remainingVotes);
 
                 $detailedVotes->push([
                     'masked_national_code' => $maskedCode,
@@ -377,13 +421,12 @@ class ElectionController extends Controller
                     'vote_chunk' => $chunk,
                 ]);
 
-                $remainingShares -= $chunk;
+                $remainingVotes -= $chunk;
             }
         }
 
-
-        // ۴. بر زدن (Shuffle)
-        $detailedVotes = $detailedVotes->shuffle();
+        // Shuffle to mix up the order and make it harder to track individual voters
+        $detailedVotes = $detailedVotes->shuffle()->values();
 
         return view('app.group.event.election.detailed-report', compact(
             'group',
@@ -393,6 +436,8 @@ class ElectionController extends Controller
             'mode'
         ));
     }
+
+
 
     // public function detailedReport(Request $request, Group $group, Event $event, Election $election): View
     // {

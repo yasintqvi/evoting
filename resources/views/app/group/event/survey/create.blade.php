@@ -58,8 +58,10 @@
 
                             <div class="mb-3">
                                 <label class="form-label">زمان پایان</label>
-                                <input type="datetime-local" name="end_at" class="form-control"
-                                    value="{{ old('end_at', $survey->end_at ? \Carbon\Carbon::parse($survey->end_at)->format('Y-m-d\TH:i') : '') }}">
+                                <input type="text" class="form-control" data-jdp data-jdp-target="end_at_gregorian_edit" id="end_at_jalali_edit"
+                                    value="{{ old('end_at', $survey->end_at) }}">
+                                <input type="hidden" name="end_at" id="end_at_gregorian_edit"
+                                    value="{{ old('end_at', $survey->end_at) }}">
                                 @error('end_at')
                                     <span class="text-danger small">{{ $message }}</span>
                                 @enderror

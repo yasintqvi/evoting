@@ -33,7 +33,7 @@ class ElectionService
                 'normal_stock_count' => $group->normal_stock_count,
                 'prefered_stock_count' => $group->prefered_stock_count,
                 'prefered_stock_weight' => $group->prefered_stock_weight,
-                ...$createElectionDto->all(),
+                ...$createElectionDto->withoutNulls(),
             ]);
 
             if (!empty($createElectionDto->blockedUserIds)) {

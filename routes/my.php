@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/my-elections', [ElectionVotingController::class, 'index'])
     ->name('my-elections.index');
 
+Route::delete('/my-elections/{election:slug}', [ElectionVotingController::class, 'destroy'])
+    ->name('my-elections.destroy');
+
 Route::get('/my-surveys', [ElectionVotingController::class, 'surveysIndex'])
     ->name('my-surveys.index');
 

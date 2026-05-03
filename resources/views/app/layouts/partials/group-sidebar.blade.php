@@ -69,7 +69,7 @@
                                     class="bi bi-calendar3-event-fill" viewBox="0 0 16 16">
                                     <path
                                         d="M16 14a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3h16zm-3-9a1 1 0 1 0 0 2 1 1 0 0 0 0-2m1-5a2 2 0 0 1 2 2H0a2 2 0 0 1 2-2z" />
-                                </svg>  
+                                </svg>
                             </span>
                             <span class="menu-text"> نمایش همه رویدادها </span>
                         </a>
@@ -121,6 +121,11 @@
                                     <li class="side-nav-item">
                                         <a href="{{ route('group.event.show', [$group, $event]) }}" class="side-nav-link">
                                             <span class="menu-text">نمایش جزئیات</span>
+                                        </a>
+                                    </li>
+                                    <li class="side-nav-item">
+                                        <a href="{{ route('attendances.show', [$group, $event]) }}" class="side-nav-link">
+                                            <span class="menu-text">نمایش حاظرین</span>
                                         </a>
                                     </li>
                                 </ul>

@@ -27,6 +27,7 @@ class Election extends Model
         'slug',
         'status',
         'type',
+        'candidate_count',
         'normal_stock_count',
         'prefered_stock_count',
         'prefered_stock_weight',

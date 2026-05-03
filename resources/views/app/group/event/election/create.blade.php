@@ -74,24 +74,40 @@
                             @enderror
                         </div>
                     </div>
-                    <div class="col-lg-6">
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label for="candidate_count" class="form-label">تعداد کل کاندیدها </label>
+                            <input type="number" class="form-control" id="candidate_count" name="candidate_count"
+                                value="{{ old('candidate_count') }}" min="1" onchange="validateCandidateCounts()">
+                            @error('candidate_count')
+                                <span class="strong text-danger font-weight-bold">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
                         <div class="mb-3">
                             <label for="main_member_count" class="form-label">تعداد عضو اصلی </label>
                             <input type="number" class="form-control" id="main_member_count" name="main_member_count"
-                                value="{{ old('main_member_count') }}">
+                                value="{{ old('main_member_count') }}" min="1" onchange="validateCandidateCounts()">
                             @error('main_member_count')
                                 <span class="strong text-danger font-weight-bold">{{ $message }}</span>
                             @enderror
                         </div>
                     </div>
-                    <div class="col-lg-6">
+                    <div class="col-lg-4">
                         <div class="mb-3">
                             <label for="substitute_member_count" class="form-label">تعداد عضو علی البدل </label>
                             <input type="number" class="form-control" name="substitute_member_count"
-                                value="{{ old('substitute_member_count') }}" id="substitute_member_count">
+                                value="{{ old('substitute_member_count') }}" id="substitute_member_count" min="0"
+                                onchange="validateCandidateCounts()">
                             @error('substitute_member_count')
                                 <span class="strong text-danger font-weight-bold">{{ $message }}</span>
                             @enderror
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="alert alert-info" id="candidate-info" style="display: none;">
+                            <i class="ri-information-line"></i> <span id="candidate-info-text"></span>
                         </div>
                     </div>
                     <div class="col-lg-6">
@@ -227,5 +243,55 @@
                 alert(message);
             }
         }
+
+        function validateCandidateCounts() {
+            const candidateCount = parseInt(document.getElementById('candidate_count').value) || 0;
+            const mainMemberCount = parseInt(document.getElementById('main_member_count').value) || 0;
+            const substituteMemberCount = parseInt(document.getElementById('substitute_member_count').value) || 0;
+
+            const infoDiv = document.getElementById('candidate-info');
+            const infoText = document.getElementById('candidate-info-text');
+
+            // اگر هنوز هیچ مقداری وارد نشده، اطلاع‌رسانی رو مخفی کن
+            if (candidateCount === 0 && mainMemberCount === 0 && substituteMemberCount === 0) {
+                infoDiv.style.display = 'none';
+                return;
+            }
+
+            const totalSelected = mainMemberCount + substituteMemberCount;
+            const invalidCandidates = candidateCount - totalSelected;
+
+            let message = '';
+            let isValid = true;
+
+            if (totalSelected > candidateCount) {
+                message =
+                    `❌ مجموع اعضای اصلی (${mainMemberCount}) و علی‌البدل (${substituteMemberCount}) نمی‌تواند از تعداد کل کاندیدها (${candidateCount}) بیشتر باشد.`;
+                isValid = false;
+            } else if (totalSelected === candidateCount) {
+                message = `✅ تمامی ${candidateCount} کاندید انتخاب شده‌اند.`;
+            } else if (candidateCount > 0) {
+                message =
+                    `ℹ️ از ${candidateCount} کاندید، ${totalSelected} نفر انتخاب شده‌اند. ${invalidCandidates} نفر کاندید باطل خواهند بود.`;
+            } else {
+                // فقط اطلاعات اولیه رو نشون بده
+                message = `ℹ️ لطفاً تعداد کاندیدها، اعضای اصلی و علی‌البدل را وارد کنید.`;
+            }
+
+            infoText.textContent = message;
+            infoDiv.className = isValid ? 'alert alert-info' : 'alert alert-danger';
+            infoDiv.style.display = 'block';
+
+            // فقط اگر تعداد کاندیدها مشخص شده باشه و خطا داشته باشیم، دکمه رو غیرفعال کن
+            const submitButton = document.querySelector('button[type="submit"]');
+            if (submitButton) {
+                submitButton.disabled = candidateCount > 0 ? !isValid : false;
+            }
+        }
+
+        // فراخوانی اولیه برای نمایش وضعیت
+        document.addEventListener('DOMContentLoaded', function() {
+            validateCandidateCounts();
+        });
     </script>
 @endsection

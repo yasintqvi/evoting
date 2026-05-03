@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <title>گزارش تفصیلی آرا - {{ $election->title }}</title>
@@ -12,41 +13,53 @@
             font-size: 12px;
             margin: 20px;
         }
-        h1, h2, h3, p {
+
+        h1,
+        h2,
+        h3,
+        p {
             margin: 0;
             padding: 0;
         }
+
         .header {
             margin-bottom: 16px;
             border-bottom: 2px solid #333;
             padding-bottom: 8px;
         }
+
         .meta {
             margin-top: 6px;
             color: #666;
             font-size: 11px;
         }
+
         table.results {
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
         }
+
         table.results th,
         table.results td {
             border: 1px solid #ddd;
             padding: 8px;
             vertical-align: middle;
         }
+
         table.results th {
             background: #f5f5f5;
             font-weight: bold;
         }
+
         .text-center {
             text-align: center;
         }
+
         .muted {
             color: #666;
         }
+
         .footer {
             margin-top: 18px;
             font-size: 10px;
@@ -55,6 +68,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="header">
         <h2>گزارش تفصیلی آرای ثبت شده</h2>
@@ -98,4 +112,5 @@
         این گزارش به صورت خودکار توسط سامانه تولید شده است.
     </div>
 </body>
+
 </html>

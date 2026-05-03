@@ -17,6 +17,7 @@ class StoreElectionRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255', 'min:2'],
             'type' => ['required', Rule::in(ElectionType::values())],
+            'candidate_count' => ['required', 'integer', 'min:1'],
             'main_member_count' => ['required', 'integer', 'min:1'],
             'substitute_member_count' => ['required', 'integer', 'min:0'],
             'position_id' => ['required', 'exists:positions,id'],
@@ -26,6 +27,23 @@ class StoreElectionRequest extends FormRequest
             'blocked_user_ids' => ['nullable', 'array'],
             'blocked_user_ids.*' => ['integer', 'exists:users,id'],
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $candidateCount = $this->input('candidate_count');
+
+            $mainMemberCount = $this->input('main_member_count');
+            $substituteMemberCount = $this->input('substitute_member_count');
+
+            $totalSelected = $mainMemberCount + $substituteMemberCount;
+
+            if ($totalSelected > $candidateCount) {
+                $validator->errors()->add('main_member_count', 'مجموع اعضای اصلی و علی‌البدل نمی‌تواند از تعداد کل کاندیدها بیشتر باشد.');
+                $validator->errors()->add('substitute_member_count', 'مجموع اعضای اصلی و علی‌البدل نمی‌تواند از تعداد کل کاندیدها بیشتر باشد.');
+            }
+        });
     }
 
     public function messages(): array
@@ -42,6 +60,7 @@ class StoreElectionRequest extends FormRequest
             Auth::user()->getAuthIdentifier(),
             $this->validated('position_id'),
             ElectionType::from($this->validated('type')),
+            $this->validated('candidate_count'),
             $this->validated('main_member_count'),
             $this->validated('substitute_member_count'),
             $this->validated('starts_at') ? Carbon::parse($this->validated('starts_at')) : null,

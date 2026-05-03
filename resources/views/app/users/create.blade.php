@@ -7,13 +7,13 @@
             <h4 class="fs-18 fw-semibold mb-0">ایجاد کاربران</h4>
         </div>
 
-        <div class="text-end">
+        {{-- <div class="text-end">
             <ol class="breadcrumb m-0 py-0">
                 <li class="breadcrumb-item"><a href="javascript: void(0);">خانه</a></li>
                 <li class="breadcrumb-item"><a href="{{ route('group.users.index', $group) }}">کاربران</a></li>
                 <li class="breadcrumb-item active">ایجاد</li>
             </ol>
-        </div>
+        </div> --}}
     </div>
 
     <div class="row">

@@ -13,11 +13,13 @@ readonly class CreateElectionDto extends BaseDataTransferObject
         public int $ownerId,
         public int $positionId,
         public ElectionType $type,
+        public int $candidateCount,
         public int $mainMemberCount,
         public int $substituteMemberCount,
         public ?Carbon $startsAt = null,
         public ?Carbon $endsAt = null,
         public bool $ignoreStockWeight = false,
         public array $blockedUserIds = [],
-    ) {}
+    ) {
+    }
 }

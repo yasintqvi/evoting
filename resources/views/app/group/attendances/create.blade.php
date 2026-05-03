@@ -64,8 +64,9 @@
                                                             data-switch="1" {{ $participant->is_present ? 'checked' : '' }}>
                                                         <label for="participant-present-{{ $participant->id }}"
                                                             data-on-label="حاضر" data-off-label="غایب"
-                                                            data-id="{{ $participant->id }}"
-                                                            class="mb-0 d-block present"></label>
+                                                            data-id="{{ $participant->id }}" class="mb-0 d-block present"
+                                                            style="{{ $participant->is_present ? 'pointer-events:none;opacity:0.6' : '' }}"></label>
+
                                                     </div>
                                                 @endif
                                             </td>
@@ -352,17 +353,57 @@
             });
             document.addEventListener('click', function(e) {
                 toastr.options.positionClass = "toast-bottom-left";
+
                 if (e.target.matches('.present')) {
+
                     const id = e.target.dataset.id;
-                    axios.post('/present/' + id)
-                        .then(response => {
-                            toastr.success('', 'عملیات با موفقیت انجام شد.', 'success');
-                        })
-                        .catch(error => {
-                            toastr.error('', 'عملیات با خطا مواجه شد.', 'error');
-                        });
+                    const checkbox = document.getElementById('participant-present-' + id);
+
+                    // اگر قبلا قفل شده بود هیچ کاری نکن
+                    if (checkbox.disabled) {
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: 'تایید حضور',
+                        text: 'آیا از ثبت حضور این کاربر مطمئن هستید؟ بعد از تایید امکان غیرفعال کردن وجود ندارد.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'بله، تایید می‌کنم',
+                        cancelButtonText: 'انصراف'
+                    }).then((result) => {
+
+                        if (result.isConfirmed) {
+
+                            axios.post('/present/' + id)
+                                .then(response => {
+
+                                    toastr.success('', 'حضور با موفقیت ثبت شد.', 'success');
+
+                                    // قفل کامل
+                                    checkbox.checked = true;
+                                    checkbox.disabled = true;
+
+                                    // label هم دیگر کلیک نشود
+                                    e.target.style.pointerEvents = "none";
+                                    e.target.style.opacity = "0.6";
+
+                                })
+                                .catch(error => {
+
+                                    toastr.error('', 'عملیات با خطا مواجه شد.', 'error');
+                                    checkbox.checked = false;
+
+                                });
+
+                        } else {
+                            checkbox.checked = false;
+                        }
+
+                    });
                 }
             });
+
 
 
             document.addEventListener('click', function(event) {
@@ -381,11 +422,13 @@
                                                            id="participant-present-${id}"
                                                            value="1"
                                                            data-switch="1" checked >
-                                                    <label for="participant-present-${id}"
-                                                           data-on-label="حاضر"
-                                                           data-off-label="غایب"
-                                                           data-id="${id}"
-                                                           class="mb-0 d-block present"></label>`)
+                                                    <label for="participant-present-{{ $participant->id }}"
+       data-on-label="حاضر"
+       data-off-label="غایب"
+       data-id="{{ $participant->id }}"
+       class="mb-0 d-block present"
+       style="{{ $participant->is_present ? 'pointer-events:none;opacity:0.6' : '' }}"></label>
+`)
                             document.getElementById('attorney-col-' + id).innerHTML = `
                     <button type="button"
                             class="btn btn-secondary btn-sm attorney-btn"

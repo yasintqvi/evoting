@@ -165,7 +165,18 @@
                                                 {{ $event->title }} - {{ $group->title }}
                                             </p>
                                         </div>
-                                        <span class="badge badge-soft-info">{{ $item['election']->status->toFa() }}</span>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="badge badge-soft-info">{{ $item['election']->status->toFa() }}</span>
+                                            <form action="{{ route('my-elections.destroy', $election->slug) }}"
+                                                method="POST"
+                                                onsubmit="return confirm('آیا مطمئن هستید که می‌خواهید این انتخابات را از لیست خود حذف کنید؟')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    حذف
+                                                </button>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="card-body d-flex flex-column justify-content-between">

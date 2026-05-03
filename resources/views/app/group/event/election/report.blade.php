@@ -126,7 +126,17 @@
                     </h4>
                 </div>
                 <div class="card-body">
+                    @php
+                        $mainWinnersCount = (int) ($election->main_member_count ?? 0);
+                        $substituteWinnersCount = (int) ($election->substitute_member_count ?? 0);
+                    @endphp
+
                     @if ($candidateVotes->count() > 0)
+                        @if ($totalVotes == 0)
+                            <div class="alert alert-warning">
+                                هنوز رای‌ای برای این انتخابات ثبت نشده است؛ اما لیست نامزدها نمایش داده می‌شود.
+                            </div>
+                        @endif
                         <div class="table-responsive">
                             <table class="table table-nowrap mb-0">
                                 <thead class="bg-light-subtle">
@@ -142,19 +152,35 @@
                                 <tbody>
                                     @foreach ($candidateVotes as $index => $candidate)
                                         @php
-                                            $percentage =
-                                                $totalVotes > 0
-                                                    ? ($candidate->votes_sum_vote_count / $totalVotes) * 100
-                                                    : 0;
+                                            $candidateType =
+                                                $index < $mainWinnersCount
+                                                    ? 'main'
+                                                    : ($index < $mainWinnersCount + $substituteWinnersCount
+                                                        ? 'substitute'
+                                                        : 'invalid');
+                                            $badgeClass =
+                                                $candidateType === 'main'
+                                                    ? 'badge-soft-success'
+                                                    : ($candidateType === 'substitute'
+                                                        ? 'badge-soft-warning'
+                                                        : 'badge-soft-danger');
+                                            $barClass =
+                                                $candidateType === 'main'
+                                                    ? 'bg-success'
+                                                    : ($candidateType === 'substitute'
+                                                        ? 'bg-warning'
+                                                        : 'bg-danger');
+
+                                            $voteCount = (int) ($candidate->votes_sum_vote_count ?? 0);
+                                            $percentage = $totalVotes > 0 ? ($voteCount / $totalVotes) * 100 : 0;
                                             $percentageByAllVotes =
                                                 $election->all_votes > 0
-                                                    ? ($candidate->votes_sum_vote_count / $election->all_votes) * 100
+                                                    ? ($voteCount / $election->all_votes) * 100
                                                     : 0;
                                         @endphp
                                         <tr>
                                             <td class="text-center">
-                                                <span
-                                                    class="badge {{ $index === 0 ? 'badge-soft-success' : ($index === 1 ? 'badge-soft-info' : ($index === 2 ? 'badge-soft-warning' : 'badge-soft-secondary')) }} fs-16 fw-semibold">
+                                                <span class="badge {{ $badgeClass }} fs-16 fw-semibold">
                                                     {{ $index + 1 }}
                                                 </span>
                                             </td>
@@ -174,13 +200,13 @@
                                             </td>
                                             <td class="text-center">
                                                 <h5 class="mb-0 fw-bold text-primary">
-                                                    {{ number_format($candidate->votes_sum_vote_count) }}
+                                                    {{ number_format($voteCount) }}
                                                 </h5>
                                             </td>
                                             <td>
                                                 <div class="progress" style="height: 25px;position: relative;">
-                                                    <div class="progress-bar {{ $index === 0 ? 'bg-success' : ($index === 1 ? 'bg-info' : ($index === 2 ? 'bg-warning' : 'bg-secondary')) }}"
-                                                        role="progressbar" style="width: {{ $percentage }}%;"
+                                                    <div class="progress-bar {{ $barClass }}" role="progressbar"
+                                                        style="width: {{ $percentage }}%;"
                                                         aria-valuenow="{{ $percentage }}" aria-valuemin="0"
                                                         aria-valuemax="100">
                                                         <span
@@ -190,8 +216,8 @@
                                             </td>
                                             <td>
                                                 <div class="progress" style="height: 25px;position: relative;">
-                                                    <div class="progress-bar {{ $index === 0 ? 'bg-success' : ($index === 1 ? 'bg-info' : ($index === 2 ? 'bg-warning' : 'bg-secondary')) }}"
-                                                        role="progressbar" style="width: {{ $percentageByAllVotes }}%"
+                                                    <div class="progress-bar {{ $barClass }}" role="progressbar"
+                                                        style="width: {{ $percentageByAllVotes }}%"
                                                         aria-valuenow="{{ $percentageByAllVotes }}" aria-valuemin="0"
                                                         aria-valuemax="100">
                                                         <span class="text-dark fw-semibold"
@@ -214,7 +240,7 @@
                                 <line x1="12" y1="8" x2="12" y2="12"></line>
                                 <line x1="12" y1="16" x2="12.01" y2="16"></line>
                             </svg>
-                            <p class="text-muted fs-16">هنوز رای‌ای برای این انتخابات ثبت نشده است.</p>
+                            <p class="text-muted fs-16">هنوز نامزدی برای این انتخابات ثبت نشده است.</p>
                         </div>
                     @endif
                 </div>
@@ -292,13 +318,23 @@
             $totalVotesAll = 1;
         }
 
+        $mainWinnersCount = (int) ($election->main_member_count ?? 0);
+        $substituteWinnersCount = (int) ($election->substitute_member_count ?? 0);
+
         foreach ($candidateVotes as $index => $candidate) {
-            $voteCount = $candidate->votes_sum_vote_count ?? 0;
+            $candidateType =
+                $index < $mainWinnersCount
+                    ? 'main'
+                    : ($index < $mainWinnersCount + $substituteWinnersCount
+                        ? 'substitute'
+                        : 'invalid');
+            $voteCount = (int) ($candidate->votes_sum_vote_count ?? 0);
             $percentage = ($voteCount / $totalVotesAll) * 100;
 
             $chartData[] = round($percentage, 2);
             $chartLabels[] = $candidate->user->full_name;
-            $chartColors[] = sprintf('#%06X', mt_rand(0, 0xffffff));
+            $chartColors[] =
+                $candidateType === 'main' ? '#198754' : ($candidateType === 'substitute' ? '#fd7e14' : '#dc3545');
         }
 
         $unassignedPercentage = ($unassigned_votes_count / $totalVotesAll) * 100;
