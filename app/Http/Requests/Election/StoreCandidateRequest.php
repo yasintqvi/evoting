@@ -10,17 +10,15 @@ class StoreCandidateRequest extends FormRequest
     public function rules(): array
     {
         $election = $this->route('election');
-        $requiredCandidatesCount = (int) ($election?->candidate_count ?? 0);
-        if ($requiredCandidatesCount <= 0) {
-            $requiredCandidatesCount = (int) ($election?->main_member_count ?? 0);
-        }
+        $seatTotal = (int) ($election?->main_member_count ?? 0) + (int) ($election?->substitute_member_count ?? 0);
+        $minCandidates = $seatTotal > 0 ? $seatTotal : 1;
 
         return [
             'main_candidates_ids' => [
                 'required',
                 'array',
                 'distinct',
-                $requiredCandidatesCount > 0 ? ('size:' . $requiredCandidatesCount) : ('min:' . ($election->main_member_count ?? 0)),
+                'min:'.$minCandidates,
             ],
             'main_candidates_ids.*' => ['exists:users,id'],
 
@@ -37,12 +35,12 @@ class StoreCandidateRequest extends FormRequest
     public function messages(): array
     {
         $election = $this->route('election');
-        $requiredCandidatesCount = (int) ($election?->candidate_count ?? 0);
+        $seatTotal = (int) ($election?->main_member_count ?? 0) + (int) ($election?->substitute_member_count ?? 0);
 
         return [
-            'main_candidates_ids.size' => $requiredCandidatesCount > 0
-                ? "باید دقیقاً {$requiredCandidatesCount} نامزد انتخاب کنید."
-                : 'تعداد انتخاب‌شده معتبر نیست.',
+            'main_candidates_ids.min' => $seatTotal > 0
+                ? 'حداقل باید به‌اندازهٔ تعداد صندلی‌های این همه‌پرسی ('.$seatTotal.' نفر) نامزد انتخاب کنید. می‌توانید بیشتر هم انتخاب کنید.'
+                : 'حداقل یک نامزد را انتخاب کنید.',
         ];
     }
 

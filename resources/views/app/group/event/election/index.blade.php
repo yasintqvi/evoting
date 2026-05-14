@@ -65,7 +65,7 @@
                                 <th>وضعیت</th>
                                 <th>موضوع</th>
                                 <th>زمان پایان</th>
-                                <th class="text-center" style="width: 120px;">اقدامات</th>
+                                <th class="text-end pe-3" style="width: 3.5rem;">عملیات</th>
                             </tr>
                         </thead><!-- end thead -->
 
@@ -111,110 +111,181 @@
                                             <small class="text-muted">—</small>
                                         @endif
                                     </td>
-                                    <td class="pe-3">
-                                        <div class="hstack gap-1 justify-content-end">
-                                            {{-- @isset($election['operations']['next_step'])
-                                                <a href="{{ $election['operations']['next_step']['url'] }}"
-                                                    class="btn btn-primary btn-sm">
-                                                    {{ $election['operations']['next_step']['title'] }}
-                                                </a>
-                                            @endisset --}}
-                                            @isset($election['operations']['next_step'])
-                                                @php
-                                                    $isFinish =
-                                                        $election['operations']['next_step']['title'] ===
-                                                        'پایان انتخابات';
-                                                    $btnClass = $isFinish
-                                                        ? 'btn btn-danger btn-sm'
-                                                        : 'btn btn-primary btn-sm';
-                                                @endphp
+                                    <td class="text-end pe-3 align-middle">
+                                        @php
+                                            $isOngoing =
+                                                ($election['status'] === \App\Enums\ElectionStatus::ONGOING ||
+                                                    (is_object($election['status']) &&
+                                                        $election['status']->value === 'ongoing') ||
+                                                    (is_string($election['status']) &&
+                                                        $election['status'] === 'ongoing')) &&
+                                                empty($election['is_expired']);
+                                            $isPublicJoint =
+                                                isset($election['type']) &&
+                                                $election['type'] === \App\Enums\ElectionType::PUBLIC_JOINT->value;
+                                            $isEditLocked =
+                                                $election['status'] === \App\Enums\ElectionStatus::ONGOING ||
+                                                $election['status'] === \App\Enums\ElectionStatus::COMPLETED ||
+                                                (is_object($election['status']) &&
+                                                    in_array($election['status']->value, ['ongoing', 'completed'], true)) ||
+                                                (is_string($election['status']) &&
+                                                    in_array($election['status'], ['ongoing', 'completed'], true));
+                                        @endphp
+                                        <div class="dropdown position-static">
+                                            <button class="btn btn-sm btn-light btn-icon border shadow-none text-muted"
+                                                type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside"
+                                                aria-expanded="false" title="عملیات">
+                                                <i class="ti ti-dots-vertical fs-18"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-1"
+                                                style="min-width: 12rem;">
+                                                @isset($election['operations']['next_step'])
+                                                    @php
+                                                        $ns = $election['operations']['next_step'];
+                                                        $nsTitle = $ns['title'] ?? '';
+                                                        $isStart = ($ns['action'] ?? '') === 'start';
+                                                    @endphp
+                                                    @if ($isStart && $ns['method'] === 'POST')
+                                                        <li>
+                                                            <button type="button"
+                                                                class="dropdown-item d-flex align-items-center gap-2 election-start-btn"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#startElectionModal"
+                                                                data-start-url="{{ $ns['url'] }}">
+                                                                <i class="ti ti-player-play text-primary"></i>
+                                                                <span>{{ $nsTitle }}</span>
+                                                            </button>
+                                                        </li>
+                                                    @elseif ($ns['method'] === 'POST')
+                                                        <li>
+                                                            <form action="{{ $ns['url'] }}" method="POST" class="m-0">
+                                                                @csrf
+                                                                <button type="submit"
+                                                                    class="dropdown-item d-flex align-items-center gap-2 text-danger">
+                                                                    <i class="ti ti-check"></i>
+                                                                    <span>{{ $nsTitle }}</span>
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    @else
+                                                        <li>
+                                                            <a class="dropdown-item d-flex align-items-center gap-2"
+                                                                href="{{ $ns['url'] }}">
+                                                                <i class="ti ti-external-link text-primary"></i>
+                                                                <span>{{ $nsTitle }}</span>
+                                                            </a>
+                                                        </li>
+                                                    @endif
+                                                @endisset
 
-                                                @if ($election['operations']['next_step']['method'] === 'POST')
-                                                    <form action="{{ $election['operations']['next_step']['url'] }}"
-                                                        method="POST" class="d-inline">
-                                                        @csrf
-                                                        <button type="submit" class="{{ $btnClass }}">
-                                                            {{ $election['operations']['next_step']['title'] }}
-                                                        </button>
-                                                    </form>
+                                                @if ($isOngoing && !$isPublicJoint)
+                                                    <li>
+                                                        <a class="dropdown-item d-flex align-items-center gap-2"
+                                                            href="{{ route('voting.create', [$group, $event, $election['slug']]) }}">
+                                                            <i class="ti ti-vote text-info"></i>
+                                                            <span>رای‌گیری</span>
+                                                        </a>
+                                                    </li>
+                                                @elseif ($isOngoing && $isPublicJoint)
+                                                    <li>
+                                                        <span
+                                                            class="dropdown-item d-flex align-items-center gap-2 disabled text-muted mb-0">
+                                                            <i class="ti ti-vote"></i>
+                                                            <span>رای‌گیری (تعاونی از داشبورد)</span>
+                                                        </span>
+                                                    </li>
                                                 @else
-                                                    <a href="{{ $election['operations']['next_step']['url'] }}"
-                                                        class="{{ $btnClass }}">
-                                                        {{ $election['operations']['next_step']['title'] }}
-                                                    </a>
+                                                    <li>
+                                                        <span
+                                                            class="dropdown-item d-flex align-items-center gap-2 disabled text-muted mb-0">
+                                                            <i class="ti ti-vote"></i>
+                                                            <span>{{ !empty($election['is_expired']) ? 'رای‌گیری (منقضی)' : 'رای‌گیری (شروع نشده)' }}</span>
+                                                        </span>
+                                                    </li>
                                                 @endif
-                                            @endisset
-                                            @php
-                                                $isOngoing =
-                                                    ($election['status'] === \App\Enums\ElectionStatus::ONGOING ||
-                                                        (is_object($election['status']) &&
-                                                            $election['status']->value === 'ongoing') ||
-                                                        (is_string($election['status']) &&
-                                                            $election['status'] === 'ongoing')) &&
-                                                    empty($election['is_expired']);
-                                                $isPublicJoint =
-                                                    isset($election['type']) &&
-                                                    $election['type'] === \App\Enums\ElectionType::PUBLIC_JOINT->value;
-                                            @endphp
-                                            @if ($isOngoing && !$isPublicJoint)
-                                                <a href="{{ route('voting.create', [$group, $event, $election['slug']]) }}"
-                                                    class="btn btn-info btn-sm">
-                                                    <i class="ti ti-vote me-1"></i>رای گیری
-                                                </a>
-                                            @elseif ($isOngoing && $isPublicJoint)
-                                                <button class="btn btn-info btn-sm" disabled
-                                                    title="رای گیری برای انتخابات تعاونی از طریق داشبورد انجام می‌شود">
-                                                    <i class="ti ti-vote me-1"></i>رای گیری
-                                                </button>
-                                            @else
-                                                <button class="btn btn-info btn-sm" disabled
-                                                    title="{{ !empty($election['is_expired']) ? 'انتخابات منقضی شده است' : 'انتخابات هنوز شروع نشده است' }}">
-                                                    <i class="ti ti-vote me-1"></i>رای گیری
-                                                </button>
-                                            @endif
-                                            @if (isset($election['has_votes']) && $election['has_votes'])
+
+                                                @if (isset($election['has_votes']) && $election['has_votes'])
+                                                    @can(\App\Enums\Permission::SHOW_ELECTION->value)
+                                                        <li>
+                                                            <a class="dropdown-item d-flex align-items-center gap-2"
+                                                                href="{{ $election['report_url'] ?? route('elections.report', [$group, $event, $election['slug']]) }}">
+                                                                <i class="ti ti-file-text text-warning"></i>
+                                                                <span>گزارش انتخابات</span>
+                                                            </a>
+                                                        </li>
+                                                    @endcan
+                                                @endif
+
                                                 @can(\App\Enums\Permission::SHOW_ELECTION->value)
-                                                    <a href="{{ $election['report_url'] ?? route('elections.report', [$group, $event, $election['slug']]) }}"
-                                                        class="btn btn-warning btn-sm" title="گزارش انتخابات">
-                                                        <i class="ti ti-file-text me-1"></i>گزارش
-                                                    </a>
+                                                    <li>
+                                                        <a class="dropdown-item d-flex align-items-center gap-2"
+                                                            href="{{ $election['operations']['show'] }}">
+                                                            <i class="ti ti-eye text-success"></i>
+                                                            <span>مشاهده جزئیات</span>
+                                                        </a>
+                                                    </li>
                                                 @endcan
-                                            @endif
-                                            @can(\App\Enums\Permission::SHOW_ELECTION->value)
-                                                <a href="{{ $election['operations']['show'] }}"
-                                                    class="btn btn-success btn-sm"><i class="ti ti-eye"></i></a>
-                                            @endcan
-                                            @can(\App\Enums\Permission::EDIT_ELECTIONS->value)
-                                                @php
-                                                    // بررسی وضعیت‌های غیرقابل ویرایش: در حال اجرا یا تکمیل شده
-                                                    $isLocked =
-                                                        $election['status'] === \App\Enums\ElectionStatus::ONGOING ||
-                                                        $election['status'] === \App\Enums\ElectionStatus::COMPLETED ||
-                                                        (is_object($election['status']) &&
-                                                            in_array($election['status']->value, [
-                                                                'ongoing',
-                                                                'completed',
-                                                            ])) ||
-                                                        (is_string($election['status']) &&
-                                                            in_array($election['status'], ['ongoing', 'completed']));
-                                                @endphp
 
-                                                @if ($isLocked)
-                                                    <button class="btn btn-secondary btn-sm" disabled
-                                                        title="ویرایش این انتخابات مجاز نیست">
-                                                        <i class="ti ti-edit"></i>
-                                                    </button>
-                                                @else
-                                                    <a href="{{ $election['operations']['edit'] }}"
-                                                        class="btn btn-secondary btn-sm">
-                                                        <i class="ti ti-edit"></i>
-                                                    </a>
-                                                @endif
-                                            @endcan
-                                            {{-- @can(\App\Enums\Permission::DELETE_ELECTIONS->value)
-                                                    <a href="javascript:void(0);" class="btn btn-danger btn-sm"><i
-                                                            class="ti ti-trash"></i></a>
-                                                @endcan --}}
+                                                @can(\App\Enums\Permission::EDIT_ELECTIONS->value)
+                                                    @if ($isEditLocked)
+                                                        <li>
+                                                            <span
+                                                                class="dropdown-item d-flex align-items-center gap-2 disabled text-muted mb-0">
+                                                                <i class="ti ti-edit"></i>
+                                                                <span>ویرایش (غیرمجاز)</span>
+                                                            </span>
+                                                        </li>
+                                                    @else
+                                                        <li>
+                                                            <a class="dropdown-item d-flex align-items-center gap-2"
+                                                                href="{{ $election['operations']['edit'] }}">
+                                                                <i class="ti ti-edit text-secondary"></i>
+                                                                <span>ویرایش</span>
+                                                            </a>
+                                                        </li>
+                                                    @endif
+                                                @endcan
+
+                                                @can(\App\Enums\Permission::CREATE_ELECTIONS->value)
+                                                    <li>
+                                                        <button type="button"
+                                                            class="dropdown-item d-flex align-items-center gap-2"
+                                                            data-election-template-b64="{{ base64_encode($election['template_block']) }}"
+                                                            onclick="copyElectionTemplateFromButton(this)">
+                                                            <i class="ti ti-copy text-secondary"></i>
+                                                            <span>کپی قالب مشخصات</span>
+                                                        </button>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item d-flex align-items-center gap-2"
+                                                            href="{{ $election['operations']['create_duplicate'] }}">
+                                                            <i class="ti ti-copy-plus text-primary"></i>
+                                                            <span>ایجاد مشابه</span>
+                                                        </a>
+                                                    </li>
+                                                @endcan
+
+                                                @can(\App\Enums\Permission::DELETE_ELECTIONS->value)
+                                                    @if (!empty($election['can_delete']))
+                                                        <li>
+                                                            <hr class="dropdown-divider my-1">
+                                                        </li>
+                                                        <li>
+                                                            <form action="{{ $election['operations']['delete'] }}"
+                                                                method="post" class="m-0"
+                                                                onsubmit="return confirm('این انتخابات حذف شود؟ این عمل قابل بازگشت نیست.');">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit"
+                                                                    class="dropdown-item d-flex align-items-center gap-2 text-danger">
+                                                                    <i class="ti ti-trash"></i>
+                                                                    <span>حذف انتخابات</span>
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    @endif
+                                                @endcan
+                                            </ul>
                                         </div>
                                     </td>
                                 </tr>
@@ -230,13 +301,81 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="startElectionModal" tabindex="-1" aria-labelledby="startElectionModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="startElectionForm" method="POST" action="">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="startElectionModalLabel">شروع انتخابات</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="text-muted small mb-3">زمان شروع به‌صورت خودکار همین لحظه ثبت می‌شود.</p>
+                        <div class="mb-3">
+                            <label for="start_election_ends_at" class="form-label">زمان پایان انتخابات <span
+                                    class="text-muted fw-normal">(اختیاری)</span></label>
+                            <input type="datetime-local" class="form-control" name="ends_at" id="start_election_ends_at">
+                            <small class="text-muted d-block mt-1">در صورت خالی ماندن، محدودیت زمانی خودکار برای پایان
+                                اعمال نمی‌شود.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">انصراف</button>
+                        <button type="submit" class="btn btn-primary">شروع انتخابات</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('scripts')
     <script src="/assets/samples/assets/irregular-data-series.js"></script>
-    
+
     <script src="/assets/js/pages/chart-apex-bar.js"></script>
     <script>
+        document.querySelectorAll('.election-start-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var url = this.getAttribute('data-start-url');
+                var form = document.getElementById('startElectionForm');
+                if (form && url) {
+                    form.setAttribute('action', url);
+                }
+            });
+        });
+
+        function copyElectionTemplateFromButton(btn) {
+            var b64 = btn.getAttribute('data-election-template-b64');
+            if (!b64) return;
+            var bin = atob(b64);
+            var bytes = new Uint8Array(bin.length);
+            for (var i = 0; i < bin.length; i++) {
+                bytes[i] = bin.charCodeAt(i);
+            }
+            var text = new TextDecoder('utf-8').decode(bytes);
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(function() {
+                    if (typeof Toast !== 'undefined') {
+                        Toast.create({
+                            title: 'کپی شد',
+                            message: 'متن قالب در کلیپ‌بورد قرار گرفت.',
+                            type: 'success',
+                            duration: 2500
+                        });
+                    } else {
+                        alert('متن قالب کپی شد.');
+                    }
+                }).catch(function() {
+                    window.prompt('کپی دستی:', text);
+                });
+            } else {
+                window.prompt('کپی دستی:', text);
+            }
+        }
+
         (function() {
             function formatDuration(ms) {
                 if (ms <= 0) return '0:00:00';

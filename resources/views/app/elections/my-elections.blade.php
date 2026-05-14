@@ -165,17 +165,19 @@
                                                 {{ $event->title }} - {{ $group->title }}
                                             </p>
                                         </div>
-                                        <div class="d-flex align-items-center gap-2">
+                                        <div class="d-flex align-items-center gap-2 flex-nowrap">
                                             <span class="badge badge-soft-info">{{ $item['election']->status->toFa() }}</span>
-                                            <form action="{{ route('my-elections.destroy', $election->slug) }}"
-                                                method="POST"
-                                                onsubmit="return confirm('آیا مطمئن هستید که می‌خواهید این انتخابات را از لیست خود حذف کنید؟')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                    حذف
-                                                </button>
-                                            </form>
+                                            @if ($election->isFinished())
+                                                <form action="{{ route('my-elections.destroy', $election) }}"
+                                                    method="POST"
+                                                    class="mb-0"
+                                                    onsubmit="return confirm('آیا مطمئن هستید که می‌خواهید این انتخابات را از لیست خود حذف کنید؟')">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger text-nowrap">
+                                                        حذف
+                                                    </button>
+                                                </form>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -188,16 +190,16 @@
                                             <div class="d-flex justify-content-center flex-wrap gap-1">
                                                 @foreach ($election->candidates as $candidate)
                                                     @php
-                                                        $user = $candidate?->user;
+                                                        $candidateUser = $candidate?->user;
                                                         $candidateVote = $participantVotes->where('candidate_id', $candidate->id);
                                                     @endphp
                                                     @if ($candidateVote->count() > 0)
                                                         <div class="col-md-3 d-flex flex-column justify-content-center align-items-center border border-success rounded p-1 bg-soft-success"
                                                             style="border-style: solid !important;">
-                                                            <img src="{{ $user?->profile_image }}" alt="image"
+                                                            <img src="{{ $candidateUser?->profile_image }}" alt="image"
                                                                 class="img-fluid avatar-lg rounded">
                                                             <p class="fw-bold">
-                                                                {{ $user?->full_name }}
+                                                                {{ $candidateUser?->full_name }}
                                                             </p>
                                                             <div class="d-flex align-items-center gap-1">
                                                                 <i class="ti ti-circle-check text-success fs-2"></i>
@@ -207,10 +209,10 @@
                                                     @else
                                                         <div
                                                             class="col-md-3 d-flex flex-column justify-content-center align-items-center px-1 py-3 border rounded" style="border-style: solid !important;">
-                                                            <img src="{{ $user?->profile_image }}" alt="image"
+                                                            <img src="{{ $candidateUser?->profile_image }}" alt="image"
                                                                 class="img-fluid avatar-lg rounded">
                                                             <p>
-                                                                {{ $user?->full_name }}
+                                                                {{ $candidateUser?->full_name }}
                                                             </p>
                                                         </div>
                                                     @endif

@@ -65,13 +65,22 @@
                     <i class="ti ti-clock-pause fs-48 text-warning"></i>
                     <p class="text-muted mt-3">این نظرسنجی هنوز شروع نشده است.</p>
                 </div>
+            @elseif ($hasSubmitted)
+                <div class="text-center py-5">
+                    <i class="ti ti-circle-check fs-48 text-success"></i>
+                    <p class="text-muted mt-3 mb-0">پاسخ شما برای این نظرسنجی ثبت شده است. هر سهام‌دار فقط یک بار می‌تواند شرکت کند.</p>
+                </div>
             @else
                 <form action="{{ route('surveys.answer.store', [$group->slug, $event->slug, $survey->slug]) }}" method="POST">
                     @csrf
 
+                    @error('survey')
+                        <div class="alert alert-danger">{{ $message }}</div>
+                    @enderror
+
                     @if ($group->type === App\Enums\GroupType::SPECIAL)
                         @php
-                            $participant = $event->participants()->where('user_id', user()->id)->first();
+                            $participant = $event->participants()->where('user_id', user()->id)->whereNull('attorney_id')->first();
                             $normal = $participant?->normal_stock_count ?? 0;
                             $prefered = $participant?->prefered_stock_count ?? 0;
                             $effective = $normal + $prefered;

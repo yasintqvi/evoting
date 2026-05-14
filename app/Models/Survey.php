@@ -8,16 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 class Survey extends Model
 {
     use Sluggable;
+
     protected $fillable = [
-        "event_id",
-        "title",
-        "description",
-        "is_anonymous",
-        "weight_by_stock",
-        "start_at",
-        "end_at",
-        "status",
-        "created_by",
+        'event_id',
+        'title',
+        'description',
+        'is_anonymous',
+        'weight_by_stock',
+        'start_at',
+        'end_at',
+        'status',
+        'created_by',
     ];
 
     public function sluggable(): array
@@ -48,6 +49,14 @@ class Survey extends Model
         return $this->start_at !== null && now()->lt($this->start_at);
     }
 
+    /**
+     * پس از زدن «شروع نظرسنجی»، start_at ثبت می‌شود؛ تا قبل از آن ساختار قابل ویرایش/حذف است.
+     */
+    public function isLockedForEditing(): bool
+    {
+        return $this->start_at !== null;
+    }
+
     public function getRouteKeyName()
     {
         return 'slug';
@@ -71,7 +80,7 @@ class Survey extends Model
     public function scopeFilter($query, $filters)
     {
         if (isset($filters['search'])) {
-            $query->where('title', 'like', '%' . $filters['search'] . '%');
+            $query->where('title', 'like', '%'.$filters['search'].'%');
         }
         if (isset($filters['status'])) {
             if ($filters['status'] == 1) {
@@ -90,5 +99,4 @@ class Survey extends Model
             }
         }
     }
-
 }

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\ElectionStatus;
 use App\Enums\ElectionType;
 use Cviebrock\EloquentSluggable\Sluggable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -43,8 +44,40 @@ class Election extends Model
         return [
             'slug' => [
                 'source' => 'title',
+                'includeTrashed' => true,
             ],
         ];
+    }
+
+    /**
+     * اسلاگ فقط باید در همان رویداد یکتا باشد (نه در کل جدول).
+     */
+    public function scopeWithUniqueSlugConstraints(Builder $query, Model $model, string $attribute, array $config, string $slug): Builder
+    {
+        if ($model instanceof self && $model->event_id) {
+            return $query->where('event_id', $model->event_id);
+        }
+
+        return $query;
+    }
+
+    /**
+     * @param  mixed  $value
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        $field = $field ?: $this->getRouteKeyName();
+        $event = request()->route('event');
+        if ($event instanceof Event) {
+            return static::query()
+                ->where($field, $value)
+                ->where('event_id', $event->getKey())
+                ->firstOrFail();
+        }
+
+        return static::query()
+            ->where($field, $value)
+            ->firstOrFail();
     }
 
     protected static $logAttributesToIgnore = ['updated_at'];
@@ -76,6 +109,18 @@ class Election extends Model
     public function isExpired(): bool
     {
         return $this->ends_at !== null && now()->greaterThan($this->ends_at);
+    }
+
+    /**
+     * انتخابات از نظر وضعیت ذخیره‌شده تمام شده یا لغو شده است (لیست گذشته / حذف از لیست شخصی).
+     */
+    public function isFinished(): bool
+    {
+        $status = $this->status instanceof ElectionStatus
+            ? $this->status
+            : ElectionStatus::tryFrom((string) $this->getRawOriginal('status'));
+
+        return $status === ElectionStatus::COMPLETED || $status === ElectionStatus::CANCELED;
     }
 
     public function getRouteKeyName()
@@ -137,5 +182,53 @@ class Election extends Model
     public function getAllVotesAttribute(): float|int
     {
         return $this->normal_stock_count + ($this->prefered_stock_count * $this->prefered_stock_weight);
+    }
+
+    /**
+     * متن قابل کپی برای ایجاد همه‌پرسی مشابه (بدون نام افراد؛ فقط شناسهٔ کاربران مسدود).
+     */
+    public function templateBlockForCopy(): string
+    {
+        $blockedIds = $this->blockedUsers()->pluck('users.id')->filter()->implode(',');
+
+        $safeTitle = preg_replace('/\s+/', ' ', trim(str_replace(["\r", "\n"], ' ', $this->title)));
+
+        $lines = [
+            '[ELECTION_TEMPLATE]',
+            'version=1',
+            'title='.$safeTitle,
+            'type='.$this->type->value,
+            'position_id='.$this->position_id,
+            'main_member_count='.$this->main_member_count,
+            'substitute_member_count='.$this->substitute_member_count,
+            'blocked_user_ids='.$blockedIds,
+            '[/ELECTION_TEMPLATE]',
+            '',
+            '---',
+            'این بلوک را در صفحهٔ «ایجاد همه‌پرسی» در قسمت «چسباندن قالب» بچسبانید. نام افراد در متن نیست؛ فقط شناسهٔ کاربران مسدود از رأی ذکر شده است.',
+        ];
+
+        return implode("\n", $lines);
+    }
+
+    /**
+     * عنوان پیشنهادی برای کپی/همه‌پرسی جدید تا با عنوانهای موجود در رویداد تداخل نداشته باشد.
+     */
+    public static function suggestDuplicateTitle(Event $event, string $baseTitle): string
+    {
+        $base = trim($baseTitle);
+        if ($base === '') {
+            $base = 'همه‌پرسی';
+        }
+
+        $candidate = $base.' (کپی)';
+        $n = 2;
+
+        while ($event->elections()->where('title', $candidate)->exists()) {
+            $candidate = $base.' (کپی '.$n.')';
+            $n++;
+        }
+
+        return $candidate;
     }
 }

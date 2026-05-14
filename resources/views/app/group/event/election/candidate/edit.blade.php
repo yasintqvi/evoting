@@ -20,10 +20,11 @@
 </div>
 
 @php
-    $requiredCandidatesCount = (int) ($election->candidate_count ?? 0);
+    $seatTotal = (int) ($election->main_member_count ?? 0) + (int) ($election->substitute_member_count ?? 0);
+    $minSeatsJs = $seatTotal > 0 ? $seatTotal : 1;
 @endphp
 
-<form action="{{ route('candidates.update', [$group,$event, $election]) }}" method="post">
+<form id="candidates-edit-form" action="{{ route('candidates.update', [$group,$event, $election]) }}" method="post">
     @csrf
     @method('put')
     <div class="card col-lg-5">
@@ -36,15 +37,16 @@
                 <div class="col-md-12">
                     <div class="mb-3">
                         <label for="main_candidates" class="form-label">انتخاب نامزد</label>
-                        <small class="text-muted">
-                            ({{ $requiredCandidatesCount > 0 ? "دقیقاً {$requiredCandidatesCount} نامزد را انتخاب کنید" : 'تعداد نامزدها هنوز مشخص نشده است' }})
+                        <small class="text-muted d-block">
+                            حداقل باید به‌اندازهٔ صندلی‌ها (اصلی + علی‌البدل) نامزد انتخاب کنید؛ بیشتر از آن مشکلی نیست.
+                            صندلی‌ها در این همه‌پرسی:
+                            {{ $seatTotal > 0 ? $seatTotal . ' نفر' : '—' }}
                         </small>
                         <select
                             class="form-select my-1 my-md-0 me-sm-3"
                             name="main_candidates_ids[]"
                             id="main_candidates"
                             data-toggle="select2"
-                            data-required-count="{{ $requiredCandidatesCount }}"
                             multiple>
                             @foreach ($group->users as $user)
                             <option
@@ -91,84 +93,66 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             const select = document.getElementById('main_candidates');
-            const requiredCount = parseInt(select?.getAttribute('data-required-count') || '0', 10);
             const info = document.getElementById('candidate-count-info');
             const infoText = document.getElementById('candidate-count-info-text');
-            const submitButton = document.querySelector('button[type="submit"]');
+            const form = document.getElementById('candidates-edit-form');
+            const minSeats = {{ $minSeatsJs }};
+            const hasSeatCap = @json($seatTotal > 0);
 
-            let lastValidSelection = Array.from(select?.selectedOptions || []).map(o => o.value);
+            function getSelectedCount() {
+                if (!select) {
+                    return 0;
+                }
+                if (window.jQuery && jQuery(select).length) {
+                    var v = jQuery(select).val();
+                    if (v === null || v === undefined) {
+                        return 0;
+                    }
+                    if (Array.isArray(v)) {
+                        return v.length;
+                    }
+                    return String(v).length ? 1 : 0;
+                }
+                return Array.from(select.selectedOptions || []).length;
+            }
 
             function updateInfo() {
-                const selectedCount = Array.from(select?.selectedOptions || []).length;
-
-                if (!requiredCount) {
-                    info.style.display = 'block';
-                    info.className = 'alert alert-warning';
-                    infoText.textContent = 'ابتدا تعداد کل نامزدها را در مرحله قبل مشخص کنید.';
-                    if (submitButton) submitButton.disabled = true;
+                const selectedCount = getSelectedCount();
+                if (!select || !info || !infoText) {
                     return;
                 }
-
-                const remaining = requiredCount - selectedCount;
                 info.style.display = 'block';
-
-                if (remaining === 0) {
-                    info.className = 'alert alert-success';
-                    infoText.textContent = `تعداد نامزدها کامل است (${requiredCount} نفر).`;
-                    if (submitButton) submitButton.disabled = false;
-                } else if (remaining > 0) {
+                var need = minSeats;
+                if (selectedCount < need) {
+                    info.className = 'alert alert-warning';
+                    infoText.textContent = 'تعداد نامزد انتخاب‌شده: ' + selectedCount + ' نفر — حداقل ' + need +
+                        ' نفر لازم است' + (hasSeatCap ? ' (برابر صندلی‌های همه‌پرسی)' : '') + '.';
+                } else {
                     info.className = 'alert alert-info';
-                    infoText.textContent = `تا تکمیل لیست، ${remaining} نفر دیگر انتخاب کنید.`;
-                    if (submitButton) submitButton.disabled = true;
-                } else {
-                    info.className = 'alert alert-danger';
-                    infoText.textContent = `بیش از حد مجاز انتخاب شده است. باید دقیقاً ${requiredCount} نفر باشد.`;
-                    if (submitButton) submitButton.disabled = true;
+                    infoText.textContent = 'تعداد نامزد انتخاب‌شده: ' + selectedCount + ' نفر' + (need > 1 ?
+                        ' (حداقل ' + need + ' نفر؛ می‌توانید بیشتر هم انتخاب کنید)' : '') + '.';
                 }
             }
 
-            function restoreSelection(values) {
-                Array.from(select.options).forEach(opt => {
-                    opt.selected = values.includes(opt.value);
-                });
-
-                if (window.jQuery && jQuery(select).data('select2')) {
-                    jQuery(select).trigger('change.select2');
-                } else {
-                    select.dispatchEvent(new Event('change'));
-                }
-            }
-
-            if (window.jQuery) {
-                const $select = jQuery(select);
-                $select.on('change', function() {
-                    const selectedValues = $select.val() || [];
-
-                    if (requiredCount && selectedValues.length > requiredCount) {
-                        restoreSelection(lastValidSelection);
-                        showToast('error', `حداکثر تعداد انتخاب ${requiredCount} نفر است.`);
-                        return;
-                    }
-
-                    lastValidSelection = selectedValues.slice();
-                    updateInfo();
-                });
-            } else {
-                select.addEventListener('change', function() {
-                    const selectedValues = Array.from(select.selectedOptions).map(o => o.value);
-
-                    if (requiredCount && selectedValues.length > requiredCount) {
-                        restoreSelection(lastValidSelection);
-                        showToast('error', `حداکثر تعداد انتخاب ${requiredCount} نفر است.`);
-                        return;
-                    }
-
-                    lastValidSelection = selectedValues.slice();
-                    updateInfo();
-                });
+            if (window.jQuery && select) {
+                jQuery(select).on('change', updateInfo);
+            } else if (select) {
+                select.addEventListener('change', updateInfo);
             }
 
             updateInfo();
+
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    var n = getSelectedCount();
+                    if (n < minSeats) {
+                        e.preventDefault();
+                        var msg = 'حداقل باید ' + minSeats +
+                            ' نامزد انتخاب کنید. الان ' + n + ' نفر انتخاب شده است.';
+                        showToast('error', msg);
+                    }
+                });
+            }
         });
     </script>
 @endsection

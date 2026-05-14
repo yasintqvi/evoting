@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\TwoFactorType;
 use App\Enums\UserStatus;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -18,12 +19,11 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory;
 
     use HasRoles;
     use LogsActivity;
-    use Notifiable;
     use Notifiable;
     use SoftDeletes;
 
@@ -44,6 +44,7 @@ class User extends Authenticatable
         'password',
         'google2fa_secret',
         'two_factor_type',
+        'meta',
     ];
 
     /**
@@ -56,7 +57,7 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected static $logAttributesToIgnore = ['updated_at'];
+    protected static $logAttributesToIgnore = ['updated_at', 'meta'];
 
     protected static $logAttributes = ['*'];
 
@@ -72,7 +73,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'meta' => 'object',
+            'meta' => 'array',
             'status' => UserStatus::class,
             'two_factor_type' => TwoFactorType::class,
         ];
@@ -88,6 +89,7 @@ class User extends Authenticatable
                 $query->where('is_active', 0);
             }
         }
+
         return $query;
     }
 
@@ -96,7 +98,7 @@ class User extends Authenticatable
         return LogOptions::defaults()
             ->logOnly(static::$logAttributes)->dontLogIfAttributesChangedOnly(static::$logAttributesToIgnore)
             ->logOnlyDirty()
-            ->setDescriptionForEvent(fn(string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'کاربر', 'subject' => $this->full_name]))
+            ->setDescriptionForEvent(fn (string $eventName) => __('messages.log_activity', ['event' => __($eventName), 'resource' => 'کاربر', 'subject' => $this->full_name]))
             ->dontSubmitEmptyLogs();
     }
 
@@ -122,7 +124,7 @@ class User extends Authenticatable
 
     public function getFullNameAttribute()
     {
-        return $this->first_name . ' ' . $this->last_name;
+        return $this->first_name.' '.$this->last_name;
     }
 
     public function getProfileImageAttribute()
@@ -144,15 +146,15 @@ class User extends Authenticatable
 
         static::creating(function ($user) {
             // If nationalcode is provided and password is not set, use nationalcode as password
-            if (!empty($user->nationalcode) && empty($user->password)) {
-              $user->password = bcrypt(substr($user->phone, -4));
+            if (! empty($user->nationalcode) && empty($user->password)) {
+                $user->password = bcrypt(substr($user->phone, -4));
             }
         });
 
         static::updating(function ($user) {
             // If nationalcode is updated and password is not explicitly set, update password
             if ($user->isDirty('nationalcode') && empty($user->getOriginal('password'))) {
-               $user->password = bcrypt(substr($user->phone, -4));
+                $user->password = bcrypt(substr($user->phone, -4));
             }
         });
     }

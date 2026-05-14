@@ -5,7 +5,6 @@ namespace App\Services;
 use App\DTOs\Election\CreateElectionDto;
 use App\DTOs\Election\UpdateElectionDto;
 use App\Enums\ElectionStatus;
-use App\Events\ElectionCreated;
 use App\Models\Election;
 use App\Models\Event;
 use App\Models\Group;
@@ -36,7 +35,7 @@ class ElectionService
                 ...$createElectionDto->withoutNulls(),
             ]);
 
-            if (!empty($createElectionDto->blockedUserIds)) {
+            if (! empty($createElectionDto->blockedUserIds)) {
                 $election->blockedUsers()->sync($createElectionDto->blockedUserIds);
             }
 
@@ -63,6 +62,9 @@ class ElectionService
         // حذف blockedUserIds از داده‌های آپدیت مدل
         $blockedUserIds = $updateData['blockedUserIds'] ?? [];
         unset($updateData['blockedUserIds']);
+
+        $updateData['candidate_count'] = (int) ($updateData['main_member_count'] ?? $election->main_member_count)
+            + (int) ($updateData['substitute_member_count'] ?? $election->substitute_member_count);
 
         $isDirty = false;
         foreach ($updateData as $key => $value) {
@@ -106,6 +108,10 @@ class ElectionService
 
     public function delete(Election $election): ?bool
     {
+        if ($election->status->isImmutableStatuses()) {
+            throw new \RuntimeException('فقط انتخاباتی که هنوز شروع نشده‌اند قابل حذف هستند.');
+        }
+
         return $election->delete();
     }
 }

@@ -27,6 +27,7 @@ class ViewServiceProvider extends ServiceProvider
 
             $participants = Participant::where('user_id', $user->id)
                 ->where('is_present', true)
+                ->whereNull('attorney_id')
                 ->with([
                     'event.group',
                     'event.elections.candidates.user',
@@ -63,7 +64,7 @@ class ViewServiceProvider extends ServiceProvider
                             'participant' => $participant,
                             'has_voted' => false,
                         ]);
-                    } else if (in_array($election->status, [ElectionStatus::COMPLETED, ElectionStatus::CANCELED, ElectionStatus::ONGOING])) {
+                    } elseif (in_array($election->status, [ElectionStatus::COMPLETED, ElectionStatus::CANCELED, ElectionStatus::ONGOING])) {
                         $unavailableElections->push([
                             'election' => $election,
                             'event' => $event,

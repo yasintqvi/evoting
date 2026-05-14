@@ -413,8 +413,17 @@
                         const data = response.data;
                         if (data.status == 'success') {
                             Swal.fire('موفق', 'وکیل با موفقیت حذف شد.', 'success');
-                            document.getElementById('participant-' + data.data).style.display =
-                                'none';
+                            const payload = data.data;
+                            const attorneyPid = typeof payload === 'object' && payload !== null
+                                ? payload.attorney_participant_id
+                                : payload;
+                            // هرگز ردیف موکل (principal) را مخفی نکن؛ فقط در صورت تفاوت id، ردیف رکورد وکیل را مخفی کن.
+                            if (attorneyPid != null && String(attorneyPid) !== String(id)) {
+                                const attorneyRow = document.getElementById('participant-' + attorneyPid);
+                                if (attorneyRow) {
+                                    attorneyRow.style.display = 'none';
+                                }
+                            }
                             $('#present-' + id).html(`
                              <input type="hidden" name="" value="0">
                                                     <input type="checkbox"
@@ -422,12 +431,12 @@
                                                            id="participant-present-${id}"
                                                            value="1"
                                                            data-switch="1" checked >
-                                                    <label for="participant-present-{{ $participant->id }}"
+                                                    <label for="participant-present-${id}"
        data-on-label="حاضر"
        data-off-label="غایب"
-       data-id="{{ $participant->id }}"
+       data-id="${id}"
        class="mb-0 d-block present"
-       style="{{ $participant->is_present ? 'pointer-events:none;opacity:0.6' : '' }}"></label>
+       style=""></label>
 `)
                             document.getElementById('attorney-col-' + id).innerHTML = `
                     <button type="button"

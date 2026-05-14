@@ -6,10 +6,8 @@ use App\Http\Requests\Group\EventRequest;
 use App\Models\Election;
 use App\Models\Event;
 use App\Models\Group;
-use App\Models\Survey;
 use App\Models\Vote;
 use App\Services\Image\ImageService;
-use Illuminate\Http\Request;
 use Log;
 
 class EventController extends Controller
@@ -52,6 +50,7 @@ class EventController extends Controller
             foreach ($group->users as $user) {
                 $event->participants()->create([
                     'user_id' => $user->id,
+                    'group_id' => $group->id,
                     'normal_stock_count' => $user->pivot->normal_stock_count,
                     'prefered_stock_count' => $user->pivot->prefered_stock_count,
                 ]);
@@ -92,18 +91,18 @@ class EventController extends Controller
     public function show(Group $group, Event $event)
     {
         $election_ids = $event->elections()->pluck('id')->toArray();
-        $surveys_ids = $event->surveys()->pluck('id')->toArray(); 
+        $surveys_ids = $event->surveys()->pluck('id')->toArray();
 
         $vote_ids = [];
 
         foreach ($event->elections as $election) {
-            $election->votes->each(fn(Vote $vote) => array_push($vote_ids, $vote->id));
+            $election->votes->each(fn (Vote $vote) => array_push($vote_ids, $vote->id));
         }
 
         $activities = $group->activities()
             ->orWhere(fn ($q) => $q->where('subject_type', Event::class)->where('subject_id', $event->id))
             ->orWhere(fn ($q) => $q->where('subject_type', Election::class)->whereIn('subject_id', $election_ids))
-            ->orWhere(fn ($q) => $q->where('subject_type', Vote::class)->whereIn('subject_id',$vote_ids))
+            ->orWhere(fn ($q) => $q->where('subject_type', Vote::class)->whereIn('subject_id', $vote_ids))
             ->latest()
             ->get();
 
@@ -135,7 +134,7 @@ class EventController extends Controller
             $data = $request->validated();
 
             if ($request->hasFile('logo')) {
-                if (!empty($event->logo)) {
+                if (! empty($event->logo)) {
                     $imageService->deleteImage($event->logo);
                 }
 
@@ -164,8 +163,5 @@ class EventController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Group $group, Event $event)
-    {
-
-    }
+    public function destroy(Group $group, Event $event) {}
 }

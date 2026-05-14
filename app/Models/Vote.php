@@ -32,6 +32,7 @@ class Vote extends Model
             ->setDescriptionForEvent(function (string $eventName) {
                 try {
                     $subject = $this->participant?->user?->full_name ?? 'نامشخص';
+
                     return __('messages.log_activity', ['event' => __($eventName), 'resource' => 'رای', 'subject' => $subject]);
                 } catch (\Exception $e) {
                     return __('messages.log_activity', ['event' => __($eventName), 'resource' => 'رای', 'subject' => 'نامشخص']);
@@ -53,5 +54,34 @@ class Vote extends Model
     public function candidate(): BelongsTo
     {
         return $this->belongsTo(Candidate::class);
+    }
+
+    /**
+     * انتقال همهٔ آرا از یک participant به دیگری؛ در صورت وجود رأی هم‌زمان برای همان انتخابات و کاندیدا، vote_count جمع می‌شود.
+     */
+    public static function reassignAllFromParticipantTo(int $fromParticipantId, int $toParticipantId): void
+    {
+        if ($fromParticipantId === $toParticipantId) {
+            return;
+        }
+
+        $votes = static::query()->where('participant_id', $fromParticipantId)->get();
+
+        foreach ($votes as $vote) {
+            $existing = static::query()
+                ->where('election_id', $vote->election_id)
+                ->where('participant_id', $toParticipantId)
+                ->where('candidate_id', $vote->candidate_id)
+                ->first();
+
+            if ($existing) {
+                $existing->vote_count = (int) $existing->vote_count + (int) $vote->vote_count;
+                $existing->save();
+                $vote->delete();
+            } else {
+                $vote->participant_id = $toParticipantId;
+                $vote->save();
+            }
+        }
     }
 }

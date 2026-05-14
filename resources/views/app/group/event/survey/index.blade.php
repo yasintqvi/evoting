@@ -17,6 +17,27 @@
         </div>
     </div>
 
+    @if ($errors->has('end_at'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ $errors->first('end_at') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -94,36 +115,44 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
+                                        @php
+                                            $surveyIsActive = (int) $survey->status === 1;
+                                        @endphp
 
-                                        <div class="hstack gap-1 justify-content-end">
-                                            @if ($survey->status == 1)
-                                                {{-- فرم پایان نظرسنجی --}}
+                                        <div class="hstack gap-1 justify-content-end flex-nowrap">
+                                            @if ($surveyIsActive)
                                                 <form id="endSurveyForm-{{ $survey->id }}"
                                                     action="{{ route('surveys.end', [$group, $event, $survey]) }}"
                                                     method="POST" class="d-none">@csrf</form>
-
-                                                {{-- دکمه پایان --}}
                                                 <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
                                                     data-bs-target="#endSurveyModal"
                                                     onclick="setEndSurveyForm({{ $survey->id }})">
                                                     پایان نظرسنجی
                                                 </button>
-                                            @elseif(is_null($survey->end_at))
-                                                {{-- فقط اگر هنوز پایان نیافته دکمه شروع نمایش داده می‌شود --}}
-                                                <form id="startSurveyForm-{{ $survey->id }}"
-                                                    action="{{ route('surveys.start', [$group, $event, $survey]) }}"
-                                                    method="POST" class="d-none">@csrf</form>
-
+                                            @else
                                                 <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
                                                     data-bs-target="#startSurveyModal"
-                                                    onclick="setStartSurveyForm({{ $survey->id }})">
+                                                    data-start-url="{{ route('surveys.start', [$group, $event, $survey]) }}"
+                                                    onclick="openStartSurveyModal(this.dataset.startUrl)">
                                                     شروع نظرسنجی
                                                 </button>
                                             @endif
-                                            <a href="{{ route('surveys.edit', ['group' => $group, 'event' => $event, 'survey' => $survey]) }}"
-                                                class="btn btn-secondary btn-sm" title="ویرایش نظرسنجی">
-                                                <i class="ti ti-edit"></i>
-                                            </a>
+
+                                            @if (! $survey->isLockedForEditing())
+                                                <a href="{{ route('surveys.edit', ['group' => $group, 'event' => $event, 'survey' => $survey]) }}"
+                                                    class="btn btn-secondary btn-sm" title="ویرایش نظرسنجی">
+                                                    <i class="ti ti-edit"></i>
+                                                </a>
+                                                <form action="{{ route('surveys.destroy', [$group, $event, $survey]) }}"
+                                                    method="POST" class="d-inline"
+                                                    onsubmit="return confirm('حذف نظرسنجی و همهٔ سوال‌ها و پاسخ‌های ثبت‌شده (در صورت وجود) غیرقابل بازگشت است. ادامه می‌دهید؟');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm" title="حذف نظرسنجی">
+                                                        <i class="ti ti-trash"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
                                             <a href="{{ route('surveys.answer', [$group, $event, $survey]) }}"
                                                 class="btn btn-success btn-sm" title="نمایش نظرسنجی">
                                                 <i class="ti ti-eye"></i>
@@ -150,20 +179,34 @@
         </div>
     </div>
 
-    {{-- مودال تایید شروع نظرسنجی --}}
+    {{-- مودال تایید شروع نظرسنجی (زمان پایان اختیاری) --}}
     <div class="modal fade" id="startSurveyModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">تایید شروع نظرسنجی</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <form id="startSurveyModalForm" method="POST" action="#">
+                @csrf
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">شروع نظرسنجی</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-3">آیا از شروع این نظرسنجی مطمئن هستید؟</p>
+                        <div class="mb-2">
+                            <label for="startSurveyEndAt" class="form-label">زمان پایان (اختیاری)</label>
+                            <input type="datetime-local" name="end_at" id="startSurveyEndAt" class="form-control @error('end_at') is-invalid @enderror"
+                                value="{{ old('end_at') }}">
+                            @error('end_at')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted d-block mt-1">می‌توانید خالی بگذارید؛ در آن صورت محدودیت زمانی خودکار برای پایان اعمال نمی‌شود (می‌توانید بعداً دستی پایان دهید).</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                        <button type="submit" class="btn btn-success">بله، شروع کن</button>
+                    </div>
                 </div>
-                <div class="modal-body">آیا از شروع این نظرسنجی مطمئن هستید؟</div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
-                    <button type="button" class="btn btn-success" id="confirmStartBtn">بله، شروع کن</button>
-                </div>
-            </div>
+            </form>
         </div>
     </div>
 
@@ -190,22 +233,18 @@
     <script src="/assets/js/pages/chart-apex-bar.js"></script>
 
     <script>
-        let currentStartFormId = null;
         let currentEndFormId = null;
 
-        function setStartSurveyForm(surveyId) {
-            currentStartFormId = 'startSurveyForm-' + surveyId;
+        function openStartSurveyModal(actionUrl) {
+            const form = document.getElementById('startSurveyModalForm');
+            if (form) {
+                form.action = actionUrl;
+            }
         }
 
         function setEndSurveyForm(surveyId) {
             currentEndFormId = 'endSurveyForm-' + surveyId;
         }
-
-        document.getElementById('confirmStartBtn').addEventListener('click', function() {
-            if (currentStartFormId) {
-                document.getElementById(currentStartFormId).submit();
-            }
-        });
 
         document.getElementById('confirmEndBtn').addEventListener('click', function() {
             if (currentEndFormId) {

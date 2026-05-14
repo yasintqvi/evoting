@@ -77,7 +77,6 @@ Route::prefix('{group:slug}/events/{event:slug}')->group(function () {
         ->name('candidates.update')
         ->can(Permission::UPDATE_CANDIDATES);
 
-
     // ATTENDANCE
     Route::get('attendances', [AttendanceController::class, 'create'])->name('attendances.create')
         ->can(Permission::CREATE_ATTENDANCE);
@@ -118,9 +117,12 @@ Route::prefix('{group:slug}/events/{event:slug}')->group(function () {
         // Route اصلی
         Route::post('/voting', function (Request $request, Group $group, Event $event) {
             $electionSlug = $request->route()->parameter('election') ?? $request->input('election_slug');
-            $election = Election::where('slug', $electionSlug)->firstOrFail();
+            $election = Election::where('event_id', $event->id)
+                ->where('slug', $electionSlug)
+                ->firstOrFail();
 
             $controller = app(ElectionVotingController::class);
+
             return $controller->store($request, $group, $event, $election);
         })->name('voting.store');
 
@@ -128,7 +130,6 @@ Route::prefix('{group:slug}/events/{event:slug}')->group(function () {
             ->name('voting.terminate');
     });
 });
-
 
 Route::post('/positions', [PositionController::class, 'store'])
     ->name('positions.store');

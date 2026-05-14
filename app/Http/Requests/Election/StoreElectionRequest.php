@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Election;
 
-use App\DTOs\Election\StoreElectionRequest as StoreDto;
 use App\DTOs\Election\CreateElectionDto;
 use App\Enums\ElectionType;
 use Carbon\Carbon;
@@ -17,52 +16,36 @@ class StoreElectionRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255', 'min:2'],
             'type' => ['required', Rule::in(ElectionType::values())],
-            'candidate_count' => ['required', 'integer', 'min:1'],
             'main_member_count' => ['required', 'integer', 'min:1'],
             'substitute_member_count' => ['required', 'integer', 'min:0'],
-            'position_id' => ['required', 'exists:positions,id'],
+            'position_id' => ['required', 'integer', 'exists:positions,id'],
             'starts_at' => ['nullable', 'date'],
-            'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
+            'ends_at' => ['nullable', 'date'],
             'ignore_stock_weight' => ['nullable', 'boolean'],
             'blocked_user_ids' => ['nullable', 'array'],
             'blocked_user_ids.*' => ['integer', 'exists:users,id'],
         ];
     }
 
-    public function withValidator($validator)
-    {
-        $validator->after(function ($validator) {
-            $candidateCount = $this->input('candidate_count');
-
-            $mainMemberCount = $this->input('main_member_count');
-            $substituteMemberCount = $this->input('substitute_member_count');
-
-            $totalSelected = $mainMemberCount + $substituteMemberCount;
-
-            if ($totalSelected > $candidateCount) {
-                $validator->errors()->add('main_member_count', 'مجموع اعضای اصلی و علی‌البدل نمی‌تواند از تعداد کل کاندیدها بیشتر باشد.');
-                $validator->errors()->add('substitute_member_count', 'مجموع اعضای اصلی و علی‌البدل نمی‌تواند از تعداد کل کاندیدها بیشتر باشد.');
-            }
-        });
-    }
-
     public function messages(): array
     {
-        return [
-            'ends_at.after_or_equal' => 'زمان پایان باید بعد از زمان شروع باشد.',
-        ];
+        return [];
     }
 
     public function toDto(): CreateElectionDto
     {
+        $main = (int) $this->validated('main_member_count');
+        $substitute = (int) $this->validated('substitute_member_count');
+        $candidateCount = $main + $substitute;
+
         return new CreateElectionDto(
             $this->validated('title'),
             Auth::user()->getAuthIdentifier(),
             $this->validated('position_id'),
             ElectionType::from($this->validated('type')),
-            $this->validated('candidate_count'),
-            $this->validated('main_member_count'),
-            $this->validated('substitute_member_count'),
+            $candidateCount,
+            $main,
+            $substitute,
             $this->validated('starts_at') ? Carbon::parse($this->validated('starts_at')) : null,
             $this->validated('ends_at') ? Carbon::parse($this->validated('ends_at')) : null,
             (bool) $this->input('ignore_stock_weight', false),

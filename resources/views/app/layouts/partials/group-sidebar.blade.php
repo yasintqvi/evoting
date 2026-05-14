@@ -125,7 +125,7 @@
                                     </li>
                                     <li class="side-nav-item">
                                         <a href="{{ route('attendances.show', [$group, $event]) }}" class="side-nav-link">
-                                            <span class="menu-text">نمایش حاظرین</span>
+                                            <span class="menu-text">نمایش حاضرین</span>
                                         </a>
                                     </li>
                                 </ul>

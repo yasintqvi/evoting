@@ -24,7 +24,7 @@ class UpdateElectionRequest extends FormRequest
             'main_member_count' => ['required', 'integer', 'min:1'],
             'substitute_member_count' => ['required', 'integer', 'min:0'],
             'type' => ['required', Rule::in(ElectionType::values())],
-            'position_id' => ['required', 'exists:positions,id'],
+            'position_id' => ['required', 'integer', 'exists:positions,id'],
             'starts_at' => ['nullable', 'date'],
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
             'ignore_stock_weight' => ['nullable', 'boolean'],

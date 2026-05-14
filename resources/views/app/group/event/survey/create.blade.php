@@ -19,9 +19,21 @@
         <div class="col-xl-4">
             <div class="card">
                 <div class="card-body">
+                    @if (session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+                    @if (session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
 
                     {{-- ویرایش نظرسنجی --}}
-                    @if ($survey && request()->has('editSurvey'))
+                    @if ($survey && request()->has('editSurvey') && ! $survey->isLockedForEditing())
                         <h5 class="mb-3 fs-16 fw-semibold">ویرایش نظرسنجی</h5>
                         <form action="{{ route('surveys.update', [$group->slug, $event->slug, $survey->slug]) }}"
                             method="POST">
@@ -45,26 +57,6 @@
                                 <input class="form-check-input" type="checkbox" id="is_anonymous" name="is_anonymous"
                                     value="1" @checked(old('is_anonymous', $survey->is_anonymous))>
                                 <label class="form-check-label" for="is_anonymous">فعال / غیر فعال</label>
-                            </div>
-
-                            {{-- <div class="mb-3">
-                                <label class="form-label">زمان شروع</label>
-                                <input type="datetime-local" name="start_at" class="form-control"
-                                    value="{{ old('start_at', $survey->start_at ? \Carbon\Carbon::parse($survey->start_at)->format('Y-m-d\TH:i') : '') }}">
-                                @error('start_at')
-                                    <span class="text-danger small">{{ $message }}</span>
-                                @enderror
-                            </div> --}}
-
-                            <div class="mb-3">
-                                <label class="form-label">زمان پایان</label>
-                                <input type="text" class="form-control" data-jdp data-jdp-target="end_at_gregorian_edit" id="end_at_jalali_edit"
-                                    value="{{ old('end_at', $survey->end_at) }}">
-                                <input type="hidden" name="end_at" id="end_at_gregorian_edit"
-                                    value="{{ old('end_at', $survey->end_at) }}">
-                                @error('end_at')
-                                    <span class="text-danger small">{{ $message }}</span>
-                                @enderror
                             </div>
 
                             @if ($group->type === App\Enums\GroupType::SPECIAL)
@@ -99,7 +91,13 @@
                         </form>
 
                         {{-- اضافه یا ویرایش سوال --}}
-                    @elseif ($survey)
+                    @elseif ($survey && $survey->isLockedForEditing())
+                        <div class="alert alert-warning mb-0">
+                            این نظرسنجی شروع شده است؛ امکان ویرایش عنوان، سوال‌ها یا حذف ساختار وجود ندارد. می‌توانید از
+                            <a href="{{ route('surveys.index', [$group, $event]) }}">لیست نظرسنجی‌ها</a>
+                            آمار و نتایج را ببینید.
+                        </div>
+                    @elseif ($survey && ! $survey->isLockedForEditing())
                         <h5 class="mb-3 fs-16 fw-semibold">{{ isset($editQuestion) ? 'ویرایش سوال' : 'افزودن سوال' }}</h5>
                         <form
                             action="{{ isset($editQuestion)
@@ -183,22 +181,12 @@
                                 <textarea name="description" class="form-control">{{ old('description') }}</textarea>
                             </div>
 
-                            {{-- <div class="mb-3">
-                                <label class="form-label">زمان شروع</label>
-                                <input type="datetime-local" name="start_at" class="form-control"
-                                    value="{{ old('start_at') }}">
-                                @error('start_at')
-                                    <span class="text-danger small">{{ $message }}</span>
-                                @enderror
-                            </div> --}}
-
-                            <div class="mb-3">
-                                <label class="form-label">زمان پایان</label>
-                                <input type="datetime-local" name="end_at" class="form-control"
-                                    value="{{ old('end_at') }}">
-                                @error('end_at')
-                                    <span class="text-danger small">{{ $message }}</span>
-                                @enderror
+                            <label for="is_anonymous_create" class="form-label d-block mt-2">نمایش ناشناس</label>
+                            <div class="form-check form-switch mb-2">
+                                <input type="hidden" name="is_anonymous" value="0">
+                                <input class="form-check-input" type="checkbox" id="is_anonymous_create" name="is_anonymous"
+                                    value="1" @checked(old('is_anonymous'))>
+                                <label class="form-check-label" for="is_anonymous_create">فعال / غیر فعال</label>
                             </div>
 
                             @if ($group->type === App\Enums\GroupType::SPECIAL)
@@ -250,8 +238,10 @@
                 <div class="card p-2 mb-3">
                     <div class="d-flex align-items-center justify-content-between">
                         <h4 class="header-title mt-2">{{ $survey->title }}</h4>
-                        <a href="{{ route('surveys.create', [$group->slug, $event->slug, 'survey_id' => $survey->slug, 'editSurvey' => 1]) }}"
-                            class="btn btn-sm btn-outline-primary">ویرایش نظرسنجی</a>
+                        @if (! $survey->isLockedForEditing())
+                            <a href="{{ route('surveys.create', [$group->slug, $event->slug, 'survey_id' => $survey->slug, 'editSurvey' => 1]) }}"
+                                class="btn btn-sm btn-outline-primary">ویرایش نظرسنجی</a>
+                        @endif
                     </div>
                     @if ($survey->description)
                         <p class="text-muted pt-1">{{ $survey->description }}</p>
@@ -269,16 +259,18 @@
                                 <h5 class="mb-0">{{ $question->question_text }}</h5>
                             </div>
                             <div class="d-flex gap-2">
-                                <a href="{{ route('questions.edit', [$group->slug, $event->slug, $survey->slug, $question->id]) }}"
-                                    class="btn btn-sm btn-outline-primary">ویرایش</a>
-                                <form
-                                    action="{{ route('questions.destroy', [$group->slug, $event->slug, $survey->slug, $question->id]) }}"
-                                    method="POST"
-                                    onsubmit="return confirm('آیا مطمئن هستید که می‌خواهید این سوال را حذف کنید؟')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">حذف</button>
-                                </form>
+                                @if (! $survey->isLockedForEditing())
+                                    <a href="{{ route('questions.edit', [$group->slug, $event->slug, $survey->slug, $question->id]) }}"
+                                        class="btn btn-sm btn-outline-primary">ویرایش</a>
+                                    <form
+                                        action="{{ route('questions.destroy', [$group->slug, $event->slug, $survey->slug, $question->id]) }}"
+                                        method="POST"
+                                        onsubmit="return confirm('آیا مطمئن هستید که می‌خواهید این سوال را حذف کنید؟')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">حذف</button>
+                                    </form>
+                                @endif
                             </div>
                         </div>
 

@@ -24,6 +24,7 @@ class Group extends Model
     protected $fillable = [
         'title',
         'description',
+        'slug',
         'type',
         'normal_stock_count',
         'prefered_stock_count',
@@ -57,6 +58,7 @@ class Group extends Model
             ],
         ];
     }
+
     public function getRouteKeyName()
     {
         return 'slug';

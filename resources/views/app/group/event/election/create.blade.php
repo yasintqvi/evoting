@@ -1,6 +1,16 @@
 @extends('app.layouts.app')
 
 @section('content')
+    @php
+        $prefill = $prefill ?? null;
+        $existingElectionTitles = $existingElectionTitles ?? [];
+        $oldBlocked = old('blocked_user_ids', $prefill['blocked_user_ids'] ?? []);
+        $oldType = old('type', $prefill['type'] ?? null);
+        $oldPositionId = old('position_id', $prefill['position_id'] ?? null);
+        $oldTitle = old('title', $prefill['title'] ?? null);
+        $oldMain = old('main_member_count', $prefill['main_member_count'] ?? 1);
+        $oldSubstitute = old('substitute_member_count', $prefill['substitute_member_count'] ?? 0);
+    @endphp
     <div class="page-title-head d-flex align-items-sm-center flex-sm-row flex-column gap-2">
         <div class="flex-grow-1">
             <h4 class="fs-18 fw-semibold mb-0">ایجاد همه پرسی</h4>
@@ -17,9 +27,10 @@
         </div>
     </div>
 
-    <form action="{{ route('elections.store', [$group, $event]) }}" method="post">
+    <form id="electionCreateForm" action="{{ route('elections.store', [$group, $event]) }}" method="post"
+        onsubmit="return validateElectionCreateSubmit(event)">
         @csrf
-        <div class="card col-lg-6">
+        <div class="card col-lg-6 mb-3">
             <div class="card-header border-bottom border-dashed">
                 <h4 class="card-title">اطلاعات مربوط به همه پرسی</h4>
                 <p class="text-muted mb-0">شما در حال ایجاد همه پرسی جدید هستید</p>
@@ -29,7 +40,7 @@
                     <div class="col-12">
                         <div class="mb-3">
                             <label for="title" class="form-label">عنوان همه پرسی</label>
-                            <input type="text" name="title" value="{{ old('title') }}" class="form-control"
+                            <input type="text" name="title" value="{{ $oldTitle }}" class="form-control"
                                 id="title">
                             @error('title')
                                 <span class="strong text-danger font-weight-bold">{{ $message }}</span>
@@ -43,14 +54,14 @@
                                 data-toggle="select2" class="form-select">
                                 <option value="">یک نوع همه پرسی را انتخاب نمایید</option>
                                 @if ($group->type === App\Enums\GroupType::SPECIAL)
-                                    <option @selected(old('type') == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88->value)
+                                    <option @selected($oldType == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88->value)
                                         value="{{ App\Enums\ElectionType::PRIVATE_JOINT_WITH_88->value }}">سهامی خاص با ماده
                                         ۸۸</option>
-                                    <option @selected(old('type') == App\Enums\ElectionType::PRIVATE_JOINT->value)
+                                    <option @selected($oldType == App\Enums\ElectionType::PRIVATE_JOINT->value)
                                         value="{{ App\Enums\ElectionType::PRIVATE_JOINT->value }}">سهامی خاص بدون ماده ۸۸
                                     </option>
                                 @else
-                                    <option @selected(old('type') == App\Enums\ElectionType::PUBLIC_JOINT->value) selected
+                                    <option @selected(($oldType ?: App\Enums\ElectionType::PUBLIC_JOINT->value) == App\Enums\ElectionType::PUBLIC_JOINT->value)
                                         value="{{ App\Enums\ElectionType::PUBLIC_JOINT->value }}">انتخابات تعاونی</option>
                                 @endif
                             </select>
@@ -65,7 +76,7 @@
                             <select name="position_id" id="position_id" class="form-select">
                                 <option value="">یک مقام را انتخاب نمایید</option>
                                 @foreach ($positions as $position)
-                                    <option value="{{ $position->id }}" @selected(old('position_id') == $position->id)>{{ $position->title }}
+                                    <option value="{{ $position->id }}" @selected((string) $oldPositionId === (string) $position->id)>{{ $position->title }}
                                     </option>
                                 @endforeach
                             </select>
@@ -74,31 +85,21 @@
                             @enderror
                         </div>
                     </div>
-                    <div class="col-lg-4">
-                        <div class="mb-3">
-                            <label for="candidate_count" class="form-label">تعداد کل کاندیدها </label>
-                            <input type="number" class="form-control" id="candidate_count" name="candidate_count"
-                                value="{{ old('candidate_count') }}" min="1" onchange="validateCandidateCounts()">
-                            @error('candidate_count')
-                                <span class="strong text-danger font-weight-bold">{{ $message }}</span>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
+                    <div class="col-lg-6">
                         <div class="mb-3">
                             <label for="main_member_count" class="form-label">تعداد عضو اصلی </label>
                             <input type="number" class="form-control" id="main_member_count" name="main_member_count"
-                                value="{{ old('main_member_count') }}" min="1" onchange="validateCandidateCounts()">
+                                value="{{ $oldMain }}" min="1" onchange="validateCandidateCounts()">
                             @error('main_member_count')
                                 <span class="strong text-danger font-weight-bold">{{ $message }}</span>
                             @enderror
                         </div>
                     </div>
-                    <div class="col-lg-4">
+                    <div class="col-lg-6">
                         <div class="mb-3">
                             <label for="substitute_member_count" class="form-label">تعداد عضو علی البدل </label>
                             <input type="number" class="form-control" name="substitute_member_count"
-                                value="{{ old('substitute_member_count') }}" id="substitute_member_count" min="0"
+                                value="{{ $oldSubstitute }}" id="substitute_member_count" min="0"
                                 onchange="validateCandidateCounts()">
                             @error('substitute_member_count')
                                 <span class="strong text-danger font-weight-bold">{{ $message }}</span>
@@ -110,24 +111,9 @@
                             <i class="ri-information-line"></i> <span id="candidate-info-text"></span>
                         </div>
                     </div>
-                    <div class="col-lg-6">
-                        <div class="mb-3">
-                            <label for="starts_at" class="form-label">زمان شروع انتخابات</label>
-                            <input type="datetime-local" class="form-control" id="starts_at" name="starts_at"
-                                value="{{ old('starts_at') }}">
-                            @error('starts_at')
-                                <span class="strong text-danger font-weight-bold">{{ $message }}</span>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="mb-3">
-                            <label for="ends_at" class="form-label">زمان پایان انتخابات</label>
-                            <input type="datetime-local" class="form-control" id="ends_at" name="ends_at"
-                                value="{{ old('ends_at') }}">
-                            @error('ends_at')
-                                <span class="strong text-danger font-weight-bold">{{ $message }}</span>
-                            @enderror
+                    <div class="col-12">
+                        <div class="alert alert-light border mb-0">
+                            <small class="text-muted">زمان شروع و پایان انتخابات در این مرحله ثبت نمی‌شود. هنگام زدن دکمهٔ «شروع انتخابات» در لیست انتخابات، در صورت تمایل می‌توانید فقط <strong>زمان پایان</strong> (اختیاری) را وارد کنید.</small>
                         </div>
                     </div>
                     <div class="col-12">
@@ -138,7 +124,7 @@
                             <label class="form-label">عدم اجازه شرکت در رأی‌گیری</label>
                             <select name="blocked_user_ids[]" class="form-select" multiple data-toggle="select2">
                                 @foreach ($event->participants as $p)
-                                    <option value="{{ $p->user->id }}" @selected(in_array($p->user->id, old('blocked_user_ids', [])))>
+                                    <option value="{{ $p->user->id }}" @selected(in_array((int) $p->user->id, array_map('intval', (array) $oldBlocked), true))>
                                         {{ $p->user->first_name }} {{ $p->user->last_name }}
                                     </option>
                                 @endforeach
@@ -155,12 +141,170 @@
                 </div>
             </div>
         </div>
+
+        @can(\App\Enums\Permission::CREATE_ELECTIONS->value)
+            <div class="card col-lg-6 border-dashed">
+                <div class="card-header border-bottom border-dashed">
+                    <h4 class="card-title fs-16 mb-0">چسباندن قالب از متن کپی‌شده</h4>
+                    <p class="text-muted small mb-0 mt-1">فقط مشخصات همه‌پرسی در قالب زیر است؛ نام افراد داخل متن نیست.
+                        پس از اعمال، عنوان به‌صورت خودکار طوری تنظیم می‌شود که با عنوانهای موجود در این رویداد یکسان
+                        نباشد.</p>
+                </div>
+                <div class="card-body">
+                    <label for="election_template_paste" class="form-label">متن قالب</label>
+                    <textarea class="form-control font-monospace small" id="election_template_paste" rows="8"
+                        placeholder="بلوک [ELECTION_TEMPLATE] را اینجا بچسبانید"></textarea>
+                    <div class="mt-2 d-flex flex-wrap gap-2">
+                        <button type="button" class="btn btn-outline-primary" id="election_template_apply">
+                            اعمال روی فرم
+                        </button>
+                    </div>
+                </div>
+            </div>
+        @endcan
     </form>
 @endsection
 
 @section('scripts')
     <script>
+        window.__existingElectionTitles = @json($existingElectionTitles);
+        window.__eventParticipantUserIds = @json($event->participants->pluck('user_id')->unique()->values()->all());
+
+        function suggestDuplicateTitleClient(baseTitle, titles) {
+            const set = new Set((titles || []).map(function(t) {
+                return String(t).trim();
+            }));
+            const base = String(baseTitle || '').trim() || 'همه‌پرسی';
+            let candidate = base + ' (کپی)';
+            let n = 2;
+            while (set.has(candidate)) {
+                candidate = base + ' (کپی ' + n + ')';
+                n += 1;
+            }
+            return candidate;
+        }
+
+        function parseElectionTemplateBlock(raw) {
+            const m = String(raw || '').match(/\[ELECTION_TEMPLATE\]([\s\S]*?)\[\/ELECTION_TEMPLATE\]/i);
+            if (!m) return null;
+            const body = m[1];
+            const out = {};
+            body.split(/\r?\n/).forEach(function(line) {
+                line = line.trim();
+                if (!line || line.startsWith('#')) return;
+                const idx = line.indexOf('=');
+                if (idx === -1) return;
+                const key = line.slice(0, idx).trim();
+                const val = line.slice(idx + 1).trim();
+                out[key] = val;
+            });
+            if (!out.version || out.version !== '1') return null;
+            return out;
+        }
+
+        function applyElectionTemplateFromText() {
+            const raw = document.getElementById('election_template_paste');
+            if (!raw) return;
+            const parsed = parseElectionTemplateBlock(raw.value);
+            if (!parsed) {
+                showToast('error', 'قالب شناسایی نشد. بلوک [ELECTION_TEMPLATE] … [/ELECTION_TEMPLATE] را کامل بچسبانید.');
+                return;
+            }
+            const titles = window.__existingElectionTitles || [];
+            const allowed = new Set((window.__eventParticipantUserIds || []).map(Number));
+
+            const title = suggestDuplicateTitleClient(parsed.title || '', titles);
+            document.getElementById('title').value = title;
+
+            const typeEl = document.getElementById('election_type');
+            if (typeEl && parsed.type) {
+                const opt = Array.prototype.slice.call(typeEl.options).some(function(o) {
+                    return o.value === parsed.type;
+                });
+                if (opt) {
+                    typeEl.value = parsed.type;
+                    if (window.jQuery && jQuery(typeEl).data('select2')) {
+                        jQuery(typeEl).val(parsed.type).trigger('change');
+                    }
+                } else {
+                    showToast('error', 'نوع همه‌پرسی داخل قالب با گزینه‌های این گروه سازگار نیست؛ نوع را دستی انتخاب کنید.');
+                }
+            }
+
+            const posEl = document.getElementById('position_id');
+            if (posEl && parsed.position_id) {
+                const pid = String(parsed.position_id);
+                const exists = Array.prototype.slice.call(posEl.options).some(function(o) {
+                    return String(o.value) === pid;
+                });
+                if (exists) {
+                    posEl.value = pid;
+                    if (window.jQuery && jQuery(posEl).data('select2')) {
+                        jQuery(posEl).val(pid).trigger('change');
+                    }
+                } else {
+                    showToast('error', 'شناسهٔ مقام داخل قالب در فهرست مقام‌ها نیست؛ مقام را دستی انتخاب کنید.');
+                }
+            }
+
+            if (parsed.main_member_count !== undefined) {
+                const el = document.getElementById('main_member_count');
+                if (el) el.value = parseInt(parsed.main_member_count, 10) || 1;
+            }
+            if (parsed.substitute_member_count !== undefined) {
+                const el = document.getElementById('substitute_member_count');
+                if (el) el.value = parseInt(parsed.substitute_member_count, 10) || 0;
+            }
+
+            const blockedEl = document.querySelector('select[name="blocked_user_ids[]"]');
+            if (blockedEl && parsed.blocked_user_ids !== undefined) {
+                const ids = String(parsed.blocked_user_ids || '')
+                    .split(',')
+                    .map(function(s) {
+                        return parseInt(s.trim(), 10);
+                    })
+                    .filter(function(id) {
+                        return !isNaN(id) && allowed.has(id);
+                    });
+                if (window.jQuery && jQuery(blockedEl).data('select2')) {
+                    jQuery(blockedEl).val(ids.map(String)).trigger('change');
+                } else {
+                    Array.prototype.forEach.call(blockedEl.options, function(o) {
+                        o.selected = ids.indexOf(parseInt(o.value, 10)) !== -1;
+                    });
+                }
+            }
+
+            validateCandidateCounts();
+            showToast('success', 'قالب روی فرم اعمال شد؛ عنوان برای جلوگیری از تکرار تنظیم شد.');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const btn = document.getElementById('election_template_apply');
+            if (btn) btn.addEventListener('click', applyElectionTemplateFromText);
+        });
+
         function checkElectionType(event) {}
+
+        function validateElectionCreateSubmit(e) {
+            const posEl = document.getElementById('position_id');
+            if (!posEl) {
+                return true;
+            }
+            const raw = String(posEl.value || '').trim();
+            if (raw === '') {
+                showToast('error', 'لطفاً «مقام انتخاباتی» را انتخاب کنید.');
+                e.preventDefault();
+                return false;
+            }
+            if (!/^\d+$/.test(raw)) {
+                showToast('error',
+                    'مقام انتخاباتی باید شناسهٔ عددی باشد. اگر مقام جدید ساختید، صبر کنید تا «ایجاد مقام» تمام شود؛ یا از فهرست یک مقام موجود انتخاب کنید.');
+                e.preventDefault();
+                return false;
+            }
+            return true;
+        }
 
         $("#position_id").select2({
             tags: true,
@@ -216,6 +360,8 @@
                         $('#position_id').append(newOption).trigger('change');
 
                         showToast('success', 'مقام جدید با موفقیت ایجاد شد');
+                    } else {
+                        throw new Error(data.message || 'ایجاد مقام انجام نشد');
                     }
                 })
                 .catch(error => {
@@ -245,48 +391,22 @@
         }
 
         function validateCandidateCounts() {
-            const candidateCount = parseInt(document.getElementById('candidate_count').value) || 0;
-            const mainMemberCount = parseInt(document.getElementById('main_member_count').value) || 0;
-            const substituteMemberCount = parseInt(document.getElementById('substitute_member_count').value) || 0;
+            const mainMemberCount = parseInt(document.getElementById('main_member_count').value, 10) || 0;
+            const substituteMemberCount = parseInt(document.getElementById('substitute_member_count').value, 10) || 0;
 
             const infoDiv = document.getElementById('candidate-info');
             const infoText = document.getElementById('candidate-info-text');
 
-            // اگر هنوز هیچ مقداری وارد نشده، اطلاع‌رسانی رو مخفی کن
-            if (candidateCount === 0 && mainMemberCount === 0 && substituteMemberCount === 0) {
+            if (mainMemberCount === 0 && substituteMemberCount === 0) {
                 infoDiv.style.display = 'none';
                 return;
             }
 
-            const totalSelected = mainMemberCount + substituteMemberCount;
-            const invalidCandidates = candidateCount - totalSelected;
-
-            let message = '';
-            let isValid = true;
-
-            if (totalSelected > candidateCount) {
-                message =
-                    `❌ مجموع اعضای اصلی (${mainMemberCount}) و علی‌البدل (${substituteMemberCount}) نمی‌تواند از تعداد کل کاندیدها (${candidateCount}) بیشتر باشد.`;
-                isValid = false;
-            } else if (totalSelected === candidateCount) {
-                message = `✅ تمامی ${candidateCount} کاندید انتخاب شده‌اند.`;
-            } else if (candidateCount > 0) {
-                message =
-                    `ℹ️ از ${candidateCount} کاندید، ${totalSelected} نفر انتخاب شده‌اند. ${invalidCandidates} نفر کاندید باطل خواهند بود.`;
-            } else {
-                // فقط اطلاعات اولیه رو نشون بده
-                message = `ℹ️ لطفاً تعداد کاندیدها، اعضای اصلی و علی‌البدل را وارد کنید.`;
-            }
-
-            infoText.textContent = message;
-            infoDiv.className = isValid ? 'alert alert-info' : 'alert alert-danger';
+            const totalSeats = mainMemberCount + substituteMemberCount;
+            infoText.textContent =
+                `صندلی‌های انتخابی: ${mainMemberCount} عضو اصلی + ${substituteMemberCount} علی‌البدل (مجموع ذخیره‌شده در سیستم به‌عنوان «تعداد نامزد» برابر ${totalSeats} است).`;
+            infoDiv.className = 'alert alert-info';
             infoDiv.style.display = 'block';
-
-            // فقط اگر تعداد کاندیدها مشخص شده باشه و خطا داشته باشیم، دکمه رو غیرفعال کن
-            const submitButton = document.querySelector('button[type="submit"]');
-            if (submitButton) {
-                submitButton.disabled = candidateCount > 0 ? !isValid : false;
-            }
         }
 
         // فراخوانی اولیه برای نمایش وضعیت

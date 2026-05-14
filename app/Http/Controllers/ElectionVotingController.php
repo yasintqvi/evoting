@@ -4,15 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Enums\CandidateType;
 use App\Enums\ElectionStatus;
+use App\Enums\ElectionType;
 use App\Enums\Role;
 use App\Http\Requests\Election\StoreVotingRequest;
 use App\Models\Election;
 use App\Models\Event;
 use App\Models\Group;
 use App\Models\Participant;
+use App\Models\User;
 use App\Models\Vote;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -23,26 +26,28 @@ class ElectionVotingController extends Controller
      */
     public function index()
     {
-        $user = auth()->user();
+        $user = User::query()->find(auth()->id());
 
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('login');
         }
 
-        $hiddenPastElectionIds = collect((array) data_get($user->meta, 'hidden_past_election_ids', []))
-            ->map(fn($id) => (int) $id)
+        $hiddenPastElectionIds = collect((array) data_get($user->meta ?? [], 'hidden_past_election_ids', []))
+            ->map(fn ($id) => (int) $id)
             ->filter()
+            ->unique()
             ->values();
 
-        $participants = \App\Models\Participant::where('user_id', $user->id)
+        $participants = Participant::where('user_id', $user->id)
             ->where('is_present', true)
+            ->whereNull('attorney_id')
             ->with([
                 'event.group',
                 'event.elections' => function ($query) {
                     $query->whereIn('status', [
-                        \App\Enums\ElectionStatus::ONGOING,
-                        \App\Enums\ElectionStatus::COMPLETED,
-                        \App\Enums\ElectionStatus::CANCELED,
+                        ElectionStatus::ONGOING,
+                        ElectionStatus::COMPLETED,
+                        ElectionStatus::CANCELED,
                     ])->with('candidates.user', 'position');
                 },
                 'votes',
@@ -56,12 +61,16 @@ class ElectionVotingController extends Controller
             $event = $participant->event;
             if ($event && $event->elections) {
                 foreach ($event->elections as $election) {
-                    if ($election->status === \App\Enums\ElectionStatus::ONGOING) {
-                        $hasVoted = \App\Models\Vote::where('election_id', $election->id)
+                    if ($this->effectiveVotePower($election, $event, $user) <= 0) {
+                        continue;
+                    }
+
+                    if ($election->status === ElectionStatus::ONGOING) {
+                        $hasVoted = Vote::where('election_id', $election->id)
                             ->where('participant_id', $participant->id)
                             ->exists();
 
-                        if (!$hasVoted && ($election->candidates->count() > 0 || $election->type === \App\Enums\ElectionType::SURVEY)) {
+                        if (! $hasVoted && ($election->candidates->count() > 0 || $election->type === ElectionType::SURVEY)) {
                             $availableElections->push([
                                 'election' => $election,
                                 'event' => $event,
@@ -72,8 +81,8 @@ class ElectionVotingController extends Controller
                         }
                     }
 
-                    if (in_array($election->status, [\App\Enums\ElectionStatus::COMPLETED, \App\Enums\ElectionStatus::CANCELED], true)) {
-                        if (!$hiddenPastElectionIds->contains((int) $election->id)) {
+                    if ($election->isFinished()) {
+                        if (! $hiddenPastElectionIds->contains((int) $election->id)) {
                             $unavailableElections->push([
                                 'election' => $election,
                                 'event' => $event,
@@ -109,24 +118,22 @@ class ElectionVotingController extends Controller
         $user = user();
         $isAdmin = $user && $user->hasRole(Role::Manager->value);
 
-        $participant = $event->participants()
-            ->with('group')
-            ->where('user_id', $user->id)
-            ->first();
+        $participant = $this->votableParticipantForEvent($event, (int) $user->id);
 
-        if (!$participant && $isAdmin) {
+        if (! $participant && $isAdmin) {
             $participant = Participant::create([
                 'event_id' => $event->id,
                 'user_id' => $user->id,
                 'group_id' => $group->id,
                 'is_present' => true,
+                'attorney_id' => null,
                 'normal_stock_count' => $election->normal_stock_count ?? 0,
                 'prefered_stock_count' => $election->prefered_stock_count ?? 0,
             ]);
         }
 
-        if (!$participant) {
-            return back()->with('error', 'شما در این رویداد شرکت کننده نیستید.');
+        if (! $participant) {
+            return back()->with('error', 'شما برای این رویداد وکالت داده‌اید؛ رأی‌گیری فقط توسط وکیل شما انجام می‌شود.');
         }
 
         // جلوگیری از شرکت کاربرانی که مسدود شده‌اند
@@ -134,8 +141,10 @@ class ElectionVotingController extends Controller
             return back()->with('error', 'شما مجاز به شرکت در رأی‌گیری این انتخابات نیستید.');
         }
 
+        $votableParticipantIds = $this->votableParticipantIdsForEvent($event, (int) $user->id);
+
         $hasVoted = Vote::where('election_id', $election->id)
-            ->where('participant_id', $participant->id)
+            ->whereIn('participant_id', $votableParticipantIds)
             ->exists();
 
         if ($hasVoted) {
@@ -144,7 +153,30 @@ class ElectionVotingController extends Controller
 
         $election->load('candidates');
 
-        return view('app.group.event.election.voting.create', compact('group', 'event', 'election', 'participant'));
+        $effectiveStock = $this->effectiveVotePower($election, $event, $user);
+
+        $directorCandidateCount = (int) $election->candidates
+            ->where('candidate_type', CandidateType::DIRECTOR)
+            ->count();
+
+        $article88VotePool = $election->type === ElectionType::PRIVATE_JOINT_WITH_88
+            ? (float) $effectiveStock * (float) max(0, $directorCandidateCount)
+            : 0.0;
+
+        $presentParticipantsCount = (int) $event->participants()->where('is_present', true)->count();
+        $totalParticipantsInEvent = (int) $event->participants()->count();
+
+        return view('app.group.event.election.voting.create', compact(
+            'group',
+            'event',
+            'election',
+            'participant',
+            'effectiveStock',
+            'directorCandidateCount',
+            'article88VotePool',
+            'presentParticipantsCount',
+            'totalParticipantsInEvent',
+        ));
     }
 
     /**
@@ -249,6 +281,7 @@ class ElectionVotingController extends Controller
                     return back()->with('error', 'همه پرسی مورد نظر به پایان رسیده است.');
 
                 }
+
                 return back()->with('error', 'در حال حاضر این همه پرسی در دسترس نیست.');
             }
 
@@ -259,34 +292,35 @@ class ElectionVotingController extends Controller
             $user = auth()->user();
             $isAdmin = $user && $user->hasRole(Role::Manager->value);
 
-            $participant = Participant::where('user_id', auth()->id())
-                ->where('event_id', $event->id)
-                ->first();
+            $participant = $this->votableParticipantForEvent($event, (int) $user->id);
 
-            if (!$participant && $isAdmin) {
+            if (! $participant && $isAdmin) {
                 $participant = Participant::create([
                     'event_id' => $event->id,
                     'user_id' => $user->id,
                     'group_id' => $group->id,
                     'is_present' => true,
+                    'attorney_id' => null,
                     'normal_stock_count' => $election->normal_stock_count ?? 0,
                     'prefered_stock_count' => $election->prefered_stock_count ?? 0,
                 ]);
             }
 
-            if (!$participant) {
-                return back()->with('error', 'شما در این رویداد شرکت کننده نیستید.');
+            if (! $participant) {
+                return back()->with('error', 'شما برای این رویداد وکالت داده‌اید؛ رأی‌گیری فقط توسط وکیل شما انجام می‌شود.');
             }
 
+            $votableParticipantIds = $this->votableParticipantIdsForEvent($event, (int) $user->id);
+
             $hasVoted = Vote::where('election_id', $election->id)
-                ->where('participant_id', $participant->id)
+                ->whereIn('participant_id', $votableParticipantIds)
                 ->exists();
 
             if ($hasVoted) {
                 return back()->with('error', 'رای شما قبلاً ثبت شده است. امکان ثبت رای مجدد در این رویداد وجود ندارد');
             }
 
-            if (!$participant->is_present && !$isAdmin) {
+            if (! $participant->is_present && ! $isAdmin) {
                 return back()->with('error', 'شما در جلسه حاضر نیستید و نمی‌توانید رای بدهید.');
             }
 
@@ -296,13 +330,16 @@ class ElectionVotingController extends Controller
             }
 
             $directorVotes = $request->input('director_candidates', []);
+            if (! is_array($directorVotes)) {
+                $directorVotes = [];
+            }
 
             \Log::info('Director votes received', [
                 'director_votes' => $directorVotes,
                 'count' => count($directorVotes),
             ]);
 
-            if (empty($directorVotes)) {
+            if ($directorVotes === []) {
                 return back()->with('error', 'لطفاً حداقل به یک کاندیدا رای دهید.');
             }
 
@@ -310,41 +347,65 @@ class ElectionVotingController extends Controller
             $totalCandidates = $election->candidates()->where('candidate_type', CandidateType::DIRECTOR)->count();
             $votedCandidatesCount = 0;
 
-            DB::transaction(function () use ($election, $participant, $directorVotes, &$totalVotesGiven, $user, &$votedCandidatesCount) {
+            DB::transaction(function () use ($election, $event, $participant, $directorVotes, &$totalVotesGiven, $user, &$votedCandidatesCount) {
+                $userVotePower = $this->effectiveVotePower($election, $event, $user);
+                $directorCount = (int) $election->candidates()->where('candidate_type', CandidateType::DIRECTOR)->count();
+                $article88MaxPool = $election->type === ElectionType::PRIVATE_JOINT_WITH_88
+                    ? $userVotePower * max(0, $directorCount)
+                    : null;
 
-                $userVoteCount = $participant->normal_stock_count + ($participant->prefered_stock_count * $election->prefered_stock_weight);
-
+                $normalized = [];
                 foreach ($directorVotes as $candidateId => $voteCount) {
-                    $voteValue = is_numeric($voteCount) ? (float) $voteCount : (is_string($voteCount) && $voteCount === '1' ? 1 : 0);
-
-                    if ($voteValue > $userVoteCount) {
-                        throw new Exception("شما نمی‌توانید بیش از {$userVoteCount} رای ثبت کنید.");
+                    $voteValue = $this->parseIncomingVoteCount($voteCount);
+                    if ($voteValue <= 0) {
+                        continue;
                     }
 
-                    if ($voteValue > 0) {
-                        $candidate = $election->candidates()->where('id', $candidateId)->first();
-                        if (!$candidate) {
-                            throw new \Exception("کاندیدای با شناسه {$candidateId} یافت نشد.");
+                    $candidate = $election->candidates()->where('id', $candidateId)->first();
+                    if (! $candidate) {
+                        throw new Exception("کاندیدای با شناسه {$candidateId} یافت نشد.");
+                    }
+
+                    if ($election->type === ElectionType::PRIVATE_JOINT_WITH_88) {
+                        if ($article88MaxPool !== null && $voteValue > $article88MaxPool) {
+                            throw new Exception("به هر نامزد حداکثر {$article88MaxPool} رأی می‌توانید اختصاص دهید.");
                         }
-
-                        $totalVotesGiven += $voteValue;
-                        $votedCandidatesCount++;
-
-                        $vote = Vote::create([
-                            'election_id' => $election->id,
-                            'participant_id' => $participant->id,
-                            'candidate_id' => $candidateId,
-                            'vote_count' => $voteValue,
-                        ]);
-
-                        \Log::info('Vote created', [
-                            'vote_id' => $vote->id,
-                            'election_id' => $election->id,
-                            'participant_id' => $participant->id,
-                            'candidate_id' => $candidateId,
-                            'vote_count' => $voteValue,
-                        ]);
+                    } elseif ($voteValue > $userVotePower) {
+                        throw new Exception("شما نمی‌توانید بیش از {$userVotePower} رای ثبت کنید.");
                     }
+
+                    $normalized[(int) $candidateId] = $voteValue;
+                }
+
+                if ($normalized === []) {
+                    throw new Exception('لطفاً حداقل به یک کاندیدا رای دهید.');
+                }
+
+                $totalVotesGiven = array_sum($normalized);
+
+                if ($election->type === ElectionType::PRIVATE_JOINT_WITH_88 && $article88MaxPool !== null) {
+                    if ($totalVotesGiven > $article88MaxPool) {
+                        throw new Exception('مجموع آرا نمی‌تواند بیش از '.(string) $article88MaxPool.' (سهم شما × تعداد نامزدها) باشد.');
+                    }
+                }
+
+                foreach ($normalized as $candidateId => $voteValue) {
+                    $votedCandidatesCount++;
+
+                    $vote = Vote::create([
+                        'election_id' => $election->id,
+                        'participant_id' => $participant->id,
+                        'candidate_id' => $candidateId,
+                        'vote_count' => $voteValue,
+                    ]);
+
+                    \Log::info('Vote created', [
+                        'vote_id' => $vote->id,
+                        'election_id' => $election->id,
+                        'participant_id' => $participant->id,
+                        'candidate_id' => $candidateId,
+                        'vote_count' => $voteValue,
+                    ]);
                 }
             });
 
@@ -355,7 +416,12 @@ class ElectionVotingController extends Controller
 
             $notVotedCandidatesCount = $totalCandidates - $votedCandidatesCount;
 
-            $totalAvailableStock = $participant->total_stock;
+            $userVotePowerAfter = $this->effectiveVotePower($election, $event, $user);
+            if ($election->type === ElectionType::PRIVATE_JOINT_WITH_88) {
+                $totalAvailableStock = $userVotePowerAfter * max(0, $totalCandidates);
+            } else {
+                $totalAvailableStock = (float) $participant->total_stock;
+            }
             $remainingStock = $totalAvailableStock - $totalVotesGiven;
 
         } catch (\Throwable $th) {
@@ -369,13 +435,12 @@ class ElectionVotingController extends Controller
                 'request_data' => $request->all(),
             ]);
 
-            return back()->with('error', 'خطا در ثبت رای: ' . $th->getMessage());
+            return back()->with('error', 'خطا در ثبت رای: '.$th->getMessage());
         }
 
         return to_route('my-elections.index', $group->slug)
             ->with('success', 'رأی شما با موفقیت ثبت شد.');
     }
-
 
     /**
      * Display the specified resource.
@@ -406,45 +471,51 @@ class ElectionVotingController extends Controller
      */
     public function destroy(Request $request, Election $election)
     {
-        $user = auth()->user();
-
-        if (!$user) {
+        if (! auth()->check()) {
             return redirect()->route('login');
         }
 
-        if (!in_array($election->status, [ElectionStatus::COMPLETED, ElectionStatus::CANCELED], true)) {
-            return back()->with('error', 'فقط انتخابات گذشته قابل حذف از لیست هستند.');
+        if (! $election->isFinished()) {
+            return redirect()
+                ->route('my-elections.index')
+                ->with('error', 'فقط انتخابات پایان‌یافته را می‌توانید از لیست خود حذف کنید.');
         }
 
-        $isParticipant = \App\Models\Participant::query()
+        $user = User::query()->findOrFail(auth()->id());
+
+        $isParticipant = Participant::query()
             ->where('user_id', $user->id)
             ->where('event_id', $election->event_id)
             ->exists();
 
-        if (!$isParticipant) {
-            return back()->with('error', 'شما به این انتخابات دسترسی ندارید.');
+        if (! $isParticipant) {
+            return redirect()
+                ->route('my-elections.index')
+                ->with('error', 'شما به این انتخابات دسترسی ندارید.');
         }
 
-        $meta = (array) ($user->meta ?? []);
+        $meta = is_array($user->meta) ? $user->meta : [];
         $hidden = (array) data_get($meta, 'hidden_past_election_ids', []);
         $hidden[] = (int) $election->id;
         $meta['hidden_past_election_ids'] = collect($hidden)
-            ->map(fn($id) => (int) $id)
+            ->map(fn ($id) => (int) $id)
             ->filter()
             ->unique()
             ->values()
             ->all();
 
-        $user->meta = $meta;
+        $user->fill(['meta' => $meta]);
         $user->save();
 
-        return back()->with('success', 'انتخابات از لیست شما حذف شد.');
+        return redirect()
+            ->route('my-elections.index')
+            ->with('success', 'انتخابات از لیست شما حذف شد.');
     }
 
     public function terminate(Request $request, Group $group, Election $election)
     {
         try {
-            $election->rounds->map(fn($round) => $round->update([
+            $election->rounds->map(fn ($round) => $round->update([
                 'is_active' => false,
             ]));
 
@@ -470,18 +541,19 @@ class ElectionVotingController extends Controller
     public function surveysIndex()
     {
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('login');
         }
 
-        $participants = \App\Models\Participant::where('user_id', $user->id)
+        $participants = Participant::where('user_id', $user->id)
+            ->whereNull('attorney_id')
             ->with([
                 'event.group',
                 'event.elections' => function ($query) {
-                    $query->where('status', \App\Enums\ElectionStatus::ONGOING)
-                        ->where('type', \App\Enums\ElectionType::SURVEY->value)
+                    $query->where('status', ElectionStatus::ONGOING)
+                        ->where('type', ElectionType::SURVEY->value)
                         ->with('candidates.user', 'position');
-                }
+                },
             ])
             ->get();
 
@@ -491,11 +563,11 @@ class ElectionVotingController extends Controller
             $event = $participant->event;
             if ($event && $event->elections) {
                 foreach ($event->elections as $election) {
-                    $hasVoted = \App\Models\Vote::where('election_id', $election->id)
+                    $hasVoted = Vote::where('election_id', $election->id)
                         ->where('participant_id', $participant->id)
                         ->exists();
 
-                    if (!$hasVoted && $election->candidates->count() > 0) {
+                    if (! $hasVoted && $election->candidates->count() > 0) {
                         $availableElections->push([
                             'election' => $election,
                             'event' => $event,
@@ -517,7 +589,7 @@ class ElectionVotingController extends Controller
 
     public function liveStats(Event $event)
     {
-        dd("da");
+        dd('da');
         $elections = $event->elections()
             ->where('status', ElectionStatus::ONGOING)
             ->with('votes')
@@ -546,5 +618,128 @@ class ElectionVotingController extends Controller
         }
 
         return response()->json($data);
+    }
+
+    /**
+     * رکورد شرکت‌کننده‌ای که کاربر می‌تواند با آن رأی بدهد (بدون وکالت به دیگری).
+     *
+     * اگر چند رکورد برای همان کاربر و رویداد وجود داشته باشد (مثلاً بعد از لغو وکالت رکورد وکیل با سهام صفر
+     * مانده و رکورد اصلی سهام را دارد)، رکوردی انتخاب می‌شود که بیشترین سهام مؤثر را دارد نه فقط جدیدترین id.
+     */
+    protected function votableParticipantForEvent(Event $event, int $userId): ?Participant
+    {
+        $participants = Participant::query()
+            ->where('event_id', $event->id)
+            ->where('user_id', $userId)
+            ->whereNull('attorney_id')
+            ->with('event.group')
+            ->get();
+
+        if ($participants->isEmpty()) {
+            return null;
+        }
+
+        if ($participants->count() === 1) {
+            $chosen = $participants->first();
+            $chosen->loadMissing('event.group');
+
+            return $chosen;
+        }
+
+        $chosen = $participants->sort(function (Participant $a, Participant $b) {
+            $stockCmp = (float) $b->total_stock <=> (float) $a->total_stock;
+
+            if ($stockCmp !== 0) {
+                return $stockCmp;
+            }
+
+            return (int) $b->id <=> (int) $a->id;
+        })->first();
+        $chosen->loadMissing('event.group');
+
+        return $chosen;
+    }
+
+    /**
+     * @return Collection<int, int>
+     */
+    protected function votableParticipantIdsForEvent(Event $event, int $userId)
+    {
+        return Participant::query()
+            ->where('event_id', $event->id)
+            ->where('user_id', $userId)
+            ->whereNull('attorney_id')
+            ->pluck('id');
+    }
+
+    /**
+     * قدرت رأی مؤثر برای این انتخابات (شامل وکالت، نوع انتخابات، وزن سهم ممتاز و ignore_stock_weight).
+     */
+    protected function effectiveVotePower(Election $election, Event $event, User $user): float
+    {
+        $userParticipants = Participant::where('user_id', $user->id)
+            ->where('event_id', $event->id)
+            ->whereNull('attorney_id')
+            ->get();
+
+        if ($userParticipants->isEmpty()) {
+            return 0.0;
+        }
+
+        $userParticipantIds = $userParticipants->pluck('id');
+
+        $representedParticipants = Participant::where('event_id', $event->id)
+            ->whereIn('attorney_id', $userParticipantIds)
+            ->get();
+
+        if ($election->type === ElectionType::PUBLIC_JOINT) {
+            return (float) ($userParticipants->count() + $representedParticipants->count());
+        }
+
+        $stockFn = fn (Participant $p) => $this->participantElectionStockUnits($election, $p);
+
+        return (float) $userParticipants->sum($stockFn) + (float) $representedParticipants->sum($stockFn);
+    }
+
+    protected function participantElectionStockUnits(Election $election, Participant $participant): float
+    {
+        if ($election->ignore_stock_weight) {
+            return (float) $participant->normal_stock_count + (float) $participant->prefered_stock_count;
+        }
+
+        return (float) $participant->normal_stock_count + ((float) $participant->prefered_stock_count * (float) $election->prefered_stock_weight);
+    }
+
+    /**
+     * تبدیل ارقام فارسی/عربی و حذف جداکننده‌ها؛ ورودی‌هایی که با صفحه‌کلید فارسی وارد شده‌اند را هم می‌پذیرد.
+     */
+    protected function parseIncomingVoteCount(mixed $raw): float
+    {
+        if ($raw === null || $raw === '') {
+            return 0.0;
+        }
+        if (is_bool($raw)) {
+            return 0.0;
+        }
+        if (is_int($raw) || is_float($raw)) {
+            return (float) $raw;
+        }
+        $s = trim((string) $raw);
+        if ($s === '') {
+            return 0.0;
+        }
+        $s = strtr($s, [
+            '۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4',
+            '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
+            '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4',
+            '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9',
+        ]);
+        $s = str_replace([',', '،', '٬', ' '], '', $s);
+        $s = preg_replace('/[^\d.\-]/', '', $s) ?? '';
+        if ($s === '' || $s === '.' || $s === '-' || ! is_numeric($s)) {
+            return 0.0;
+        }
+
+        return (float) $s;
     }
 }

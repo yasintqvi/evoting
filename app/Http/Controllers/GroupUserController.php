@@ -8,6 +8,7 @@ use App\Http\Requests\User\UpdateGroupUserRequest;
 use App\Models\Group;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class GroupUserController extends Controller
@@ -21,20 +22,40 @@ class GroupUserController extends Controller
         $search = request('search');
         $filters = request()->all(); // get request filters
 
+        $attorneyRepresentativeUserIds = DB::table('participants as att_p')
+            ->join('events', 'events.id', '=', 'att_p.event_id')
+            ->where('events.group_id', $group->id)
+            ->whereNull('att_p.deleted_at')
+            ->whereExists(function ($q) {
+                $q->select(DB::raw('1'))
+                    ->from('participants as pr')
+                    ->whereColumn('pr.attorney_id', 'att_p.id')
+                    ->whereColumn('pr.event_id', 'att_p.event_id')
+                    ->whereNull('pr.deleted_at');
+            })
+            ->distinct()
+            ->pluck('att_p.user_id')
+            ->all();
+
         $group->load([
-            'users' => function ($query) use ($search, $filters) {
+            'users' => function ($query) use ($search, $filters, $attorneyRepresentativeUserIds) {
+                if ($attorneyRepresentativeUserIds !== []) {
+                    $query->whereNotIn('users.id', $attorneyRepresentativeUserIds);
+                }
                 if ($search) {
                     $query->where(
-                        fn($q) => $q->where('first_name', 'like', "%$search%")
+                        fn ($q) => $q->where('first_name', 'like', "%$search%")
                             ->orWhere('last_name', 'like', "%$search%")
                             ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$search%"])
                     );
                 }
                 if (isset($filters['status'])) {
-                    if ($filters['status'] == 1)
+                    if ($filters['status'] == 1) {
                         $query->where('is_active', 1);
-                    if ($filters['status'] == 2)
+                    }
+                    if ($filters['status'] == 2) {
                         $query->where('is_active', 0);
+                    }
                 }
                 $query->latest();
             },
@@ -66,6 +87,7 @@ class GroupUserController extends Controller
 
         return back()->with('success', 'کاربران جدید به گروه اضافه شدند.');
     }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -82,7 +104,6 @@ class GroupUserController extends Controller
                     return back()->with('error', 'این کاربر قبلاً در این گروه عضو شده است.');
                 }
 
-    
                 if ($user->nationalcode !== $validated['nationalcode']) {
                     return back()->with('error', 'کاربری با این شماره تلفن وجود دارد اما کد ملی مطابقت ندارد.');
                 }
@@ -110,7 +131,6 @@ class GroupUserController extends Controller
             return back()->with('error', __('messages.group_user.create_error'));
         }
     }
-
 
     /**
      * Display the specified resource.
@@ -204,7 +224,6 @@ class GroupUserController extends Controller
         return back()->with('success', __('messages.company_user_delete'));
     }
 
-
     public function createParticipant(Group $group)
     {
         $search = request('search');
@@ -213,15 +232,14 @@ class GroupUserController extends Controller
             'users' => function ($query) use ($search) {
                 if ($search) {
                     $query->where(
-                        fn($q) =>
-                        $q->where('first_name', 'like', "%$search%")
+                        fn ($q) => $q->where('first_name', 'like', "%$search%")
                             ->orWhere('last_name', 'like', "%$search%")
                             ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$search%"])
                     );
                 }
 
                 $query->latest();
-            }
+            },
         ]);
 
         $users = $group->users;
@@ -267,5 +285,3 @@ class GroupUserController extends Controller
         }
     }
 }
-
-

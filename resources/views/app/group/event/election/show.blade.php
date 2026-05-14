@@ -21,7 +21,24 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title mb-3">اطلاعات شخصی:</h4>
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                        <h4 class="card-title mb-0">اطلاعات شخصی:</h4>
+                        @can(\App\Enums\Permission::CREATE_ELECTIONS->value)
+                            <div class="d-flex flex-wrap gap-1">
+                                <button type="button" class="btn btn-outline-secondary btn-sm"
+                                    title="کپی قالب مشخصات (بدون نام افراد)"
+                                    data-election-template-b64="{{ base64_encode($election['template_block']) }}"
+                                    onclick="copyElectionTemplateFromButton(this)">
+                                    <i class="ti ti-copy me-1"></i>کپی قالب
+                                </button>
+                                <a href="{{ $election['operations']['create_duplicate'] }}"
+                                    class="btn btn-outline-primary btn-sm"
+                                    title="ایجاد همه‌پرسی جدید با همین مشخصات و عنوان غیرتکراری">
+                                    <i class="ti ti-copy-plus me-1"></i>ایجاد مشابه
+                                </a>
+                            </div>
+                        @endcan
+                    </div>
 
                     <div class="table-responsive border border-dashed rounded px-2 py-1">
                         <table class="table table-borderless m-0">
@@ -105,6 +122,36 @@
 @endsection
 
 @section('scripts')
+    <script>
+        function copyElectionTemplateFromButton(btn) {
+            var b64 = btn.getAttribute('data-election-template-b64');
+            if (!b64) return;
+            var bin = atob(b64);
+            var bytes = new Uint8Array(bin.length);
+            for (var i = 0; i < bin.length; i++) {
+                bytes[i] = bin.charCodeAt(i);
+            }
+            var text = new TextDecoder('utf-8').decode(bytes);
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(function() {
+                    if (typeof Toast !== 'undefined') {
+                        Toast.create({
+                            title: 'کپی شد',
+                            message: 'متن قالب در کلیپ‌بورد قرار گرفت.',
+                            type: 'success',
+                            duration: 2500
+                        });
+                    } else {
+                        alert('متن قالب کپی شد.');
+                    }
+                }).catch(function() {
+                    window.prompt('کپی دستی:', text);
+                });
+            } else {
+                window.prompt('کپی دستی:', text);
+            }
+        }
+    </script>
     <!-- Apex Chart js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 

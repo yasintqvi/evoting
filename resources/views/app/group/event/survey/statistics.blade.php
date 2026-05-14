@@ -2,9 +2,22 @@
 
 @section('content')
     <div class="container py-5">
-        <h1 class="text-center mb-5 fw-bold">
-            آمار نظرسنجی: {{ $survey->title }}
-        </h1>
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+            <h1 class="text-center text-md-start mb-0 fw-bold flex-grow-1">
+                آمار نظرسنجی: {{ $survey->title }}
+            </h1>
+            <a href="{{ route('surveys.statistics', [$group, $event, $survey]) }}?download_pdf=1"
+                class="btn btn-danger bg-gradient shrink-0" target="_blank" rel="noopener">
+                <i class="ti ti-file-type-pdf me-1"></i>
+                دانلود PDF
+            </a>
+        </div>
+
+        @if ($isWeighted ?? false)
+            <div class="alert alert-info small mb-4">
+                آمار بر اساس مجموع سهام عادی و ممتاز هر شرکت‌کننده در این رویداد وزن‌دهی شده است.
+            </div>
+        @endif
 
         {{-- وارد کردن Bootstrap و Chart.js --}}
         {{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"> --}}

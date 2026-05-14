@@ -44,11 +44,15 @@ class AttendanceService
 
                 if ($particpant) {
 
+                    $delegNormal = (int) $particpant->normal_stock_count;
+                    $delegPrefered = (int) $particpant->prefered_stock_count;
+
                     $attorney = Participant::create([
                         'user_id' => $attorneyParticipant->id,
                         'event_id' => $event->id,
-                        'normal_stock_count' => $particpant->normal_stock_count,
-                        'prefered_stock_count' => $particpant->prefered_stock_count,
+                        'group_id' => $event->group_id,
+                        'normal_stock_count' => $delegNormal,
+                        'prefered_stock_count' => $delegPrefered,
                         'is_present' => true,
                     ]);
 
@@ -56,6 +60,8 @@ class AttendanceService
                         'attorney_id' => $attorney->id,
                         'normal_stock_count' => 0,
                         'prefered_stock_count' => 0,
+                        'delegated_normal_stock_count' => $delegNormal,
+                        'delegated_prefered_stock_count' => $delegPrefered,
                     ]);
                 }
             }

@@ -9,9 +9,7 @@ use Log;
 
 class GroupController extends Controller
 {
-    public function __construct(protected ImageService $imageService)
-    {
-    }
+    public function __construct(protected ImageService $imageService) {}
 
     public function index(Group $group)
     {
@@ -72,11 +70,32 @@ class GroupController extends Controller
 
     public function update(GroupRequest $request, Group $group)
     {
+        Log::info('=== GROUP UPDATE METHOD CALLED ===', [
+            'group_id' => $group->id,
+            'user_id' => auth()->id(),
+            'request_method' => request()->method(),
+            'request_url' => request()->url(),
+        ]);
+
         try {
+            Log::info('=== GROUP UPDATE REQUEST ===', [
+                'group_id' => $group->id,
+                'user_id' => auth()->id(),
+                'all_request_data' => $request->all(),
+            ]);
+
             $validated = $request->validated();
+
+            Log::info('=== VALIDATED DATA ===', [
+                'validated_data' => $validated,
+            ]);
 
             // نوع گروه پس از ایجاد قابل تغییر نیست
             unset($validated['type']);
+
+            Log::info('=== DATA AFTER UNSET TYPE ===', [
+                'data_after_unset' => $validated,
+            ]);
 
             if ($request->hasFile('logo')) {
                 $validated['logo'] = $this->imageService
@@ -85,7 +104,16 @@ class GroupController extends Controller
                     ->save();
             }
 
-            $group = $group->update($validated);
+            Log::info('=== FINAL UPDATE DATA ===', [
+                'final_data' => $validated,
+            ]);
+
+            $result = $group->update($validated);
+
+            Log::info('=== UPDATE RESULT ===', [
+                'update_result' => $result,
+                'group_data_after_update' => $group->fresh()->toArray(),
+            ]);
 
             return back()->with('success', __('messages.company.updated'));
         } catch (\Throwable $th) {

@@ -18,8 +18,8 @@ Route::prefix('groups')->group(function () {
         ->can(Permission::EDIT_GROUP);
 
     Route::put('/edit/{group:slug}', [GroupController::class, 'update'])
-        ->name('groups.update')
-        ->can(Permission::UPDATE_GROUP);
+        ->name('groups.update');
+    // ->can(Permission::UPDATE_GROUP);
 
     Route::delete('/delete/{group:slug}', [GroupController::class, 'destroy'])
         ->name('groups.delete')

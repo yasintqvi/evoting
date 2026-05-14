@@ -33,22 +33,30 @@ class ElectionResource extends JsonResource
             'prefered_stock_count' => $this->prefered_stock_count,
             'prefered_stock_weight' => $this->prefered_stock_weight,
             'position' => $this->position->title,
+            'position_id' => $this->position_id,
             'operations' => [
                 'show' => route('elections.show', [$this->event->group->slug, $this->event->slug, $this->slug]),
                 'edit' => route('elections.edit', [$this->event->group->slug, $this->event->slug, $this->slug]),
                 'update' => route('elections.update', [$this->event->group->slug, $this->event->slug, $this->id]),
-                'delete' => route('elections.delete', [$this->event->group->slug, $this->event->slug, $this->id]),
+                'delete' => route('elections.delete', [$this->event->group->slug, $this->event->slug, $this->slug]),
+                'create_duplicate' => route('elections.create', [
+                    'group' => $this->event->group->slug,
+                    'event' => $this->event->slug,
+                    'duplicate_from' => $this->slug,
+                ]),
                 'next_step' => $this->getNextStep(),
             ],
+            'template_block' => $this->templateBlockForCopy(),
             'created_at' => verta($this->created_at)->format('Y/m/d H:i'),
             'updated_at' => verta($this->updated_at)->format('Y/m/d H:i'),
             'starts_at' => $this->starts_at ? verta($this->starts_at)->format('Y/m/d H:i') : null,
             'ends_at' => $this->ends_at ? verta($this->ends_at)->format('Y/m/d H:i') : null,
             'ends_at_raw' => $this->ends_at?->toDateTimeString(),
             'is_expired' => $this->isExpired(),
-            'rounds' => $this->whenLoaded('rounds', fn() => $this->rounds),
+            'rounds' => $this->whenLoaded('rounds', fn () => $this->rounds),
             'has_votes' => $this->votes()->exists(),
             'report_url' => route('elections.report', [$this->event->group->slug, $this->event->slug, $this->slug]),
+            'can_delete' => ! $this->status->isImmutableStatuses(),
         ];
     }
 
@@ -67,6 +75,7 @@ class ElectionResource extends JsonResource
                 'title' => 'شروع انتخابات',
                 'url' => route('elections.start', [$this->event->group->slug, $this->event->slug, $this->slug]),
                 'method' => 'POST',
+                'action' => 'start',
             ];
         }
 
@@ -78,6 +87,7 @@ class ElectionResource extends JsonResource
                 'title' => 'پایان انتخابات',
                 'url' => route('elections.end', [$this->event->group->slug, $this->event->slug, $this->slug]),
                 'method' => 'POST',
+                'action' => 'end',
             ];
         }
 

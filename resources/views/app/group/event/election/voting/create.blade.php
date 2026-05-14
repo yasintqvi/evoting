@@ -2,13 +2,16 @@
 
 @section('content')
     @php
-        // محاسبه سهام موثر بر اساس تنظیمات انتخابات
-        if ($election->ignore_stock_weight) {
-            // وزن سهام ممتاز بی‌تأثیر است — هر سهم = ۱ رأی
-            $effectiveStock = $participant->normal_stock_count + $participant->prefered_stock_count;
-        } else {
-            $effectiveStock = $participant->total_stock;
-        }
+        // کل سهم قابل رأی‌دهی از کنترلر (شامل وکالت و نوع انتخابات)
+        $effectiveStock = $effectiveStock ?? 0;
+        $directorCandidateCount = $directorCandidateCount ?? (int) $election->candidates
+            ->where('candidate_type', App\Enums\CandidateType::DIRECTOR)
+            ->count();
+        $article88VotePool = $article88VotePool ?? ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88
+            ? (float) $effectiveStock * (float) max(0, $directorCandidateCount)
+            : 0.0);
+        $presentParticipantsCount = $presentParticipantsCount ?? 0;
+        $totalParticipantsInEvent = $totalParticipantsInEvent ?? 0;
     @endphp
     <div class="page-title-head d-flex align-items-sm-center flex-sm-row flex-column gap-2 mb-3">
         <div class="flex-grow-1">
@@ -84,23 +87,28 @@
                         <div class="mt-3">
                             <h4 class="fs-15">اطلاعات انتخابات:</h4>
                             <div class="row mt-1 g-2">
-                                <div class="col-lg-4 col-6">
+                                <div class="col-6">
                                     <h4 class="fw-medium mb-0">
                                         {{ $election->candidates()->where('candidate_type', App\Enums\CandidateType::DIRECTOR)->count() }}
                                     </h4>
                                     <p class="mb-0 text-muted lh-lg"> کاندیدای هیت مدیره </p>
                                 </div>
-                                <div class="col-lg-4 col-6">
-                                    <h4 class="fw-medium mb-0">
-                                        {{ $event->participants()->where('is_present', 1)->count() }}
-                                    </h4>
-                                    <p class="mb-0 text-muted lh-lg">تعداد مشارکت کنندگان</p>
-                                </div>
-                                <div class="col-lg-4 col-6">
-                                    <h4 class="fw-medium mb-0">
-                                        {{ $election->type == App\Enums\ElectionType::PUBLIC_JOINT ? $event->participants()->count() : $election->normal_stock_count + $election->prefered_stock_count * $election->prefered_stock_weight }}
-                                    </h4>
-                                    <p class="mb-0 text-muted lh-lg">تعداد کل سهم ها</p>
+                                <div class="col-6">
+                                    @if ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
+                                        <h4 class="fw-medium mb-0">{{ $article88VotePool == floor($article88VotePool) ? (int) $article88VotePool : number_format($article88VotePool, 2) }}</h4>
+                                        <p class="mb-0 text-muted lh-lg">سقف مجموع آرا</p>
+                                        <small class="text-muted">سهم مؤثر × {{ $directorCandidateCount }} نامزد</small>
+                                    @elseif ($election->type == App\Enums\ElectionType::PUBLIC_JOINT)
+                                        <h4 class="fw-medium mb-0">
+                                            {{ $event->participants()->count() }}
+                                        </h4>
+                                        <p class="mb-0 text-muted lh-lg">تعداد کل آرا</p>
+                                    @else
+                                        <h4 class="fw-medium mb-0">
+                                            {{ $election->normal_stock_count + $election->prefered_stock_count * $election->prefered_stock_weight }}
+                                        </h4>
+                                        <p class="mb-0 text-muted lh-lg">سهم پایه انتخابات</p>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -133,12 +141,82 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="card mt-3 border-primary border-opacity-25">
+                    <div class="card-header bg-primary bg-opacity-10 border-bottom border-dashed py-3">
+                        <h5 class="card-title mb-0 d-flex align-items-center gap-2 fs-16">
+                            <span class="avatar-sm rounded-circle bg-primary d-inline-flex align-items-center justify-content-center">
+                                <i class="ti ti-users-group text-white"></i>
+                            </span>
+                            حضور در این رویداد
+                        </h5>
+                        <p class="text-muted mb-0 mt-2 small">تعداد افرادی که در فهرست این رویداد به‌عنوان حاضر در جلسه ثبت شده‌اند.</p>
+                    </div>
+                    <div class="card-body pt-3">
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <div class="rounded-3 border border-success border-opacity-25 bg-success bg-opacity-10 p-3 text-center h-100">
+                                    <div class="text-success small fw-semibold mb-1">حاضر در جلسه</div>
+                                    <div class="display-6 fw-bold text-success lh-1">{{ $presentParticipantsCount }}</div>
+                                    <div class="text-muted small mt-2">نفر</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="rounded-3 border bg-light bg-opacity-50 p-3 text-center h-100">
+                                    <div class="text-muted small fw-semibold mb-1">ثبت‌نام در رویداد</div>
+                                    <div class="display-6 fw-bold text-dark lh-1">{{ $totalParticipantsInEvent }}</div>
+                                    <div class="text-muted small mt-2">نفر در فهرست</div>
+                                </div>
+                            </div>
+                        </div>
+                        @if ($totalParticipantsInEvent > 0)
+                            @php
+                                $presencePercent = (int) min(100, round(100 * $presentParticipantsCount / $totalParticipantsInEvent));
+                            @endphp
+                            <div class="mt-4">
+                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                    <span class="small text-muted">نسبت حضور به کل ثبت‌نام‌شدگان</span>
+                                    <span class="fw-semibold text-primary">{{ $presencePercent }}٪</span>
+                                </div>
+                                <div class="progress progress-md rounded-pill">
+                                    <div class="progress-bar bg-success"
+                                        role="progressbar"
+                                        style="width: {{ $presencePercent }}%"
+                                        aria-valuenow="{{ $presencePercent }}"
+                                        aria-valuemin="0"
+                                        aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                        @else
+                            <p class="text-muted small mb-0 mt-3">هنوز شرکت‌کننده‌ای در این رویداد ثبت نشده است.</p>
+                        @endif
+                    </div>
+                </div>
             </div>
             <div class="col-xl-8 col-lg-12">
                 <div class="card">
                     <div class="card-header border-bottom border-dashed">
                         <h4 class="card-title mb-0">انتخاب کاندیدای هیت مدیره</h4>
                     </div>
+                    @if ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
+                        <div class="card-body border-bottom bg-light py-3" id="article88-live-summary">
+                            <div class="row g-3 text-center align-items-center">
+                                <div class="col-md-4">
+                                    <div class="small text-muted mb-1">سقف مجموع آرا (سهم × تعداد نامزد)</div>
+                                    <div class="fs-4 fw-bold text-dark" id="article88-cap-display">{{ $article88VotePool == floor($article88VotePool) ? (int) $article88VotePool : number_format($article88VotePool, 2) }}</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="small text-muted mb-1">مجموع تخصیص داده‌شده</div>
+                                    <div class="fs-4 fw-bold text-secondary" id="article88-allocated-display">0</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="small text-muted mb-1">باقی‌مانده</div>
+                                    <div class="fs-4 fw-bold text-primary" id="article88-remaining-display">{{ $article88VotePool == floor($article88VotePool) ? (int) $article88VotePool : number_format($article88VotePool, 2) }}</div>
+                                </div>
+                            </div>
+                            <p class="small text-muted mb-0 mt-3 text-center">می‌توانید کل سقف را به یک نامزد بدهید یا بین چند نامزد تقسیم کنید؛ مجموع نباید از سقف بیشتر شود.</p>
+                        </div>
+                    @endif
                     <div class="card-body">
                         <div class="row">
                             @foreach ($election->candidates->where('candidate_type', App\Enums\CandidateType::DIRECTOR) as $candidate)
@@ -179,22 +257,28 @@
                                                 @elseif ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
                                                     <div class="mt-2">
                                                         <label for="director-candidate-input-{{ $candidate->id }}"
-                                                            class="form-label">
-                                                            مقدار سهم قابل تخصیص:
-                                                            {{ $effectiveStock }}
+                                                            class="form-label small">
+                                                            رأی به این نامزد
+                                                            <span class="text-muted">(حداکثر {{ $article88VotePool == floor($article88VotePool) ? (int) $article88VotePool : number_format($article88VotePool, 2) }} به یک نفر)</span>
                                                         </label>
 
                                                         <input type="number"
                                                             name="director_candidates[{{ $candidate->id }}]"
                                                             id="director-candidate-input-{{ $candidate->id }}"
-                                                            class="form-control" min="0"
-                                                            max="{{ $effectiveStock }}" value="0"
-                                                            oninput="updateVoteValue('director-candidate-input-{{ $candidate->id }}', 'director-candidate-value-{{ $candidate->id }}')">
+                                                            class="form-control article88-vote-input" min="0"
+                                                            step="any"
+                                                            inputmode="decimal"
+                                                            lang="en"
+                                                            data-max-hint-for="article88-max-hint-{{ $candidate->id }}"
+                                                            max="{{ $article88VotePool }}"
+                                                            value="0"
+                                                            oninput="updateVoteValue('director-candidate-input-{{ $candidate->id }}', 'director-candidate-value-{{ $candidate->id }}'); updateArticle88Totals();">
 
                                                         <div class="d-flex justify-content-center mt-1">
                                                             <h4 id="director-candidate-value-{{ $candidate->id }}">0</h4>
-                                                            <span>&nbsp; سهم</span>
+                                                            <span>&nbsp; رأی</span>
                                                         </div>
+                                                        <small class="text-muted d-block mt-2 px-1" id="article88-max-hint-{{ $candidate->id }}"></small>
                                                     </div>
                                                 @endif
 
@@ -253,7 +337,13 @@
                                             <div class="card border border-primary border-2 bg-light">
                                                 <div class="card-body text-center">
                                                     <h3 class="text-primary fw-bold mb-2" id="preview-total-votes">0</h3>
-                                                    <p class="mb-0 text-muted">تعداد کل رای داده شده</p>
+                                                    <p class="mb-0 text-muted">
+                                                        @if ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
+                                                            مجموع رأی تخصیص‌داده‌شده
+                                                        @else
+                                                            تعداد کل رای داده شده
+                                                        @endif
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
@@ -261,7 +351,13 @@
                                             <div class="card border border-info border-2 bg-light">
                                                 <div class="card-body text-center">
                                                     <h3 class="text-info fw-bold mb-2" id="preview-remaining-votes">0</h3>
-                                                    <p class="mb-0 text-muted">رای باقی‌مانده</p>
+                                                    <p class="mb-0 text-muted">
+                                                        @if ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
+                                                            باقی‌مانده تا سقف (سهم × نامزد)
+                                                        @else
+                                                            رای باقی‌مانده
+                                                        @endif
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
@@ -357,7 +453,13 @@
                                                         <h3 class="text-primary fw-bold mb-2">
                                                             {{ number_format($summary['total_votes_given']) }}
                                                         </h3>
-                                                        <p class="mb-0 text-muted">تعداد کل رای داده شده</p>
+                                                        <p class="mb-0 text-muted">
+                                                            @if ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
+                                                                مجموع رأی تخصیص‌داده‌شده
+                                                            @else
+                                                                تعداد کل رای داده شده
+                                                            @endif
+                                                        </p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -367,7 +469,13 @@
                                                         <h3 class="text-info fw-bold mb-2">
                                                             {{ number_format($summary['remaining_stock']) }}
                                                         </h3>
-                                                        <p class="mb-0 text-muted">رای باقی‌مانده</p>
+                                                        <p class="mb-0 text-muted">
+                                                            @if ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
+                                                                باقی‌مانده تا سقف (سهم × نامزد)
+                                                            @else
+                                                                رای باقی‌مانده
+                                                            @endif
+                                                        </p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -410,6 +518,69 @@
 
 @section('scripts')
     <script>
+        window.isArticle88Voting = @json($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88);
+        window.article88VotePoolValue = {{ (float) ($article88VotePool ?? 0) }};
+
+        function parseLocaleNumberToFloat(val) {
+            if (val === null || val === undefined) {
+                return 0;
+            }
+            var s = String(val).trim();
+            if (!s) {
+                return 0;
+            }
+            var fa = ['\u06F0', '\u06F1', '\u06F2', '\u06F3', '\u06F4', '\u06F5', '\u06F6', '\u06F7', '\u06F8', '\u06F9'];
+            var faU = ['\u0660', '\u0661', '\u0662', '\u0663', '\u0664', '\u0665', '\u0666', '\u0667', '\u0668', '\u0669'];
+            for (var i = 0; i < 10; i++) {
+                s = s.split(fa[i]).join(String(i));
+                s = s.split(faU[i]).join(String(i));
+            }
+            s = s.replace(/[,،٬\s\u200c\u200f]/g, '');
+            s = s.replace(/[^\d.\-]/g, '');
+            var n = parseFloat(s);
+            return isNaN(n) ? 0 : n;
+        }
+
+        function updateArticle88Totals() {
+            if (!window.isArticle88Voting) {
+                return;
+            }
+            const form = document.getElementById('votingForm');
+            if (!form) {
+                return;
+            }
+            const pool = window.article88VotePoolValue;
+            const inputs = Array.from(form.querySelectorAll('input.article88-vote-input'));
+            let sum = 0;
+            inputs.forEach(function(inp) {
+                sum += parseLocaleNumberToFloat(inp.value);
+            });
+            const allocEl = document.getElementById('article88-allocated-display');
+            const remEl = document.getElementById('article88-remaining-display');
+            if (allocEl) {
+                allocEl.textContent = sum.toLocaleString('fa-IR');
+            }
+            if (remEl) {
+                const r = pool - sum;
+                remEl.textContent = r.toLocaleString('fa-IR');
+                remEl.classList.toggle('text-danger', r < 0);
+                remEl.classList.toggle('text-success', r === 0 && sum > 0);
+                remEl.classList.toggle('text-primary', r > 0);
+            }
+            inputs.forEach(function(inp) {
+                const self = parseLocaleNumberToFloat(inp.value);
+                const sumWithoutSelf = sum - self;
+                const maxForThis = Math.max(0, pool - sumWithoutSelf);
+                const hintId = inp.getAttribute('data-max-hint-for');
+                const el = hintId ? document.getElementById(hintId) : null;
+                if (el) {
+                    el.textContent = 'اکنون حداکثر ' + maxForThis.toLocaleString('fa-IR') +
+                        ' رأی می‌توانید به این نامزد بدهید (می‌توانید کل سقف را به یک نفر بدهید یا بین همه تقسیم کنید).';
+                }
+            });
+        }
+    </script>
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
 
             const showPreviewBtn = document.getElementById('showVotePreviewBtn');
@@ -427,7 +598,13 @@
             const totalCandidates =
                 {{ $election->candidates()->where('candidate_type', App\Enums\CandidateType::DIRECTOR)->count() }};
 
-            const totalAvailableStock = {{ $effectiveStock ?? 1 }};
+            const isArticle88 = window.isArticle88Voting;
+            const article88Pool = window.article88VotePoolValue;
+            const effectiveStockOnly = {{ (float) ($effectiveStock ?? 0) }};
+
+            function poolCapForPreview() {
+                return isArticle88 ? article88Pool : (effectiveStockOnly || 1);
+            }
 
             function calculateVotePreview() {
 
@@ -444,7 +621,8 @@
                     }
 
                     if (input.type === 'number') {
-                        const value = parseFloat(input.value) || 0;
+                        const value = isArticle88 ? parseLocaleNumberToFloat(input.value) :
+                            (parseFloat(input.value) || 0);
                         if (value > 0) {
                             votedCount++;
                             totalVotesGiven += value;
@@ -453,7 +631,7 @@
                 });
 
                 const notVotedCount = totalCandidates - votedCount;
-                const remainingVotes = totalAvailableStock - totalVotesGiven;
+                const remainingVotes = poolCapForPreview() - totalVotesGiven;
 
                 document.getElementById('preview-voted-count').textContent = votedCount;
                 document.getElementById('preview-not-voted-count').textContent = notVotedCount;
@@ -462,14 +640,53 @@
                     document.getElementById('preview-total-votes').textContent =
                         totalVotesGiven.toLocaleString('fa-IR');
 
-                    document.getElementById('preview-remaining-votes').textContent =
-                        Math.max(0, remainingVotes).toLocaleString('fa-IR');
+                    const remEl = document.getElementById('preview-remaining-votes');
+                    const remVal = isArticle88 ? remainingVotes : Math.max(0, remainingVotes);
+                    remEl.textContent = remVal.toLocaleString('fa-IR');
+                    remEl.classList.toggle('text-danger', isArticle88 && remainingVotes < 0);
+                    remEl.classList.toggle('text-info', !isArticle88 || remainingVotes >= 0);
                 @endif
             }
 
             showPreviewBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 calculateVotePreview();
+                if (isArticle88 && article88Pool >= 0) {
+                    const inputs = form.querySelectorAll('input[name^="director_candidates"]');
+                    let sum = 0;
+                    inputs.forEach(function(input) {
+                        if (input.type === 'number') {
+                            sum += parseLocaleNumberToFloat(input.value);
+                        }
+                    });
+                    if (sum <= 0) {
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'رأی وارد نشده',
+                                text: 'حداقل برای یک نامزد، مقدار رأی بیشتر از صفر وارد کنید (اعداد فارسی یا انگلیسی).',
+                                confirmButtonText: 'باشه'
+                            });
+                        } else {
+                            alert('حداقل برای یک نامزد رأی بیشتر از صفر وارد کنید.');
+                        }
+                        return;
+                    }
+                    if (sum > article88Pool) {
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'بیش از سقف مجاز',
+                                text: 'مجموع آرا نمی‌تواند بیش از ' + article88Pool.toLocaleString('fa-IR') +
+                                    ' (سهم شما × تعداد نامزدها) باشد.',
+                                confirmButtonText: 'باشه'
+                            });
+                        } else {
+                            alert('مجموع آرا بیش از سقف مجاز است.');
+                        }
+                        return;
+                    }
+                }
                 previewModal.show();
             });
 
@@ -488,13 +705,16 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const maxDirectorCandidates = "{{ $election->main_member_count }}";
-            // const maxInspectorCandidates = "{{ $election->incpector_main_member_count }}";
+            const maxDirectorCandidates = Number("{{ (int) ($election->main_member_count ?? 0) }}");
+            const maxInspectorCandidates = Number("{{ (int) ($election->incpector_main_member_count ?? 0) }}");
 
             const directorCheckboxes = document.querySelectorAll('input[name^="director_candidates"]');
             const inspectorCheckboxes = document.querySelectorAll('input[name^="inspector_candidates"]');
 
             function enforceLimit(checkboxes, max) {
+                if (!checkboxes.length || max <= 0) {
+                    return;
+                }
                 checkboxes.forEach(checkbox => {
                     checkbox.addEventListener('change', function() {
                         const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
@@ -532,7 +752,11 @@
             var valueElement = document.getElementById(valueId);
 
             if (inputElement && valueElement) {
-                valueElement.textContent = inputElement.value || 0;
+                if (window.isArticle88Voting) {
+                    valueElement.textContent = String(parseLocaleNumberToFloat(inputElement.value));
+                } else {
+                    valueElement.textContent = inputElement.value || 0;
+                }
             }
         }
 
@@ -544,6 +768,7 @@
                     var valueId = 'director-candidate-value-{{ $candidate->id }}';
                     updateVoteValue(inputId, valueId);
                 @endforeach
+                updateArticle88Totals();
             @endif
         });
     </script>
