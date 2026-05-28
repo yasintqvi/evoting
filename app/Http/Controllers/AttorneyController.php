@@ -32,7 +32,7 @@ class AttorneyController extends Controller
             ]);
             $users = User::where($data)->select('first_name', 'last_name', 'phone')
                 ->first();
-            if (! $users) {
+            if (!$users) {
                 return response()->json(
                     [
                         'error' => __('messages.user.user_not_found'),
@@ -75,10 +75,22 @@ class AttorneyController extends Controller
 
             DB::commit();
 
+            $isNewUser = $created[2] ?? false;
+            $user = $created[3] ?? null;
+            $cleanPhone = preg_replace('/\D/', '', $data['phone'] ?? '');
+            $password = $isNewUser ? substr($cleanPhone, -4) : null;
+
             return response()->json([
                 'status' => 'success',
                 'message' => __('messages.attorneys.created'),
                 'data' => $created,
+                'is_new_user' => $isNewUser,
+                'login_info' => $isNewUser ? [
+                    'full_name' => $user->full_name ?? $user->first_name . ' ' . $user->last_name,
+                    'phone' => $user->phone,
+                    'password' => $password,
+                    'attorney_name' => $created[0]->user->full_name,
+                ] : null,
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -104,7 +116,7 @@ class AttorneyController extends Controller
             $principalParticipant->load('attorney');
             $attorneyParticipant = $principalParticipant->attorney;
 
-            if (! $attorneyParticipant) {
+            if (!$attorneyParticipant) {
                 DB::rollBack();
 
                 return response()->json([
@@ -169,6 +181,32 @@ class AttorneyController extends Controller
             $attorneyParticipant->normal_stock_count = max(0, (int) $attorneyParticipant->normal_stock_count - $returnNormal);
             $attorneyParticipant->prefered_stock_count = max(0, (int) $attorneyParticipant->prefered_stock_count - $returnPrefered);
             $attorneyParticipant->save();
+
+            $group = $event?->group;
+            $attorneyGroupPivot = $group?->users()
+                ->where('users.id', $attorneyParticipant->user_id)
+                ->first()?->pivot;
+
+            $hasAttorneyStockInGroup = Participant::query()
+                ->where('group_id', $group?->id)
+                ->where('user_id', $attorneyParticipant->user_id)
+                ->where(function ($query) {
+                    $query->where('normal_stock_count', '>', 0)
+                        ->orWhere('prefered_stock_count', '>', 0)
+                        ->orWhere('delegated_normal_stock_count', '>', 0)
+                        ->orWhere('delegated_prefered_stock_count', '>', 0);
+                })
+                ->exists();
+
+            if (
+                $group &&
+                $attorneyGroupPivot &&
+                (int) $attorneyGroupPivot->normal_stock_count === 0 &&
+                (int) $attorneyGroupPivot->prefered_stock_count === 0 &&
+                !$hasAttorneyStockInGroup
+            ) {
+                $group->users()->detach($attorneyParticipant->user_id);
+            }
 
             /*
              * رکورد شرکت‌کنندهٔ وکیل را اینجا حذف نمی‌کنیم: همان رکورد ممکن است هم برای سهام‌دار باشد

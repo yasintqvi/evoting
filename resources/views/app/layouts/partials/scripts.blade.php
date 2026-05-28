@@ -2,7 +2,7 @@
 
 <!-- Vendor js -->
 <script src="{{ asset('assets/js/vendor.min.js') }}"></script>
-<script src="{{ asset('node_modules/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/@majidh1/jalalidatepicker@0.9.12/dist/jalalidatepicker.min.js"></script>
 
 <!-- App js -->
 <script src="{{ asset('assets/js/app.js') }}"></script>

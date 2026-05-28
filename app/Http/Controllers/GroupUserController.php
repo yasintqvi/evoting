@@ -24,8 +24,14 @@ class GroupUserController extends Controller
 
         $attorneyRepresentativeUserIds = DB::table('participants as att_p')
             ->join('events', 'events.id', '=', 'att_p.event_id')
+            ->join('group_user', function ($join) {
+                $join->on('group_user.user_id', '=', 'att_p.user_id')
+                    ->on('group_user.group_id', '=', 'events.group_id');
+            })
             ->where('events.group_id', $group->id)
             ->whereNull('att_p.deleted_at')
+            ->where('group_user.normal_stock_count', 0)
+            ->where('group_user.prefered_stock_count', 0)
             ->whereExists(function ($q) {
                 $q->select(DB::raw('1'))
                     ->from('participants as pr')
@@ -37,14 +43,40 @@ class GroupUserController extends Controller
             ->pluck('att_p.user_id')
             ->all();
 
+        $attorneyOnlyUserIds = DB::table('participants as att_p')
+            ->join('events', 'events.id', '=', 'att_p.event_id')
+            ->join('group_user', function ($join) {
+                $join->on('group_user.user_id', '=', 'att_p.user_id')
+                    ->on('group_user.group_id', '=', 'events.group_id');
+            })
+            ->where('events.group_id', $group->id)
+            ->whereNull('att_p.deleted_at')
+            ->where('att_p.normal_stock_count', 0)
+            ->where('att_p.prefered_stock_count', 0)
+            ->where('att_p.delegated_normal_stock_count', 0)
+            ->where('att_p.delegated_prefered_stock_count', 0)
+            ->where('group_user.normal_stock_count', 0)
+            ->where('group_user.prefered_stock_count', 0)
+            ->whereNotExists(function ($q) {
+                $q->select(DB::raw('1'))
+                    ->from('participants as pr')
+                    ->whereColumn('pr.attorney_id', 'att_p.id')
+                    ->whereNull('pr.deleted_at');
+            })
+            ->distinct()
+            ->pluck('att_p.user_id')
+            ->all();
+
+        $hiddenAttorneyUserIds = array_values(array_unique(array_merge($attorneyRepresentativeUserIds, $attorneyOnlyUserIds)));
+
         $group->load([
-            'users' => function ($query) use ($search, $filters, $attorneyRepresentativeUserIds) {
-                if ($attorneyRepresentativeUserIds !== []) {
-                    $query->whereNotIn('users.id', $attorneyRepresentativeUserIds);
+            'users' => function ($query) use ($search, $filters, $hiddenAttorneyUserIds) {
+                if ($hiddenAttorneyUserIds !== []) {
+                    $query->whereNotIn('users.id', $hiddenAttorneyUserIds);
                 }
                 if ($search) {
                     $query->where(
-                        fn ($q) => $q->where('first_name', 'like', "%$search%")
+                        fn($q) => $q->where('first_name', 'like', "%$search%")
                             ->orWhere('last_name', 'like', "%$search%")
                             ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$search%"])
                     );
@@ -62,8 +94,16 @@ class GroupUserController extends Controller
         ]);
 
         $users = $group->users;
+        $stockUsersQuery = $group->users();
 
-        return view('app.group.users.index', compact('group', 'users'));
+        if ($hiddenAttorneyUserIds !== []) {
+            $stockUsersQuery->whereNotIn('users.id', $hiddenAttorneyUserIds);
+        }
+
+        $allocatedNormalStock = (clone $stockUsersQuery)->sum('group_user.normal_stock_count');
+        $allocatedPreferedStock = (clone $stockUsersQuery)->sum('group_user.prefered_stock_count');
+
+        return view('app.group.users.index', compact('group', 'users', 'allocatedNormalStock', 'allocatedPreferedStock'));
     }
 
     /**
@@ -232,7 +272,7 @@ class GroupUserController extends Controller
             'users' => function ($query) use ($search) {
                 if ($search) {
                     $query->where(
-                        fn ($q) => $q->where('first_name', 'like', "%$search%")
+                        fn($q) => $q->where('first_name', 'like', "%$search%")
                             ->orWhere('last_name', 'like', "%$search%")
                             ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$search%"])
                     );

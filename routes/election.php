@@ -52,6 +52,10 @@ Route::prefix('{group:slug}/events/{event:slug}')->group(function () {
         ->name('elections.store')
         ->can(Permission::CREATE_ELECTIONS);
 
+    Route::post('/elections/copy-from/{sourceId}', [ElectionController::class, 'copyFrom'])
+        ->name('elections.copy-from')
+        ->can(Permission::CREATE_ELECTIONS);
+
     // Election Candidates
     Route::get('/elections/{election}/candidates/create', [ElectionCandidateController::class, 'create'])
         ->name('candidates.create');

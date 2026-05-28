@@ -11,7 +11,8 @@ class AttorneyService
 {
     public function create(CreateAttorneyDto $attorneyDto)
     {
-        $password = substr($attorneyDto->user->phone, -4);
+        $cleanPhone = preg_replace('/\D/', '', $attorneyDto->user->phone);
+        $password = substr($cleanPhone, -4);
         $user = User::firstOrCreate(
             ['phone' => $attorneyDto->user->phone],
             [
@@ -33,7 +34,7 @@ class AttorneyService
             $oldAttorney->delegated_prefered_stock_count = 0;
             $oldAttorney->save();
 
-            if (! Vote::where('participant_id', $oldAttorney->id)->exists()) {
+            if (!Vote::where('participant_id', $oldAttorney->id)->exists()) {
                 $oldAttorney->delete();
             }
         }
@@ -43,7 +44,7 @@ class AttorneyService
             ->where('event_id', $participant->event_id)
             ->first();
 
-        if (! $attorney) {
+        if (!$attorney) {
             $attorney = $user->participants()->create([
                 'event_id' => $participant->event_id,
                 'group_id' => $group->id,
@@ -68,7 +69,7 @@ class AttorneyService
         $participant->is_present = 1;
 
         // syncWithoutDetaching فقط id گروه بدهد، روی pivot ردیف جدید پیش‌فرض دیتابیس (۱ سهام عادی) می‌خورد.
-        if (! $user->groups()->where('groups.id', $group->id)->exists()) {
+        if (!$user->groups()->where('groups.id', $group->id)->exists()) {
             $user->groups()->attach($group->id, [
                 'normal_stock_count' => 0,
                 'prefered_stock_count' => 0,
@@ -80,6 +81,6 @@ class AttorneyService
         $participant->load('attorney.user');
         SendPasswordJob::dispatch($password);
 
-        return [$participant, $deleted];
+        return [$participant, $deleted, $user->wasRecentlyCreated ?? false, $user];
     }
 }

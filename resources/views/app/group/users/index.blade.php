@@ -87,7 +87,7 @@
                                     سهام عادی تخصیص داده شده
                                 </div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    {{ number_format($group->users->sum(fn($user) => $user->pivot->normal_stock_count ?? 0)) }}
+                                    {{ number_format($allocatedNormalStock) }}
                                     از {{ number_format($group->normal_stock_count) }} سهم
                                 </div>
                                 <div class="progress mt-2"
@@ -95,11 +95,7 @@
                                     @php
                                         $normalPercentage =
                                             $group->normal_stock_count > 0
-                                                ? ($group->users->sum(
-                                                        fn($user) => $user->pivot->normal_stock_count ?? 0,
-                                                    ) /
-                                                        $group->normal_stock_count) *
-                                                    100
+                                                ? ($allocatedNormalStock / $group->normal_stock_count) * 100
                                                 : 0;
                                     @endphp
                                     <div class="progress-bar bg-warning"
@@ -133,7 +129,7 @@
                                     سهام ممتاز تخصیص داده شده
                                 </div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    {{ number_format($group->users->sum(fn($user) => $user->pivot->prefered_stock_count ?? 0)) }}
+                                    {{ number_format($allocatedPreferedStock) }}
                                     از {{ number_format($group->prefered_stock_count) }} سهم
                                 </div>
                                 <div class="progress mt-2"
@@ -141,11 +137,7 @@
                                     @php
                                         $preferedPercentage =
                                             $group->prefered_stock_count > 0
-                                                ? ($group->users->sum(
-                                                        fn($user) => $user->pivot->prefered_stock_count ?? 0,
-                                                    ) /
-                                                        $group->prefered_stock_count) *
-                                                    100
+                                                ? ($allocatedPreferedStock / $group->prefered_stock_count) * 100
                                                 : 0;
                                     @endphp
                                     <div class="progress-bar bg-danger"
@@ -218,7 +210,7 @@
                         </thead>
 
                         <tbody>
-                            @forelse ($group->users as $user)
+                            @forelse ($users as $user)
                                 <tr>
                                     <td>
                                         <a href="#" class="text-dark fw-medium">

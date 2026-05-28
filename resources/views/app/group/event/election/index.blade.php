@@ -127,7 +127,11 @@
                                                 $election['status'] === \App\Enums\ElectionStatus::ONGOING ||
                                                 $election['status'] === \App\Enums\ElectionStatus::COMPLETED ||
                                                 (is_object($election['status']) &&
-                                                    in_array($election['status']->value, ['ongoing', 'completed'], true)) ||
+                                                    in_array(
+                                                        $election['status']->value,
+                                                        ['ongoing', 'completed'],
+                                                        true,
+                                                    )) ||
                                                 (is_string($election['status']) &&
                                                     in_array($election['status'], ['ongoing', 'completed'], true));
                                         @endphp
@@ -149,8 +153,7 @@
                                                         <li>
                                                             <button type="button"
                                                                 class="dropdown-item d-flex align-items-center gap-2 election-start-btn"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#startElectionModal"
+                                                                data-bs-toggle="modal" data-bs-target="#startElectionModal"
                                                                 data-start-url="{{ $ns['url'] }}">
                                                                 <i class="ti ti-player-play text-primary"></i>
                                                                 <span>{{ $nsTitle }}</span>
@@ -263,6 +266,16 @@
                                                             <span>ایجاد مشابه</span>
                                                         </a>
                                                     </li>
+                                                    @if ($otherEvents->isNotEmpty())
+                                                        <li>
+                                                            <button type="button"
+                                                                class="dropdown-item d-flex align-items-center gap-2"
+                                                                onclick="openCopyToEventModal({{ $election['id'] }}, '{{ e($election['title']) }}')">
+                                                                <i class="ti ti-calendar-share text-info"></i>
+                                                                <span>کپی به رویداد دیگر</span>
+                                                            </button>
+                                                        </li>
+                                                    @endif
                                                 @endcan
 
                                                 @can(\App\Enums\Permission::DELETE_ELECTIONS->value)
@@ -302,6 +315,43 @@
         </div>
     </div>
 
+    <div class="modal fade" id="copyToEventModal" tabindex="-1" aria-labelledby="copyToEventModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="copy-to-event-form" method="POST" action="">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="copyToEventModalLabel">
+                            <i class="ti ti-calendar-share me-2 text-info"></i>کپی انتخابات به رویداد دیگر
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="text-muted small mb-3">
+                            انتخابات <strong id="copy-election-title-display"></strong> با تمام کاندیداهایش در رویداد مقصد
+                            کپی می‌شود و آماده شروع خواهد بود.
+                        </p>
+                        <div class="mb-3">
+                            <label for="copy-target-event-select" class="form-label fw-semibold">رویداد مقصد</label>
+                            <select class="form-select" id="copy-target-event-select">
+                                @foreach ($otherEvents as $oe)
+                                    <option value="{{ $oe->slug }}">{{ $oe->title }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">انصراف</button>
+                        <button type="submit" class="btn btn-info text-white" id="confirm-copy-to-event-btn">
+                            <i class="ti ti-calendar-share me-1"></i>کپی کن
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="startElectionModal" tabindex="-1" aria-labelledby="startElectionModalLabel"
         aria-hidden="true">
         <div class="modal-dialog">
@@ -317,7 +367,8 @@
                         <div class="mb-3">
                             <label for="start_election_ends_at" class="form-label">زمان پایان انتخابات <span
                                     class="text-muted fw-normal">(اختیاری)</span></label>
-                            <input type="datetime-local" class="form-control" name="ends_at" id="start_election_ends_at">
+                            <input type="datetime-local" class="form-control" name="ends_at"
+                                id="start_election_ends_at">
                             <small class="text-muted d-block mt-1">در صورت خالی ماندن، محدودیت زمانی خودکار برای پایان
                                 اعمال نمی‌شود.</small>
                         </div>
@@ -337,6 +388,31 @@
 
     <script src="/assets/js/pages/chart-apex-bar.js"></script>
     <script>
+        var copyToEventModal = null;
+        var copyElectionId = null;
+        var copyBaseUrl = "{{ url($group->slug . '/events') }}";
+
+        function openCopyToEventModal(id, title) {
+            copyElectionId = id;
+            document.getElementById('copy-election-title-display').textContent = title;
+            if (!copyToEventModal) {
+                copyToEventModal = new bootstrap.Modal(document.getElementById('copyToEventModal'));
+            }
+            updateCopyFormAction();
+            copyToEventModal.show();
+        }
+
+        function updateCopyFormAction() {
+            var targetSlug = document.getElementById('copy-target-event-select').value;
+            if (!targetSlug || !copyElectionId) return;
+            document.getElementById('copy-to-event-form').action =
+                copyBaseUrl + '/' + targetSlug + '/elections/copy-from/' + copyElectionId;
+        }
+
+        document.getElementById('copy-target-event-select').addEventListener('change', updateCopyFormAction);
+
+        document.getElementById('confirm-copy-to-event-btn').addEventListener('click', updateCopyFormAction);
+
         document.querySelectorAll('.election-start-btn').forEach(function(btn) {
             btn.addEventListener('click', function() {
                 var url = this.getAttribute('data-start-url');

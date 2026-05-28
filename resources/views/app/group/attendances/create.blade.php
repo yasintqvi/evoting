@@ -159,6 +159,57 @@
             </div>
         </div>
     </div>
+
+    <!-- Printable Attorney Info Modal -->
+    <div class="modal fade" id="attorneyInfoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">اطلاعات ورود وکیل</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="attorneyInfoBody">
+                    <div class="border border-2 border-success rounded p-4 bg-light" id="attorneyPrintCard">
+                        <div class="text-center mb-3">
+                            <h5 class="fw-bold text-success mb-1">اطلاعات ورود وکیل</h5>
+                            <small class="text-muted">این اطلاعات را در اختیار وکیل قرار دهید</small>
+                        </div>
+                        <table class="table table-borderless mb-0">
+                            <tbody>
+                                <tr>
+                                    <td class="fw-semibold text-muted" style="width:45%">وکیل:</td>
+                                    <td class="fw-bold" id="info-attorney-name"></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-semibold text-muted">موکل:</td>
+                                    <td class="fw-bold" id="info-principal-name"></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-semibold text-muted">نام کاربری (شماره تماس):</td>
+                                    <td class="fw-bold text-primary" id="info-phone"></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-semibold text-muted">رمز عبور:</td>
+                                    <td class="fw-bold text-danger" id="info-password"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="alert alert-warning small mt-3 mb-0">
+                            <i class="ti ti-alert-triangle me-1"></i>
+                            رمز عبور ۴ رقم آخر شماره تماس است. لطفاً این اطلاعات را در اختیار وکیل قرار دهید.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-success" onclick="printAttorneyInfo()">
+                        <i class="ti ti-printer me-1"></i> چاپ اطلاعات
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بستن</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('scripts')
@@ -253,6 +304,20 @@
                         } else {
                             Swal.fire('موفق', 'وکیل با موفقیت انتخاب شد.', 'success');
                             const data = response.data;
+
+                            // نمایش اطلاعات ورود اگر کاربر جدید ایجاد شده
+                            if (data.is_new_user && data.login_info) {
+                                const info = data.login_info;
+                                document.getElementById('info-attorney-name').textContent = info
+                                    .full_name;
+                                document.getElementById('info-principal-name').textContent = info
+                                    .attorney_name;
+                                document.getElementById('info-phone').textContent = info.phone;
+                                document.getElementById('info-password').textContent = info.password;
+                                const infoModal = new bootstrap.Modal(document.getElementById(
+                                    'attorneyInfoModal'));
+                                infoModal.show();
+                            }
 
                             console.log(data);
                             if (data.data[1]?.id) {
@@ -414,12 +479,13 @@
                         if (data.status == 'success') {
                             Swal.fire('موفق', 'وکیل با موفقیت حذف شد.', 'success');
                             const payload = data.data;
-                            const attorneyPid = typeof payload === 'object' && payload !== null
-                                ? payload.attorney_participant_id
-                                : payload;
+                            const attorneyPid = typeof payload === 'object' && payload !== null ?
+                                payload.attorney_participant_id :
+                                payload;
                             // هرگز ردیف موکل (principal) را مخفی نکن؛ فقط در صورت تفاوت id، ردیف رکورد وکیل را مخفی کن.
                             if (attorneyPid != null && String(attorneyPid) !== String(id)) {
-                                const attorneyRow = document.getElementById('participant-' + attorneyPid);
+                                const attorneyRow = document.getElementById('participant-' +
+                                    attorneyPid);
                                 if (attorneyRow) {
                                     attorneyRow.style.display = 'none';
                                 }
@@ -456,5 +522,20 @@
                 }
             });
         });
+
+        function printAttorneyInfo() {
+            const printContent = document.getElementById('attorneyPrintCard').innerHTML;
+            const originalBody = document.body.innerHTML;
+            document.body.innerHTML = `
+                <div style="direction:rtl;font-family:Tahoma,Arial,sans-serif;padding:40px;">
+                    <div style="max-width:500px;margin:0 auto;border:2px solid #198754;border-radius:8px;padding:30px;background:#f8f9fa;">
+                        ${printContent}
+                    </div>
+                </div>
+            `;
+            window.print();
+            document.body.innerHTML = originalBody;
+            location.reload();
+        }
     </script>
 @endsection

@@ -22,6 +22,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as Pdf;
@@ -41,7 +42,9 @@ class ElectionController extends Controller
     {
         $elections = ElectionResource::collection($this->electionService->getAll($event))->toArray($request);
 
-        return view('app.group.event.election.index', compact('group', 'elections', 'event'));
+        $otherEvents = $group->events()->where('id', '!=', $event->id)->get(['id', 'title', 'slug']);
+
+        return view('app.group.event.election.index', compact('group', 'elections', 'event', 'otherEvents'));
     }
 
     public function create(Request $request, Group $group, Event $event)
@@ -77,7 +80,25 @@ class ElectionController extends Controller
                 ->first();
 
             if ($source !== null) {
-                $blockedIds = $source->blockedUsers()->pluck('users.id')->map(fn ($id) => (int) $id)->all();
+                $blockedIds = $source->blockedUsers()->pluck('users.id')->map(fn($id) => (int) $id)->all();
+                $prefill = [
+                    'title' => Election::suggestDuplicateTitle($event, $source->title),
+                    'type' => $source->type->value,
+                    'position_id' => (string) $source->position_id,
+                    'main_member_count' => (int) $source->main_member_count,
+                    'substitute_member_count' => (int) $source->substitute_member_count,
+                    'blocked_user_ids' => $blockedIds,
+                ];
+            }
+        }
+
+        if ($prefill === null && $request->filled('duplicate_from_id')) {
+            $source = Election::query()
+                ->whereHas('event', fn($q) => $q->where('group_id', $group->id))
+                ->find($request->integer('duplicate_from_id'));
+
+            if ($source !== null) {
+                $blockedIds = $source->blockedUsers()->pluck('users.id')->map(fn($id) => (int) $id)->all();
                 $prefill = [
                     'title' => Election::suggestDuplicateTitle($event, $source->title),
                     'type' => $source->type->value,
@@ -91,7 +112,7 @@ class ElectionController extends Controller
 
         $existingElectionTitles = $event->elections()
             ->pluck('title')
-            ->map(fn ($t) => (string) $t)
+            ->map(fn($t) => (string) $t)
             ->values()
             ->all();
 
@@ -103,6 +124,69 @@ class ElectionController extends Controller
             'prefill',
             'existingElectionTitles',
         ));
+    }
+
+    public function copyFrom(Request $request, Group $group, Event $event, int $sourceId): RedirectResponse
+    {
+        $source = Election::findOrFail($sourceId);
+
+        if ($source->event->group_id !== $group->id) {
+            return back()->with('error', 'انتخابات منبع در این گروه وجود ندارد.');
+        }
+
+        DB::beginTransaction();
+        try {
+            $source->load('candidates');
+            $blockedIds = $source->blockedUsers()->pluck('users.id')->all();
+            $newTitle = Election::suggestDuplicateTitle($event, $source->title);
+
+            $newElection = $event->elections()->create([
+                'normal_stock_count' => $group->normal_stock_count,
+                'prefered_stock_count' => $group->prefered_stock_count,
+                'prefered_stock_weight' => $group->prefered_stock_weight,
+                'title' => $newTitle,
+                'owner_id' => auth()->id(),
+                'position_id' => $source->position_id,
+                'type' => $source->type,
+                'candidate_count' => $source->candidate_count,
+                'main_member_count' => $source->main_member_count,
+                'substitute_member_count' => $source->substitute_member_count,
+                'ignore_stock_weight' => $source->ignore_stock_weight,
+            ]);
+
+            if (!empty($blockedIds)) {
+                $newElection->blockedUsers()->sync($blockedIds);
+            }
+
+            if ($source->candidates->isNotEmpty()) {
+                foreach ($source->candidates as $candidate) {
+                    $newElection->candidates()->create([
+                        'user_id' => $candidate->user_id,
+                        'candidate_type' => $candidate->candidate_type,
+                    ]);
+                }
+
+                $newElection->status = $source->type === ElectionType::SURVEY
+                    ? ElectionStatus::WAITING_TO_START
+                    : ElectionStatus::PARTICIPANTS_ATTENDEES;
+                $newElection->save();
+            }
+
+            DB::commit();
+
+            return to_route('elections.index', [$group, $event])
+                ->with('success', 'انتخابات «' . $newTitle . '» با کاندیداها به این رویداد کپی شد.');
+        } catch (Throwable $th) {
+            DB::rollBack();
+            Log::error('Error copying election', [
+                'source_election_id' => $source->id,
+                'target_event_id' => $event->id,
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+
+            return back()->with('error', 'خطا در کپی انتخابات: ' . $th->getMessage());
+        }
     }
 
     public function store(StoreElectionRequest $request, Group $group, Event $event): RedirectResponse
@@ -214,7 +298,7 @@ class ElectionController extends Controller
                 $election->update([
                     'status' => ElectionStatus::ONGOING,
                     'starts_at' => now(),
-                    'ends_at' => ! empty($validated['ends_at'])
+                    'ends_at' => !empty($validated['ends_at'])
                         ? Carbon::parse($validated['ends_at'])
                         : $election->ends_at,
                 ]);
@@ -245,7 +329,7 @@ class ElectionController extends Controller
 
                 $presentStock = $event->participants
                     ->where('is_present', 1)
-                    ->sum(fn ($p) => $p->normal_stock_count + $p->prefered_stock_count);
+                    ->sum(fn($p) => $p->normal_stock_count + $p->prefered_stock_count);
 
                 $required = ($event->quorum_percent / 100) * $totalStocks;
 
@@ -260,7 +344,7 @@ class ElectionController extends Controller
             $election->update([
                 'status' => ElectionStatus::ONGOING,
                 'starts_at' => now(),
-                'ends_at' => ! empty($validated['ends_at'])
+                'ends_at' => !empty($validated['ends_at'])
                     ? Carbon::parse($validated['ends_at'])
                     : $election->ends_at,
             ]);
@@ -350,7 +434,7 @@ class ElectionController extends Controller
         $voteCounts = $votes->pluck('vote_count')->filter()->toArray();
         $mode = 10;
 
-        if (! empty($voteCounts)) {
+        if (!empty($voteCounts)) {
             $frequencies = array_count_values($voteCounts);
             arsort($frequencies);
             $mode = array_key_first($frequencies);
@@ -364,8 +448,8 @@ class ElectionController extends Controller
 
             if (mb_strlen($nationalCode) === 10) {
                 $maskedCode =
-                    mb_substr($nationalCode, 0, 3).
-                    '***'.
+                    mb_substr($nationalCode, 0, 3) .
+                    '***' .
                     mb_substr($nationalCode, 6, 4);
             } else {
                 $maskedCode = '**********';
@@ -404,7 +488,7 @@ class ElectionController extends Controller
                 'orientation' => 'L',
             ]);
 
-            return $pdf->download('election-report-'.$election->id.'.pdf');
+            return $pdf->download('election-report-' . $election->id . '.pdf');
         }
 
         if ($request->has('download_excel')) {
@@ -418,7 +502,7 @@ class ElectionController extends Controller
                 $candidateVotes
             );
 
-            return Excel::download($export, 'election-report-'.$election->id.'.xlsx');
+            return Excel::download($export, 'election-report-' . $election->id . '.xlsx');
         }
 
         // نمایش عادی در مرورگر
@@ -443,7 +527,7 @@ class ElectionController extends Controller
         $voteCounts = $votes->pluck('vote_count')->filter()->toArray();
         $mode = 10;
 
-        if (! empty($voteCounts)) {
+        if (!empty($voteCounts)) {
             $frequencies = array_count_values($voteCounts);
             arsort($frequencies);
             $mode = array_key_first($frequencies);
@@ -457,8 +541,8 @@ class ElectionController extends Controller
 
             if (mb_strlen($nationalCode) === 10) {
                 $maskedCode =
-                    mb_substr($nationalCode, 0, 3).
-                    '***'.
+                    mb_substr($nationalCode, 0, 3) .
+                    '***' .
                     mb_substr($nationalCode, 6, 4);
             } else {
                 $maskedCode = '**********';

@@ -4,14 +4,23 @@
     @php
         // کل سهم قابل رأی‌دهی از کنترلر (شامل وکالت و نوع انتخابات)
         $effectiveStock = $effectiveStock ?? 0;
-        $directorCandidateCount = $directorCandidateCount ?? (int) $election->candidates
-            ->where('candidate_type', App\Enums\CandidateType::DIRECTOR)
-            ->count();
-        $article88VotePool = $article88VotePool ?? ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88
-            ? (float) $effectiveStock * (float) max(0, $directorCandidateCount)
-            : 0.0);
+
+        $directorCandidateCount =
+            $directorCandidateCount ??
+            (int) $election->candidates->where('candidate_type', App\Enums\CandidateType::DIRECTOR)->count();
+
+        $article88VotePool =
+            $election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88
+                ? (float) $effectiveStock * (float) max(1, $directorCandidateCount)
+                : 0.0;
+
         $presentParticipantsCount = $presentParticipantsCount ?? 0;
         $totalParticipantsInEvent = $totalParticipantsInEvent ?? 0;
+
+        $userImpactPercent =
+            ($totalEffectiveStockOfAllParticipants ?? 0) > 0
+                ? round(($effectiveStock / $totalEffectiveStockOfAllParticipants) * 100, 2)
+                : 0;
     @endphp
     <div class="page-title-head d-flex align-items-sm-center flex-sm-row flex-column gap-2 mb-3">
         <div class="flex-grow-1">
@@ -95,19 +104,22 @@
                                 </div>
                                 <div class="col-6">
                                     @if ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
-                                        <h4 class="fw-medium mb-0">{{ $article88VotePool == floor($article88VotePool) ? (int) $article88VotePool : number_format($article88VotePool, 2) }}</h4>
-                                        <p class="mb-0 text-muted lh-lg">سقف مجموع آرا</p>
-                                        <small class="text-muted">سهم مؤثر × {{ $directorCandidateCount }} نامزد</small>
-                                    @elseif ($election->type == App\Enums\ElectionType::PUBLIC_JOINT)
                                         <h4 class="fw-medium mb-0">
-                                            {{ $event->participants()->count() }}
+                                            {{ $totalArticle88VotePool == floor($totalArticle88VotePool) ? number_format((int) $totalArticle88VotePool) : number_format($totalArticle88VotePool, 2) }}
                                         </h4>
-                                        <p class="mb-0 text-muted lh-lg">تعداد کل آرا</p>
-                                    @else
-                                        <h4 class="fw-medium mb-0">
-                                            {{ $election->normal_stock_count + $election->prefered_stock_count * $election->prefered_stock_weight }}
-                                        </h4>
-                                        <p class="mb-0 text-muted lh-lg">سهم پایه انتخابات</p>
+                                        <p class="mb-0 text-muted lh-lg">سقف مجموع آرا (کل گروه)</p>
+                                        <small class="text-muted">
+                                            مجموع سهام مؤثر حاضرین
+                                            ({{ number_format($totalEffectiveStockOfAllParticipants) }})
+                                            × {{ $directorCandidateCount }} کاندیدا
+                                        </small>
+                                        <small class="text-muted d-block mt-1">
+                                            @if ($election->ignore_stock_weight)
+                                                (سهام عادی + سهام ممتاز بدون وزن)
+                                            @else
+                                                (سهام عادی + (سهام ممتاز × {{ $election->prefered_stock_weight }}))
+                                            @endif
+                                        </small>
                                     @endif
                                 </div>
                             </div>
@@ -117,19 +129,36 @@
                             <div class="row mt-1 g-2">
                                 @if (in_array($election->type, [App\Enums\ElectionType::PRIVATE_JOINT, App\Enums\ElectionType::PRIVATE_JOINT_WITH_88]))
                                     <div class="col-lg-4 col-6">
-                                        <h4 class="fw-medium mb-0">{{ $participant->normal_stock_count }}</h4>
-                                        <p class="mb-0 text-muted lh-lg">میزان سهم عادی</p>
+                                        <h4 class="fw-medium mb-0">{{ number_format($participant->normal_stock_count) }}
+                                        </h4>
+                                        <p class="mb-0 text-muted lh-lg">سهم عادی</p>
                                     </div>
                                     <div class="col-lg-4 col-6">
-                                        <h4 class="fw-medium mb-0">{{ $participant->prefered_stock_count }}</h4>
-                                        <p class="mb-0 text-muted lh-lg">میزان سهم ممتاز</p>
+                                        <h4 class="fw-medium mb-0">{{ number_format($participant->prefered_stock_count) }}
+                                        </h4>
+                                        <p class="mb-0 text-muted lh-lg">سهم ممتاز</p>
                                     </div>
                                     <div class="col-lg-4 col-6">
-                                        <h4 class="fw-medium mb-0">{{ $effectiveStock }}</h4>
-                                        <p class="mb-0 text-muted lh-lg">کل سهم</p>
-                                        @if ($election->ignore_stock_weight)
-                                            <small class="text-info">بدون وزن</small>
+                                        @if ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
+                                            <h4 class="fw-medium mb-0">{{ number_format((float) $article88VotePool) }}</h4>
+                                            <p class="mb-0 text-muted lh-lg">سقف رأی قابل تخصیص</p>
+                                            <small class="text-primary">
+                                                {{ number_format($effectiveStock) }} × {{ $directorCandidateCount }} نامزد
+                                            </small>
+                                        @else
+                                            <h4 class="fw-medium mb-0">{{ number_format($effectiveStock) }}</h4>
+                                            <p class="mb-0 text-muted lh-lg">کل سهم شما (رأی قابل‌تخصیص)</p>
                                         @endif
+                                        @if ($election->ignore_stock_weight)
+                                            <small class="text-info d-block">بدون وزن</small>
+                                        @endif
+                                    </div>
+                                    <div class="col-lg-4 col-6">
+                                        <h4 class="fw-medium mb-0">{{ $userImpactPercent }}٪</h4>
+                                        <p class="mb-0 text-muted lh-lg">درصد تأثیرگذاری</p>
+                                        <small class="text-muted">
+                                            از کل سهام حاضرین در جلسه
+                                        </small>
                                     </div>
                                 @else
                                     <div class="col-lg-4 col-6">
@@ -145,17 +174,20 @@
                 <div class="card mt-3 border-primary border-opacity-25">
                     <div class="card-header bg-primary bg-opacity-10 border-bottom border-dashed py-3">
                         <h5 class="card-title mb-0 d-flex align-items-center gap-2 fs-16">
-                            <span class="avatar-sm rounded-circle bg-primary d-inline-flex align-items-center justify-content-center">
+                            <span
+                                class="avatar-sm rounded-circle bg-primary d-inline-flex align-items-center justify-content-center">
                                 <i class="ti ti-users-group text-white"></i>
                             </span>
                             حضور در این رویداد
                         </h5>
-                        <p class="text-muted mb-0 mt-2 small">تعداد افرادی که در فهرست این رویداد به‌عنوان حاضر در جلسه ثبت شده‌اند.</p>
+                        <p class="text-muted mb-0 mt-2 small">تعداد افرادی که در فهرست این رویداد به‌عنوان حاضر در جلسه ثبت
+                            شده‌اند.</p>
                     </div>
                     <div class="card-body pt-3">
                         <div class="row g-3">
                             <div class="col-sm-6">
-                                <div class="rounded-3 border border-success border-opacity-25 bg-success bg-opacity-10 p-3 text-center h-100">
+                                <div
+                                    class="rounded-3 border border-success border-opacity-25 bg-success bg-opacity-10 p-3 text-center h-100">
                                     <div class="text-success small fw-semibold mb-1">حاضر در جلسه</div>
                                     <div class="display-6 fw-bold text-success lh-1">{{ $presentParticipantsCount }}</div>
                                     <div class="text-muted small mt-2">نفر</div>
@@ -171,7 +203,10 @@
                         </div>
                         @if ($totalParticipantsInEvent > 0)
                             @php
-                                $presencePercent = (int) min(100, round(100 * $presentParticipantsCount / $totalParticipantsInEvent));
+                                $presencePercent = (int) min(
+                                    100,
+                                    round((100 * $presentParticipantsCount) / $totalParticipantsInEvent),
+                                );
                             @endphp
                             <div class="mt-4">
                                 <div class="d-flex align-items-center justify-content-between mb-1">
@@ -179,12 +214,9 @@
                                     <span class="fw-semibold text-primary">{{ $presencePercent }}٪</span>
                                 </div>
                                 <div class="progress progress-md rounded-pill">
-                                    <div class="progress-bar bg-success"
-                                        role="progressbar"
-                                        style="width: {{ $presencePercent }}%"
-                                        aria-valuenow="{{ $presencePercent }}"
-                                        aria-valuemin="0"
-                                        aria-valuemax="100"></div>
+                                    <div class="progress-bar bg-success" role="progressbar"
+                                        style="width: {{ $presencePercent }}%" aria-valuenow="{{ $presencePercent }}"
+                                        aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
                             </div>
                         @else
@@ -192,6 +224,49 @@
                         @endif
                     </div>
                 </div>
+                @if ($representedParticipants->isNotEmpty())
+                    <div class="card mt-3 border-warning border-opacity-25">
+                        <div class="card-header bg-warning bg-opacity-10 border-bottom border-dashed py-3">
+                            <h5 class="card-title mb-0 d-flex align-items-center gap-2 fs-16">
+                                <span
+                                    class="avatar-sm rounded-circle bg-warning d-inline-flex align-items-center justify-content-center">
+                                    <i class="ti ti-shield-check text-white"></i>
+                                </span>
+                                وکالت‌های من
+                            </h5>
+                            <p class="text-muted mb-0 mt-2 small">افرادی که به شما وکالت داده‌اند و شما به نمایندگی از
+                                آن‌ها رأی می‌دهید.</p>
+                        </div>
+                        <div class="card-body pt-3 px-2">
+                            <div class="list-group list-group-flush">
+                                @foreach ($representedParticipants as $rep)
+                                    <div class="list-group-item px-2 py-2 d-flex align-items-center gap-2">
+                                        <img src="{{ asset($rep->user->profile_image) }}" alt=""
+                                            class="rounded-circle border"
+                                            style="width:36px;height:36px;object-fit:cover;">
+                                        <div class="flex-grow-1 min-w-0">
+                                            <div class="fw-semibold text-dark small text-truncate">
+                                                {{ $rep->user->full_name }}</div>
+                                            @if (in_array($election->type, [App\Enums\ElectionType::PRIVATE_JOINT, App\Enums\ElectionType::PRIVATE_JOINT_WITH_88]))
+                                                <div class="text-muted" style="font-size:11px;">
+                                                    @if ($rep->normal_stock_count > 0)
+                                                        <span>عادی: {{ number_format($rep->normal_stock_count) }}</span>
+                                                    @endif
+                                                    @if ($rep->prefered_stock_count > 0)
+                                                        <span class="ms-2">ممتاز:
+                                                            {{ number_format($rep->prefered_stock_count) }}</span>
+                                                    @endif
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <span
+                                            class="badge bg-warning-subtle text-warning border border-warning border-opacity-25">وکیل</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
             <div class="col-xl-8 col-lg-12">
                 <div class="card">
@@ -203,7 +278,9 @@
                             <div class="row g-3 text-center align-items-center">
                                 <div class="col-md-4">
                                     <div class="small text-muted mb-1">سقف مجموع آرا (سهم × تعداد نامزد)</div>
-                                    <div class="fs-4 fw-bold text-dark" id="article88-cap-display">{{ $article88VotePool == floor($article88VotePool) ? (int) $article88VotePool : number_format($article88VotePool, 2) }}</div>
+                                    <div class="fs-4 fw-bold text-dark" id="article88-cap-display">
+                                        {{ $article88VotePool == floor($article88VotePool) ? (int) $article88VotePool : number_format($article88VotePool, 2) }}
+                                    </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="small text-muted mb-1">مجموع تخصیص داده‌شده</div>
@@ -211,10 +288,13 @@
                                 </div>
                                 <div class="col-md-4">
                                     <div class="small text-muted mb-1">باقی‌مانده</div>
-                                    <div class="fs-4 fw-bold text-primary" id="article88-remaining-display">{{ $article88VotePool == floor($article88VotePool) ? (int) $article88VotePool : number_format($article88VotePool, 2) }}</div>
+                                    <div class="fs-4 fw-bold text-primary" id="article88-remaining-display">
+                                        {{ $article88VotePool == floor($article88VotePool) ? (int) $article88VotePool : number_format($article88VotePool, 2) }}
+                                    </div>
                                 </div>
                             </div>
-                            <p class="small text-muted mb-0 mt-3 text-center">می‌توانید کل سقف را به یک نامزد بدهید یا بین چند نامزد تقسیم کنید؛ مجموع نباید از سقف بیشتر شود.</p>
+                            <p class="small text-muted mb-0 mt-3 text-center">می‌توانید کل سقف را به یک نامزد بدهید یا بین
+                                چند نامزد تقسیم کنید؛ مجموع نباید از سقف بیشتر شود.</p>
                         </div>
                     @endif
                     <div class="card-body">
@@ -225,8 +305,8 @@
                                         <div class="card-body text-center">
                                             <div class="row justify-content-between mb-3">
                                                 <div class="col-12">
-                                                    <img src="{{ asset($candidate->user->profile_image) }}" alt=""
-                                                        class="avatar-xl rounded">
+                                                    <img src="{{ asset($candidate->user->profile_image) }}"
+                                                        alt="" class="avatar-xl rounded">
                                                 </div>
                                             </div>
                                             <h5>{{ $candidate->user->full_name }}</h5>
@@ -236,8 +316,8 @@
                                                 @if ($election->type == App\Enums\ElectionType::PUBLIC_JOINT)
                                                     <div class="form-check form-checkbox-secondary mb-2">
                                                         <input type="checkbox" class="form-check-input"
-                                                            name="director_candidates[{{ $candidate->id }}]" value="1"
-                                                            id="candidate_{{ $candidate->id }}">
+                                                            name="director_candidates[{{ $candidate->id }}]"
+                                                            value="1" id="candidate_{{ $candidate->id }}">
                                                         <label for="candidate_{{ $candidate->id }}"
                                                             class="form-check-label">انتخاب</label>
                                                     </div>
@@ -259,26 +339,26 @@
                                                         <label for="director-candidate-input-{{ $candidate->id }}"
                                                             class="form-label small">
                                                             رأی به این نامزد
-                                                            <span class="text-muted">(حداکثر {{ $article88VotePool == floor($article88VotePool) ? (int) $article88VotePool : number_format($article88VotePool, 2) }} به یک نفر)</span>
+                                                            <span class="text-muted">(حداکثر
+                                                                {{ $article88VotePool == floor($article88VotePool) ? (int) $article88VotePool : number_format($article88VotePool, 2) }}
+                                                                به یک نفر)</span>
                                                         </label>
 
                                                         <input type="number"
                                                             name="director_candidates[{{ $candidate->id }}]"
                                                             id="director-candidate-input-{{ $candidate->id }}"
                                                             class="form-control article88-vote-input" min="0"
-                                                            step="any"
-                                                            inputmode="decimal"
-                                                            lang="en"
+                                                            step="any" inputmode="decimal" lang="en"
                                                             data-max-hint-for="article88-max-hint-{{ $candidate->id }}"
-                                                            max="{{ $article88VotePool }}"
-                                                            value="0"
+                                                            max="{{ $article88VotePool }}" value="0"
                                                             oninput="updateVoteValue('director-candidate-input-{{ $candidate->id }}', 'director-candidate-value-{{ $candidate->id }}'); updateArticle88Totals();">
 
                                                         <div class="d-flex justify-content-center mt-1">
                                                             <h4 id="director-candidate-value-{{ $candidate->id }}">0</h4>
                                                             <span>&nbsp; رأی</span>
                                                         </div>
-                                                        <small class="text-muted d-block mt-2 px-1" id="article88-max-hint-{{ $candidate->id }}"></small>
+                                                        <small class="text-muted d-block mt-2 px-1"
+                                                            id="article88-max-hint-{{ $candidate->id }}"></small>
                                                     </div>
                                                 @endif
 
@@ -677,7 +757,8 @@
                             Swal.fire({
                                 icon: 'error',
                                 title: 'بیش از سقف مجاز',
-                                text: 'مجموع آرا نمی‌تواند بیش از ' + article88Pool.toLocaleString('fa-IR') +
+                                text: 'مجموع آرا نمی‌تواند بیش از ' + article88Pool.toLocaleString(
+                                        'fa-IR') +
                                     ' (سهم شما × تعداد نامزدها) باشد.',
                                 confirmButtonText: 'باشه'
                             });
