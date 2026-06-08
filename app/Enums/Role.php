@@ -11,4 +11,6 @@ enum Role: string
     case Manager = 'admin';
 
     case Secretary = 'secretary';
+
+    case GroupManager = 'group_manager';
 }

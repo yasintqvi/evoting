@@ -38,14 +38,14 @@ class DevEnvironmentSeeder extends Seeder
         $testGroup->users()->attach($adminUser->id);
 
         foreach (Role::cases() as $role) {
-            $roleModel = ModelsRole::create(['name' => $role->value]);
+            $roleModel = ModelsRole::firstOrCreate(['name' => $role->value]);
             $permissions = Permission::getPermissionsByRole($role);
 
             foreach ($permissions as $permission) {
                 $permissionModel = ModelsPermission::firstOrCreate([
                     'name' => $permission->value,
                 ]);
-                $roleModel->givePermissionTo($permissionModel);
+                $roleModel->syncPermissions($permissionModel);
             }
         }
 

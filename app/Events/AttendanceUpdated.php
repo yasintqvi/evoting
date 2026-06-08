@@ -26,7 +26,7 @@ class AttendanceUpdated implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new Channel('group.'.$this->group->id.'.attendance');
+        return new Channel('group.' . $this->group->id . '.attendance');
     }
 
     public function broadcastWith()

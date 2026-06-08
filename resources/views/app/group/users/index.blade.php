@@ -188,9 +188,11 @@
                             <a href="{{ route('group.users.index', $group) }}" class="btn btn-danger bg-gradient">حذف
                                 فیلتر</a>
                         </form>
-                        <a href="{{ route('group.users.create', $group) }}" class="btn btn-success bg-gradient h-100 p-2">
-                            <i class="ti ti-plus me-1"></i>کاربر جدید
-                        </a>
+                        @can(\App\Enums\Permission::CREATE_GROUP_USERS->value)
+                            <a href="{{ route('group.users.create', $group) }}" class="btn btn-success bg-gradient h-100 p-2">
+                                <i class="ti ti-plus me-1"></i>کاربر جدید
+                            </a>
+                        @endcan
                     </div>
                 </div>
 
@@ -232,18 +234,28 @@
 
                                     <td class="pe-3">
                                         <div class="hstack gap-1 justify-content-end">
-                                            <a href="{{ route('group.users.edit', [$group, $user]) }}"
-                                                class="btn btn-secondary btn-sm">
-                                                <i class="ti ti-edit"></i>
-                                            </a>
-                                            <form action="{{ route('group.users.destroy', [$group, $user]) }}"
-                                                method="POST" class="d-inline delete-role-form">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="button" class="btn btn-danger btn-sm delete-role-btn">
-                                                    <i class="ti ti-trash"></i>
-                                                </button>
-                                            </form>
+                                            @can(\App\Enums\Permission::EDIT_GROUP_USERS->value)
+                                                <a href="{{ route('group.users.edit', [$group, $user]) }}"
+                                                    class="btn btn-secondary btn-sm">
+                                                    <i class="ti ti-edit"></i>
+                                                </a>
+                                            @endcan
+                                            @can(\App\Enums\Permission::MANAGE_GROUP_USER_ACCESS->value)
+                                                <a href="{{ route('users.change-access.edit', $user->id) }}"
+                                                    class="btn btn-info btn-sm">
+                                                    <i class="ti ti-key"></i>
+                                                </a>
+                                            @endcan
+                                            @can(\App\Enums\Permission::DELETE_GROUP_USERS->value)
+                                                <form action="{{ route('group.users.destroy', [$group, $user]) }}"
+                                                    method="POST" class="d-inline delete-role-form">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="button" class="btn btn-danger btn-sm delete-role-btn">
+                                                        <i class="ti ti-trash"></i>
+                                                    </button>
+                                                </form>
+                                            @endcan
                                         </div>
                                     </td>
                                 </tr>

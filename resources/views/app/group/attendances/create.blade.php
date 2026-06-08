@@ -32,94 +32,96 @@
                 </div>
 
                 <div class="card-body">
-                    <form action="{{ route('attendances.store', [$group, $event]) }}" method="post">
-                        @csrf
-                        <div class="table-responsive-sm">
-                            <table class="table mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>نام و نام خانوادگی</th>
-                                        <th>وضعیت حضور کاربر</th>
-                                        <th>واگذاری وکالت</th>
-                                        <th>نام وکیل</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="participants-table">
-                                    @foreach ($event->participants as $participant)
-                                        <tr id="participant-{{ $participant->id }}"
-                                            class="participant-{{ $participant->id }}">
-                                            <td>{{ $participant->user->full_name }}</td>
-                                            <td>
-                                                @if ($participant->attorney_id)
-                                                    <div id="present-{{ $participant->id }}">
-                                                        اهدای وکالت
-                                                    </div>
-                                                @elseif(in_array($participant->id, $attorneyIds))
-                                                    دارای وکالت
-                                                @else
-                                                    <div id="present-{{ $participant->id }}">
-                                                        <input type="hidden" name="" value="0">
-                                                        <input type="checkbox" name="participant-present"
-                                                            id="participant-present-{{ $participant->id }}" value="1"
-                                                            data-switch="1" {{ $participant->is_present ? 'checked' : '' }}>
-                                                        <label for="participant-present-{{ $participant->id }}"
-                                                            data-on-label="حاضر" data-off-label="غایب"
-                                                            data-id="{{ $participant->id }}" class="mb-0 d-block present"
-                                                            style="{{ $participant->is_present ? 'pointer-events:none;opacity:0.6' : '' }}"></label>
-
-                                                    </div>
-                                                @endif
-                                            </td>
-                                            <td id="attorney-col-{{ $participant->id }}">
-                                                @if (!in_array($participant->id, $attorneyIds))
-                                                    <input type="hidden"
-                                                        name="attendance[{{ $participant->id }}][attorney_id]"
-                                                        id="attorney-id-{{ $participant->id }}"
-                                                        value="{{ old("attendance.{$participant->id}.attorney_id", $participant->attorney_id ?? '') }}">
+                    @can(\App\Enums\Permission::STORE_ATTENDANCE->value)
+                        <form action="{{ route('attendances.store', [$group, $event]) }}" method="post">
+                            @csrf
+                            <div class="table-responsive-sm">
+                                <table class="table mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>نام و نام خانوادگی</th>
+                                            <th>وضعیت حضور کاربر</th>
+                                            <th>واگذاری وکالت</th>
+                                            <th>نام وکیل</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="participants-table">
+                                        @foreach ($event->participants as $participant)
+                                            <tr id="participant-{{ $participant->id }}"
+                                                class="participant-{{ $participant->id }}">
+                                                <td>{{ $participant->user->full_name }}</td>
+                                                <td>
                                                     @if ($participant->attorney_id)
-                                                        <button type="button" class="btn btn-warning btn-sm attorney-btn"
-                                                            data-participant-id="{{ $participant->id }}">
-                                                            ویرایش
-                                                        </button>
-                                                        <button type="button"
-                                                            class="btn btn-danger btn-sm attorney-delete-btn"
-                                                            data-participant-id="{{ $participant->id }}">
-                                                            حذف
-                                                        </button>
+                                                        <div id="present-{{ $participant->id }}">
+                                                            اهدای وکالت
+                                                        </div>
                                                     @elseif(in_array($participant->id, $attorneyIds))
-                                                        وکیل
+                                                        دارای وکالت
                                                     @else
-                                                        <button type="button" class="btn btn-secondary btn-sm attorney-btn"
-                                                            data-participant-id="{{ $participant->id }}">
-                                                            انتخاب
-                                                        </button>
+                                                        <div id="present-{{ $participant->id }}">
+                                                            <input type="hidden" name="" value="0">
+                                                            <input type="checkbox" name="participant-present"
+                                                                id="participant-present-{{ $participant->id }}" value="1"
+                                                                data-switch="1" {{ $participant->is_present ? 'checked' : '' }}>
+                                                            <label for="participant-present-{{ $participant->id }}"
+                                                                data-on-label="حاضر" data-off-label="غایب"
+                                                                data-id="{{ $participant->id }}" class="mb-0 d-block present"
+                                                                style="{{ $participant->is_present ? 'pointer-events:none;opacity:0.6' : '' }}"></label>
+
+                                                        </div>
                                                     @endif
+                                                </td>
+                                                <td id="attorney-col-{{ $participant->id }}">
+                                                    @if (!in_array($participant->id, $attorneyIds))
+                                                        <input type="hidden"
+                                                            name="attendance[{{ $participant->id }}][attorney_id]"
+                                                            id="attorney-id-{{ $participant->id }}"
+                                                            value="{{ old("attendance.{$participant->id}.attorney_id", $participant->attorney_id ?? '') }}">
+                                                        @if ($participant->attorney_id)
+                                                            <button type="button" class="btn btn-warning btn-sm attorney-btn"
+                                                                data-participant-id="{{ $participant->id }}">
+                                                                ویرایش
+                                                            </button>
+                                                            <button type="button"
+                                                                class="btn btn-danger btn-sm attorney-delete-btn"
+                                                                data-participant-id="{{ $participant->id }}">
+                                                                حذف
+                                                            </button>
+                                                        @elseif(in_array($participant->id, $attorneyIds))
+                                                            وکیل
+                                                        @else
+                                                            <button type="button" class="btn btn-secondary btn-sm attorney-btn"
+                                                                data-participant-id="{{ $participant->id }}">
+                                                                انتخاب
+                                                            </button>
+                                                        @endif
 
 
-                                            </td>
-                                            <td>
+                                                </td>
+                                                <td>
 
-                                                <span id="attorney-{{ $participant->id }}-name" class="ms-2">
-                                                    @if ($participant->attorney_id)
-                                                        {{ $participant->attorney->user->first_name }}
-                                                    @endif
-                                                </span>
-                                                <span id="attorney-{{ $participant->id }}-last-name" class="">
-                                                    @if ($participant->attorney_id)
-                                                        {{ $participant->attorney->user->last_name }}
-                                                    @endif
-                                                </span>
-                                            @else
-                                                دارای وکالت
-                                    @endif
-                                    </td>
+                                                    <span id="attorney-{{ $participant->id }}-name" class="ms-2">
+                                                        @if ($participant->attorney_id)
+                                                            {{ $participant->attorney->user->first_name }}
+                                                        @endif
+                                                    </span>
+                                                    <span id="attorney-{{ $participant->id }}-last-name" class="">
+                                                        @if ($participant->attorney_id)
+                                                            {{ $participant->attorney->user->last_name }}
+                                                        @endif
+                                                    </span>
+                                                @else
+                                                    دارای وکالت
+                                        @endif
+                                        </td>
 
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </form>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </form>
+                    @endcan
                 </div>
             </div>
         </div>

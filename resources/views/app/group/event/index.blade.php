@@ -47,9 +47,11 @@
                         </form>
 
 
-                        <a href="{{ route('events.create', $group) }}" class="btn btn-success bg-gradient h-100 p-2">
-                            <i class="ti ti-plus me-1"></i>افزودن رویداد
-                        </a>
+                        @can(\App\Enums\Permission::CREATE_GROUP_EVENT->value)
+                            <a href="{{ route('events.create', $group) }}" class="btn btn-success bg-gradient h-100 p-2">
+                                <i class="ti ti-plus me-1"></i>افزودن رویداد
+                            </a>
+                        @endcan
                     </div>
                 </div>
 
@@ -97,11 +99,13 @@
                                     </td>
                                     <td class="reletive">
                                         <div class="hstack gap-1">
-                                            <!-- دکمه ساده (مثلاً ویرایش) -->
-                                            <a href="{{ route('events.edit', [$group, $event]) }}"
-                                                class="btn btn-secondary btn-sm">
-                                                <i class="ti ti-edit"></i>
-                                            </a>
+                                            @can(\App\Enums\Permission::EDIT_GROUP_EVENT->value)
+                                                <!-- دکمه ساده (مثلاً ویرایش) -->
+                                                <a href="{{ route('events.edit', [$group, $event]) }}"
+                                                    class="btn btn-secondary btn-sm">
+                                                    <i class="ti ti-edit"></i>
+                                                </a>
+                                            @endcan
 
                                             <!-- دکمه منوی کشویی -->
                                             <div class="dropdown">
@@ -137,7 +141,7 @@
                                                     </li>
                                                     <li>
                                                         <a class="dropdown-item text-danger"
-                                                            href={{ route( 'events.clone', [$group, $event]) }}>
+                                                            href={{ route('events.clone', [$group, $event]) }}>
                                                             کلون گیری
                                                         </a>
                                                     </li>

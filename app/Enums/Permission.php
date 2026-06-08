@@ -28,6 +28,7 @@ enum Permission: string
     case EDIT_GROUP_USERS = 'edit group users';
     case UPDATE_GROUP_USERS = 'update group users';
     case DELETE_GROUP_USERS = 'delete group users';
+    case MANAGE_GROUP_USER_ACCESS = 'manage group user access';
 
     case VIEW_ELECTIONS = 'view elections';
     case CREATE_ELECTIONS = 'create elections';
@@ -158,6 +159,10 @@ enum Permission: string
                 self::STORE_ATTENDANCE,
                 self::VIEW_DASHBOARD,
             ],
+            Role::GroupManager => [
+                self::VIEW_DASHBOARD,
+                self::MANAGE_GROUP_USER_ACCESS,
+            ],
             default => [],
         };
     }
@@ -183,6 +188,7 @@ enum Permission: string
             self::EDIT_GROUP_USERS => 'ویرایش کاربر گروه',
             self::UPDATE_GROUP_USERS => 'بروزرسانی کاربر گروه',
             self::DELETE_GROUP_USERS => 'حذف کاربر گروه',
+            self::MANAGE_GROUP_USER_ACCESS => 'مدیریت دسترسی کاربران گروه',
             self::VIEW_ELECTIONS => 'مشاهده انتخابات',
             self::CREATE_ELECTIONS => 'ایجاد انتخابات',
             self::EDIT_ELECTIONS => 'ویرایش انتخابات',
@@ -215,6 +221,11 @@ enum Permission: string
             self::UPDATE_ROLES => 'بروزرسانی نقش',
             self::DELETE_ROLES => 'حذف نقش',
             self::VIEW_PERMISSIONS => 'مشاهده دسترسی‌ها',
+            self::LOG_ACTIVITIES => 'مشاهده لاگ فعالیت‌ها',
+            self::VIEW_GROUP_EVENT => 'مشاهده رویداد گروه',
+            self::CREATE_GROUP_EVENT => 'ایجاد رویداد گروه',
+            self::EDIT_GROUP_EVENT => 'ویرایش رویداد گروه',
+            self::DELETE_GROUP_EVENT => 'حذف رویداد گروه',
             default => $this->value
         };
     }
