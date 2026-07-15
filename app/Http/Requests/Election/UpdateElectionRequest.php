@@ -21,7 +21,7 @@ class UpdateElectionRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255', 'min:2'],
             'quorum_required' => ['nullable', 'in:0,1'],
-            'main_member_count' => ['required', 'integer', 'min:1'],
+            'main_member_count' => ['required', 'integer', 'min:1', 'gt:substitute_member_count'],
             'substitute_member_count' => ['required', 'integer', 'min:0'],
             'type' => ['required', Rule::in(ElectionType::values())],
             'position_id' => ['required', 'integer', 'exists:positions,id'],
@@ -37,6 +37,7 @@ class UpdateElectionRequest extends FormRequest
     {
         return [
             'ends_at.after_or_equal' => 'زمان پایان باید بعد از زمان شروع باشد.',
+            'main_member_count.gt' => 'تعداد اعضای اصلی باید بیشتر از تعداد اعضای علی‌البدل باشد.',
         ];
     }
 

@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Survey\SurveyController;
-use App\Http\Controllers\Survey\SurveyParticipantController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('{group:slug}/events/{event}')->group(function () {
@@ -49,6 +48,3 @@ Route::prefix('{group:slug}/events/{event}')->group(function () {
     Route::get('/surveys/{survey}/statistics', [SurveyController::class, 'statistics'])
         ->name('surveys.statistics');
 });
-
-Route::get('/my-surveys', [SurveyParticipantController::class, 'index'])
-    ->name('my-surveys.index');

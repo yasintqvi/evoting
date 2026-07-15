@@ -27,11 +27,23 @@
 
             <!-- فرم ویرایش کاربر جدید -->
             <form id="new-user-form" action="{{ route('group.users.update', [$group, $user]) }}" method="post"
-                style="display: block;">
+                enctype="multipart/form-data" style="display: block;">
                 @csrf
                 @method('PUT')
                 <div class="card-body">
                     <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3 text-center">
+                                <label for="avatar" class="form-label d-block">عکس عضو</label>
+                                <img id="avatar-preview" src="{{ asset($user->profile_image) }}"
+                                    class="avatar-md rounded-circle mb-2" alt="پیش‌نمایش عکس">
+                                <input type="file" name="avatar" id="avatar" class="form-control" accept="image/*">
+                                @error('avatar')
+                                    <span class="text-danger d-block">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+
                         <div class="col-lg-6">
                             <div class="mb-3">
                                 <label for="productName" class="form-label">نام</label>
@@ -141,4 +153,15 @@
             </form>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+    <script>
+        document.getElementById('avatar')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('avatar-preview').src = URL.createObjectURL(file);
+            }
+        });
+    </script>
 @endsection

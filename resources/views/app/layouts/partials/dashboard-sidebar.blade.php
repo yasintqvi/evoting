@@ -28,6 +28,7 @@
 
          <!--- Sidenav Menu -->
          <ul class="side-nav mt-4">
+             @unless (isVoterOnly())
              <li class="side-nav-title">گروه ها</li>
 
              @forelse(user()->groups as $group)
@@ -50,6 +51,7 @@
                  <a href="{{ route('groups.create') }}" class="btn btn-primary btn-sm mx-auto">افزودن گروه</a>
              </div>
              @endcan
+             @endunless
 
              @if (user()->can(App\Enums\Permission::VIEW_USERS->value) || user()->can( App\Enums\Permission::VIEW_ROLES->value))
 
@@ -134,7 +136,7 @@
                          </svg>
                      </span>
                      <span class="menu-text"> انتخابات من </span>
-                     <span class="badge bg-danger {{ $availableElections->count() > 0 ? '' : 'd-none' }}">{{ $availableElections->count() }}</span>
+                     <span class="badge bg-danger {{ $sidebarAvailableElections->count() > 0 ? '' : 'd-none' }}">{{ $sidebarAvailableElections->count() }}</span>
                  </a>
              </li>
 
@@ -151,7 +153,7 @@
                          </svg>
                      </span>
                      <span class="menu-text"> نظرسنجی‌های من </span>
-                     <span class="badge bg-danger {{ $availableSurveys->count() > 0 ? '' : 'd-none' }}">{{ $availableSurveys->count() }}</span>
+                     <span class="badge bg-danger {{ $sidebarAvailableSurveys->count() > 0 ? '' : 'd-none' }}">{{ $sidebarAvailableSurveys->count() }}</span>
                  </a>
              </li>
          </ul>

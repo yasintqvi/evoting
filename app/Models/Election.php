@@ -170,9 +170,13 @@ class Election extends Model
 
     public function precentParticipants()
     {
-        $totalParticipants = $this->participants->count();
+        $hiddenUserIds = $this->group->managerOnlyUserIds();
 
-        $presentCount = $this->participants->where('is_present', 1)->count();
+        $participants = $this->participants->whereNotIn('user_id', $hiddenUserIds);
+
+        $totalParticipants = $participants->count();
+
+        $presentCount = $participants->where('is_present', 1)->count();
 
         return $totalParticipants > 0
             ? ($presentCount / $totalParticipants) * 100

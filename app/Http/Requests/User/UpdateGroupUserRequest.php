@@ -28,6 +28,7 @@ class UpdateGroupUserRequest extends FormRequest
             'phone' => ['required', 'numeric', 'digits:11'],
             'nationalcode' => ['required', 'numeric', 'digits:10'],
             'is_active' => ['sometimes', 'boolean'],
+            'avatar' => ['nullable', 'file', 'mimes:jpg,png,jpeg,webp', 'max:2048'],
         ];
         if ($this->group->type == \App\Enums\GroupType::SPECIAL) {
             $currentUserId = $this->user->id;

@@ -7,6 +7,12 @@
 <!-- App js -->
 <script src="{{ asset('assets/js/app.js') }}"></script>
 
+<!-- Persian -> English digit conversion for all inputs -->
+<script src="{{ asset('assets/js/persian-numbers.js') }}"></script>
+
+<!-- select2: hide already-selected options in multi-selects -->
+<script src="{{ asset('assets/js/select2-enhance.js') }}"></script>
+
 <!-- Apex Chart js -->
 <script src="{{ asset('assets/vendor/apexcharts/apexcharts.min.js') }}"></script>
 

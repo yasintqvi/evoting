@@ -47,6 +47,9 @@
                                     </thead>
                                     <tbody id="participants-table">
                                         @foreach ($event->participants as $participant)
+                                            @if (in_array((int) $participant->user_id, $hiddenUserIds ?? [], true))
+                                                @continue
+                                            @endif
                                             <tr id="participant-{{ $participant->id }}"
                                                 class="participant-{{ $participant->id }}">
                                                 <td>{{ $participant->user->full_name }}</td>
@@ -89,6 +92,8 @@
                                                             </button>
                                                         @elseif(in_array($participant->id, $attorneyIds))
                                                             وکیل
+                                                        @elseif($participant->is_present)
+                                                            <span class="text-muted small">حضور ثبت شده</span>
                                                         @else
                                                             <button type="button" class="btn btn-secondary btn-sm attorney-btn"
                                                                 data-participant-id="{{ $participant->id }}">
@@ -323,8 +328,11 @@
 
                             console.log(data);
                             if (data.data[1]?.id) {
-                                document.getElementById('participant-' + data.data[1].id).style
-                                    .display = 'none';
+                                const oldAttorneyRow = document.getElementById('participant-' + data
+                                    .data[1].id);
+                                if (oldAttorneyRow) {
+                                    oldAttorneyRow.style.display = 'none';
+                                }
                             }
 
                             $('#present-' + participantId).html('اهدای وکالت');
@@ -332,10 +340,22 @@
                             let participant = data.data[0]; // from your response
                             participant = participant.attorney;
 
-                            let tr = document.createElement('tr');
-                            tr.id = 'participant-' + participant.id;
+                            const existingRow = document.getElementById('participant-' + participant
+                                .id);
+                            if (existingRow) {
+                                // وکیل، سهام‌دار موجود در جدول است؛ همان ردیف به «دارای وکالت» به‌روز می‌شود.
+                                $('#present-' + participant.id).html('دارای وکالت');
+                                const attorneyOwnCol = document.getElementById('attorney-col-' +
+                                    participant.id);
+                                if (attorneyOwnCol) {
+                                    attorneyOwnCol.innerHTML = 'دارای وکالت';
+                                }
+                                existingRow.style.display = '';
+                            } else {
+                                let tr = document.createElement('tr');
+                                tr.id = 'participant-' + participant.id;
 
-                            tr.innerHTML = `
+                                tr.innerHTML = `
     <td>${participant.user.first_name + " " + participant.user.last_name}</td>
     <td>
         <div id="present-${participant.id}">
@@ -347,7 +367,8 @@
 دارای وکالت
     </td>
 `;
-                            tbody.appendChild(tr);
+                                tbody.appendChild(tr);
+                            }
 
 
                             if (attorneyPhone) {
@@ -374,9 +395,8 @@
                     .catch(error => {
 
                         console.log(error);
-                        if (error.response && error.response.status == 'error') {
-                            const errorMessage = error.response.data.errors;
-                            Swal.fire('خطا', errorMessage, 'error');
+                        if (error.response && error.response.data && error.response.data.message) {
+                            Swal.fire('خطا', error.response.data.message, 'error');
                         } else {
                             Swal.fire('خطا', 'عملیات با خطا مواجه شد.', 'error');
                         }
@@ -455,6 +475,13 @@
                                     e.target.style.pointerEvents = "none";
                                     e.target.style.opacity = "0.6";
 
+                                    // دیگر نمی‌تواند وکالت بدهد چون حضورش ثبت شده است
+                                    const attorneyCol = document.getElementById('attorney-col-' + id);
+                                    if (attorneyCol) {
+                                        attorneyCol.innerHTML =
+                                            '<span class="text-muted small">حضور ثبت شده</span>';
+                                    }
+
                                 })
                                 .catch(error => {
 
@@ -476,23 +503,36 @@
             document.addEventListener('click', function(event) {
                 if (event.target.classList.contains('attorney-delete-btn')) {
                     const id = event.target.dataset.participantId;
-                    axios.post('/delete-attorney/' + id, {}).then(response => {
-                        const data = response.data;
-                        if (data.status == 'success') {
-                            Swal.fire('موفق', 'وکیل با موفقیت حذف شد.', 'success');
-                            const payload = data.data;
-                            const attorneyPid = typeof payload === 'object' && payload !== null ?
-                                payload.attorney_participant_id :
-                                payload;
-                            // هرگز ردیف موکل (principal) را مخفی نکن؛ فقط در صورت تفاوت id، ردیف رکورد وکیل را مخفی کن.
-                            if (attorneyPid != null && String(attorneyPid) !== String(id)) {
-                                const attorneyRow = document.getElementById('participant-' +
-                                    attorneyPid);
-                                if (attorneyRow) {
-                                    attorneyRow.style.display = 'none';
+
+                    Swal.fire({
+                        title: 'تایید حذف وکالت',
+                        text: 'آیا از حذف این وکالت مطمئن هستید؟',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'بله، حذف شود',
+                        cancelButtonText: 'انصراف'
+                    }).then((result) => {
+                        if (!result.isConfirmed) {
+                            return;
+                        }
+
+                        axios.post('/delete-attorney/' + id, {}).then(response => {
+                            const data = response.data;
+                            if (data.status == 'success') {
+                                Swal.fire('موفق', 'وکیل با موفقیت حذف شد.', 'success');
+                                const payload = data.data;
+                                const attorneyPid = typeof payload === 'object' && payload !== null ?
+                                    payload.attorney_participant_id :
+                                    payload;
+                                // هرگز ردیف موکل (principal) را مخفی نکن؛ فقط در صورت تفاوت id، ردیف رکورد وکیل را مخفی کن.
+                                if (attorneyPid != null && String(attorneyPid) !== String(id)) {
+                                    const attorneyRow = document.getElementById('participant-' +
+                                        attorneyPid);
+                                    if (attorneyRow) {
+                                        attorneyRow.style.display = 'none';
+                                    }
                                 }
-                            }
-                            $('#present-' + id).html(`
+                                $('#present-' + id).html(`
                              <input type="hidden" name="" value="0">
                                                     <input type="checkbox"
                                                            name="participant-present"
@@ -506,20 +546,21 @@
        class="mb-0 d-block present"
        style=""></label>
 `)
-                            document.getElementById('attorney-col-' + id).innerHTML = `
+                                document.getElementById('attorney-col-' + id).innerHTML = `
                     <button type="button"
                             class="btn btn-secondary btn-sm attorney-btn"
                             data-participant-id="${id}">
                         انتخاب
                     </button>`;
-                            document.getElementById(`attorney-${id}-name`).innerHTML = '';
-                            document.getElementById(`attorney-${id}-last-name`).innerHTML = '';
-                        } else {
-                            Swal.fire('خطا', data.message, 'error');
-                        }
-                    }).catch(error => {
-                        console.log(error);
-                        Swal.fire('خطا', 'عملیات با خطا مواجه شد.', 'error');
+                                document.getElementById(`attorney-${id}-name`).innerHTML = '';
+                                document.getElementById(`attorney-${id}-last-name`).innerHTML = '';
+                            } else {
+                                Swal.fire('خطا', data.message, 'error');
+                            }
+                        }).catch(error => {
+                            console.log(error);
+                            Swal.fire('خطا', 'عملیات با خطا مواجه شد.', 'error');
+                        });
                     });
                 }
             });

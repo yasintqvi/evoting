@@ -89,12 +89,30 @@ class Event extends Model
 
     public function getPresentCountAttribute()
     {
-        return $this->participants()->where('is_present', 1)->count();
+        $attorneyParticipantIds = $this->participants()
+            ->whereNotNull('attorney_id')
+            ->pluck('attorney_id')
+            ->unique();
+
+        return $this->participants()
+            ->where('is_present', 1)
+            ->whereNotIn('user_id', $this->group->managerOnlyUserIds())
+            ->whereNotIn('id', $attorneyParticipantIds)
+            ->count();
     }
 
     public function getAbsentCountAttribute()
     {
-        return $this->participants()->where('is_present', 0)->count();
+        $attorneyParticipantIds = $this->participants()
+            ->whereNotNull('attorney_id')
+            ->pluck('attorney_id')
+            ->unique();
+
+        return $this->participants()
+            ->where('is_present', 0)
+            ->whereNotIn('user_id', $this->group->managerOnlyUserIds())
+            ->whereNotIn('id', $attorneyParticipantIds)
+            ->count();
     }
 
     public function scopeFilter($query,$filters){

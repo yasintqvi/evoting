@@ -320,16 +320,6 @@ class ElectionVotingController extends Controller
 
         $election->load('candidates');
 
-        $effectiveStock = $this->effectiveVotePower($election, $event, $user);
-
-        $directorCandidateCount = (int) $election->candidates
-            ->where('candidate_type', CandidateType::DIRECTOR)
-            ->count();
-
-        $article88VotePool = $election->type === ElectionType::PRIVATE_JOINT_WITH_88
-            ? (float) $effectiveStock * (float) max(0, (int) $election->main_member_count)
-            : 0.0;
-
         $presentParticipantsCount = (int) $event->participants()->where('is_present', true)->count();
         $totalParticipantsInEvent = (int) $event->participants()->count();
 
@@ -363,9 +353,9 @@ class ElectionVotingController extends Controller
             $totalEffectiveStockOfAllParticipants += $this->participantElectionStockUnits($election, $allParticipant);
         }
 
-        // سقف کل آرای گروه (مجموع سهام مؤثر همه حاضرین × تعداد کاندیداها)
+        // سقف کل آرای گروه (مجموع سهام مؤثر همه حاضرین × تعداد اعضای اصلی)
         $totalArticle88VotePool = $election->type === ElectionType::PRIVATE_JOINT_WITH_88
-            ? (float) $totalEffectiveStockOfAllParticipants * (float) max(1, $directorCandidateCount)
+            ? (float) $totalEffectiveStockOfAllParticipants * (float) max(0, (int) $election->main_member_count)
             : 0.0;
 
         // سهم شخصی شما
@@ -596,6 +586,11 @@ class ElectionVotingController extends Controller
                     throw new Exception('لطفاً حداقل به یک کاندیدا رای دهید.');
                 }
 
+                $mainSeatCount = (int) ($election->main_member_count ?? 0);
+                if ($mainSeatCount > 0 && count($normalized) > $mainSeatCount) {
+                    throw new Exception("شما نمی‌توانید به بیش از {$mainSeatCount} کاندیدا رأی دهید.");
+                }
+
                 $totalVotesGiven = array_sum($normalized);
 
                 if ($election->type === ElectionType::PRIVATE_JOINT_WITH_88 && $article88MaxPool !== null) {
@@ -760,45 +755,48 @@ class ElectionVotingController extends Controller
             return redirect()->route('login');
         }
 
+        $now = now();
+
         $participants = Participant::where('user_id', $user->id)
+            ->where('is_present', true)
             ->whereNull('attorney_id')
-            ->with([
-                'event.group',
-                'event.elections' => function ($query) {
-                    $query->where('status', ElectionStatus::ONGOING)
-                        ->where('type', ElectionType::SURVEY->value)
-                        ->with('candidates.user', 'position');
-                },
-            ])
+            ->with(['event.group', 'event.surveys.questions'])
             ->get();
 
-        $availableElections = collect();
+        $availableSurveys = collect();
 
         foreach ($participants as $participant) {
             $event = $participant->event;
-            if ($event && $event->elections) {
-                foreach ($event->elections as $election) {
-                    $hasVoted = Vote::where('election_id', $election->id)
-                        ->where('participant_id', $participant->id)
-                        ->exists();
+            if (!$event) {
+                continue;
+            }
 
-                    if (!$hasVoted && $election->candidates->count() > 0) {
-                        $availableElections->push([
-                            'election' => $election,
-                            'event' => $event,
-                            'group' => $event->group,
-                            'participant' => $participant,
-                            'has_voted' => false,
-                        ]);
-                    }
+            foreach ($event->surveys->where('status', 1) as $survey) {
+                if (
+                    ($survey->start_at && $now->lt($survey->start_at)) ||
+                    ($survey->end_at && $now->gt($survey->end_at))
+                ) {
+                    continue;
+                }
+
+                $hasAnswered = $survey->responses()
+                    ->where('user_id', $user->id)
+                    ->exists();
+
+                if (!$hasAnswered) {
+                    $availableSurveys->push([
+                        'survey' => $survey,
+                        'event' => $event,
+                        'group' => $event->group,
+                        'participant' => $participant,
+                        'has_answered' => false,
+                    ]);
                 }
             }
         }
 
-        return view('app.elections.my-elections', [
-            'availableElections' => $availableElections,
-            'unavailableElections' => collect(),
-            'title' => 'نظرسنجی‌های من',
+        return view('app.surveys.my-surveys', [
+            'availableSurveys' => $availableSurveys,
         ]);
     }
 

@@ -70,6 +70,36 @@ class AttorneyController extends Controller
                 ], 400);
             }
 
+            if ($participant->is_present) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => __('messages.attorneys.already_present'),
+                ], 400);
+            }
+
+            // کسی که خودش وکیل دیگران است نمی‌تواند وکالت بدهد (زنجیرهٔ وکالت پشتیبانی نمی‌شود).
+            if (Participant::where('attorney_id', $participant->id)->exists()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => __('messages.attorneys.principal_is_attorney'),
+                ], 400);
+            }
+
+            // کسی که خودش وکالت داده، سهامی برای رأی ندارد و نمی‌تواند وکیل شود.
+            $attorneyUser = User::where('phone', $data['phone'])->first();
+            if (
+                $attorneyUser &&
+                Participant::where('event_id', $participant->event_id)
+                    ->where('user_id', $attorneyUser->id)
+                    ->whereNotNull('attorney_id')
+                    ->exists()
+            ) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => __('messages.attorneys.attorney_has_delegated'),
+                ], 400);
+            }
+
             $dto = new CreateAttorneyDto(new User($data), $participant);
             $created = $this->attorneyService->create($dto);
 
@@ -145,20 +175,15 @@ class AttorneyController extends Controller
 
             $event = $principalParticipant->event;
 
-            $stillLinkedCount = Participant::query()
+            // اگر وکیل موکل فعال دیگری هم داشته باشد، رأی‌هایش متعلق به همه است و نباید به این موکل منتقل شود.
+            $hasOtherActivePrincipals = Participant::query()
                 ->where('attorney_id', $attorneyParticipant->id)
-                ->count();
+                ->where('id', '!=', $principalParticipant->id)
+                ->exists();
 
-            if ($stillLinkedCount !== 1) {
-                DB::rollBack();
-
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'لغو وکالت برای چند موکل هم‌زمان از این مسیر پشتیبانی نمی‌شود.',
-                ], 422);
+            if (!$hasOtherActivePrincipals) {
+                Vote::reassignAllFromParticipantTo((int) $attorneyParticipant->id, (int) $principalParticipant->id);
             }
-
-            Vote::reassignAllFromParticipantTo((int) $attorneyParticipant->id, (int) $principalParticipant->id);
 
             $returnNormal = (int) $principalParticipant->delegated_normal_stock_count;
             $returnPrefered = (int) $principalParticipant->delegated_prefered_stock_count;

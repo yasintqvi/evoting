@@ -121,8 +121,9 @@
                     </div>
                     <div class="col-12">
                         <div class="mb-3">
-                            <label class="form-label">عدم اجازه شرکت در رأی‌گیری</label>
-                            <select name="blocked_user_ids[]" class="form-select" multiple data-toggle="select2">
+                            <label for="blocked_user_ids" class="form-label">عدم اجازه شرکت در رأی‌گیری</label>
+                            <select name="blocked_user_ids[]" id="blocked_user_ids" class="form-select" multiple
+                                data-toggle="select2">
                                 @foreach ($event->participants as $p)
                                     <option value="{{ $p->user->id }}" @selected(in_array((int) $p->user->id, array_map('intval', (array) $oldBlocked), true))>
                                         {{ $p->user->first_name }} {{ $p->user->last_name }}
@@ -303,8 +304,20 @@
                 e.preventDefault();
                 return false;
             }
+            if (!validateCandidateCounts()) {
+                showToast('error', 'تعداد اعضای اصلی باید بیشتر از تعداد اعضای علی‌البدل باشد.');
+                e.preventDefault();
+                return false;
+            }
             return true;
         }
+
+        $("#blocked_user_ids").select2({
+            dir: "rtl",
+            width: "100%",
+            placeholder: "کاربرانی را انتخاب کنید",
+            allowClear: true,
+        });
 
         $("#position_id").select2({
             tags: true,
@@ -399,14 +412,24 @@
 
             if (mainMemberCount === 0 && substituteMemberCount === 0) {
                 infoDiv.style.display = 'none';
-                return;
+                return true;
             }
 
             const totalSeats = mainMemberCount + substituteMemberCount;
+
+            if (mainMemberCount <= substituteMemberCount) {
+                infoText.textContent =
+                    `تعداد اعضای اصلی (${mainMemberCount}) باید بیشتر از تعداد اعضای علی‌البدل (${substituteMemberCount}) باشد.`;
+                infoDiv.className = 'alert alert-danger';
+                infoDiv.style.display = 'block';
+                return false;
+            }
+
             infoText.textContent =
                 `صندلی‌های انتخابی: ${mainMemberCount} عضو اصلی + ${substituteMemberCount} علی‌البدل (مجموع ذخیره‌شده در سیستم به‌عنوان «تعداد نامزد» برابر ${totalSeats} است).`;
             infoDiv.className = 'alert alert-info';
             infoDiv.style.display = 'block';
+            return true;
         }
 
         // فراخوانی اولیه برای نمایش وضعیت

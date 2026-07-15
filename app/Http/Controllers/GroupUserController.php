@@ -7,12 +7,17 @@ use App\Http\Requests\User\StoreGroupUserRequest;
 use App\Http\Requests\User\UpdateGroupUserRequest;
 use App\Models\Group;
 use App\Models\User;
+use App\Services\Image\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class GroupUserController extends Controller
 {
+    public function __construct(protected ImageService $imageService)
+    {
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -67,7 +72,11 @@ class GroupUserController extends Controller
             ->pluck('att_p.user_id')
             ->all();
 
-        $hiddenAttorneyUserIds = array_values(array_unique(array_merge($attorneyRepresentativeUserIds, $attorneyOnlyUserIds)));
+        $hiddenAttorneyUserIds = array_values(array_unique(array_merge(
+            $attorneyRepresentativeUserIds,
+            $attorneyOnlyUserIds,
+            $group->managerOnlyUserIds()
+        )));
 
         $group->load([
             'users' => function ($query) use ($search, $filters, $hiddenAttorneyUserIds) {
@@ -150,6 +159,13 @@ class GroupUserController extends Controller
 
             } else {
 
+                if ($request->hasFile('avatar')) {
+                    $validated['avatar'] = $this->imageService
+                        ->setImage($request->file('avatar'))
+                        ->setExclusiveDirectory('images/members')
+                        ->save();
+                }
+
                 $user = User::create($validated);
             }
 
@@ -224,6 +240,13 @@ class GroupUserController extends Controller
 
             if ($existingUser) {
                 return back()->with('error', 'این شماره تلفن قبلاً برای کاربر دیگری ثبت شده است.');
+            }
+
+            if ($request->hasFile('avatar')) {
+                $validated['avatar'] = $this->imageService
+                    ->setImage($request->file('avatar'))
+                    ->setExclusiveDirectory('images/members')
+                    ->save();
             }
 
             $user->update($validated);

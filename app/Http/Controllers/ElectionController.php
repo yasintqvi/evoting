@@ -310,9 +310,16 @@ class ElectionController extends Controller
 
             if ($election->type === ElectionType::PUBLIC_JOINT) {
 
-                $presentCount = $event->participants->where('is_present', 1)->count();
+                $hiddenUserIds = $group->managerOnlyUserIds();
 
-                $totalMembers = $event->participants->count();
+                $presentCount = $event->participants
+                    ->whereNotIn('user_id', $hiddenUserIds)
+                    ->where('is_present', 1)
+                    ->count();
+
+                $totalMembers = $event->participants
+                    ->whereNotIn('user_id', $hiddenUserIds)
+                    ->count();
 
                 $required = ($event->quorum_percent / 100) * $totalMembers;
 
@@ -523,20 +530,13 @@ class ElectionController extends Controller
             ->with(['participant.user', 'candidate.user'])
             ->get();
 
-        // Calculate mode for vote chunking (to obscure total vote count per person)
-        $voteCounts = $votes->pluck('vote_count')->filter()->toArray();
-        $mode = 10;
+        $candidates = $election->candidates()->with('user')->get();
 
-        if (!empty($voteCounts)) {
-            $frequencies = array_count_values($voteCounts);
-            arsort($frequencies);
-            $mode = array_key_first($frequencies);
-        }
+        $voterRows = collect();
 
-        $detailedVotes = collect();
-
-        foreach ($votes as $vote) {
-            $user = $vote->participant?->user;
+        foreach ($votes->groupBy('participant_id') as $participantVotes) {
+            $participant = $participantVotes->first()->participant;
+            $user = $participant?->user;
             $nationalCode = $user?->nationalcode ?? '';
 
             if (mb_strlen($nationalCode) === 10) {
@@ -548,33 +548,77 @@ class ElectionController extends Controller
                 $maskedCode = '**********';
             }
 
-            $candidateName = $vote->candidate?->user?->full_name ?? '---';
-            $remainingVotes = (int) $vote->vote_count;
+            $votesByCandidate = $participantVotes->keyBy('candidate_id');
 
-            // Break votes into smaller chunks to obscure total count
-            while ($remainingVotes > 0) {
-                $chunk = min($mode, $remainingVotes);
+            // هر کاندیدای این رأی‌دهنده را به قطعات می‌شکنیم.
+            $chunksByCandidate = $votesByCandidate->map(
+                fn ($vote) => $this->splitVoteCount((int) $vote->vote_count)
+            );
 
-                $detailedVotes->push([
+            // تعداد ردیف‌های این رأی‌دهنده = بیشترین تعداد قطعه میان کاندیداهایش.
+            $rowCount = $chunksByCandidate->map(fn ($chunks) => count($chunks))->max() ?: 1;
+
+            for ($rowIndex = 0; $rowIndex < $rowCount; $rowIndex++) {
+                $rowVotesByCandidate = collect();
+
+                foreach ($chunksByCandidate as $candidateId => $chunks) {
+                    if (array_key_exists($rowIndex, $chunks)) {
+                        $rowVotesByCandidate[$candidateId] = $chunks[$rowIndex];
+                    }
+                }
+
+                $voterRows->push([
                     'masked_national_code' => $maskedCode,
-                    'candidate_name' => $candidateName,
-                    'vote_chunk' => $chunk,
+                    'votes_by_candidate' => $rowVotesByCandidate,
                 ]);
-
-                $remainingVotes -= $chunk;
             }
         }
-
-        // Shuffle to mix up the order and make it harder to track individual voters
-        $detailedVotes = $detailedVotes->shuffle()->values();
 
         return view('app.group.event.election.detailed-report', compact(
             'group',
             'event',
             'election',
-            'detailedVotes',
-            'mode'
+            'candidates',
+            'voterRows'
         ));
+    }
+
+    /**
+     * عدد رأی را با روش حریصانه به قطعات ۱۰۰۰/۱۰۰/۱۰/۱ می‌شکند و ترتیب را به‌هم می‌ریزد
+     * (مثلاً 1232 -> [10, 1000, 200, 2, 30])؛ برای مبهم کردن عدد خام رأی در گزارش.
+     * هر قطعه در ویو به‌صورت یک خط مجزا درون همان سلول جدول نمایش داده می‌شود.
+     *
+     * @return array<int>
+     */
+    private function splitVoteCount(int $count): array
+    {
+        if ($count <= 0) {
+            return [$count];
+        }
+
+        $units = [1000, 100, 10, 1];
+        $parts = [];
+        $remaining = $count;
+
+        foreach ($units as $unit) {
+            $chunks = intdiv($remaining, $unit);
+            for ($i = 0; $i < $chunks; $i++) {
+                $parts[] = $unit;
+            }
+            $remaining -= $chunks * $unit;
+        }
+
+        // اگر عدد فقط یک قطعه شد (مثل 100 یا 10)، به دو عدد نامساوی می‌شکنیم تا خام نماند.
+        if (count($parts) === 1 && $parts[0] > 1) {
+            $ratio = random_int(20, 80) / 100;
+            $first = max(1, (int) round($parts[0] * $ratio));
+            $first = min($first, $parts[0] - 1);
+            $parts = [$first, $parts[0] - $first];
+        }
+
+        shuffle($parts);
+
+        return $parts;
     }
 
     // public function detailedReport(Request $request, Group $group, Event $event, Election $election): View

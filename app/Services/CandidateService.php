@@ -15,8 +15,6 @@ class CandidateService
 {
     public function create(Election $election, ElectionCandidatesDto $addCandidatesDto)
     {
-        // $this->ensureCandidatesNotDuplicate($addCandidatesDto);
-
         $this->ensureCanAddCandidates($election);
 
         $election->candidates()->delete();
@@ -28,13 +26,6 @@ class CandidateService
             ]);
         }
 
-        // foreach ($addCandidatesDto->incpectorCandidatesIds as $incpectorCandidateId) {
-        //     $election->candidates()->create([
-        //         'user_id' => $incpectorCandidateId,
-        //         'candidate_type' => CandidateType::INSPECTOR,
-        //     ]);
-        // }
-
         $election->status = $election->type->value === \App\Enums\ElectionType::SURVEY->value
             ? ElectionStatus::WAITING_TO_START
             : ElectionStatus::PARTICIPANTS_ATTENDEES;
@@ -44,12 +35,10 @@ class CandidateService
 
     public function update(Election $election, ElectionCandidatesDto $dto): void
     {
-        // $this->ensureCandidatesNotDuplicate($dto);
-
         $this->ensureCanAddCandidates($election);
 
         $election->candidates()
-            ->whereNotIn('user_id', array_merge($dto->mainCandidateIds))
+            ->whereNotIn('user_id', $dto->mainCandidateIds)
             ->delete();
 
         foreach ($dto->mainCandidateIds as $mainCandidateId) {
@@ -59,22 +48,12 @@ class CandidateService
             );
         }
 
-        // foreach ($dto->incpectorCandidatesIds as $incpectorCandidateId) {
-        //     $election->candidates()->updateOrCreate(
-        //         ['user_id' => $incpectorCandidateId],
-        //         ['candidate_type' => CandidateType::INSPECTOR]
-        //     );
-        // }
-
         $election->status = $election->type->value === \App\Enums\ElectionType::SURVEY->value
             ? ElectionStatus::WAITING_TO_START
             : ($election->quorum_required ? ElectionStatus::PARTICIPANTS_ATTENDEES : ElectionStatus::WAITING_TO_START);
 
         $election->save();
     }
-
-
-
 
     private function ensureCanAddCandidates(Election $election): void
     {

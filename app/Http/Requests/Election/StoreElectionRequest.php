@@ -16,7 +16,7 @@ class StoreElectionRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255', 'min:2'],
             'type' => ['required', Rule::in(ElectionType::values())],
-            'main_member_count' => ['required', 'integer', 'min:1'],
+            'main_member_count' => ['required', 'integer', 'min:1', 'gt:substitute_member_count'],
             'substitute_member_count' => ['required', 'integer', 'min:0'],
             'position_id' => ['required', 'integer', 'exists:positions,id'],
             'starts_at' => ['nullable', 'date'],
@@ -29,7 +29,9 @@ class StoreElectionRequest extends FormRequest
 
     public function messages(): array
     {
-        return [];
+        return [
+            'main_member_count.gt' => 'تعداد اعضای اصلی باید بیشتر از تعداد اعضای علی‌البدل باشد.',
+        ];
     }
 
     public function toDto(): CreateElectionDto

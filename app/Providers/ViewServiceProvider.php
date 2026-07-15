@@ -37,9 +37,9 @@ class ViewServiceProvider extends ServiceProvider
                 ->get();
 
             $now = now();
-            $availableElections = collect();
-            $unavailableElections = collect();
-            $availableSurveys = collect();
+            $sidebarAvailableElections = collect();
+            $sidebarUnavailableElections = collect();
+            $sidebarAvailableSurveys = collect();
 
             foreach ($participants as $participant) {
                 $event = $participant->event;
@@ -57,7 +57,7 @@ class ViewServiceProvider extends ServiceProvider
                         ->exists();
 
                     if (! $hasVoted && $election->status == ElectionStatus::ONGOING) {
-                        $availableElections->push([
+                        $sidebarAvailableElections->push([
                             'election' => $election,
                             'event' => $event,
                             'group' => $event->group,
@@ -65,7 +65,7 @@ class ViewServiceProvider extends ServiceProvider
                             'has_voted' => false,
                         ]);
                     } elseif (in_array($election->status, [ElectionStatus::COMPLETED, ElectionStatus::CANCELED, ElectionStatus::ONGOING])) {
-                        $unavailableElections->push([
+                        $sidebarUnavailableElections->push([
                             'election' => $election,
                             'event' => $event,
                             'group' => $event->group,
@@ -88,7 +88,7 @@ class ViewServiceProvider extends ServiceProvider
                         ->exists();
 
                     if (! $hasAnswered) {
-                        $availableSurveys->push([
+                        $sidebarAvailableSurveys->push([
                             'survey' => $survey,
                             'event' => $event,
                             'group' => $event->group,
@@ -99,7 +99,7 @@ class ViewServiceProvider extends ServiceProvider
                 }
             }
 
-            $view->with(compact('availableElections', 'availableSurveys', 'unavailableElections'));
+            $view->with(compact('sidebarAvailableElections', 'sidebarAvailableSurveys', 'sidebarUnavailableElections'));
         });
 
         View::composer('app.group.*', function ($view) {

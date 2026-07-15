@@ -77,6 +77,9 @@
     <!-- App js -->
     <script src="{{asset('assets/js/app.js')}}"></script>
 
+    <!-- Persian -> English digit conversion for all inputs -->
+    <script src="{{asset('assets/js/persian-numbers.js')}}"></script>
+
     <script>
         function sendOtp(event) {
             event.preventDefault();

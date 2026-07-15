@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\DTOs\Attorney\CreateAttorneyDto;
 use App\Jobs\SendPasswordJob;
+use App\Models\Participant;
 use App\Models\User;
 use App\Models\Vote;
 
@@ -22,20 +23,47 @@ class AttorneyService
             ]
         );
         $participant = $attorneyDto->participant;
-        $deleted = $participant->attorney;
+        $deleted = null;
         if ($participant->attorney) {
             $oldAttorney = $participant->attorney;
-            $participant->normal_stock_count += (int) $oldAttorney->normal_stock_count;
-            $participant->prefered_stock_count += (int) $oldAttorney->prefered_stock_count;
-            Vote::reassignAllFromParticipantTo((int) $oldAttorney->id, (int) $participant->id);
-            $oldAttorney->normal_stock_count = 0;
-            $oldAttorney->prefered_stock_count = 0;
-            $oldAttorney->delegated_normal_stock_count = 0;
-            $oldAttorney->delegated_prefered_stock_count = 0;
+
+            // فقط سهام واگذارشدهٔ همین موکل برمی‌گردد؛ سهام شخصی وکیل قبلی (اگر خودش سهام‌دار باشد) دست‌نخورده می‌ماند.
+            $returnNormal = (int) $participant->delegated_normal_stock_count;
+            $returnPrefered = (int) $participant->delegated_prefered_stock_count;
+
+            if ($returnNormal === 0 && $returnPrefered === 0) {
+                $returnNormal = (int) $oldAttorney->normal_stock_count;
+                $returnPrefered = (int) $oldAttorney->prefered_stock_count;
+            } else {
+                $returnNormal = min($returnNormal, (int) $oldAttorney->normal_stock_count);
+                $returnPrefered = min($returnPrefered, (int) $oldAttorney->prefered_stock_count);
+            }
+
+            $participant->normal_stock_count += $returnNormal;
+            $participant->prefered_stock_count += $returnPrefered;
+
+            $hasOtherPrincipals = Participant::query()
+                ->where('attorney_id', $oldAttorney->id)
+                ->where('id', '!=', $participant->id)
+                ->exists();
+
+            // اگر وکیل قبلی موکل دیگری داشته باشد، رأی‌هایش متعلق به همه است و نباید به این موکل منتقل شود.
+            if (!$hasOtherPrincipals) {
+                Vote::reassignAllFromParticipantTo((int) $oldAttorney->id, (int) $participant->id);
+            }
+
+            $oldAttorney->normal_stock_count = max(0, (int) $oldAttorney->normal_stock_count - $returnNormal);
+            $oldAttorney->prefered_stock_count = max(0, (int) $oldAttorney->prefered_stock_count - $returnPrefered);
             $oldAttorney->save();
 
-            if (!Vote::where('participant_id', $oldAttorney->id)->exists()) {
+            if (
+                !$hasOtherPrincipals &&
+                (int) $oldAttorney->normal_stock_count === 0 &&
+                (int) $oldAttorney->prefered_stock_count === 0 &&
+                !Vote::where('participant_id', $oldAttorney->id)->exists()
+            ) {
                 $oldAttorney->delete();
+                $deleted = $oldAttorney;
             }
         }
         $event = $participant->event;
@@ -43,6 +71,11 @@ class AttorneyService
         $attorney = $user->participants()
             ->where('event_id', $participant->event_id)
             ->first();
+
+        // سهام کسی که خودش وکالت داده نزد وکیل خودش است؛ اگر وکیل شود سهام موکل روی ردیفی می‌نشیند که در رأی‌گیری دیده نمی‌شود.
+        if ($attorney && $attorney->attorney_id) {
+            throw new \Exception(__('messages.attorneys.attorney_has_delegated'));
+        }
 
         if (!$attorney) {
             $attorney = $user->participants()->create([

@@ -87,6 +87,40 @@ class Group extends Model
         return $this->belongsToMany(User::class, 'group_user')->withPivot('normal_stock_count', 'prefered_stock_count');
     }
 
+    /**
+     * Cache for managerOnlyUserIds() within a single request lifecycle.
+     */
+    protected ?array $managerOnlyUserIdsCache = null;
+
+    /**
+     * IDs of users who were only granted management access (any role/permission)
+     * but hold no shares in this group. They exist purely to manage the group /
+     * create elections and must be hidden from member lists, attendance,
+     * present-attendee displays and statistics.
+     *
+     * Normal voting members (who hold no role/permission) are never matched, so
+     * cooperative (PUBLIC_JOINT) groups — where everyone holds zero shares — are
+     * unaffected.
+     *
+     * @return array<int, int>
+     */
+    public function managerOnlyUserIds(): array
+    {
+        if ($this->managerOnlyUserIdsCache !== null) {
+            return $this->managerOnlyUserIdsCache;
+        }
+
+        return $this->managerOnlyUserIdsCache = $this->users()
+            ->wherePivot('normal_stock_count', 0)
+            ->wherePivot('prefered_stock_count', 0)
+            ->where(function ($q) {
+                $q->whereHas('roles')->orWhereHas('permissions');
+            })
+            ->pluck('users.id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+    }
+
     public function events(): HasMany
     {
         return $this->hasMany(Event::class);

@@ -189,9 +189,23 @@
                                 فیلتر</a>
                         </form>
                         @can(\App\Enums\Permission::CREATE_GROUP_USERS->value)
-                            <a href="{{ route('group.users.create', $group) }}" class="btn btn-success bg-gradient h-100 p-2">
-                                <i class="ti ti-plus me-1"></i>کاربر جدید
-                            </a>
+                            @php
+                                $isStockFull =
+                                    $group->type == App\Enums\GroupType::SPECIAL &&
+                                    $allocatedNormalStock >= $group->normal_stock_count &&
+                                    $allocatedPreferedStock >= $group->prefered_stock_count;
+                            @endphp
+                            @if ($isStockFull)
+                                <button type="button" class="btn btn-success bg-gradient h-100 p-2" disabled
+                                    title="تمام سهام گروه تخصیص داده شده است">
+                                    <i class="ti ti-plus me-1"></i>کاربر جدید
+                                </button>
+                            @else
+                                <a href="{{ route('group.users.create', $group) }}"
+                                    class="btn btn-success bg-gradient h-100 p-2">
+                                    <i class="ti ti-plus me-1"></i>کاربر جدید
+                                </a>
+                            @endif
                         @endcan
                     </div>
                 </div>
@@ -215,8 +229,10 @@
                             @forelse ($users as $user)
                                 <tr>
                                     <td>
-                                        <a href="#" class="text-dark fw-medium">
-                                            <span class="m-3">{{ $user->fullName }}</span>
+                                        <a href="#" class="text-dark fw-medium d-flex align-items-center">
+                                            <img src="{{ asset($user->profile_image) }}"
+                                                class="avatar-xs rounded-circle me-2" alt="">
+                                            <span class="m-3">{{ $user->full_name }}</span>
                                         </a>
                                     </td>
                                     <td><span class="m-3">{{ $user->phone }}</span></td>

@@ -71,6 +71,9 @@
     <!-- Vendor js -->
     <script src="{{asset('assets/js/vendor.min.js')}}"></script>
 
+    <!-- Persian -> English digit conversion for all inputs -->
+    <script src="{{asset('assets/js/persian-numbers.js')}}"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const identifierInput = document.querySelector('input[name=identifier]');

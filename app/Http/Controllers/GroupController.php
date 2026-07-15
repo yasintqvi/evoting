@@ -15,13 +15,15 @@ class GroupController extends Controller
     {
         $usersCount = $group->users()->count();
 
+        $hiddenUserIds = $group->managerOnlyUserIds();
+
         $events = $group->events()
             ->withCount([
-                'participants as present_count1' => function ($q) {
-                    $q->whereNull('attorney_id')->where('is_present', 1);
+                'participants as present_count1' => function ($q) use ($hiddenUserIds) {
+                    $q->whereNull('attorney_id')->where('is_present', 1)->whereNotIn('user_id', $hiddenUserIds);
                 },
-                'participants as absent_count1' => function ($q) {
-                    $q->whereNull('attorney_id')->where('is_present', 0);
+                'participants as absent_count1' => function ($q) use ($hiddenUserIds) {
+                    $q->whereNull('attorney_id')->where('is_present', 0)->whereNotIn('user_id', $hiddenUserIds);
                 },
             ])
             ->orderBy('created_at')

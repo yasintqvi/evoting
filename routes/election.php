@@ -63,6 +63,12 @@ Route::prefix('{group:slug}/events/{event:slug}')->group(function () {
     Route::post('/elections/{election}/candidates/create', [ElectionCandidateController::class, 'store'])
         ->name('candidates.store');
 
+    Route::post('/elections/{election}/candidates/quick-create-user', [ElectionCandidateController::class, 'quickCreateUser'])
+        ->name('candidates.quick-create-user');
+
+    Route::get('/elections/{election}/candidates/search-shareholders', [ElectionCandidateController::class, 'searchGroupShareholders'])
+        ->name('candidates.search-shareholders');
+
     Route::get('/elections/{election}/edit', [ElectionCandidateController::class, 'edit'])
         ->name('candidates.edit')
         ->can(Permission::EDIT_CANDIDATES);

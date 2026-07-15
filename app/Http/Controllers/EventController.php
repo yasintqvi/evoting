@@ -72,16 +72,22 @@ class EventController extends Controller
 
     public function attendanceStats(Event $event)
     {
-        $participants = $event->participants;
-
         $map = [
             'absent' => 0,
             'present' => 1,
         ];
 
+        $hiddenUserIds = $event->group->managerOnlyUserIds();
+
+        // ردیف حضور وکیل نباید در آمار حاضر/غایب شمرده شود؛ فقط موکلانش شمرده می‌شوند.
+        $attorneyParticipantIds = $event->participants()
+            ->whereNotNull('attorney_id')
+            ->pluck('attorney_id')
+            ->unique();
+
         return response()->json([
-            'present' => $event->participants()->where('is_present', $map['present'])->count(),
-            'absent' => $event->participants()->where('is_present', $map['absent'])->count(),
+            'present' => $event->participants()->where('is_present', $map['present'])->whereNotIn('user_id', $hiddenUserIds)->whereNotIn('id', $attorneyParticipantIds)->count(),
+            'absent' => $event->participants()->where('is_present', $map['absent'])->whereNotIn('user_id', $hiddenUserIds)->whereNotIn('id', $attorneyParticipantIds)->count(),
         ]);
     }
 

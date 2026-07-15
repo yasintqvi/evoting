@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 require __DIR__ . '/auth.php';
 // routes/web.php
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'voter.only'])->group(function () {
 
     Route::get('/', DashboardController::class)->name('app.index');
 

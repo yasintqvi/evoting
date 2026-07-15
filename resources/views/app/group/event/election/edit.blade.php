@@ -17,7 +17,8 @@
     </div>
 </div>
 
-<form action="{{ route('elections.update', [$group, $event, $election]) }}" method="post">
+<form action="{{ route('elections.update', [$group, $event, $election]) }}" method="post"
+    onsubmit="return validateElectionEditSubmit(event)">
     @csrf
     @method('PUT')
     <div class="card col-lg-6">
@@ -70,7 +71,7 @@
                 <div class="col-lg-6">
                     <div class="mb-3">
                         <label for="main_member_count" class="form-label">تعداد عضو اصلی </label>
-                        <input type="number" class="form-control" id="main_member_count" name="main_member_count" value="{{ old('main_member_count', $election->main_member_count) }}">
+                        <input type="number" class="form-control" id="main_member_count" name="main_member_count" value="{{ old('main_member_count', $election->main_member_count) }}" min="1" onchange="validateCandidateCounts()">
                         @error('main_member_count')
                         <span class="strong text-danger font-weight-bold">{{ $message }}</span>
                         @enderror
@@ -79,10 +80,15 @@
                 <div class="col-lg-6">
                     <div class="mb-3">
                         <label for="substitute_member_count" class="form-label">تعداد عضو علی البدل </label>
-                        <input type="number" class="form-control" name="substitute_member_count" value="{{ old('substitute_member_count', $election->substitute_member_count) }}" id="substitute_member_count">
+                        <input type="number" class="form-control" name="substitute_member_count" value="{{ old('substitute_member_count', $election->substitute_member_count) }}" id="substitute_member_count" min="0" onchange="validateCandidateCounts()">
                         @error('substitute_member_count')
                         <span class="strong text-danger font-weight-bold">{{ $message }}</span>
                         @enderror
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="alert alert-info" id="candidate-info" style="display: none;">
+                        <i class="ri-information-line"></i> <span id="candidate-info-text"></span>
                     </div>
                 </div>
                 <div class="col-lg-6">
@@ -108,7 +114,7 @@
                 <div class="col-12">
                     <div class="mb-3">
                         <label for="blocked_users" class="form-label">کاربران مسدود شده (اجازه رأی ندارند)</label>
-                        <select name="blocked_users[]" id="blocked_users" class="form-select" multiple>
+                        <select name="blocked_users[]" id="blocked_users" class="form-select" multiple data-toggle="select2">
                             @foreach ($users as $user)
                                 <option value="{{ $user->id }}" 
                                     {{ in_array($user->id, old('blocked_users', $election->blockedUsers->pluck('id')->toArray())) ? 'selected' : '' }}>
@@ -224,7 +230,40 @@
         checkElectionType({
             target: document.getElementById('election_type')
         });
+        validateCandidateCounts();
     });
+
+    function validateCandidateCounts() {
+        const mainMemberCount = parseInt(document.getElementById('main_member_count').value, 10) || 0;
+        const substituteMemberCount = parseInt(document.getElementById('substitute_member_count').value, 10) || 0;
+
+        const infoDiv = document.getElementById('candidate-info');
+        const infoText = document.getElementById('candidate-info-text');
+
+        if (mainMemberCount === 0 && substituteMemberCount === 0) {
+            infoDiv.style.display = 'none';
+            return true;
+        }
+
+        if (mainMemberCount <= substituteMemberCount) {
+            infoText.textContent =
+                `تعداد اعضای اصلی (${mainMemberCount}) باید بیشتر از تعداد اعضای علی‌البدل (${substituteMemberCount}) باشد.`;
+            infoDiv.className = 'alert alert-danger';
+            infoDiv.style.display = 'block';
+            return false;
+        }
+
+        infoDiv.style.display = 'none';
+        return true;
+    }
+
+    function validateElectionEditSubmit(e) {
+        if (!validateCandidateCounts()) {
+            e.preventDefault();
+            return false;
+        }
+        return true;
+    }
 </script>
 
 @endsection

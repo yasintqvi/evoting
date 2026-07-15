@@ -71,7 +71,7 @@
                     <p class="text-muted mt-3 mb-0">پاسخ شما برای این نظرسنجی ثبت شده است. هر سهام‌دار فقط یک بار می‌تواند شرکت کند.</p>
                 </div>
             @else
-                <form action="{{ route('surveys.answer.store', [$group->slug, $event->slug, $survey->slug]) }}" method="POST">
+                <form id="surveyAnswerForm" action="{{ route('surveys.answer.store', [$group->slug, $event->slug, $survey->slug]) }}" method="POST">
                     @csrf
 
                     @error('survey')
@@ -138,7 +138,7 @@
                         </div>
                     @endforeach
 
-                    <button type="submit" class="btn btn-primary">ارسال پاسخ‌ها</button>
+                    <button type="submit" id="surveySubmitBtn" class="btn btn-primary">ارسال پاسخ‌ها</button>
                 </form>
             @endif
         </div>
@@ -147,6 +147,16 @@
 
 @section('scripts')
     <script>
+        (function () {
+            var form = document.getElementById('surveyAnswerForm');
+            var submitBtn = document.getElementById('surveySubmitBtn');
+            if (form && submitBtn) {
+                form.addEventListener('submit', function () {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'در حال ارسال...';
+                });
+            }
+        })();
         (function () {
             function formatDuration(ms) {
                 if (ms <= 0) return '0:00:00';

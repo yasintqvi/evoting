@@ -82,24 +82,28 @@
         </div>
     </div>
 
-    <h3 style="margin-bottom:8px;">لیست رای‌دهندگان و تعداد رای</h3>
-    @if ($detailedVotes->count() > 0)
+    <h3 style="margin-bottom:8px;">لیست رای‌دهندگان و تعداد رای به هر کاندیدا</h3>
+    @if ($voterRows->count() > 0)
         <table class="results">
             <thead>
                 <tr>
                     <th class="text-center" style="width: 50px;">ردیف</th>
                     <th class="text-center">کد ملی</th>
-                    <th>کاندیدای انتخاب شده</th>
-                    <th class="text-center" style="width: 100px;">تعداد رای</th>
+                    @foreach ($candidates as $candidate)
+                        <th class="text-center">{{ $candidate->user?->full_name ?? '---' }}</th>
+                    @endforeach
                 </tr>
             </thead>
             <tbody>
-                @foreach ($detailedVotes as $index => $item)
+                @foreach ($voterRows as $index => $row)
                     <tr>
                         <td class="text-center">{{ $index + 1 }}</td>
-                        <td class="text-center" dir="ltr">{{ $item['masked_national_code'] }}</td>
-                        <td>{{ $item['candidate_name'] }}</td>
-                        <td class="text-center">{{ number_format($item['vote_chunk']) }}</td>
+                        <td class="text-center" dir="ltr">{{ $row['masked_national_code'] }}</td>
+                        @foreach ($candidates as $candidate)
+                            <td class="text-center">
+                                {{ $row['votes_by_candidate'][$candidate->id] ?? '' }}
+                            </td>
+                        @endforeach
                     </tr>
                 @endforeach
             </tbody>

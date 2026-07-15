@@ -291,7 +291,10 @@ class SurveyController extends Controller
             return back()->with('error', 'شما برای این رویداد وکالت داده‌اید؛ پاسخ به نظرسنجی فقط توسط وکیل شما امکان‌پذیر است.');
         }
 
-        return view('app.group.event.survey.answer', compact('group', 'event', 'survey', 'isExpired', 'isNotStarted', 'hasSubmitted'));
+        return response()
+            ->view('app.group.event.survey.answer', compact('group', 'event', 'survey', 'isExpired', 'isNotStarted', 'hasSubmitted'))
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache');
     }
 
     /**

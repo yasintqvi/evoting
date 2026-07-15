@@ -19,11 +19,17 @@ class VoterOnlyAccess
             $allowedRoutes = [
                 'app.index',
                 'my-elections.index',
+                'my-elections.destroy',
                 'voting.create',
                 'voting.store',
                 'my-surveys.index',
                 'surveys.answer',
                 'surveys.answer.store',
+                'profile.show',
+                'profile.update',
+                'profile.change-password',
+                'profile.enable-google2fa',
+                'profile.verify-google2fa',
                 'logout',
             ];
 

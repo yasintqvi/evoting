@@ -24,10 +24,22 @@
             </div>
 
             <form id="new-user-form" action="{{ route('group.users.store', $group) }}" method="post"
-                style="display: block;">
+                enctype="multipart/form-data" style="display: block;">
                 @csrf
                 <div class="card-body">
                     <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3 text-center">
+                                <label for="avatar" class="form-label d-block">عکس عضو</label>
+                                <img id="avatar-preview" src="{{ asset('assets/img/profile.png') }}"
+                                    class="avatar-md rounded-circle mb-2" alt="پیش‌نمایش عکس">
+                                <input type="file" name="avatar" id="avatar" class="form-control" accept="image/*">
+                                @error('avatar')
+                                    <span class="text-danger d-block">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+
                         {{-- فیلدهای کاربر --}}
                         <div class="col-lg-6">
                             <div class="mb-3">
@@ -157,8 +169,8 @@
                         <label for="users" class="form-label">کاربران </label>
                         <select class="form-control" id="users" data-choices
                             data-choices-removeItem name="users[]" multiple>
-                            @foreach ($users as $user) 
-                            <option value="{{ $user->id }}">{{ $user->full_name }}</option>
+                            @foreach ($users as $user)
+                            <option value="{{ $user->id }}" @selected(in_array($user->id, old('users', [])))>{{ $user->full_name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -171,4 +183,15 @@
             </form>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+    <script>
+        document.getElementById('avatar')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('avatar-preview').src = URL.createObjectURL(file);
+            }
+        });
+    </script>
 @endsection

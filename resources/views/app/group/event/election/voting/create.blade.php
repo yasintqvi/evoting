@@ -10,9 +10,10 @@
             (int) $election->candidates->where('candidate_type', App\Enums\CandidateType::DIRECTOR)->count();
 
         $article88VotePool =
-            $election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88
-                ? (float) $effectiveStock * (float) max(1, $directorCandidateCount)
-                : 0.0;
+            $article88VotePool ??
+            ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88
+                ? (float) $effectiveStock * (float) max(0, (int) $election->main_member_count)
+                : 0.0);
 
         $presentParticipantsCount = $presentParticipantsCount ?? 0;
         $totalParticipantsInEvent = $totalParticipantsInEvent ?? 0;
@@ -111,7 +112,7 @@
                                         <small class="text-muted">
                                             مجموع سهام مؤثر حاضرین
                                             ({{ number_format($totalEffectiveStockOfAllParticipants) }})
-                                            × {{ $directorCandidateCount }} کاندیدا
+                                            × {{ (int) ($election->main_member_count ?? 0) }} عضو اصلی
                                         </small>
                                         <small class="text-muted d-block mt-1">
                                             @if ($election->ignore_stock_weight)
@@ -143,7 +144,7 @@
                                             <h4 class="fw-medium mb-0">{{ number_format((float) $article88VotePool) }}</h4>
                                             <p class="mb-0 text-muted lh-lg">سقف رأی قابل تخصیص</p>
                                             <small class="text-primary">
-                                                {{ number_format($effectiveStock) }} × {{ $directorCandidateCount }} نامزد
+                                                {{ number_format($effectiveStock) }} × {{ (int) ($election->main_member_count ?? 0) }} عضو اصلی
                                             </small>
                                         @else
                                             <h4 class="fw-medium mb-0">{{ number_format($effectiveStock) }}</h4>
@@ -728,17 +729,41 @@
                 @endif
             }
 
+            const maxDirectorCandidatesForArticle88 = Number(
+                "{{ (int) ($election->main_member_count ?? 0) }}");
+
             showPreviewBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 calculateVotePreview();
                 if (isArticle88 && article88Pool >= 0) {
                     const inputs = form.querySelectorAll('input[name^="director_candidates"]');
                     let sum = 0;
+                    let votedCandidatesCount = 0;
                     inputs.forEach(function(input) {
                         if (input.type === 'number') {
-                            sum += parseLocaleNumberToFloat(input.value);
+                            const value = parseLocaleNumberToFloat(input.value);
+                            sum += value;
+                            if (value > 0) {
+                                votedCandidatesCount++;
+                            }
                         }
                     });
+                    if (maxDirectorCandidatesForArticle88 > 0 && votedCandidatesCount >
+                        maxDirectorCandidatesForArticle88) {
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'خطا...',
+                                text: `شما نمی‌توانید بیشتر از ${maxDirectorCandidatesForArticle88} کاندیدای اصلی انتخاب کنید.`,
+                                confirmButtonText: 'باشه'
+                            });
+                        } else {
+                            alert(
+                                `شما نمی‌توانید بیشتر از ${maxDirectorCandidatesForArticle88} کاندیدای اصلی انتخاب کنید.`
+                            );
+                        }
+                        return;
+                    }
                     if (sum <= 0) {
                         if (typeof Swal !== 'undefined') {
                             Swal.fire({
@@ -787,10 +812,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const maxDirectorCandidates = Number("{{ (int) ($election->main_member_count ?? 0) }}");
-            const maxInspectorCandidates = Number("{{ (int) ($election->incpector_main_member_count ?? 0) }}");
 
             const directorCheckboxes = document.querySelectorAll('input[name^="director_candidates"]');
-            const inspectorCheckboxes = document.querySelectorAll('input[name^="inspector_candidates"]');
 
             function enforceLimit(checkboxes, max) {
                 if (!checkboxes.length || max <= 0) {
@@ -813,7 +836,6 @@
             }
 
             enforceLimit(directorCheckboxes, maxDirectorCandidates);
-            enforceLimit(inspectorCheckboxes, maxInspectorCandidates);
 
         });
     </script>

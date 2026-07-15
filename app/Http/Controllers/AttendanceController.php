@@ -23,11 +23,13 @@ class AttendanceController extends Controller
 
     public function create(Group $group, Event $event)
     {
-        $users = $group->users()->get();
+        $hiddenUserIds = $group->managerOnlyUserIds();
+
+        $users = $group->users()->whereNotIn('users.id', $hiddenUserIds)->get();
 
         $attorneyIds = array_filter($event->participants()->pluck('attorney_id')->toArray());
 
-        return view('app.group.attendances.create', compact('group', 'event', 'users', 'attorneyIds'));
+        return view('app.group.attendances.create', compact('group', 'event', 'users', 'attorneyIds', 'hiddenUserIds'));
     }
 
     public function setPresent(Participant $participant)
