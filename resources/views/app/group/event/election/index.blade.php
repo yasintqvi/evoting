@@ -1,5 +1,14 @@
 @extends('app.layouts.app')
 
+@section('head-tag')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@majidh1/jalalidatepicker@0.9.12/dist/jalalidatepicker.min.css">
+    <style>
+        jdp-container {
+            z-index: 1100 !important;
+        }
+    </style>
+@endsection
+
 @section('content')
     <div class="page-title-head d-flex align-items-sm-center flex-sm-row flex-column gap-2">
         <div class="flex-grow-1">
@@ -16,6 +25,13 @@
             </ol>
         </div>
     </div>
+
+    @if ($errors->has('ends_at'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ $errors->first('ends_at') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
 
     <div class="row">
         <div class="col-12">
@@ -367,8 +383,13 @@
                         <div class="mb-3">
                             <label for="start_election_ends_at" class="form-label">زمان پایان انتخابات <span
                                     class="text-muted fw-normal">(اختیاری)</span></label>
-                            <input type="datetime-local" class="form-control" name="ends_at"
-                                id="start_election_ends_at">
+                            <input type="text" class="form-control @error('ends_at') is-invalid @enderror"
+                                name="ends_at" id="start_election_ends_at" autocomplete="off" data-jdp
+                                data-jdp-time-picker="true" placeholder="۱۴۰۳/۰۱/۰۱ ۱۴:۳۰"
+                                value="{{ old('ends_at') }}">
+                            @error('ends_at')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
                             <small class="text-muted d-block mt-1">در صورت خالی ماندن، محدودیت زمانی خودکار برای پایان
                                 اعمال نمی‌شود.</small>
                         </div>
@@ -422,6 +443,10 @@
                 }
             });
         });
+
+        if (typeof jalaliDatepicker !== 'undefined') {
+            jalaliDatepicker.startWatch();
+        }
 
         function copyElectionTemplateFromButton(btn) {
             var b64 = btn.getAttribute('data-election-template-b64');

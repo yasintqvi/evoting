@@ -230,7 +230,7 @@
                 tags: true,
                 dropdownParent: $('#attorneyModal'),
                 ajax: {
-                    url: '/user/select2',
+                    url: '{{ route('user.select2', $group) }}',
                     dataType: 'json',
                     delay: 250,
                     data: function(params) {

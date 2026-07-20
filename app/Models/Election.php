@@ -183,9 +183,59 @@ class Election extends Model
             : 0;
     }
 
+    /**
+     * سقف کل آرای قابل ثبت در این انتخابات، بر اساس شرکت‌کنندگان حاضر و نوع انتخابات.
+     *
+     * قبلاً فقط از سهام کل گروه در زمان ساخت انتخابات استفاده می‌شد که برای
+     * تعاونی / ماده ۸۸ / افراد غایب عدد اشتباه می‌داد.
+     */
     public function getAllVotesAttribute(): float|int
     {
-        return $this->normal_stock_count + ($this->prefered_stock_count * $this->prefered_stock_weight);
+        $this->loadMissing(['event.participants', 'group']);
+
+        $hiddenUserIds = $this->group?->managerOnlyUserIds() ?? [];
+        $participants = $this->event?->participants ?? collect();
+
+        if ($hiddenUserIds !== []) {
+            $participants = $participants->whereNotIn('user_id', $hiddenUserIds);
+        }
+
+        if ($this->type === ElectionType::PUBLIC_JOINT) {
+            $voters = $participants
+                ->where('is_present', true)
+                ->whereNull('attorney_id');
+
+            $total = 0;
+            foreach ($voters as $voter) {
+                $representedCount = $participants->where('attorney_id', $voter->id)->count();
+                $total += 1 + $representedCount;
+            }
+
+            return $total;
+        }
+
+        $presentParticipants = $participants->where('is_present', true);
+
+        $total = 0.0;
+        foreach ($presentParticipants as $participant) {
+            $total += $this->participantVoteUnits($participant);
+        }
+
+        if ($this->type === ElectionType::PRIVATE_JOINT_WITH_88) {
+            $total *= max(0, (int) $this->main_member_count);
+        }
+
+        return $total == (int) $total ? (int) $total : $total;
+    }
+
+    protected function participantVoteUnits(Participant $participant): float
+    {
+        if ($this->ignore_stock_weight) {
+            return (float) $participant->normal_stock_count + (float) $participant->prefered_stock_count;
+        }
+
+        return (float) $participant->normal_stock_count
+            + ((float) $participant->prefered_stock_count * (float) $this->prefered_stock_weight);
     }
 
     /**

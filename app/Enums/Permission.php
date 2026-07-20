@@ -161,7 +161,6 @@ enum Permission: string
             ],
             Role::GroupManager => [
                 self::VIEW_DASHBOARD,
-                self::MANAGE_GROUP_USER_ACCESS,
             ],
             default => [],
         };

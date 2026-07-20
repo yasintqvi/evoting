@@ -6,7 +6,6 @@ use App\Models\Attendance;
 use App\Models\Event;
 use App\Models\Group;
 use App\Models\Participant;
-use App\Models\User;
 use App\Services\AttorneyService;
 use Illuminate\Http\Request;
 use Log;
@@ -56,17 +55,33 @@ class AttendanceController extends Controller
         }
     }
 
-    public function getUser(Request $request)
+    public function getUser(Request $request, Group $group)
     {
         try {
             $search = $request->input('q');
             $page = $request->input('page', 1);
             $perPage = 10;
 
-            $query = User::query()->select('id', 'phone', 'first_name', 'last_name');
+            $hiddenUserIds = $group->managerOnlyUserIds();
+
+            $query = $group->users()
+                ->select('users.id', 'users.phone', 'users.first_name', 'users.last_name')
+                ->whereNotIn('users.id', $hiddenUserIds);
+
+            // در گروه‌های سهامی خاص فقط سهامداران واقعی نمایش داده شوند.
+            if ($group->type === \App\Enums\GroupType::SPECIAL) {
+                $query->where(function ($q) {
+                    $q->where('group_user.normal_stock_count', '>', 0)
+                        ->orWhere('group_user.prefered_stock_count', '>', 0);
+                });
+            }
 
             if ($search) {
-                $query->where('phone', 'like', "%{$search}%");
+                $query->where(function ($q) use ($search) {
+                    $q->where('users.phone', 'like', "%{$search}%")
+                        ->orWhere('users.first_name', 'like', "%{$search}%")
+                        ->orWhere('users.last_name', 'like', "%{$search}%");
+                });
             }
 
             $users = $query->paginate($perPage, ['*'], 'page', $page);
@@ -77,6 +92,7 @@ class AttendanceController extends Controller
             ]);
         } catch (\Throwable $exception) {
             Log::error('Error fetching users', [
+                'group_id' => $group->id,
                 'error' => $exception->getMessage(),
                 'trace' => $exception->getTraceAsString(),
             ]);

@@ -1,5 +1,15 @@
 @extends('app.layouts.app')
 
+@section('head-tag')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@majidh1/jalalidatepicker@0.9.12/dist/jalalidatepicker.min.css">
+    <style>
+        /* تقویم (jdp-container یک تگ سفارشی است نه کلاس) باید بالاتر از مودال بوت‌استرپ (z-index: 1055) نمایش داده شود. */
+        jdp-container {
+            z-index: 1100 !important;
+        }
+    </style>
+@endsection
+
 @section('content')
     <div class="page-title-head d-flex align-items-sm-center flex-sm-row flex-column gap-2">
         <div class="flex-grow-1">
@@ -117,6 +127,7 @@
                                     <td class="text-center">
                                         @php
                                             $surveyIsActive = (int) $survey->status === 1;
+                                            $surveyHasEnded = ! $surveyIsActive && $survey->start_at !== null;
                                         @endphp
 
                                         <div class="hstack gap-1 justify-content-end flex-nowrap">
@@ -129,6 +140,8 @@
                                                     onclick="setEndSurveyForm({{ $survey->id }})">
                                                     پایان نظرسنجی
                                                 </button>
+                                            @elseif ($surveyHasEnded)
+                                                <span class="badge bg-secondary">پایان یافته</span>
                                             @else
                                                 <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
                                                     data-bs-target="#startSurveyModal"
@@ -193,7 +206,9 @@
                         <p class="mb-3">آیا از شروع این نظرسنجی مطمئن هستید؟</p>
                         <div class="mb-2">
                             <label for="startSurveyEndAt" class="form-label">زمان پایان (اختیاری)</label>
-                            <input type="datetime-local" name="end_at" id="startSurveyEndAt" class="form-control @error('end_at') is-invalid @enderror"
+                            <input type="text" name="end_at" id="startSurveyEndAt" autocomplete="off"
+                                class="form-control @error('end_at') is-invalid @enderror" data-jdp
+                                data-jdp-time-picker="true" placeholder="۱۴۰۳/۰۱/۰۱ ۱۴:۳۰"
                                 value="{{ old('end_at') }}">
                             @error('end_at')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -251,5 +266,9 @@
                 document.getElementById(currentEndFormId).submit();
             }
         });
+
+        if (typeof jalaliDatepicker !== 'undefined') {
+            jalaliDatepicker.startWatch();
+        }
     </script>
 @endsection

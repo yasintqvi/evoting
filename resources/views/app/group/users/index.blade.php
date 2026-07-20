@@ -190,12 +190,13 @@
                         </form>
                         @can(\App\Enums\Permission::CREATE_GROUP_USERS->value)
                             @php
+                                $isPlatformManager = auth()->user()?->hasRole(\App\Enums\Role::Manager->value);
                                 $isStockFull =
                                     $group->type == App\Enums\GroupType::SPECIAL &&
                                     $allocatedNormalStock >= $group->normal_stock_count &&
                                     $allocatedPreferedStock >= $group->prefered_stock_count;
                             @endphp
-                            @if ($isStockFull)
+                            @if ($isStockFull && ! $isPlatformManager)
                                 <button type="button" class="btn btn-success bg-gradient h-100 p-2" disabled
                                     title="تمام سهام گروه تخصیص داده شده است">
                                     <i class="ti ti-plus me-1"></i>کاربر جدید
@@ -256,7 +257,7 @@
                                                     <i class="ti ti-edit"></i>
                                                 </a>
                                             @endcan
-                                            @can(\App\Enums\Permission::MANAGE_GROUP_USER_ACCESS->value)
+                                            @can(\App\Enums\Permission::CHANGE_ACCESS->value)
                                                 <a href="{{ route('users.change-access.edit', $user->id) }}"
                                                     class="btn btn-info btn-sm">
                                                     <i class="ti ti-key"></i>

@@ -11,8 +11,8 @@ use App\Models\Question;
 use App\Models\Survey;
 use App\Models\SurveyAnswer;
 use App\Models\SurveyResponse;
-use Carbon\Carbon;
 use DB;
+use Hekmatinasser\Verta\Verta;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -382,20 +382,22 @@ class SurveyController extends Controller
         ['stats' => $stats, 'isWeighted' => $isWeighted] = $this->buildSurveyStatistics($group, $event, $survey);
 
         if ($request->boolean('download_pdf')) {
-            $pdf = Pdf::loadView('app.group.event.survey.statistics-pdf', compact(
-                'group',
-                'event',
-                'survey',
-                'stats',
-                'isWeighted'
-            ), [], [
-                'format' => 'A4',
-                'orientation' => 'P',
-            ]);
+            $isCompact = $request->boolean('compact');
+
+            $pdf = Pdf::loadView(
+                $isCompact ? 'app.group.event.survey.statistics-pdf-compact' : 'app.group.event.survey.statistics-pdf',
+                compact('group', 'event', 'survey', 'stats', 'isWeighted'),
+                [],
+                [
+                    'format' => 'A4',
+                    'orientation' => 'P',
+                ]
+            );
 
             $safeSlug = preg_replace('/[^\p{L}\p{N}\-_]+/u', '-', (string) $survey->slug) ?: 'survey';
+            $suffix = $isCompact ? '-compact' : '';
 
-            return $pdf->download('survey-statistics-'.$safeSlug.'.pdf');
+            return $pdf->download('survey-statistics-'.$safeSlug.$suffix.'.pdf');
         }
 
         return view('app.group.event.survey.statistics', compact('group', 'event', 'survey', 'stats', 'isWeighted'));
@@ -478,12 +480,62 @@ class SurveyController extends Controller
             return back()->with('error', 'این نظرسنجی هم‌اکنون فعال است.');
         }
 
+        if ($survey->start_at !== null) {
+            return back()->with('error', 'این نظرسنجی قبلاً پایان یافته و امکان شروع مجدد آن وجود ندارد.');
+        }
+
         $request->validate([
-            'end_at' => ['nullable', 'date'],
+            'end_at' => ['nullable', 'string'],
         ]);
 
+        $event->load('participants');
+
+        if ($group->type === GroupType::SPECIAL) {
+            $totalStocks = $group->normal_stock_count + $group->prefered_stock_count;
+
+            $presentStock = $event->participants
+                ->where('is_present', 1)
+                ->sum(fn ($p) => $p->normal_stock_count + $p->prefered_stock_count);
+
+            $required = ($event->quorum_percent / 100) * $totalStocks;
+
+            if ($presentStock < $required) {
+                return back()->with(
+                    'error',
+                    "سهام حاضرین ({$presentStock}) به حد نصاب ({$required}) نرسیده است."
+                );
+            }
+        } else {
+            $hiddenUserIds = $group->managerOnlyUserIds();
+
+            $presentCount = $event->participants
+                ->whereNotIn('user_id', $hiddenUserIds)
+                ->where('is_present', 1)
+                ->count();
+
+            $totalMembers = $event->participants
+                ->whereNotIn('user_id', $hiddenUserIds)
+                ->count();
+
+            $required = ($event->quorum_percent / 100) * $totalMembers;
+
+            if ($presentCount < $required) {
+                return back()->with(
+                    'error',
+                    "تعداد افراد حاضر ({$presentCount}) به حد نصاب ({$required}) نرسیده است."
+                );
+            }
+        }
+
         if ($request->filled('end_at')) {
-            $endAt = Carbon::parse($request->input('end_at'));
+            try {
+                $endAt = Verta::parse(trim((string) $request->input('end_at')))->toCarbon();
+            } catch (\Throwable $e) {
+                throw ValidationException::withMessages([
+                    'end_at' => ['زمان پایان معتبر نیست.'],
+                ]);
+            }
+
             if ($endAt->lte(now())) {
                 throw ValidationException::withMessages([
                     'end_at' => ['زمان پایان باید بعد از زمان حاضر باشد.'],

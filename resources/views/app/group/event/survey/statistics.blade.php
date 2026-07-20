@@ -6,11 +6,18 @@
             <h1 class="text-center text-md-start mb-0 fw-bold flex-grow-1">
                 آمار نظرسنجی: {{ $survey->title }}
             </h1>
-            <a href="{{ route('surveys.statistics', [$group, $event, $survey]) }}?download_pdf=1"
-                class="btn btn-danger bg-gradient shrink-0" target="_blank" rel="noopener">
-                <i class="ti ti-file-type-pdf me-1"></i>
-                دانلود PDF
-            </a>
+            <div class="d-flex gap-2 shrink-0">
+                <a href="{{ route('surveys.statistics', [$group, $event, $survey]) }}?download_pdf=1"
+                    class="btn btn-danger bg-gradient" target="_blank" rel="noopener">
+                    <i class="ti ti-file-type-pdf me-1"></i>
+                    دانلود PDF
+                </a>
+                <a href="{{ route('surveys.statistics', [$group, $event, $survey]) }}?download_pdf=1&compact=1"
+                    class="btn btn-outline-danger" target="_blank" rel="noopener">
+                    <i class="ti ti-file-type-pdf me-1"></i>
+                    دانلود PDF فشرده
+                </a>
+            </div>
         </div>
 
         @if ($isWeighted ?? false)

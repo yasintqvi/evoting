@@ -143,6 +143,21 @@
                                 <label for="is_active" data-on-label="فعال" data-off-label="غیر فعال"></label>
                             </div>
                         </div>
+
+                        @if (auth()->user()?->hasRole(\App\Enums\Role::Manager->value))
+                            <div class="col-lg-12 mt-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="as_group_admin"
+                                        name="as_group_admin" value="1" @checked(old('as_group_admin'))>
+                                    <label class="form-check-label" for="as_group_admin">
+                                        افزودن به عنوان مدیر گروه (بدون سهام)
+                                    </label>
+                                </div>
+                                <small class="text-muted">
+                                    در این حالت کاربر بدون سهام به گروه اضافه می‌شود و بعد از ثبت، صفحه اعطای دسترسی باز می‌شود.
+                                </small>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
@@ -175,6 +190,17 @@
                         </select>
                     </div>
                 </div>
+                @if (auth()->user()?->hasRole(\App\Enums\Role::Manager->value))
+                    <div class="col-12 px-3">
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" role="switch" id="batch_as_group_admin"
+                                name="as_group_admin" value="1" @checked(old('as_group_admin'))>
+                            <label class="form-check-label" for="batch_as_group_admin">
+                                افزودن کاربران انتخاب‌شده به‌عنوان مدیر گروه (بدون سهام)
+                            </label>
+                        </div>
+                    </div>
+                @endif
                 <div class="card-footer">
                     <div class="text-end mb-3">
                         <button type="submit" class="btn btn-primary">افزودن</button>
@@ -193,5 +219,27 @@
                 document.getElementById('avatar-preview').src = URL.createObjectURL(file);
             }
         });
+
+        const asGroupAdminCheckbox = document.getElementById('as_group_admin');
+        const normalStockInput = document.querySelector('input[name="normal_stock_count"]');
+        const preferedStockInput = document.querySelector('input[name="prefered_stock_count"]');
+
+        function toggleStockInputsByAdminMode() {
+            if (!asGroupAdminCheckbox || !normalStockInput || !preferedStockInput) {
+                return;
+            }
+
+            const managerMode = asGroupAdminCheckbox.checked;
+            normalStockInput.readOnly = managerMode;
+            preferedStockInput.readOnly = managerMode;
+
+            if (managerMode) {
+                normalStockInput.value = 0;
+                preferedStockInput.value = 0;
+            }
+        }
+
+        asGroupAdminCheckbox?.addEventListener('change', toggleStockInputsByAdminMode);
+        toggleStockInputsByAdminMode();
     </script>
 @endsection

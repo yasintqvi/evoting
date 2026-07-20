@@ -45,7 +45,7 @@
                                             \App\Enums\Permission::EDIT_GROUP_USERS->value,
                                             \App\Enums\Permission::UPDATE_GROUP_USERS->value,
                                             \App\Enums\Permission::DELETE_GROUP_USERS->value,
-                                            \App\Enums\Permission::MANAGE_GROUP_USER_ACCESS->value,
+                                            \App\Enums\Permission::CHANGE_ACCESS->value,
                                             \App\Enums\Permission::VIEW_GROUP_EVENT->value,
                                             \App\Enums\Permission::CREATE_GROUP_EVENT->value,
                                             \App\Enums\Permission::EDIT_GROUP_EVENT->value,
@@ -87,6 +87,7 @@
                                                 <input type="checkbox"
                                                     class="form-check-input @error('permissions') is-invalid @enderror"
                                                     id="permission_{{ $permission->id }}" name="permissions[]"
+                                                    data-permission-name="{{ $permission->name }}"
                                                     value="{{ $permission->id }}"
                                                     {{ (is_array(old('permissions')) && in_array($permission->id, old('permissions'))) ||
                                                     (!old() && in_array($permission->id, $user->getAllPermissions()->pluck('id')->toArray()))
@@ -125,6 +126,7 @@
                                                 <input type="checkbox"
                                                     class="form-check-input @error('roles') is-invalid @enderror"
                                                     id="role_{{ $role->id }}" name="roles[]"
+                                                    data-role-name="{{ $role->name }}"
                                                     value="{{ $role->id }}"
                                                     {{ (is_array(old('roles')) && in_array($role->id, haystack: old('roles'))) ||
                                                     (!old() && in_array($role->id, $userRoles->pluck('id')->toArray()))
@@ -158,6 +160,8 @@
 
 @section('scripts')
     <script>
+        const groupManagerRecommendedPermissions = @json($groupManagerPermissions ?? []);
+
         function toggleAllPermissions(button) {
             const checkboxes = document.querySelectorAll('input[name="permissions[]"]');
             const allChecked = Array.from(checkboxes).every(cb => cb.checked);
@@ -168,5 +172,28 @@
 
             button.textContent = allChecked ? 'انتخاب همه' : 'حذف انتخاب همه';
         }
+
+        function applyGroupManagerRecommendedPermissions() {
+            const checkboxes = document.querySelectorAll('input[name="permissions[]"]');
+
+            checkboxes.forEach((checkbox) => {
+                const permissionName = checkbox.dataset.permissionName;
+                if (groupManagerRecommendedPermissions.includes(permissionName)) {
+                    checkbox.checked = true;
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const groupManagerRoleCheckbox = document.querySelector(
+                'input[name="roles[]"][data-role-name="{{ \App\Enums\Role::GroupManager->value }}"]'
+            );
+
+            groupManagerRoleCheckbox?.addEventListener('change', function() {
+                if (this.checked) {
+                    applyGroupManagerRecommendedPermissions();
+                }
+            });
+        });
     </script>
 @endsection

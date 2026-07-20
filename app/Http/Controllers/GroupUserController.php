@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\GroupType;
+use App\Enums\Role;
 use App\Http\Requests\User\StoreGroupUserRequest;
 use App\Http\Requests\User\UpdateGroupUserRequest;
 use App\Models\Group;
@@ -130,9 +131,35 @@ class GroupUserController extends Controller
     {
         $request->validate([
             'users.*' => ['exists:users,id'],
+            'as_group_admin' => ['sometimes', 'boolean'],
         ]);
 
-        $group->users()->attach($request->input('users'));
+        $users = collect($request->input('users', []))
+            ->filter()
+            ->map(fn ($userId) => (int) $userId)
+            ->all();
+
+        if ($users === []) {
+            return back()->with('error', 'حداقل یک کاربر را انتخاب کنید.');
+        }
+
+        $attachData = [];
+        foreach ($users as $userId) {
+            $attachData[$userId] = [
+                'normal_stock_count' => 0,
+                'prefered_stock_count' => 0,
+            ];
+        }
+
+        $group->users()->syncWithoutDetaching($attachData);
+
+        if ($request->boolean('as_group_admin')) {
+            User::whereIn('id', $users)->each(function (User $user) {
+                if (! $user->hasRole(Role::GroupManager->value)) {
+                    $user->assignRole(Role::GroupManager->value);
+                }
+            });
+        }
 
         return back()->with('success', 'کاربران جدید به گروه اضافه شدند.');
     }
@@ -144,6 +171,7 @@ class GroupUserController extends Controller
     {
         try {
             $validated = $request->validated();
+            $asGroupAdmin = (bool) ($validated['as_group_admin'] ?? false);
 
             $user = User::where('phone', $validated['phone'])->first();
 
@@ -170,9 +198,19 @@ class GroupUserController extends Controller
             }
 
             $group->users()->attach($user->id, [
-                'normal_stock_count' => $group->type === GroupType::SPECIAL ? ($validated['normal_stock_count'] ?? 0) : 0,
-                'prefered_stock_count' => $group->type === GroupType::SPECIAL ? ($validated['prefered_stock_count'] ?? 0) : 0,
+                'normal_stock_count' => $asGroupAdmin ? 0 : ($group->type === GroupType::SPECIAL ? ($validated['normal_stock_count'] ?? 0) : 0),
+                'prefered_stock_count' => $asGroupAdmin ? 0 : ($group->type === GroupType::SPECIAL ? ($validated['prefered_stock_count'] ?? 0) : 0),
             ]);
+
+            if ($asGroupAdmin && ! $user->hasRole(Role::GroupManager->value)) {
+                $user->assignRole(Role::GroupManager->value);
+            }
+
+            if ($asGroupAdmin) {
+                return redirect()
+                    ->route('users.change-access.edit', $user->id)
+                    ->with('success', 'کاربر به‌عنوان مدیر گروه اضافه شد. اکنون دسترسی‌های او را تنظیم کنید.');
+            }
 
             return back()->with('success', __('messages.group_user.created'));
 

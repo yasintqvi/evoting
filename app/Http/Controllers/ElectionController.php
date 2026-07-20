@@ -21,9 +21,11 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Hekmatinasser\Verta\Verta;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as Pdf;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -285,9 +287,26 @@ class ElectionController extends Controller
 
     public function start(Request $request, Group $group, Event $event, Election $election)
     {
-        $validated = $request->validate([
-            'ends_at' => ['nullable', 'date', 'after:now'],
+        $request->validate([
+            'ends_at' => ['nullable', 'string'],
         ]);
+
+        $endsAt = null;
+        if ($request->filled('ends_at')) {
+            try {
+                $endsAt = Verta::parse(trim((string) $request->input('ends_at')))->toCarbon();
+            } catch (Throwable $e) {
+                throw ValidationException::withMessages([
+                    'ends_at' => ['زمان پایان معتبر نیست.'],
+                ]);
+            }
+
+            if ($endsAt->lte(now())) {
+                throw ValidationException::withMessages([
+                    'ends_at' => ['زمان پایان باید بعد از زمان حاضر باشد.'],
+                ]);
+            }
+        }
 
         try {
             if ($election->status !== ElectionStatus::WAITING_TO_START) {
@@ -298,9 +317,7 @@ class ElectionController extends Controller
                 $election->update([
                     'status' => ElectionStatus::ONGOING,
                     'starts_at' => now(),
-                    'ends_at' => !empty($validated['ends_at'])
-                        ? Carbon::parse($validated['ends_at'])
-                        : $election->ends_at,
+                    'ends_at' => $endsAt ?? $election->ends_at,
                 ]);
 
                 return back()->with('success', 'نظرسنجی با موفقیت شروع شد.');
@@ -351,9 +368,7 @@ class ElectionController extends Controller
             $election->update([
                 'status' => ElectionStatus::ONGOING,
                 'starts_at' => now(),
-                'ends_at' => !empty($validated['ends_at'])
-                    ? Carbon::parse($validated['ends_at'])
-                    : $election->ends_at,
+                'ends_at' => $endsAt ?? $election->ends_at,
             ]);
 
             return back()->with('success', 'انتخابات با موفقیت شروع شد.');
