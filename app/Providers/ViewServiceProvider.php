@@ -33,6 +33,7 @@ class ViewServiceProvider extends ServiceProvider
                     'event.elections.candidates.user',
                     'event.elections.position',
                     'event.surveys.questions',
+                    'is_attorney',
                 ])
                 ->get();
 
@@ -47,8 +48,14 @@ class ViewServiceProvider extends ServiceProvider
                     continue;
                 }
 
+                $canParticipate = $event->userCanParticipateInVoting((int) $user->id);
+
                 foreach ($event->elections()->latest()->get() as $election) {
                     if ($election->candidates->isEmpty()) {
+                        continue;
+                    }
+
+                    if (! $event->userCanParticipateInVoting((int) $user->id, $election)) {
                         continue;
                     }
 
@@ -64,7 +71,12 @@ class ViewServiceProvider extends ServiceProvider
                             'participant' => $participant,
                             'has_voted' => false,
                         ]);
-                    } elseif (in_array($election->status, [ElectionStatus::COMPLETED, ElectionStatus::CANCELED, ElectionStatus::ONGOING])) {
+                    } elseif (in_array($election->status, [ElectionStatus::COMPLETED, ElectionStatus::CANCELED, ElectionStatus::ONGOING], true)) {
+                        // وکیل نباید انتخابات گذشته را در سایدبار ببیند.
+                        if ($election->isFinished() && $participant->is_attorney->isNotEmpty()) {
+                            continue;
+                        }
+
                         $sidebarUnavailableElections->push([
                             'election' => $election,
                             'event' => $event,
@@ -73,6 +85,10 @@ class ViewServiceProvider extends ServiceProvider
                             'has_voted' => $hasVoted,
                         ]);
                     }
+                }
+
+                if (! $canParticipate) {
+                    continue;
                 }
 
                 foreach ($event->surveys->where('status', 1) as $survey) {

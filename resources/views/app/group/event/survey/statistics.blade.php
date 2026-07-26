@@ -22,7 +22,7 @@
 
         @if ($isWeighted ?? false)
             <div class="alert alert-info small mb-4">
-                آمار بر اساس مجموع سهام عادی و ممتاز هر شرکت‌کننده در این رویداد وزن‌دهی شده است.
+                آمار بر اساس سهام عادی + (سهام ممتاز × {{ number_format((float) ($group->prefered_stock_weight ?? 0)) }}) هر شرکت‌کننده در این رویداد وزن‌دهی شده است.
             </div>
         @endif
 
@@ -72,7 +72,7 @@
                                     data: {
                                         labels: {!! json_encode($labels) !!},
                                         datasets: [{
-                                            label: 'تعداد پاسخ‌ها',
+                                            label: @json(($isWeighted ?? false) ? 'وزن پاسخ (سهم)' : 'تعداد پاسخ‌ها'),
                                             data: {!! json_encode($values) !!},
                                             backgroundColor: [
                                                 '#0d6efd', '#198754', '#ffc107', '#dc3545',

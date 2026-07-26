@@ -9,19 +9,9 @@
         <div class="text-end">
             <ol class="breadcrumb m-0 py-0">
                 <li class="breadcrumb-item"><a href="javascript: void(0);">خانه</a></li>
-
-
                 <li class="breadcrumb-item active">لیست حاضران</li>
             </ol>
         </div>
-    </div>
-
-    <div class="text-end">
-        <ol class="breadcrumb m-0 py-0">
-            <li class="breadcrumb-item"><a href="javascript: void(0);">خانه</a></li>
-            <li class="breadcrumb-item active">لیست حاضران</li>
-        </ol>
-    </div>
     </div>
 
     <div class="w-full">
@@ -47,42 +37,49 @@
                                     </thead>
                                     <tbody id="participants-table">
                                         @foreach ($event->participants as $participant)
-                                            @if (in_array((int) $participant->user_id, $hiddenUserIds ?? [], true))
-                                                @continue
-                                            @endif
+                                            @php
+                                                $isAttorney = in_array($participant->id, $attorneyIds);
+                                                $hasAttorney = (bool) $participant->attorney_id;
+                                            @endphp
                                             <tr id="participant-{{ $participant->id }}"
                                                 class="participant-{{ $participant->id }}">
                                                 <td>{{ $participant->user->full_name }}</td>
                                                 <td>
-                                                    @if ($participant->attorney_id)
-                                                        <div id="present-{{ $participant->id }}">
-                                                            اهدای وکالت
-                                                        </div>
-                                                    @elseif(in_array($participant->id, $attorneyIds))
-                                                        دارای وکالت
+                                                    @if ($hasAttorney)
+                                                        <div id="present-{{ $participant->id }}">اهدای وکالت</div>
+                                                    @elseif ($isAttorney)
+                                                        <div id="present-{{ $participant->id }}">دارای وکالت</div>
                                                     @else
                                                         <div id="present-{{ $participant->id }}">
-                                                            <input type="hidden" name="" value="0">
+                                                            <input type="hidden" value="0">
                                                             <input type="checkbox" name="participant-present"
                                                                 id="participant-present-{{ $participant->id }}" value="1"
-                                                                data-switch="1" {{ $participant->is_present ? 'checked' : '' }}>
+                                                                data-switch="1"
+                                                                {{ $participant->is_present ? 'checked' : '' }}>
                                                             <label for="participant-present-{{ $participant->id }}"
                                                                 data-on-label="حاضر" data-off-label="غایب"
-                                                                data-id="{{ $participant->id }}" class="mb-0 d-block present"
+                                                                data-id="{{ $participant->id }}"
+                                                                class="mb-0 d-block present"
                                                                 style="{{ $participant->is_present ? 'pointer-events:none;opacity:0.6' : '' }}"></label>
-
                                                         </div>
                                                     @endif
                                                 </td>
                                                 <td id="attorney-col-{{ $participant->id }}">
-                                                    @if (!in_array($participant->id, $attorneyIds))
+                                                    @if ($isAttorney)
+                                                        دارای وکالت
+                                                    @else
                                                         <input type="hidden"
                                                             name="attendance[{{ $participant->id }}][attorney_id]"
                                                             id="attorney-id-{{ $participant->id }}"
                                                             value="{{ old("attendance.{$participant->id}.attorney_id", $participant->attorney_id ?? '') }}">
-                                                        @if ($participant->attorney_id)
-                                                            <button type="button" class="btn btn-warning btn-sm attorney-btn"
-                                                                data-participant-id="{{ $participant->id }}">
+
+                                                        @if ($hasAttorney)
+                                                            <button type="button"
+                                                                class="btn btn-warning btn-sm attorney-btn"
+                                                                data-participant-id="{{ $participant->id }}"
+                                                                data-attorney-phone="{{ $participant->attorney?->user?->phone }}"
+                                                                data-attorney-first-name="{{ $participant->attorney?->user?->first_name }}"
+                                                                data-attorney-last-name="{{ $participant->attorney?->user?->last_name }}">
                                                                 ویرایش
                                                             </button>
                                                             <button type="button"
@@ -90,37 +87,34 @@
                                                                 data-participant-id="{{ $participant->id }}">
                                                                 حذف
                                                             </button>
-                                                        @elseif(in_array($participant->id, $attorneyIds))
-                                                            وکیل
-                                                        @elseif($participant->is_present)
+                                                        @elseif ($participant->is_present)
                                                             <span class="text-muted small">حضور ثبت شده</span>
                                                         @else
-                                                            <button type="button" class="btn btn-secondary btn-sm attorney-btn"
-                                                                data-participant-id="{{ $participant->id }}">
+                                                            <button type="button"
+                                                                class="btn btn-secondary btn-sm attorney-btn"
+                                                                data-participant-id="{{ $participant->id }}"
+                                                                data-attorney-phone=""
+                                                                data-attorney-first-name=""
+                                                                data-attorney-last-name="">
                                                                 انتخاب
                                                             </button>
                                                         @endif
-
-
+                                                    @endif
                                                 </td>
                                                 <td>
-
-                                                    <span id="attorney-{{ $participant->id }}-name" class="ms-2">
-                                                        @if ($participant->attorney_id)
+                                                    @if ($hasAttorney)
+                                                        <span id="attorney-{{ $participant->id }}-name" class="ms-2">
                                                             {{ $participant->attorney->user->first_name }}
-                                                        @endif
-                                                    </span>
-                                                    <span id="attorney-{{ $participant->id }}-last-name" class="">
-                                                        @if ($participant->attorney_id)
+                                                        </span>
+                                                        <span id="attorney-{{ $participant->id }}-last-name">
                                                             {{ $participant->attorney->user->last_name }}
-                                                        @endif
-                                                    </span>
-                                                @else
-                                                    دارای وکالت
-                                        @endif
-                                        </td>
-
-                                        </tr>
+                                                        </span>
+                                                    @else
+                                                        <span id="attorney-{{ $participant->id }}-name" class="ms-2"></span>
+                                                        <span id="attorney-{{ $participant->id }}-last-name"></span>
+                                                    @endif
+                                                </td>
+                                            </tr>
                                         @endforeach
                                     </tbody>
                                 </table>
@@ -132,8 +126,9 @@
         </div>
     </div>
 
-    <!-- Modal -->
-    <div class="modal fade" id="attorneyModal" tabindex="-1" aria-labelledby="attorneyModalLabel" aria-hidden="true">
+    {{-- Modal وکالت --}}
+    <div class="modal fade" id="attorneyModal" tabindex="-1" aria-labelledby="attorneyModalLabel" aria-hidden="true"
+        data-bs-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -141,33 +136,48 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="attorneyForm">
+                    <div id="attorney-form-alert" class="alert alert-danger d-none" role="alert"></div>
+
+                    <form id="attorneyForm" novalidate>
                         <div class="mb-3">
-                            <label for="attorney-phone" class="form-label">شماره تلفن</label>
-                            <select id="attorney-phone" class="form-control" style="direction: rtl; width: 100%;" required>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="attorney-name" class="form-label">نام وکیل</label>
-                            <input type="text" class="form-control" id="attorney-name" required>
+                            <label for="attorney-phone" class="form-label">شماره تماس <span class="text-danger">*</span></label>
+                            <select id="attorney-phone" class="form-control" style="direction: rtl; width: 100%;"
+                                aria-describedby="attorney-phone-error"></select>
+                            <div id="attorney-phone-error" class="invalid-feedback d-block"></div>
+                            <small class="text-muted">شماره باید ۱۱ رقم و با ۰۹ شروع شود. می‌توانید از لیست انتخاب کنید یا شماره جدید وارد کنید.</small>
                         </div>
 
                         <div class="mb-3">
-                            <label for="attorney-l-name" class="form-label">نام خانوادگی وکیل</label>
-                            <input type="text" class="form-control" id="attorney-l-name" required>
+                            <label for="attorney-name" class="form-label">نام وکیل <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="attorney-name" name="first_name"
+                                value="{{ old('first_name') }}" autocomplete="given-name">
+                            <div id="attorney-name-error" class="invalid-feedback d-block"></div>
                         </div>
-                        <input type="hidden" id="current-participant-id">
+
+                        <div class="mb-3">
+                            <label for="attorney-l-name" class="form-label">نام خانوادگی وکیل <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="attorney-l-name" name="last_name"
+                                value="{{ old('last_name') }}" autocomplete="family-name">
+                            <div id="attorney-l-name-error" class="invalid-feedback d-block"></div>
+                        </div>
+
+                        <input type="hidden" id="current-participant-id" name="participant_id"
+                            value="{{ old('participant_id') }}">
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
-                    <button type="button" class="btn btn-primary" id="save-attorney">ذخیره</button>
+                    <button type="button" class="btn btn-primary" id="save-attorney">
+                        <span class="save-label">ذخیره</span>
+                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Printable Attorney Info Modal -->
+    {{-- Printable Attorney Info Modal --}}
     <div class="modal fade" id="attorneyInfoModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -222,234 +232,415 @@
 @section('scripts')
     <script src="{{ asset('assets/js/axios.js') }}"></script>
     <script>
-        $(document).ready(function() {
-            $('#attorney-phone').select2({
-                placeholder: "شماره تلفن را انتخاب کنید",
-                allowClear: true,
-                dir: "rtl",
-                tags: true,
-                dropdownParent: $('#attorneyModal'),
-                ajax: {
-                    url: '{{ route('user.select2', $group) }}',
-                    dataType: 'json',
-                    delay: 250,
-                    data: function(params) {
-                        return {
-                            q: params.term, // search term
-                            page: params.page || 1
-                        };
-                    },
-                    processResults: function(data) {
-                        return {
-                            results: $.map(data.results, function(item) {
-                                return {
-                                    id: item.phone,
-                                    text: item.first_name + " " + item.last_name + '-' + item
-                                        .phone
-                                }
-                            }),
-                            pagination: {
-                                more: data.pagination.more
-                            }
-                        };
-                    },
-                    cache: true
-                },
-                minimumInputLength: 0 // only start searching after typing 1 char
-            });
-        });
-        document.addEventListener('DOMContentLoaded', function() {
-            const modal = new bootstrap.Modal(document.getElementById('attorneyModal'));
-            const attorneyForm = document.getElementById('attorneyForm');
-            const currentParticipantId = document.getElementById('current-participant-id');
-            const attorneyNameInput = document.getElementById('attorney-name');
-            const attorneyLastNameInput = document.getElementById('attorney-l-name');
-            const attorneyPhoneInput = document.getElementById('attorney-phone');
+        (function() {
+            const PHONE_REGEX = /^09\d{9}$/;
+            const DIGIT_MAP = {
+                '۰': '0', '۱': '1', '۲': '2', '۳': '3', '۴': '4',
+                '۵': '5', '۶': '6', '۷': '7', '۸': '8', '۹': '9',
+                '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
+                '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9'
+            };
 
-            document.addEventListener('click', function(event) {
-                if (event.target.classList.contains('attorney-btn')) {
-                    const participantId = event.target.getAttribute('data-participant-id');
-                    currentParticipantId.value = participantId;
+            function toEnglishDigits(value) {
+                return String(value || '').replace(/[۰-۹٠-٩]/g, function(d) {
+                    return DIGIT_MAP[d] || d;
+                });
+            }
 
-                    const attorneyIdInput = document.getElementById(`attorney-id-${participantId}`);
-                    const attorneyNameSpan = document.getElementById(`attorney-${participantId}-name`);
-
-                    if (attorneyIdInput?.value && attorneyNameSpan?.textContent) {
-                        attorneyNameInput.value = attorneyNameSpan.textContent.trim();
-                        attorneyLastNameInput.value = document.getElementById(
-                            `attorney-${participantId}-last-name`).textContent.trim() ?? '';
-                    } else {
-                        attorneyNameInput.value = '';
-                    }
-
-                    attorneyPhoneInput.value = '';
-                    modal.show();
+            function normalizePhone(value) {
+                let phone = toEnglishDigits(value).replace(/\D+/g, '');
+                if (phone.startsWith('98') && phone.length === 12) {
+                    phone = '0' + phone.slice(2);
                 }
-            });
+                if (phone.startsWith('9') && phone.length === 10) {
+                    phone = '0' + phone;
+                }
+                return phone;
+            }
 
-            document.getElementById('save-attorney').addEventListener('click', function() {
-                const participantId = currentParticipantId.value;
-                const attorneyName = attorneyNameInput.value.trim();
-                const attorneyLastName = attorneyLastNameInput.value.trim();
-                const attorneyPhone = attorneyPhoneInput.value.trim();
+            function isValidPhone(value) {
+                return PHONE_REGEX.test(normalizePhone(value));
+            }
 
-                if (!attorneyName && !attorneyLastName) {
-                    alert('لطفا نام وکیل را وارد کنید.');
+            function clearAttorneyErrors() {
+                ['attorney-phone', 'attorney-name', 'attorney-l-name'].forEach(function(id) {
+                    const el = document.getElementById(id);
+                    if (el) el.classList.remove('is-invalid');
+                });
+                document.getElementById('attorney-phone-error').textContent = '';
+                document.getElementById('attorney-name-error').textContent = '';
+                document.getElementById('attorney-l-name-error').textContent = '';
+                const alertBox = document.getElementById('attorney-form-alert');
+                alertBox.classList.add('d-none');
+                alertBox.textContent = '';
+            }
+
+            function setFieldError(field, message) {
+                const map = {
+                    phone: ['attorney-phone', 'attorney-phone-error'],
+                    first_name: ['attorney-name', 'attorney-name-error'],
+                    last_name: ['attorney-l-name', 'attorney-l-name-error']
+                };
+                const pair = map[field];
+                if (!pair) return;
+                const input = document.getElementById(pair[0]);
+                const errorEl = document.getElementById(pair[1]);
+                if (input) input.classList.add('is-invalid');
+                if (errorEl) errorEl.textContent = message;
+            }
+
+            function showFormAlert(message) {
+                const alertBox = document.getElementById('attorney-form-alert');
+                alertBox.textContent = message;
+                alertBox.classList.remove('d-none');
+            }
+
+            function setSaveLoading(isLoading) {
+                const btn = document.getElementById('save-attorney');
+                const label = btn.querySelector('.save-label');
+                const spinner = btn.querySelector('.spinner-border');
+                btn.disabled = isLoading;
+                label.textContent = isLoading ? 'در حال ذخیره...' : 'ذخیره';
+                spinner.classList.toggle('d-none', !isLoading);
+            }
+
+            function setPhoneSelectValue(phone, label) {
+                const $phone = $('#attorney-phone');
+                $phone.empty();
+                if (!phone) {
+                    $phone.val(null).trigger('change');
                     return;
                 }
+                const text = label || phone;
+                const option = new Option(text, phone, true, true);
+                $phone.append(option).trigger('change');
+            }
 
-                axios.post('{{ route('attorneys.store') }}', {
-                        first_name: attorneyName,
-                        last_name: attorneyLastName,
-                        phone: attorneyPhone,
-                        participant_id: participantId
+            function fillNameFromPhone(phone) {
+                if (!isValidPhone(phone)) return;
+                axios.post('{{ route('attorneys.index') }}', {
+                        phone: normalizePhone(phone)
                     })
-                    .then(response => {
-                        if (response.data && response.data.status == 'error') {
-                            const errorMessage = response.data.message;
-                            Swal.fire('خطا', errorMessage, 'error');
-                        } else {
-                            Swal.fire('موفق', 'وکیل با موفقیت انتخاب شد.', 'success');
-                            const data = response.data;
+                    .then(function(response) {
+                        const data = response.data || {};
+                        if (data.first_name) {
+                            document.getElementById('attorney-name').value = data.first_name;
+                        }
+                        if (data.last_name) {
+                            document.getElementById('attorney-l-name').value = data.last_name;
+                        }
+                    })
+                    .catch(function() {});
+            }
 
-                            // نمایش اطلاعات ورود اگر کاربر جدید ایجاد شده
-                            if (data.is_new_user && data.login_info) {
-                                const info = data.login_info;
-                                document.getElementById('info-attorney-name').textContent = info
-                                    .full_name;
-                                document.getElementById('info-principal-name').textContent = info
-                                    .attorney_name;
-                                document.getElementById('info-phone').textContent = info.phone;
-                                document.getElementById('info-password').textContent = info.password;
-                                const infoModal = new bootstrap.Modal(document.getElementById(
-                                    'attorneyInfoModal'));
-                                infoModal.show();
+            $(document).ready(function() {
+                $('#attorney-phone').select2({
+                    placeholder: 'شماره تماس را جستجو یا وارد کنید',
+                    allowClear: true,
+                    dir: 'rtl',
+                    tags: true,
+                    dropdownParent: $('#attorneyModal'),
+                    width: '100%',
+                    ajax: {
+                        url: '{{ route('user.select2', $group) }}',
+                        dataType: 'json',
+                        delay: 250,
+                        data: function(params) {
+                            return {
+                                q: params.term,
+                                page: params.page || 1,
+                                event_id: '{{ $event->id }}',
+                                current_participant_id: $('#current-participant-id').val() || ''
+                            };
+                        },
+                        processResults: function(data) {
+                            return {
+                                results: $.map(data.results || [], function(item) {
+                                    const phone = normalizePhone(item.phone);
+                                    return {
+                                        id: phone,
+                                        text: (item.first_name || '') + ' ' + (item.last_name || '') + ' - ' + phone,
+                                        first_name: item.first_name,
+                                        last_name: item.last_name
+                                    };
+                                }),
+                                pagination: {
+                                    more: !!(data.pagination && data.pagination.more)
+                                }
+                            };
+                        },
+                        cache: true
+                    },
+                    createTag: function(params) {
+                        const term = normalizePhone(params.term);
+                        if (!term) return null;
+                        if (!PHONE_REGEX.test(term)) {
+                            return null;
+                        }
+                        return {
+                            id: term,
+                            text: term,
+                            newTag: true
+                        };
+                    },
+                    minimumInputLength: 0
+                });
+            });
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const modalEl = document.getElementById('attorneyModal');
+                const modal = new bootstrap.Modal(modalEl);
+                const attorneyForm = document.getElementById('attorneyForm');
+                const currentParticipantId = document.getElementById('current-participant-id');
+                const attorneyNameInput = document.getElementById('attorney-name');
+                const attorneyLastNameInput = document.getElementById('attorney-l-name');
+                let keepFormValuesOnClose = false;
+
+                document.addEventListener('click', function(event) {
+                    const btn = event.target.closest('.attorney-btn');
+                    if (!btn) return;
+
+                    keepFormValuesOnClose = false;
+                    clearAttorneyErrors();
+
+                    const participantId = btn.getAttribute('data-participant-id');
+                    currentParticipantId.value = participantId;
+
+                    const phone = btn.getAttribute('data-attorney-phone') || '';
+                    const firstName = btn.getAttribute('data-attorney-first-name') || '';
+                    const lastName = btn.getAttribute('data-attorney-last-name') || '';
+
+                    attorneyNameInput.value = firstName;
+                    attorneyLastNameInput.value = lastName;
+
+                    if (phone) {
+                        const normalized = normalizePhone(phone);
+                        setPhoneSelectValue(normalized, firstName || lastName ?
+                            (firstName + ' ' + lastName + ' - ' + normalized) : normalized);
+                    } else {
+                        setPhoneSelectValue(null);
+                    }
+
+                    modal.show();
+                });
+
+                $('#attorney-phone').on('select2:select', function(e) {
+                    clearAttorneyErrors();
+                    const data = e.params.data || {};
+                    const phone = normalizePhone(data.id || $(this).val());
+
+                    if (data.first_name) {
+                        attorneyNameInput.value = data.first_name;
+                    }
+                    if (data.last_name) {
+                        attorneyLastNameInput.value = data.last_name;
+                    }
+
+                    if (!data.first_name && !data.last_name) {
+                        fillNameFromPhone(phone);
+                    }
+
+                    if (!isValidPhone(phone)) {
+                        setFieldError('phone', 'شماره تماس باید ۱۱ رقم و با ۰۹ شروع شود.');
+                    }
+                });
+
+                $('#attorney-phone').on('change', function() {
+                    const phone = normalizePhone($(this).val());
+                    if (phone && !isValidPhone(phone)) {
+                        setFieldError('phone', 'شماره تماس باید ۱۱ رقم و با ۰۹ شروع شود.');
+                    }
+                });
+
+                document.getElementById('save-attorney').addEventListener('click', function() {
+                    clearAttorneyErrors();
+
+                    const participantId = currentParticipantId.value;
+                    const attorneyName = attorneyNameInput.value.trim();
+                    const attorneyLastName = attorneyLastNameInput.value.trim();
+                    const attorneyPhone = normalizePhone($('#attorney-phone').val());
+
+                    let hasError = false;
+
+                    if (!attorneyPhone) {
+                        setFieldError('phone', 'شماره تماس وکیل الزامی است.');
+                        hasError = true;
+                    } else if (!isValidPhone(attorneyPhone)) {
+                        setFieldError('phone', 'شماره تماس باید ۱۱ رقم و با ۰۹ شروع شود (مثال: ۰۹۱۲۳۴۵۶۷۸۹).');
+                        hasError = true;
+                    }
+
+                    if (!attorneyName) {
+                        setFieldError('first_name', 'نام وکیل الزامی است.');
+                        hasError = true;
+                    }
+
+                    if (!attorneyLastName) {
+                        setFieldError('last_name', 'نام خانوادگی وکیل الزامی است.');
+                        hasError = true;
+                    }
+
+                    if (!participantId) {
+                        showFormAlert('شناسه موکل نامعتبر است. صفحه را تازه کنید.');
+                        hasError = true;
+                    }
+
+                    if (hasError) {
+                        keepFormValuesOnClose = true;
+                        showFormAlert('لطفاً خطاهای فرم را برطرف کنید.');
+                        return;
+                    }
+
+                    // نگه داشتن مقدار نرمال‌شده در select2 برای نمایش بعد از خطا
+                    setPhoneSelectValue(
+                        attorneyPhone,
+                        (attorneyName + ' ' + attorneyLastName + ' - ' + attorneyPhone).trim()
+                    );
+
+                    setSaveLoading(true);
+                    keepFormValuesOnClose = true;
+
+                    axios.post('{{ route('attorneys.store') }}', {
+                            first_name: attorneyName,
+                            last_name: attorneyLastName,
+                            phone: attorneyPhone,
+                            participant_id: participantId
+                        })
+                        .then(function(response) {
+                            const data = response.data || {};
+
+                            if (data.status === 'error') {
+                                keepFormValuesOnClose = true;
+                                showFormAlert(data.message || 'عملیات با خطا مواجه شد.');
+                                if (data.errors) {
+                                    Object.keys(data.errors).forEach(function(field) {
+                                        const messages = data.errors[field];
+                                        if (messages && messages[0]) {
+                                            setFieldError(field, messages[0]);
+                                        }
+                                    });
+                                }
+                                return;
                             }
 
-                            console.log(data);
-                            if (data.data[1]?.id) {
-                                const oldAttorneyRow = document.getElementById('participant-' + data
-                                    .data[1].id);
+                            keepFormValuesOnClose = false;
+                            Swal.fire('موفق', 'وکیل با موفقیت انتخاب شد.', 'success');
+
+                            if (data.is_new_user && data.login_info) {
+                                const info = data.login_info;
+                                document.getElementById('info-attorney-name').textContent = info.full_name;
+                                document.getElementById('info-principal-name').textContent = info.attorney_name;
+                                document.getElementById('info-phone').textContent = info.phone;
+                                document.getElementById('info-password').textContent = info.password;
+                                new bootstrap.Modal(document.getElementById('attorneyInfoModal')).show();
+                            }
+
+                            if (data.data && data.data[1] && data.data[1].id) {
+                                const oldAttorneyRow = document.getElementById('participant-' + data.data[1].id);
                                 if (oldAttorneyRow) {
                                     oldAttorneyRow.style.display = 'none';
                                 }
                             }
 
                             $('#present-' + participantId).html('اهدای وکالت');
-                            let tbody = document.querySelector('#participants-table');
-                            let participant = data.data[0]; // from your response
-                            participant = participant.attorney;
 
-                            const existingRow = document.getElementById('participant-' + participant
-                                .id);
-                            if (existingRow) {
-                                // وکیل، سهام‌دار موجود در جدول است؛ همان ردیف به «دارای وکالت» به‌روز می‌شود.
-                                $('#present-' + participant.id).html('دارای وکالت');
-                                const attorneyOwnCol = document.getElementById('attorney-col-' +
-                                    participant.id);
-                                if (attorneyOwnCol) {
-                                    attorneyOwnCol.innerHTML = 'دارای وکالت';
+                            const attorneyParticipant = data.data && data.data[0] ? data.data[0].attorney : null;
+                            if (attorneyParticipant) {
+                                const existingRow = document.getElementById('participant-' + attorneyParticipant.id);
+                                if (existingRow) {
+                                    $('#present-' + attorneyParticipant.id).html('دارای وکالت');
+                                    const attorneyOwnCol = document.getElementById('attorney-col-' + attorneyParticipant.id);
+                                    if (attorneyOwnCol) {
+                                        attorneyOwnCol.innerHTML = 'دارای وکالت';
+                                    }
+                                    existingRow.style.display = '';
+                                } else {
+                                    const tbody = document.querySelector('#participants-table');
+                                    const tr = document.createElement('tr');
+                                    tr.id = 'participant-' + attorneyParticipant.id;
+                                    tr.innerHTML = `
+                                        <td>${attorneyParticipant.user.first_name} ${attorneyParticipant.user.last_name}</td>
+                                        <td><div id="present-${attorneyParticipant.id}">دارای وکالت</div></td>
+                                        <td id="attorney-col-${attorneyParticipant.id}">دارای وکالت</td>
+                                        <td>
+                                            <span id="attorney-${attorneyParticipant.id}-name" class="ms-2"></span>
+                                            <span id="attorney-${attorneyParticipant.id}-last-name"></span>
+                                        </td>
+                                    `;
+                                    tbody.appendChild(tr);
                                 }
-                                existingRow.style.display = '';
-                            } else {
-                                let tr = document.createElement('tr');
-                                tr.id = 'participant-' + participant.id;
-
-                                tr.innerHTML = `
-    <td>${participant.user.first_name + " " + participant.user.last_name}</td>
-    <td>
-        <div id="present-${participant.id}">
-         دارای وکالت
-        </div>
-    </td>
-    <td id="attorney-col-${participant.id}">
-
-دارای وکالت
-    </td>
-`;
-                                tbody.appendChild(tr);
                             }
 
-
-                            if (attorneyPhone) {
-                                attorneyPhoneInput.value = attorneyPhone;
+                            const attorneyIdInput = document.getElementById('attorney-id-' + participantId);
+                            if (attorneyIdInput && attorneyParticipant) {
+                                attorneyIdInput.value = attorneyParticipant.id;
                             }
 
                             $(`#attorney-col-${participantId}`).html(`
-  <button type="button"
-                                                            class="btn btn-warning btn-sm attorney-btn"
-                                                            data-participant-id="${participantId}">
-                                                        ویرایش
-                                                    </button>
-       <button type="button"
-                                                            class="btn btn-danger btn-sm attorney-delete-btn"
-                                                            data-participant-id="${participantId}">
-                                                        حذف
-                                                    </button>
+                                <input type="hidden" name="attendance[${participantId}][attorney_id]"
+                                    id="attorney-id-${participantId}" value="${attorneyParticipant ? attorneyParticipant.id : ''}">
+                                <button type="button" class="btn btn-warning btn-sm attorney-btn"
+                                    data-participant-id="${participantId}"
+                                    data-attorney-phone="${attorneyPhone}"
+                                    data-attorney-first-name="${attorneyName}"
+                                    data-attorney-last-name="${attorneyLastName}">
+                                    ویرایش
+                                </button>
+                                <button type="button" class="btn btn-danger btn-sm attorney-delete-btn"
+                                    data-participant-id="${participantId}">
+                                    حذف
+                                </button>
                             `);
-                            $('#attorney-' + participantId + '-name').text(attorneyName);
-                            $('#attorney-' + participantId + '-last-name').text(attorneyLastName);
 
-                        }
-                    })
-                    .catch(error => {
+                            const nameEl = document.getElementById('attorney-' + participantId + '-name');
+                            const lastNameEl = document.getElementById('attorney-' + participantId + '-last-name');
+                            if (nameEl) nameEl.textContent = attorneyName;
+                            if (lastNameEl) lastNameEl.textContent = attorneyLastName;
 
-                        console.log(error);
-                        if (error.response && error.response.data && error.response.data.message) {
-                            Swal.fire('خطا', error.response.data.message, 'error');
-                        } else {
-                            Swal.fire('خطا', 'عملیات با خطا مواجه شد.', 'error');
-                        }
-                    });
-
-                modal.hide();
-            });
-
-            document.getElementById('attorneyModal').addEventListener('hidden.bs.modal', function() {
-                attorneyForm.reset();
-            });
-
-            $('#attorney-phone').on('change', function() {
-                const value = $(this).val(); // selected value
-                if (value) {
-                    axios.post('{{ route('attorneys.index') }}', {
-                            phone: value
+                            modal.hide();
                         })
-                        .then(response => {
-                            const data = response.data
-                            document.getElementById('attorney-name').value = data.first_name ?? '';
-                            document.getElementById('attorney-l-name').value = data.last_name ?? '';
-                        })
-                        .catch(error => {});
-                }
-            });
-            $('#attorneyModal').on('shown.bs.modal', function() {
-                const value = $('#attorney-phone').val(); // selected value
-                console.log(value);
-                if (value) {
-                    axios.post('{{ route('attorneys.index') }}', {
-                            phone: value
-                        })
-                        .then(response => {
-                            const data = response.data
-                            document.getElementById('attorney-name').value = data.first_name ?? '';
-                            document.getElementById('attorney-l-name').value = data.last_name ?? '';
-                        })
-                        .catch(error => {});
-                }
-            });
-            document.addEventListener('click', function(e) {
-                toastr.options.positionClass = "toast-bottom-left";
+                        .catch(function(error) {
+                            keepFormValuesOnClose = true;
+                            const payload = error.response && error.response.data ? error.response.data : {};
+                            const message = payload.message || 'عملیات با خطا مواجه شد.';
+                            showFormAlert(message);
 
-                if (e.target.matches('.present')) {
+                            if (payload.errors) {
+                                Object.keys(payload.errors).forEach(function(field) {
+                                    const messages = payload.errors[field];
+                                    if (messages && messages[0]) {
+                                        setFieldError(field, messages[0]);
+                                    }
+                                });
+                            } else {
+                                Swal.fire('خطا', message, 'error');
+                            }
+                        })
+                        .finally(function() {
+                            setSaveLoading(false);
+                        });
+                });
+
+                modalEl.addEventListener('hidden.bs.modal', function() {
+                    if (keepFormValuesOnClose) {
+                        keepFormValuesOnClose = false;
+                        return;
+                    }
+                    clearAttorneyErrors();
+                    attorneyForm.reset();
+                    setPhoneSelectValue(null);
+                    currentParticipantId.value = '';
+                });
+
+                document.addEventListener('click', function(e) {
+                    toastr.options.positionClass = 'toast-bottom-left';
+
+                    if (!e.target.matches('.present')) return;
 
                     const id = e.target.dataset.id;
                     const checkbox = document.getElementById('participant-present-' + id);
 
-                    // اگر قبلا قفل شده بود هیچ کاری نکن
-                    if (checkbox.disabled) {
-                        return;
-                    }
+                    if (checkbox.disabled) return;
 
                     Swal.fire({
                         title: 'تایید حضور',
@@ -458,50 +649,36 @@
                         showCancelButton: true,
                         confirmButtonText: 'بله، تایید می‌کنم',
                         cancelButtonText: 'انصراف'
-                    }).then((result) => {
-
-                        if (result.isConfirmed) {
-
-                            axios.post('/present/' + id)
-                                .then(response => {
-
-                                    toastr.success('', 'حضور با موفقیت ثبت شد.', 'success');
-
-                                    // قفل کامل
-                                    checkbox.checked = true;
-                                    checkbox.disabled = true;
-
-                                    // label هم دیگر کلیک نشود
-                                    e.target.style.pointerEvents = "none";
-                                    e.target.style.opacity = "0.6";
-
-                                    // دیگر نمی‌تواند وکالت بدهد چون حضورش ثبت شده است
-                                    const attorneyCol = document.getElementById('attorney-col-' + id);
-                                    if (attorneyCol) {
-                                        attorneyCol.innerHTML =
-                                            '<span class="text-muted small">حضور ثبت شده</span>';
-                                    }
-
-                                })
-                                .catch(error => {
-
-                                    toastr.error('', 'عملیات با خطا مواجه شد.', 'error');
-                                    checkbox.checked = false;
-
-                                });
-
-                        } else {
+                    }).then(function(result) {
+                        if (!result.isConfirmed) {
                             checkbox.checked = false;
+                            return;
                         }
 
+                        axios.post('/present/' + id)
+                            .then(function() {
+                                toastr.success('', 'حضور با موفقیت ثبت شد.', 'success');
+                                checkbox.checked = true;
+                                checkbox.disabled = true;
+                                e.target.style.pointerEvents = 'none';
+                                e.target.style.opacity = '0.6';
+
+                                const attorneyCol = document.getElementById('attorney-col-' + id);
+                                if (attorneyCol) {
+                                    attorneyCol.innerHTML =
+                                        '<span class="text-muted small">حضور ثبت شده</span>';
+                                }
+                            })
+                            .catch(function() {
+                                toastr.error('', 'عملیات با خطا مواجه شد.', 'error');
+                                checkbox.checked = false;
+                            });
                     });
-                }
-            });
+                });
 
+                document.addEventListener('click', function(event) {
+                    if (!event.target.classList.contains('attorney-delete-btn')) return;
 
-
-            document.addEventListener('click', function(event) {
-                if (event.target.classList.contains('attorney-delete-btn')) {
                     const id = event.target.dataset.participantId;
 
                     Swal.fire({
@@ -511,74 +688,75 @@
                         showCancelButton: true,
                         confirmButtonText: 'بله، حذف شود',
                         cancelButtonText: 'انصراف'
-                    }).then((result) => {
-                        if (!result.isConfirmed) {
-                            return;
-                        }
+                    }).then(function(result) {
+                        if (!result.isConfirmed) return;
 
-                        axios.post('/delete-attorney/' + id, {}).then(response => {
+                        axios.post('/delete-attorney/' + id, {}).then(function(response) {
                             const data = response.data;
-                            if (data.status == 'success') {
-                                Swal.fire('موفق', 'وکیل با موفقیت حذف شد.', 'success');
-                                const payload = data.data;
-                                const attorneyPid = typeof payload === 'object' && payload !== null ?
-                                    payload.attorney_participant_id :
-                                    payload;
-                                // هرگز ردیف موکل (principal) را مخفی نکن؛ فقط در صورت تفاوت id، ردیف رکورد وکیل را مخفی کن.
-                                if (attorneyPid != null && String(attorneyPid) !== String(id)) {
-                                    const attorneyRow = document.getElementById('participant-' +
-                                        attorneyPid);
-                                    if (attorneyRow) {
-                                        attorneyRow.style.display = 'none';
-                                    }
-                                }
-                                $('#present-' + id).html(`
-                             <input type="hidden" name="" value="0">
-                                                    <input type="checkbox"
-                                                           name="participant-present"
-                                                           id="participant-present-${id}"
-                                                           value="1"
-                                                           data-switch="1" checked >
-                                                    <label for="participant-present-${id}"
-       data-on-label="حاضر"
-       data-off-label="غایب"
-       data-id="${id}"
-       class="mb-0 d-block present"
-       style=""></label>
-`)
-                                document.getElementById('attorney-col-' + id).innerHTML = `
-                    <button type="button"
-                            class="btn btn-secondary btn-sm attorney-btn"
-                            data-participant-id="${id}">
-                        انتخاب
-                    </button>`;
-                                document.getElementById(`attorney-${id}-name`).innerHTML = '';
-                                document.getElementById(`attorney-${id}-last-name`).innerHTML = '';
-                            } else {
+                            if (data.status !== 'success') {
                                 Swal.fire('خطا', data.message, 'error');
+                                return;
                             }
-                        }).catch(error => {
+
+                            Swal.fire('موفق', 'وکیل با موفقیت حذف شد.', 'success');
+                            const payload = data.data;
+                            const attorneyPid = typeof payload === 'object' && payload !== null ?
+                                payload.attorney_participant_id :
+                                payload;
+
+                            if (attorneyPid != null && String(attorneyPid) !== String(id)) {
+                                const attorneyRow = document.getElementById('participant-' + attorneyPid);
+                                if (attorneyRow) {
+                                    attorneyRow.style.display = 'none';
+                                }
+                            }
+
+                            $('#present-' + id).html(`
+                                <input type="hidden" value="0">
+                                <input type="checkbox" name="participant-present"
+                                    id="participant-present-${id}" value="1" data-switch="1" checked>
+                                <label for="participant-present-${id}"
+                                    data-on-label="حاضر" data-off-label="غایب"
+                                    data-id="${id}" class="mb-0 d-block present"></label>
+                            `);
+
+                            document.getElementById('attorney-col-' + id).innerHTML = `
+                                <input type="hidden" name="attendance[${id}][attorney_id]" id="attorney-id-${id}" value="">
+                                <button type="button" class="btn btn-secondary btn-sm attorney-btn"
+                                    data-participant-id="${id}"
+                                    data-attorney-phone=""
+                                    data-attorney-first-name=""
+                                    data-attorney-last-name="">
+                                    انتخاب
+                                </button>
+                            `;
+
+                            const nameEl = document.getElementById('attorney-' + id + '-name');
+                            const lastNameEl = document.getElementById('attorney-' + id + '-last-name');
+                            if (nameEl) nameEl.textContent = '';
+                            if (lastNameEl) lastNameEl.textContent = '';
+                        }).catch(function(error) {
                             console.log(error);
                             Swal.fire('خطا', 'عملیات با خطا مواجه شد.', 'error');
                         });
                     });
-                }
+                });
             });
-        });
 
-        function printAttorneyInfo() {
-            const printContent = document.getElementById('attorneyPrintCard').innerHTML;
-            const originalBody = document.body.innerHTML;
-            document.body.innerHTML = `
-                <div style="direction:rtl;font-family:Tahoma,Arial,sans-serif;padding:40px;">
-                    <div style="max-width:500px;margin:0 auto;border:2px solid #198754;border-radius:8px;padding:30px;background:#f8f9fa;">
-                        ${printContent}
+            window.printAttorneyInfo = function() {
+                const printContent = document.getElementById('attorneyPrintCard').innerHTML;
+                const originalBody = document.body.innerHTML;
+                document.body.innerHTML = `
+                    <div style="direction:rtl;font-family:Tahoma,Arial,sans-serif;padding:40px;">
+                        <div style="max-width:500px;margin:0 auto;border:2px solid #198754;border-radius:8px;padding:30px;background:#f8f9fa;">
+                            ${printContent}
+                        </div>
                     </div>
-                </div>
-            `;
-            window.print();
-            document.body.innerHTML = originalBody;
-            location.reload();
-        }
+                `;
+                window.print();
+                document.body.innerHTML = originalBody;
+                location.reload();
+            };
+        })();
     </script>
 @endsection

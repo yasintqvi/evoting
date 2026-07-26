@@ -91,7 +91,7 @@
                         <i class="ri-information-line"></i> <span id="candidate-info-text"></span>
                     </div>
                 </div>
-                <div class="col-lg-6">
+                {{-- <div class="col-lg-6">
                     <div class="mb-3">
                         <label for="starts_at" class="form-label">زمان شروع انتخابات</label>
                         <input type="datetime-local" class="form-control" id="starts_at" name="starts_at"
@@ -110,7 +110,7 @@
                         <span class="strong text-danger font-weight-bold">{{ $message }}</span>
                         @enderror
                     </div>
-                </div>
+                </div> --}}
                 <div class="col-12">
                     <div class="mb-3">
                         <label for="blocked_users" class="form-label">کاربران مسدود شده (اجازه رأی ندارند)</label>

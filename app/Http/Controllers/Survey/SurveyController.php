@@ -291,6 +291,10 @@ class SurveyController extends Controller
             return back()->with('error', 'شما برای این رویداد وکالت داده‌اید؛ پاسخ به نظرسنجی فقط توسط وکیل شما امکان‌پذیر است.');
         }
 
+        if (! $event->userCanParticipateInVoting((int) auth()->id())) {
+            return back()->with('error', 'به دلیل نداشتن سهام، امکان شرکت در نظرسنجی ندارید.');
+        }
+
         return response()
             ->view('app.group.event.survey.answer', compact('group', 'event', 'survey', 'isExpired', 'isNotStarted', 'hasSubmitted'))
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
@@ -314,6 +318,10 @@ class SurveyController extends Controller
 
         if (! $votable) {
             return back()->with('error', 'شما برای این رویداد وکالت داده‌اید؛ پاسخ به نظرسنجی فقط توسط وکیل شما امکان‌پذیر است.');
+        }
+
+        if (! $event->userCanParticipateInVoting((int) auth()->id())) {
+            return back()->with('error', 'به دلیل نداشتن سهام، امکان شرکت در نظرسنجی ندارید.');
         }
 
         if ($survey->start_at && now()->lt($survey->start_at)) {
@@ -411,6 +419,8 @@ class SurveyController extends Controller
         $isWeighted = (int) $survey->weight_by_stock === 1 && $group->type->value === GroupType::SPECIAL->value;
 
         if ($isWeighted) {
+            $preferedStockWeight = (float) ($group->prefered_stock_weight ?? 0);
+
             $raw = DB::table('survey_answers')
                 ->join('survey_responses', 'survey_answers.response_id', '=', 'survey_responses.id')
                 ->join('survey_questions', 'survey_answers.question_id', '=', 'survey_questions.id')
@@ -425,7 +435,9 @@ class SurveyController extends Controller
                     'survey_questions.question_text as question_title',
                     'survey_options.id as option_id',
                     'survey_options.option_text as option_title',
-                    DB::raw('SUM(COALESCE(participants.normal_stock_count,0) + COALESCE(participants.prefered_stock_count,0)) as weight_sum')
+                    DB::raw(
+                        'SUM(COALESCE(participants.normal_stock_count, 0) + (COALESCE(participants.prefered_stock_count, 0) * '.$preferedStockWeight.')) as weight_sum'
+                    )
                 )
                 ->where('survey_responses.survey_id', $survey->id)
                 ->groupBy('survey_questions.id', 'survey_questions.question_text', 'survey_options.id', 'survey_options.option_text')

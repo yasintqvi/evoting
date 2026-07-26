@@ -28,6 +28,12 @@ class AttendanceController extends Controller
 
         $attorneyIds = array_filter($event->participants()->pluck('attorney_id')->toArray());
 
+        $event->load([
+            'participants' => fn ($query) => $query
+                ->visibleForAttendance($group)
+                ->with(['user', 'attorney.user']),
+        ]);
+
         return view('app.group.attendances.create', compact('group', 'event', 'users', 'attorneyIds', 'hiddenUserIds'));
     }
 
@@ -61,6 +67,8 @@ class AttendanceController extends Controller
             $search = $request->input('q');
             $page = $request->input('page', 1);
             $perPage = 10;
+            $eventId = $request->integer('event_id');
+            $currentParticipantId = $request->integer('current_participant_id');
 
             $hiddenUserIds = $group->managerOnlyUserIds();
 
@@ -73,6 +81,18 @@ class AttendanceController extends Controller
                 $query->where(function ($q) {
                     $q->where('group_user.normal_stock_count', '>', 0)
                         ->orWhere('group_user.prefered_stock_count', '>', 0);
+                });
+            }
+
+            if ($eventId > 0) {
+                $query->whereHas('participants', function ($q) use ($eventId, $currentParticipantId) {
+                    $q->where('event_id', $eventId)
+                        ->where('is_present', true)
+                        ->whereNull('attorney_id');
+
+                    if ($currentParticipantId > 0) {
+                        $q->where('id', '!=', $currentParticipantId);
+                    }
                 });
             }
 

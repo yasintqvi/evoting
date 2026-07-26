@@ -15,9 +15,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('{group:slug}/events/{event:slug}')->group(function () {
-    Route::get('elections/{election}/edit', [ElectionController::class, 'edit'])
-        ->name('elections.edit')
-        ->can(Permission::EDIT_ELECTIONS);
     // Election Routes
     Route::get('/elections', [ElectionController::class, 'index'])
         ->name('elections.index');
@@ -26,7 +23,7 @@ Route::prefix('{group:slug}/events/{event:slug}')->group(function () {
         ->name('elections.update')
         ->can(Permission::UPDATE_ELECTIONS);
 
-    Route::get('{election}/edit', [ElectionController::class, 'edit'])
+    Route::get('elections/{election}/edit', [ElectionController::class, 'edit'])
         ->name('elections.edit')
         ->can(Permission::EDIT_ELECTIONS);
 
@@ -69,7 +66,7 @@ Route::prefix('{group:slug}/events/{event:slug}')->group(function () {
     Route::get('/elections/{election}/candidates/search-shareholders', [ElectionCandidateController::class, 'searchGroupShareholders'])
         ->name('candidates.search-shareholders');
 
-    Route::get('/elections/{election}/edit', [ElectionCandidateController::class, 'edit'])
+    Route::get('/elections/{election}/candidates/edit', [ElectionCandidateController::class, 'edit'])
         ->name('candidates.edit')
         ->can(Permission::EDIT_CANDIDATES);
 
@@ -79,6 +76,10 @@ Route::prefix('{group:slug}/events/{event:slug}')->group(function () {
 
     Route::post('/elections/{election:slug}/end', [ElectionController::class, 'end'])
         ->name('elections.end');
+
+    Route::post('/elections/{election:slug}/start-runoff', [ElectionController::class, 'startRunoff'])
+        ->name('elections.start-runoff')
+        ->can(Permission::CREATE_ELECTION_ROUNDS);
 
     // Route::put('/elections/{election}/update', [ElectionCandidateController::class, 'update'])->name('candidates.update')
     //     ->can(Permission::UPDATE_CANDIDATES);

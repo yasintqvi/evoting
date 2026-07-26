@@ -65,6 +65,44 @@ class Event extends Model
     {
         return $this->belongsTo(Group::class);
     }
+
+    /**
+     * مجموع سهام عادی + ممتاز کاربر در این رویداد (فقط ردیف‌های قابل‌رأی، نه موکل وکالت‌داده).
+     */
+    public function userParticipatingStock(int $userId): float
+    {
+        return (float) ($this->participants()
+            ->where('user_id', $userId)
+            ->whereNull('attorney_id')
+            ->selectRaw('COALESCE(SUM(normal_stock_count + prefered_stock_count), 0) as stock_total')
+            ->value('stock_total') ?? 0);
+    }
+
+    /**
+     * در گروه سهامی خاص (و انتخابات سهامی)، بدون سهام نمی‌توان در رأی‌گیری/نظرسنجی شرکت کرد.
+     */
+    public function userCanParticipateInVoting(int $userId, ?Election $election = null): bool
+    {
+        $this->loadMissing('group');
+
+        $requiresStock = $this->group?->type === \App\Enums\GroupType::SPECIAL;
+
+        if (
+            $election &&
+            in_array($election->type, [
+                \App\Enums\ElectionType::PRIVATE_JOINT,
+                \App\Enums\ElectionType::PRIVATE_JOINT_WITH_88,
+            ], true)
+        ) {
+            $requiresStock = true;
+        }
+
+        if (! $requiresStock) {
+            return true;
+        }
+
+        return $this->userParticipatingStock($userId) > 0;
+    }
     
 
     public function participants(): HasMany
@@ -89,30 +127,95 @@ class Event extends Model
 
     public function getPresentCountAttribute()
     {
-        $attorneyParticipantIds = $this->participants()
-            ->whereNotNull('attorney_id')
-            ->pluck('attorney_id')
-            ->unique();
-
-        return $this->participants()
+        return $this->attendanceStatsQuery()
             ->where('is_present', 1)
-            ->whereNotIn('user_id', $this->group->managerOnlyUserIds())
-            ->whereNotIn('id', $attorneyParticipantIds)
             ->count();
     }
 
     public function getAbsentCountAttribute()
     {
-        $attorneyParticipantIds = $this->participants()
+        return $this->attendanceStatsQuery()
+            ->where('is_present', 0)
+            ->count();
+    }
+
+    /**
+     * شناسهٔ وکلایی که فقط به‌جای موکل آمده‌اند و سهام‌دار گروه نیستند.
+     * وکیلِ سهام‌دار (مثلاً اکبر/زهرا) در شمارش نفرات می‌ماند؛
+     * وکیلِ خارجی بدون سهام گروه (مثلاً حمیدرضا آسوده) شمرده نمی‌شود.
+     *
+     * @return \Illuminate\Support\Collection<int, int>
+     */
+    public function attorneyOnlyParticipantIds()
+    {
+        $this->loadMissing('group');
+
+        $attorneyIds = $this->participants()
             ->whereNotNull('attorney_id')
             ->pluck('attorney_id')
-            ->unique();
+            ->unique()
+            ->filter()
+            ->values();
 
+        if ($attorneyIds->isEmpty()) {
+            return collect();
+        }
+
+        $attorneys = $this->participants()
+            ->whereIn('id', $attorneyIds)
+            ->get()
+            ->keyBy('id');
+
+        $groupStockByUserId = collect();
+        if ($this->group && $attorneys->isNotEmpty()) {
+            $groupStockByUserId = $this->group->users()
+                ->whereIn('users.id', $attorneys->pluck('user_id')->unique())
+                ->get()
+                ->keyBy('id')
+                ->map(fn ($user) => [
+                    'normal' => (int) ($user->pivot->normal_stock_count ?? 0),
+                    'prefered' => (int) ($user->pivot->prefered_stock_count ?? 0),
+                ]);
+        }
+
+        $delegatedByAttorney = $this->participants()
+            ->whereIn('attorney_id', $attorneyIds)
+            ->get()
+            ->groupBy('attorney_id');
+
+        return $attorneyIds->filter(function ($attorneyId) use ($attorneys, $delegatedByAttorney, $groupStockByUserId) {
+            $attorney = $attorneys->get($attorneyId);
+            if (! $attorney) {
+                return true;
+            }
+
+            // سهام‌دار واقعی گروه: حتی اگر وکیل باشد، در شمارش حاضرین می‌ماند.
+            $groupStock = $groupStockByUserId->get($attorney->user_id);
+            if ($groupStock && ($groupStock['normal'] > 0 || $groupStock['prefered'] > 0)) {
+                return false;
+            }
+
+            $principals = $delegatedByAttorney->get($attorneyId, collect());
+            $delegatedNormal = (int) $principals->sum('delegated_normal_stock_count');
+            $delegatedPrefered = (int) $principals->sum('delegated_prefered_stock_count');
+
+            $ownNormal = (int) $attorney->normal_stock_count - $delegatedNormal;
+            $ownPrefered = (int) $attorney->prefered_stock_count - $delegatedPrefered;
+
+            // بدون سهام گروه و بدون سهام شخصی: فقط نمایندهٔ موکل است.
+            return $ownNormal <= 0 && $ownPrefered <= 0;
+        })->values();
+    }
+
+    /**
+     * پایهٔ شمارش حضور/غیاب: سهام‌داران و موکلان.
+     * وکیلِ بدون سهام شخصی جدا حساب نمی‌شود؛ وکیلِ سهام‌دار شمرده می‌شود.
+     */
+    protected function attendanceStatsQuery()
+    {
         return $this->participants()
-            ->where('is_present', 0)
-            ->whereNotIn('user_id', $this->group->managerOnlyUserIds())
-            ->whereNotIn('id', $attorneyParticipantIds)
-            ->count();
+            ->visibleForAttendance($this->group)
+            ->whereNotIn('id', $this->attorneyOnlyParticipantIds());
     }
 
     public function scopeFilter($query,$filters){

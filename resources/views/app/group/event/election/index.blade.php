@@ -97,14 +97,47 @@
                                         @else
                                             <span class="text-dark fw-medium">{{ $election['title'] }}</span>
                                         @endcan
+                                        @if (!empty($election['is_runoff']))
+                                            <span class="badge bg-warning-subtle text-warning ms-1">دور دوم</span>
+                                        @endif
                                     </td>
                                     <td>
                                         <small>{{ $election['fa_type'] }}</small>
                                     </td>
                                     <td>
-                                        <span class="badge badge-soft-success">{{ $election['fa_status'] }}</span>
+                                        @php
+                                            $statusValue = is_object($election['status'] ?? null)
+                                                ? ($election['status']->value ?? null)
+                                                : ($election['status'] ?? null);
+                                            $needsCandidates = $statusValue === 'created'
+                                                || $election['status'] === \App\Enums\ElectionStatus::CREATED;
+                                            $needsAttendance = $statusValue === 'participants_attendees'
+                                                || $election['status'] === \App\Enums\ElectionStatus::PARTICIPANTS_ATTENDEES;
+                                            $readyToStart = $statusValue === 'waiting_to_start'
+                                                || $election['status'] === \App\Enums\ElectionStatus::WAITING_TO_START;
+                                        @endphp
+                                        <span
+                                            class="badge {{ $needsCandidates ? 'bg-warning-subtle text-warning' : ($readyToStart ? 'bg-primary-subtle text-primary' : 'badge-soft-success') }}">
+                                            {{ $election['fa_status'] }}
+                                        </span>
                                         @if (!empty($election['is_expired']))
                                             <span class="badge bg-danger ms-1">منقضی شده</span>
+                                        @endif
+                                        @if ($needsCandidates)
+                                            <div class="small text-warning mt-1">
+                                                <i class="ti ti-alert-circle me-1"></i>
+                                                ابتدا نامزدها را تعیین کنید؛ بعد امکان شروع فعال می‌شود.
+                                            </div>
+                                        @elseif ($needsAttendance)
+                                            <div class="small text-info mt-1">
+                                                <i class="ti ti-info-circle me-1"></i>
+                                                حضور و غیاب را تکمیل کنید.
+                                            </div>
+                                        @elseif ($readyToStart)
+                                            <div class="small text-primary mt-1">
+                                                <i class="ti ti-player-play me-1"></i>
+                                                آماده شروع است.
+                                            </div>
                                         @endif
                                     </td>
                                     <td>{{ $election['position'] }}</td>
@@ -151,51 +184,119 @@
                                                 (is_string($election['status']) &&
                                                     in_array($election['status'], ['ongoing', 'completed'], true));
                                         @endphp
-                                        <div class="dropdown position-static">
+                                        <div class="d-inline-flex align-items-center gap-1 justify-content-end">
+                                            @isset($election['operations']['next_step'])
+                                                @php
+                                                    $nsBtn = $election['operations']['next_step'];
+                                                    $nsAction = $nsBtn['action'] ?? '';
+                                                @endphp
+                                                @if ($nsAction === 'assign_candidates')
+                                                    <a href="{{ $nsBtn['url'] }}"
+                                                        class="btn btn-sm btn-warning text-dark fw-semibold"
+                                                        title="{{ $nsBtn['hint'] ?? '' }}">
+                                                        <i class="ti ti-users me-1"></i>تعیین نامزدها
+                                                    </a>
+                                                @elseif ($nsAction === 'attendance')
+                                                    <a href="{{ $nsBtn['url'] }}"
+                                                        class="btn btn-sm btn-info text-white fw-semibold"
+                                                        title="{{ $nsBtn['hint'] ?? '' }}">
+                                                        <i class="ti ti-clipboard-check me-1"></i>حضور و غیاب
+                                                    </a>
+                                                @elseif ($nsAction === 'start')
+                                                    <button type="button"
+                                                        class="btn btn-sm btn-primary fw-semibold election-start-btn"
+                                                        data-bs-toggle="modal" data-bs-target="#startElectionModal"
+                                                        data-start-url="{{ $nsBtn['url'] }}"
+                                                        title="{{ $nsBtn['hint'] ?? '' }}">
+                                                        <i class="ti ti-player-play me-1"></i>شروع
+                                                    </button>
+                                                @endif
+                                            @endisset
+
+                                            <div class="dropdown position-static">
                                             <button class="btn btn-sm btn-light btn-icon border shadow-none text-muted"
                                                 type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside"
                                                 aria-expanded="false" title="عملیات">
                                                 <i class="ti ti-dots-vertical fs-18"></i>
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-1"
-                                                style="min-width: 12rem;">
+                                                style="min-width: 14rem;">
                                                 @isset($election['operations']['next_step'])
                                                     @php
                                                         $ns = $election['operations']['next_step'];
                                                         $nsTitle = $ns['title'] ?? '';
-                                                        $isStart = ($ns['action'] ?? '') === 'start';
+                                                        $nsAction = $ns['action'] ?? '';
+                                                        $isStart = $nsAction === 'start';
                                                     @endphp
                                                     @if ($isStart && $ns['method'] === 'POST')
                                                         <li>
                                                             <button type="button"
-                                                                class="dropdown-item d-flex align-items-center gap-2 election-start-btn"
+                                                                class="dropdown-item d-flex align-items-center gap-2 election-start-btn fw-semibold text-primary"
                                                                 data-bs-toggle="modal" data-bs-target="#startElectionModal"
                                                                 data-start-url="{{ $ns['url'] }}">
-                                                                <i class="ti ti-player-play text-primary"></i>
+                                                                <i class="ti ti-player-play"></i>
                                                                 <span>{{ $nsTitle }}</span>
                                                             </button>
+                                                        </li>
+                                                        <li>
+                                                            <hr class="dropdown-divider my-1">
+                                                        </li>
+                                                    @elseif (($nsAction === 'end') && $ns['method'] === 'POST')
+                                                        <li>
+                                                            <button type="button"
+                                                                class="dropdown-item d-flex align-items-center gap-2 election-end-btn fw-semibold text-danger"
+                                                                data-bs-toggle="modal" data-bs-target="#endElectionModal"
+                                                                data-end-url="{{ $ns['url'] }}"
+                                                                data-election-title="{{ e($election['title']) }}">
+                                                                <i class="ti ti-flag"></i>
+                                                                <span>{{ $nsTitle }}</span>
+                                                            </button>
+                                                        </li>
+                                                        <li>
+                                                            <hr class="dropdown-divider my-1">
                                                         </li>
                                                     @elseif ($ns['method'] === 'POST')
                                                         <li>
                                                             <form action="{{ $ns['url'] }}" method="POST" class="m-0">
                                                                 @csrf
                                                                 <button type="submit"
-                                                                    class="dropdown-item d-flex align-items-center gap-2 text-danger">
+                                                                    class="dropdown-item d-flex align-items-center gap-2 text-danger fw-semibold">
                                                                     <i class="ti ti-check"></i>
                                                                     <span>{{ $nsTitle }}</span>
                                                                 </button>
                                                             </form>
                                                         </li>
+                                                        <li>
+                                                            <hr class="dropdown-divider my-1">
+                                                        </li>
                                                     @else
                                                         <li>
-                                                            <a class="dropdown-item d-flex align-items-center gap-2"
+                                                            <a class="dropdown-item d-flex align-items-start gap-2 bg-warning-subtle"
                                                                 href="{{ $ns['url'] }}">
-                                                                <i class="ti ti-external-link text-primary"></i>
-                                                                <span>{{ $nsTitle }}</span>
+                                                                <i class="ti ti-arrow-left text-warning mt-1"></i>
+                                                                <span>
+                                                                    <span class="d-block fw-semibold text-dark">{{ $nsTitle }}</span>
+                                                                    @if (!empty($ns['hint']))
+                                                                        <small class="text-muted d-block text-wrap" style="max-width: 12rem;">{{ $ns['hint'] }}</small>
+                                                                    @endif
+                                                                </span>
                                                             </a>
+                                                        </li>
+                                                        <li>
+                                                            <hr class="dropdown-divider my-1">
                                                         </li>
                                                     @endif
                                                 @endisset
+
+                                                @if ($needsCandidates)
+                                                    <li>
+                                                        <span
+                                                            class="dropdown-item d-flex align-items-center gap-2 disabled text-muted mb-0">
+                                                            <i class="ti ti-player-play"></i>
+                                                            <span>شروع انتخابات (بعد از تعیین نامزد)</span>
+                                                        </span>
+                                                    </li>
+                                                @endif
 
                                                 @if ($isOngoing && !$isPublicJoint)
                                                     <li>
@@ -251,7 +352,7 @@
                                                             <span
                                                                 class="dropdown-item d-flex align-items-center gap-2 disabled text-muted mb-0">
                                                                 <i class="ti ti-edit"></i>
-                                                                <span>ویرایش (غیرمجاز)</span>
+                                                                <span>ویرایش انتخابات (شروع شده)</span>
                                                             </span>
                                                         </li>
                                                     @else
@@ -259,11 +360,31 @@
                                                             <a class="dropdown-item d-flex align-items-center gap-2"
                                                                 href="{{ $election['operations']['edit'] }}">
                                                                 <i class="ti ti-edit text-secondary"></i>
-                                                                <span>ویرایش</span>
+                                                                <span>ویرایش انتخابات</span>
                                                             </a>
                                                         </li>
                                                     @endif
                                                 @endcan
+
+                                                @canany([\App\Enums\Permission::EDIT_CANDIDATES->value, \App\Enums\Permission::CREATE_CANDIDATES->value])
+                                                    @if ($isEditLocked)
+                                                        <li>
+                                                            <span
+                                                                class="dropdown-item d-flex align-items-center gap-2 disabled text-muted mb-0">
+                                                                <i class="ti ti-users"></i>
+                                                                <span>ویرایش تعیین نامزد (شروع شده)</span>
+                                                            </span>
+                                                        </li>
+                                                    @elseif (!$needsCandidates)
+                                                        <li>
+                                                            <a class="dropdown-item d-flex align-items-center gap-2"
+                                                                href="{{ $election['operations']['edit_candidates'] }}">
+                                                                <i class="ti ti-users text-secondary"></i>
+                                                                <span>ویرایش تعیین نامزد</span>
+                                                            </a>
+                                                        </li>
+                                                    @endif
+                                                @endcanany
 
                                                 @can(\App\Enums\Permission::CREATE_ELECTIONS->value)
                                                     <li>
@@ -315,6 +436,7 @@
                                                     @endif
                                                 @endcan
                                             </ul>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -402,6 +524,43 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="endElectionModal" tabindex="-1" aria-labelledby="endElectionModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form id="endElectionForm" method="POST" action="">
+                    @csrf
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title text-danger" id="endElectionModalLabel">
+                            <i class="ti ti-flag me-1"></i>پایان انتخابات
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-warning mb-3">
+                            <i class="ti ti-alert-triangle me-1"></i>
+                            این عمل قابل بازگشت نیست.
+                        </div>
+                        <p class="mb-2">
+                            آیا از پایان انتخابات
+                            <strong id="end-election-title-display"></strong>
+                            مطمئن هستید؟
+                        </p>
+                        <p class="text-muted small mb-0">
+                            پس از تأیید، وضعیت انتخابات به «پایان یافته» تغییر می‌کند و امکان رأی‌گیری جدید وجود نخواهد داشت.
+                        </p>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">انصراف</button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="ti ti-flag me-1"></i>بله، پایان بده
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('scripts')
@@ -440,6 +599,21 @@
                 var form = document.getElementById('startElectionForm');
                 if (form && url) {
                     form.setAttribute('action', url);
+                }
+            });
+        });
+
+        document.querySelectorAll('.election-end-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var url = this.getAttribute('data-end-url');
+                var title = this.getAttribute('data-election-title') || '';
+                var form = document.getElementById('endElectionForm');
+                var titleEl = document.getElementById('end-election-title-display');
+                if (form && url) {
+                    form.setAttribute('action', url);
+                }
+                if (titleEl) {
+                    titleEl.textContent = title;
                 }
             });
         });

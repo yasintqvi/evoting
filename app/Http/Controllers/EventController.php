@@ -77,17 +77,13 @@ class EventController extends Controller
             'present' => 1,
         ];
 
-        $hiddenUserIds = $event->group->managerOnlyUserIds();
-
-        // ردیف حضور وکیل نباید در آمار حاضر/غایب شمرده شود؛ فقط موکلانش شمرده می‌شوند.
-        $attorneyParticipantIds = $event->participants()
-            ->whereNotNull('attorney_id')
-            ->pluck('attorney_id')
-            ->unique();
+        $statsQuery = $event->participants()
+            ->visibleForAttendance($event->group)
+            ->whereNotIn('id', $event->attorneyOnlyParticipantIds());
 
         return response()->json([
-            'present' => $event->participants()->where('is_present', $map['present'])->whereNotIn('user_id', $hiddenUserIds)->whereNotIn('id', $attorneyParticipantIds)->count(),
-            'absent' => $event->participants()->where('is_present', $map['absent'])->whereNotIn('user_id', $hiddenUserIds)->whereNotIn('id', $attorneyParticipantIds)->count(),
+            'present' => (clone $statsQuery)->where('is_present', $map['present'])->count(),
+            'absent' => (clone $statsQuery)->where('is_present', $map['absent'])->count(),
         ]);
     }
 

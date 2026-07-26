@@ -85,7 +85,12 @@
                                     <h3 class="mb-1 text-secondary fw-bold">
                                         {{ number_format($election->all_votes) }}
                                     </h3>
-                                    <p class="mb-0 text-muted">کل آرای قابل ثبت</p>
+                                    <p class="mb-0 text-muted">کل آرای قابل ثبت (سقف)</p>
+                                    @if ($election->type === App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
+                                        <small class="text-muted d-block mt-1">مجموع سهام حاضرین × تعداد اعضای اصلی</small>
+                                    @elseif ($election->type === App\Enums\ElectionType::PRIVATE_JOINT)
+                                        <small class="text-muted d-block mt-1">مجموع سهام حاضرین × حداکثر انتخاب مجاز</small>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -111,6 +116,77 @@
 
     <div class="row mt-4">
         <div class="col-12">
+            @if (!empty($tieBreak['has_tie']) && ! $election->isRunoff())
+                <div class="alert alert-warning border-warning d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-3">
+                    <div>
+                        <h5 class="alert-heading mb-1">
+                            <i class="ti ti-scale me-1"></i>تساوی در مرز اصلی و علی‌البدل
+                        </h5>
+                        <p class="mb-1">{{ $tieBreak['message'] }}</p>
+                        <ul class="mb-0 small">
+                            @foreach ($tieBreak['candidates'] as $tiedCandidate)
+                                <li>
+                                    {{ $tiedCandidate->user?->full_name }}
+                                    —
+                                    {{ number_format((int) ($tiedCandidate->votes_sum_vote_count ?? 0)) }} رأی
+                                </li>
+                            @endforeach
+                        </ul>
+                        <p class="mb-0 mt-2 small text-muted">
+                            کرسی‌های مورد اختلاف:
+                            {{ (int) $tieBreak['contested_main_seats'] }} اصلی
+                            @if ((int) $tieBreak['contested_substitute_seats'] > 0)
+                                و {{ (int) $tieBreak['contested_substitute_seats'] }} علی‌البدل
+                            @endif
+                        </p>
+                    </div>
+                    <div class="text-md-end">
+                        @if ($election->status !== App\Enums\ElectionStatus::COMPLETED)
+                            <span class="badge bg-secondary">پس از پایان انتخابات می‌توانید دور دوم را شروع کنید</span>
+                        @elseif ($existingRunoff)
+                            <a href="{{ route('elections.report', [$group, $event, $existingRunoff]) }}"
+                                class="btn btn-outline-primary mb-2 d-block">
+                                مشاهده دور دوم
+                            </a>
+                            @if ($existingRunoff->status === App\Enums\ElectionStatus::WAITING_TO_START)
+                                <form action="{{ route('elections.start', [$group, $event, $existingRunoff]) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-warning d-block w-100">شروع رأی‌گیری دور دوم</button>
+                                </form>
+                            @elseif ($existingRunoff->status === App\Enums\ElectionStatus::ONGOING)
+                                <span class="badge bg-primary">دور دوم در حال برگزاری است</span>
+                            @elseif ($existingRunoff->status === App\Enums\ElectionStatus::COMPLETED)
+                                <span class="badge bg-success">دور دوم پایان یافته</span>
+                            @endif
+                        @else
+                            @can(\App\Enums\Permission::CREATE_ELECTION_ROUNDS->value)
+                                <form action="{{ route('elections.start-runoff', [$group, $event, $election]) }}"
+                                    method="POST"
+                                    onsubmit="return confirm('انتخابات دور دوم فقط با کاندیداهای هم‌رأی ساخته می‌شود. ادامه می‌دهید؟');">
+                                    @csrf
+                                    <button type="submit" class="btn btn-warning fw-semibold">
+                                        <i class="ti ti-repeat me-1"></i>شروع دور دوم
+                                    </button>
+                                </form>
+                            @endcan
+                        @endif
+                    </div>
+                </div>
+            @endif
+
+            @if ($election->isRunoff() && $election->parentElection)
+                <div class="alert alert-info mb-3">
+                    این گزارش مربوط به
+                    <strong>دور دوم</strong>
+                    برای شکستن تساوی انتخابات
+                    «{{ $election->parentElection->title }}»
+                    است.
+                    <a href="{{ route('elections.report', [$group, $event, $election->parentElection]) }}" class="alert-link">
+                        بازگشت به گزارش انتخابات اصلی
+                    </a>
+                </div>
+            @endif
+
             <div class="card">
                 <div class="card-header border-bottom border-dashed">
                     <h4 class="card-title mb-0 d-flex align-items-center gap-2">

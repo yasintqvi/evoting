@@ -24,6 +24,8 @@ class ElectionResource extends JsonResource
             'fa_type' => $this->type->toFa(),
             'status' => $this->status,
             'fa_status' => $this->status->toFa(),
+            'is_runoff' => $this->isRunoff(),
+            'parent_election_id' => $this->parent_election_id,
             'main_member_count' => $this->main_member_count,
             'substitute_member_count' => $this->substitute_member_count,
             'normal_stock_count' => $this->normal_stock_count,
@@ -37,6 +39,7 @@ class ElectionResource extends JsonResource
             'operations' => [
                 'show' => route('elections.show', [$this->event->group->slug, $this->event->slug, $this->slug]),
                 'edit' => route('elections.edit', [$this->event->group->slug, $this->event->slug, $this->slug]),
+                'edit_candidates' => route('candidates.edit', [$this->event->group->slug, $this->event->slug, $this->slug]),
                 'update' => route('elections.update', [$this->event->group->slug, $this->event->slug, $this->id]),
                 'delete' => route('elections.delete', [$this->event->group->slug, $this->event->slug, $this->slug]),
                 'create_duplicate' => route('elections.create', [
@@ -62,17 +65,39 @@ class ElectionResource extends JsonResource
 
     private function getNextStep(): ?array
     {
-        if ($this->status == ElectionStatus::CREATED && user()->hasPermissionTo(Permission::CREATE_CANDIDATES->value)) {
+        if (
+            $this->status == ElectionStatus::CREATED
+            && (
+                user()->hasPermissionTo(Permission::CREATE_CANDIDATES->value)
+                || user()->hasPermissionTo(Permission::EDIT_CANDIDATES->value)
+            )
+        ) {
             return [
-                'title' => 'تعیین یا تغییر نامزد ها',
+                'title' => 'تعیین نامزدها',
+                'hint' => 'برای فعال شدن «شروع انتخابات» ابتدا نامزدها را مشخص کنید.',
                 'url' => route('candidates.edit', [$this->event->group->slug, $this->event->slug, $this->slug]),
                 'method' => 'GET',
+                'action' => 'assign_candidates',
+            ];
+        }
+
+        if (
+            $this->status == ElectionStatus::PARTICIPANTS_ATTENDEES
+            && user()->hasPermissionTo(Permission::CREATE_ATTENDANCE->value)
+        ) {
+            return [
+                'title' => 'ثبت حضور و غیاب',
+                'hint' => 'پس از تعیین نامزد، حضور و غیاب را تکمیل کنید تا امکان شروع فراهم شود.',
+                'url' => route('attendances.create', [$this->event->group->slug, $this->event->slug]),
+                'method' => 'GET',
+                'action' => 'attendance',
             ];
         }
 
         if ($this->status == ElectionStatus::WAITING_TO_START && user()->hasPermissionTo(Permission::CREATE_ELECTION_ROUNDS->value)) {
             return [
                 'title' => 'شروع انتخابات',
+                'hint' => 'نامزدها مشخص شده‌اند؛ می‌توانید انتخابات را شروع کنید.',
                 'url' => route('elections.start', [$this->event->group->slug, $this->event->slug, $this->slug]),
                 'method' => 'POST',
                 'action' => 'start',

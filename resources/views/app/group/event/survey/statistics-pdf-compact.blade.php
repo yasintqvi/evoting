@@ -137,7 +137,7 @@
 
     @if ($isWeighted)
         <div class="note">
-            آمار بر اساس <strong>مجموع سهام عادی و ممتاز</strong> هر شرکت‌کننده در این رویداد وزن‌دهی شده است.
+            آمار بر اساس <strong>سهام عادی + (سهام ممتاز × {{ number_format((float) ($group->prefered_stock_weight ?? 0)) }})</strong> هر شرکت‌کننده در این رویداد وزن‌دهی شده است.
         </div>
     @endif
 

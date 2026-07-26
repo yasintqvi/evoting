@@ -27,10 +27,31 @@ class AttorneyController extends Controller
     public function getAttorney(Request $request)
     {
         try {
-            $data = $request->validate([
-                'phone' => 'required|string|max:15',
+            $phone = (string) $request->input('phone', '');
+            $phone = strtr($phone, [
+                '۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4',
+                '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
+                '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4',
+                '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9',
             ]);
-            $users = User::where($data)->select('first_name', 'last_name', 'phone')
+            $phone = preg_replace('/\D+/', '', $phone) ?? '';
+
+            if (str_starts_with($phone, '98') && strlen($phone) === 12) {
+                $phone = '0'.substr($phone, 2);
+            }
+            if (str_starts_with($phone, '9') && strlen($phone) === 10) {
+                $phone = '0'.$phone;
+            }
+
+            $request->merge(['phone' => $phone]);
+
+            $data = $request->validate([
+                'phone' => ['required', 'string', 'regex:/^09\d{9}$/'],
+            ], [
+                'phone.regex' => 'شماره تماس باید ۱۱ رقم و با ۰۹ شروع شود.',
+            ]);
+
+            $users = User::where('phone', $data['phone'])->select('first_name', 'last_name', 'phone')
                 ->first();
             if (!$users) {
                 return response()->json(

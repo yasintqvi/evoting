@@ -25,3 +25,5 @@
 
 @include('app.alerts.toastr.error')
 @include('app.alerts.toastr.success')
+@include('app.alerts.toastr.warning')
+@include('app.alerts.toastr.info')

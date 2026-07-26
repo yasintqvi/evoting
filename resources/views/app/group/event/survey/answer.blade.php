@@ -109,7 +109,8 @@
                                     @foreach ($question->options as $option)
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="radio" name="questions_{{ $question->id }}"
-                                                value="{{ $option->id }}" id="option_{{ $option->id }}">
+                                                value="{{ $option->id }}" id="option_{{ $option->id }}"
+                                                {{ (string) old('questions_' . $question->id) === (string) $option->id ? 'checked' : '' }}>
                                             <label class="form-check-label" for="option_{{ $option->id }}">
                                                 {{ $option->option_text }}
                                             </label>
@@ -117,11 +118,16 @@
                                     @endforeach
                                 @elseif ($question->type == 2)
                                     {{-- چند انتخابی --}}
+                                    @php
+                                        $oldMulti = old('questions_' . $question->id, []);
+                                        $oldMulti = is_array($oldMulti) ? $oldMulti : [];
+                                    @endphp
                                     @foreach ($question->options as $option)
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="checkbox"
                                                 name="questions_{{ $question->id }}[]" value="{{ $option->id }}"
-                                                id="option_{{ $option->id }}">
+                                                id="option_{{ $option->id }}"
+                                                {{ in_array((string) $option->id, array_map('strval', $oldMulti), true) ? 'checked' : '' }}>
                                             <label class="form-check-label" for="option_{{ $option->id }}">
                                                 {{ $option->option_text }}
                                             </label>

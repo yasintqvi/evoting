@@ -1,5 +1,30 @@
 @extends('app.layouts.app')
 
+@section('head-tag')
+    <style>
+        .candidate-vote-card--selectable {
+            cursor: pointer;
+            transition: border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
+            user-select: none;
+        }
+
+        .candidate-vote-card--selectable:hover {
+            border-color: var(--bs-primary) !important;
+            box-shadow: 0 0.25rem 0.75rem rgba(13, 110, 253, 0.12);
+        }
+
+        .candidate-vote-card--selectable.bg-success-subtle:hover {
+            border-color: var(--bs-success) !important;
+            box-shadow: 0 0.25rem 0.75rem rgba(25, 135, 84, 0.15);
+        }
+
+        .candidate-vote-card--selectable:focus-visible {
+            outline: 2px solid var(--bs-primary);
+            outline-offset: 2px;
+        }
+    </style>
+@endsection
+
 @section('content')
     @php
         // کل سهم قابل رأی‌دهی از کنترلر (شامل وکالت و نوع انتخابات)
@@ -181,8 +206,7 @@
                             </span>
                             حضور در این رویداد
                         </h5>
-                        <p class="text-muted mb-0 mt-2 small">تعداد افرادی که در فهرست این رویداد به‌عنوان حاضر در جلسه ثبت
-                            شده‌اند.</p>
+                        <p class="text-muted mb-0 mt-2 small">تعداد سهام‌داران حاضر (موکل از طریق وکالت حاضر است؛ وکیل فقط وقتی شمرده می‌شود که خودش هم سهام‌دار باشد).</p>
                     </div>
                     <div class="card-body pt-3">
                         <div class="row g-3">
@@ -195,10 +219,11 @@
                                 </div>
                             </div>
                             <div class="col-sm-6">
-                                <div class="rounded-3 border bg-light bg-opacity-50 p-3 text-center h-100">
-                                    <div class="text-muted small fw-semibold mb-1">ثبت‌نام در رویداد</div>
-                                    <div class="display-6 fw-bold text-dark lh-1">{{ $totalParticipantsInEvent }}</div>
-                                    <div class="text-muted small mt-2">نفر در فهرست</div>
+                                <div
+                                    class="rounded-3 border border-danger border-opacity-25 bg-danger bg-opacity-10 p-3 text-center h-100">
+                                    <div class="text-danger small fw-semibold mb-1">غایب در جلسه</div>
+                                    <div class="display-6 fw-bold text-danger lh-1">{{ $absentParticipantsCount ?? max(0, $totalParticipantsInEvent - $presentParticipantsCount) }}</div>
+                                    <div class="text-muted small mt-2">نفر</div>
                                 </div>
                             </div>
                         </div>
@@ -211,7 +236,7 @@
                             @endphp
                             <div class="mt-4">
                                 <div class="d-flex align-items-center justify-content-between mb-1">
-                                    <span class="small text-muted">نسبت حضور به کل ثبت‌نام‌شدگان</span>
+                                    <span class="small text-muted">نسبت حضور به کل سهام‌داران رویداد ({{ $totalParticipantsInEvent }} نفر)</span>
                                     <span class="fw-semibold text-primary">{{ $presencePercent }}٪</span>
                                 </div>
                                 <div class="progress progress-md rounded-pill">
@@ -302,7 +327,11 @@
                         <div class="row">
                             @foreach ($election->candidates->where('candidate_type', App\Enums\CandidateType::DIRECTOR) as $candidate)
                                 <div class="col-xl-3 col-lg-6">
-                                    <div class="card">
+                                    <div class="card candidate-vote-card h-100 border @if (in_array($election->type, [App\Enums\ElectionType::PUBLIC_JOINT, App\Enums\ElectionType::PRIVATE_JOINT])) candidate-vote-card--selectable @endif"
+                                        data-candidate-card="{{ $candidate->id }}"
+                                        @if (in_array($election->type, [App\Enums\ElectionType::PUBLIC_JOINT, App\Enums\ElectionType::PRIVATE_JOINT]))
+                                            role="button" tabindex="0" title="برای انتخاب روی کارت کلیک کنید"
+                                        @endif>
                                         <div class="card-body text-center">
                                             <div class="row justify-content-between mb-3">
                                                 <div class="col-12">
@@ -311,14 +340,17 @@
                                                 </div>
                                             </div>
                                             <h5>{{ $candidate->user->full_name }}</h5>
+                                            <div class="candidate-vote-badge text-success fw-semibold small mb-2 d-none"
+                                                data-vote-badge="{{ $candidate->id }}"></div>
                                             <div class="mt-3 d-flex gap-2 justify-content-center">
 
                                                 {{-- تعاونی: PUBLIC_JOINT --}}
                                                 @if ($election->type == App\Enums\ElectionType::PUBLIC_JOINT)
                                                     <div class="form-check form-checkbox-secondary mb-2">
-                                                        <input type="checkbox" class="form-check-input"
+                                                        <input type="checkbox" class="form-check-input candidate-vote-input"
                                                             name="director_candidates[{{ $candidate->id }}]"
-                                                            value="1" id="candidate_{{ $candidate->id }}">
+                                                            value="1" id="candidate_{{ $candidate->id }}"
+                                                            data-candidate-id="{{ $candidate->id }}">
                                                         <label for="candidate_{{ $candidate->id }}"
                                                             class="form-check-label">انتخاب</label>
                                                     </div>
@@ -326,10 +358,11 @@
                                                     {{-- خصوصی: PRIVATE_JOINT --}}
                                                 @elseif ($election->type == App\Enums\ElectionType::PRIVATE_JOINT)
                                                     <div class="form-check form-checkbox-secondary mb-2">
-                                                        <input type="checkbox" class="form-check-input"
+                                                        <input type="checkbox" class="form-check-input candidate-vote-input"
                                                             name="director_candidates[{{ $candidate->id }}]"
                                                             value="{{ $effectiveStock }}"
-                                                            id="candidate_{{ $candidate->id }}">
+                                                            id="candidate_{{ $candidate->id }}"
+                                                            data-candidate-id="{{ $candidate->id }}">
                                                         <label for="candidate_{{ $candidate->id }}"
                                                             class="form-check-label">انتخاب</label>
                                                     </div>
@@ -337,22 +370,17 @@
                                                     {{-- ماده ۸۸: PRIVATE_JOINT_WITH_88 --}}
                                                 @elseif ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
                                                     <div class="mt-2">
-                                                        <label for="director-candidate-input-{{ $candidate->id }}"
-                                                            class="form-label small">
-                                                            رأی به این نامزد
-                                                            <span class="text-muted">(حداکثر
-                                                                {{ $article88VotePool == floor($article88VotePool) ? (int) $article88VotePool : number_format($article88VotePool, 2) }}
-                                                                به یک نفر)</span>
-                                                        </label>
+
 
                                                         <input type="number"
                                                             name="director_candidates[{{ $candidate->id }}]"
                                                             id="director-candidate-input-{{ $candidate->id }}"
-                                                            class="form-control article88-vote-input" min="0"
-                                                            step="any" inputmode="decimal" lang="en"
+                                                            class="form-control article88-vote-input candidate-vote-input"
+                                                            min="0" step="any" inputmode="decimal" lang="en"
+                                                            data-candidate-id="{{ $candidate->id }}"
                                                             data-max-hint-for="article88-max-hint-{{ $candidate->id }}"
                                                             max="{{ $article88VotePool }}" value="0"
-                                                            oninput="updateVoteValue('director-candidate-input-{{ $candidate->id }}', 'director-candidate-value-{{ $candidate->id }}'); updateArticle88Totals();">
+                                                            oninput="updateVoteValue('director-candidate-input-{{ $candidate->id }}', 'director-candidate-value-{{ $candidate->id }}'); updateArticle88Totals(); updateCandidateVoteCard({{ $candidate->id }});">
 
                                                         <div class="d-flex justify-content-center mt-1">
                                                             <h4 id="director-candidate-value-{{ $candidate->id }}">0</h4>
@@ -375,6 +403,9 @@
                     <button type="button" class="btn btn-primary" id="showVotePreviewBtn">
                         ثبت نهایی
                     </button>
+                    <p class="text-muted small text-center mb-0 mt-2 px-3">
+                        اگر نمی‌خواهید به کسی رأی بدهید، بدون انتخاب کاندیدا هم می‌توانید ثبت کنید تا فقط شرکت شما در رأی‌گیری ذخیره شود.
+                    </p>
                 </div>
 
                 {{-- مودال پیش‌نمایش رای قبل از ثبت --}}
@@ -436,7 +467,7 @@
                                                         @if ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
                                                             باقی‌مانده تا سقف (سهم × نامزد)
                                                         @else
-                                                            رای باقی‌مانده
+                                                            کل سهم شما (برای هر کاندیدا)
                                                         @endif
                                                     </p>
                                                 </div>
@@ -444,6 +475,33 @@
                                         </div>
                                     @endif
                                 </div>
+
+                                <div id="abstain-preview-alert" class="alert alert-secondary small mb-3 d-none">
+                                    <strong>شرکت بدون رأی:</strong>
+                                    هیچ کاندیدایی انتخاب نشده است. با تأیید، فقط حضور شما در رأی‌گیری ثبت می‌شود
+                                    و به هیچ‌کس رأی داده نمی‌شود. این عمل قابل ویرایش نیست.
+                                </div>
+
+                                @if ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
+                                    <div class="alert alert-info small mb-3">
+                                        <strong>توضیح برای رأی‌دهنده:</strong>
+                                        سقف رأی شما برابر است با
+                                        <strong>کل سهم مؤثر × تعداد اعضای اصلی</strong>.
+                                        می‌توانید این سقف را بین کاندیداها تقسیم کنید؛ مجموع نباید از سقف بیشتر شود.
+                                        «کل سهم مؤثر» معمولاً برابر است با
+                                        سهام عادی + (سهام ممتاز × وزن سهام ممتاز).
+                                    </div>
+                                @elseif ($election->type == App\Enums\ElectionType::PRIVATE_JOINT)
+                                    <div class="alert alert-info small mb-3">
+                                        <strong>توضیح برای رأی‌دهنده:</strong>
+                                        «کل سهم شما» برابر است با
+                                        <strong>سهام عادی + (سهام ممتاز × وزن سهام ممتاز)</strong>.
+                                        با انتخاب هر کاندیدا، همان کل سهم شما برای او ثبت می‌شود.
+                                        بنابراین «تعداد کل رأی داده‌شده» برابر است با
+                                        <strong>کل سهم شما × تعداد کاندیداهایی که انتخاب کرده‌اید</strong>
+                                        (مثلاً اگر سهم شما ۲٬۵۲۲ باشد و ۳ نفر را انتخاب کنید، مجموع رأی ۷٬۵۶۶ می‌شود).
+                                    </div>
+                                @endif
 
                                 <div class="alert alert-warning mb-0">
                                     <div class="d-flex align-items-center gap-2">
@@ -717,15 +775,26 @@
                 document.getElementById('preview-voted-count').textContent = votedCount;
                 document.getElementById('preview-not-voted-count').textContent = notVotedCount;
 
+                const abstainAlert = document.getElementById('abstain-preview-alert');
+                if (abstainAlert) {
+                    abstainAlert.classList.toggle('d-none', votedCount > 0);
+                }
+
                 @if (in_array($election->type, [App\Enums\ElectionType::PRIVATE_JOINT, App\Enums\ElectionType::PRIVATE_JOINT_WITH_88]))
                     document.getElementById('preview-total-votes').textContent =
                         totalVotesGiven.toLocaleString('fa-IR');
 
                     const remEl = document.getElementById('preview-remaining-votes');
-                    const remVal = isArticle88 ? remainingVotes : Math.max(0, remainingVotes);
-                    remEl.textContent = remVal.toLocaleString('fa-IR');
-                    remEl.classList.toggle('text-danger', isArticle88 && remainingVotes < 0);
-                    remEl.classList.toggle('text-info', !isArticle88 || remainingVotes >= 0);
+                    if (isArticle88) {
+                        remEl.textContent = remainingVotes.toLocaleString('fa-IR');
+                        remEl.classList.toggle('text-danger', remainingVotes < 0);
+                        remEl.classList.toggle('text-info', remainingVotes >= 0);
+                    } else {
+                        // در رأی چک‌باکسی، هر انتخاب = کل سهم؛ عدد باقی‌مانده معنا ندارد.
+                        remEl.textContent = effectiveStockOnly.toLocaleString('fa-IR');
+                        remEl.classList.remove('text-danger');
+                        remEl.classList.add('text-info');
+                    }
                 @endif
             }
 
@@ -761,19 +830,6 @@
                             alert(
                                 `شما نمی‌توانید بیشتر از ${maxDirectorCandidatesForArticle88} کاندیدای اصلی انتخاب کنید.`
                             );
-                        }
-                        return;
-                    }
-                    if (sum <= 0) {
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                icon: 'warning',
-                                title: 'رأی وارد نشده',
-                                text: 'حداقل برای یک نامزد، مقدار رأی بیشتر از صفر وارد کنید (اعداد فارسی یا انگلیسی).',
-                                confirmButtonText: 'باشه'
-                            });
-                        } else {
-                            alert('حداقل برای یک نامزد رأی بیشتر از صفر وارد کنید.');
                         }
                         return;
                     }
@@ -831,6 +887,11 @@
                             });
                             this.checked = false;
                         }
+
+                        const candidateId = this.getAttribute('data-candidate-id');
+                        if (candidateId && typeof updateCandidateVoteCard === 'function') {
+                            updateCandidateVoteCard(candidateId);
+                        }
                     });
                 });
             }
@@ -863,6 +924,83 @@
             }
         }
 
+        function updateCandidateVoteCard(candidateId) {
+            const card = document.querySelector('[data-candidate-card="' + candidateId + '"]');
+            const badge = document.querySelector('[data-vote-badge="' + candidateId + '"]');
+            const input = document.querySelector('.candidate-vote-input[data-candidate-id="' + candidateId + '"]');
+
+            if (!card || !input) {
+                return;
+            }
+
+            let selected = false;
+            let voteValue = 0;
+
+            if (input.type === 'checkbox') {
+                selected = input.checked;
+            } else {
+                voteValue = window.isArticle88Voting ?
+                    parseLocaleNumberToFloat(input.value) :
+                    (parseFloat(input.value) || 0);
+                selected = voteValue > 0;
+            }
+
+            card.classList.toggle('border-success', selected);
+            card.classList.toggle('border-2', selected);
+            card.classList.toggle('bg-success-subtle', selected);
+
+            if (badge) {
+                if (selected && window.isArticle88Voting) {
+                    badge.textContent = voteValue.toLocaleString('fa-IR') + ' رأی';
+                    badge.classList.remove('d-none');
+                } else {
+                    badge.textContent = '';
+                    badge.classList.add('d-none');
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.candidate-vote-input').forEach(function(input) {
+                const candidateId = input.getAttribute('data-candidate-id');
+                if (!candidateId) {
+                    return;
+                }
+
+                input.addEventListener('change', function() {
+                    updateCandidateVoteCard(candidateId);
+                });
+
+                updateCandidateVoteCard(candidateId);
+            });
+
+            // کلیک روی کل کارت = انتخاب/لغو انتخاب (فقط برای چک‌باکس)
+            document.querySelectorAll('.candidate-vote-card--selectable').forEach(function(card) {
+                function toggleCardSelection(e) {
+                    if (e.target.closest('input, label, a, button, .form-check')) {
+                        return;
+                    }
+
+                    const input = card.querySelector('input.candidate-vote-input[type="checkbox"]');
+                    if (!input || input.disabled) {
+                        return;
+                    }
+
+                    e.preventDefault();
+                    input.checked = !input.checked;
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+
+                card.addEventListener('click', toggleCardSelection);
+                card.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleCardSelection(e);
+                    }
+                });
+            });
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             // به‌روزرسانی مقادیر اولیه برای input های number
             @if ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
@@ -870,6 +1008,7 @@
                     var inputId = 'director-candidate-input-{{ $candidate->id }}';
                     var valueId = 'director-candidate-value-{{ $candidate->id }}';
                     updateVoteValue(inputId, valueId);
+                    updateCandidateVoteCard({{ $candidate->id }});
                 @endforeach
                 updateArticle88Totals();
             @endif

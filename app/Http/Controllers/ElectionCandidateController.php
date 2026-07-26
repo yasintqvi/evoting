@@ -162,6 +162,12 @@ class ElectionCandidateController extends Controller
      */
     public function edit(Group $group, Event $event, Election $election)
     {
+        if ($election->status->isImmutableStatuses()) {
+            return redirect()
+                ->route('elections.index', [$group, $event])
+                ->with('error', 'پس از شروع انتخابات امکان ویرایش نامزدها وجود ندارد.');
+        }
+
         $group->load(['users' => function ($query) {
             $query->where(function ($q) {
                 $q->where('group_user.normal_stock_count', '>', 0)

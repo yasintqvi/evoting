@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\ElectionType;
+use App\Enums\GroupType;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -88,6 +90,28 @@ class Participant extends Model
     public function is_attorney()
     {
         return $this->hasMany(Participant::class, 'attorney_id');
+    }
+
+    /**
+     * شرکت‌کنندگانی که باید در حضور و غیاب نمایش داده شوند.
+     * در گروه سهامی خاص، افراد بدون سهام (مثل بازرس یا مدیر بدون سهام) حذف می‌شوند،
+     * مگر اینکه موکل وکالت داده باشند.
+     */
+    public function scopeVisibleForAttendance(Builder $query, Group $group): Builder
+    {
+        $hiddenUserIds = $group->managerOnlyUserIds();
+
+        $query->whereNotIn('user_id', $hiddenUserIds);
+
+        if ($group->type === GroupType::SPECIAL) {
+            $query->where(function (Builder $q) {
+                $q->whereNotNull('attorney_id')
+                    ->orWhere('normal_stock_count', '>', 0)
+                    ->orWhere('prefered_stock_count', '>', 0);
+            });
+        }
+
+        return $query;
     }
 
     public function getTotalStockAttribute()

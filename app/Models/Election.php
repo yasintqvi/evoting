@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CandidateType;
 use App\Enums\ElectionStatus;
 use App\Enums\ElectionType;
 use Cviebrock\EloquentSluggable\Sluggable;
@@ -20,8 +21,8 @@ class Election extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'group_id',
         'event_id',
+        'parent_election_id',
         'position_id',
         'owner_id',
         'title',
@@ -168,6 +169,21 @@ class Election extends Model
         return $this->hasMany(ElectionRound::class);
     }
 
+    public function parentElection(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'parent_election_id');
+    }
+
+    public function runoffElections(): HasMany
+    {
+        return $this->hasMany(self::class, 'parent_election_id');
+    }
+
+    public function isRunoff(): bool
+    {
+        return $this->parent_election_id !== null;
+    }
+
     public function precentParticipants()
     {
         $hiddenUserIds = $this->group->managerOnlyUserIds();
@@ -186,12 +202,14 @@ class Election extends Model
     /**
      * سقف کل آرای قابل ثبت در این انتخابات، بر اساس شرکت‌کنندگان حاضر و نوع انتخابات.
      *
-     * قبلاً فقط از سهام کل گروه در زمان ساخت انتخابات استفاده می‌شد که برای
-     * تعاونی / ماده ۸۸ / افراد غایب عدد اشتباه می‌داد.
+     * - تعاونی: تعداد رأی‌دهندگان (با وکالت)
+     * - سهامی بدون ماده ۸۸: مجموع سهام حاضرین × حداکثر تعداد انتخاب مجاز
+     *   (چون با انتخاب هر کاندیدا، کل سهم دوباره ثبت می‌شود)
+     * - ماده ۸۸: مجموع سهام حاضرین × تعداد اعضای اصلی (سقف استخر رأی)
      */
     public function getAllVotesAttribute(): float|int
     {
-        $this->loadMissing(['event.participants', 'group']);
+        $this->loadMissing(['event.participants', 'group', 'candidates']);
 
         $hiddenUserIds = $this->group?->managerOnlyUserIds() ?? [];
         $participants = $this->event?->participants ?? collect();
@@ -214,18 +232,46 @@ class Election extends Model
             return $total;
         }
 
-        $presentParticipants = $participants->where('is_present', true);
+        // فقط کسانی که می‌توانند رأی بدهند (سهام نزد خودشان/وکالت‌گرفته‌ها)
+        $presentVoters = $participants
+            ->where('is_present', true)
+            ->whereNull('attorney_id');
 
-        $total = 0.0;
-        foreach ($presentParticipants as $participant) {
-            $total += $this->participantVoteUnits($participant);
+        $totalStock = 0.0;
+        foreach ($presentVoters as $participant) {
+            $totalStock += $this->participantVoteUnits($participant);
         }
 
-        if ($this->type === ElectionType::PRIVATE_JOINT_WITH_88) {
-            $total *= max(0, (int) $this->main_member_count);
-        }
+        $seatMultiplier = $this->maxVoteSeatMultiplier();
+        $total = $totalStock * $seatMultiplier;
 
         return $total == (int) $total ? (int) $total : $total;
+    }
+
+    /**
+     * ضریب سقف رأی نسبت به سهام:
+     * ماده ۸۸ و سهامی معمولی = تعداد کرسی قابل‌انتخاب (اعضای اصلی، یا تعداد کاندیدا).
+     */
+    protected function maxVoteSeatMultiplier(): int
+    {
+        $mainSeats = max(0, (int) $this->main_member_count);
+        $directorCount = $this->candidates
+            ->where('candidate_type', CandidateType::DIRECTOR)
+            ->count();
+
+        if ($this->type === ElectionType::PRIVATE_JOINT_WITH_88) {
+            return $mainSeats;
+        }
+
+        if ($this->type === ElectionType::PRIVATE_JOINT) {
+            if ($mainSeats <= 0) {
+                return max(0, $directorCount);
+            }
+
+            return $directorCount > 0 ? min($mainSeats, $directorCount) : $mainSeats;
+        }
+
+        return 1;
     }
 
     protected function participantVoteUnits(Participant $participant): float

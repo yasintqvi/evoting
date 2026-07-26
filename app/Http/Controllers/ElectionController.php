@@ -16,6 +16,7 @@ use App\Models\Group;
 use App\Models\Position;
 use App\Models\User;
 use App\Models\Vote;
+use App\Services\ElectionRunoffService;
 use App\Services\ElectionService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -35,9 +36,12 @@ class ElectionController extends Controller
 {
     private ElectionService $electionService;
 
-    public function __construct(ElectionService $electionService)
+    private ElectionRunoffService $runoffService;
+
+    public function __construct(ElectionService $electionService, ElectionRunoffService $runoffService)
     {
         $this->electionService = $electionService;
+        $this->runoffService = $runoffService;
     }
 
     public function index(Request $request, Group $group, Event $event)
@@ -221,6 +225,12 @@ class ElectionController extends Controller
 
     public function edit(Request $request, Group $group, Event $event, Election $election): View|RedirectResponse
     {
+        if ($election->status->isImmutableStatuses()) {
+            return redirect()
+                ->route('elections.index', [$group, $event])
+                ->with('error', 'پس از شروع انتخابات امکان ویرایش وجود ندارد.');
+        }
+
         // در صورتی که انتخاباتی در حال اجرا در این رویداد وجود داشته باشد، ویرایش مجاز نیست
         $hasOngoing = $event->elections()
             ->where('status', ElectionStatus::ONGOING)
@@ -244,8 +254,14 @@ class ElectionController extends Controller
     {
         try {
             $this->electionService->update($election, $request->toDto());
+            $election->refresh();
 
-            return to_route('elections.index', [$group, $event])->with('success', __('messages.election.edited'));
+            $message = __('messages.election.edited');
+            if ($election->status === ElectionStatus::CREATED) {
+                $message .= ' برای شروع انتخابات، در مرحله بعد حتماً نامزدها را تعیین کنید.';
+            }
+
+            return to_route('elections.index', [$group, $event])->with('success', $message);
         } catch (Throwable $th) {
             Log::error('Error updating election', [
                 'election_id' => $election->id,
@@ -387,13 +403,21 @@ class ElectionController extends Controller
     {
         try {
             if ($election->status !== ElectionStatus::ONGOING) {
-                return back()->with('error', 'وضعیت فعلی انتخابات قابل شروع نیست.');
+                return back()->with('error', 'وضعیت فعلی انتخابات قابل پایان نیست.');
             }
 
             $election->status = ElectionStatus::COMPLETED;
+            $election->ends_at = $election->ends_at ?? now();
             $election->save();
 
-            return back()->with('success', 'انتخابات با موفقیت به پایان رسید و تمام انتخابات دیگر نیز بسته شدند.');
+            $tieAnalysis = $this->runoffService->analyzeTieBreak($election);
+            if ($tieAnalysis['has_tie'] && ! $election->isRunoff()) {
+                return redirect()
+                    ->route('elections.report', [$group, $event, $election])
+                    ->with('warning', $tieAnalysis['message'].' از دکمه «شروع دور دوم» در گزارش استفاده کنید.');
+            }
+
+            return back()->with('success', 'انتخابات با موفقیت به پایان رسید.');
         } catch (\Exception $e) {
             Log::error('Error ending election', [
                 'election_id' => $election->id,
@@ -401,6 +425,30 @@ class ElectionController extends Controller
             ]);
 
             return back()->with('error', 'خطایی در پایان انتخابات رخ داد.');
+        }
+    }
+
+    public function startRunoff(Group $group, Event $event, Election $election)
+    {
+        try {
+            if ((int) $election->event_id !== (int) $event->id) {
+                abort(404);
+            }
+
+            $runoff = $this->runoffService->createRunoff($election, auth()->user());
+
+            return redirect()
+                ->route('elections.index', [$group, $event])
+                ->with('success', 'دور دوم انتخابات ایجاد شد. برای شروع رأی‌گیری، از منوی عملیات «شروع انتخابات» را بزنید.')
+                ->with('runoff_election_id', $runoff->id);
+        } catch (Throwable $e) {
+            Log::error('Error creating runoff election', [
+                'election_id' => $election->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return back()->with('error', $e->getMessage());
         }
     }
 
@@ -528,6 +576,10 @@ class ElectionController extends Controller
         }
 
         // نمایش عادی در مرورگر
+        $election->loadMissing('parentElection');
+        $tieBreak = $this->runoffService->analyzeTieBreak($election);
+        $existingRunoff = $election->isRunoff() ? null : $this->runoffService->existingRunoff($election);
+
         return view('app.group.event.election.report', compact(
             'group',
             'event',
@@ -535,7 +587,9 @@ class ElectionController extends Controller
             'candidateVotes',
             'totalParticipants',
             'totalCandidates',
-            'totalVotes'
+            'totalVotes',
+            'tieBreak',
+            'existingRunoff'
         ));
     }
 
