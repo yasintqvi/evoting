@@ -497,10 +497,22 @@
                         (attorneyName + ' ' + attorneyLastName + ' - ' + attorneyPhone).trim()
                     );
 
-                    setSaveLoading(true);
-                    keepFormValuesOnClose = true;
+                    Swal.fire({
+                        title: 'تایید انتخاب وکیل',
+                        text: 'آیا از انتخاب «' + attorneyName + ' ' + attorneyLastName + '» به عنوان وکیل مطمئن هستید؟',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'بله، ذخیره شود',
+                        cancelButtonText: 'انصراف'
+                    }).then(function(result) {
+                        if (!result.isConfirmed) {
+                            return;
+                        }
 
-                    axios.post('{{ route('attorneys.store') }}', {
+                        setSaveLoading(true);
+                        keepFormValuesOnClose = true;
+
+                        axios.post('{{ route('attorneys.store') }}', {
                             first_name: attorneyName,
                             last_name: attorneyLastName,
                             phone: attorneyPhone,
@@ -619,6 +631,7 @@
                         .finally(function() {
                             setSaveLoading(false);
                         });
+                    });
                 });
 
                 modalEl.addEventListener('hidden.bs.modal', function() {

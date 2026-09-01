@@ -1,4 +1,4 @@
-@if ($message = session()->get('success'))
+@if ($message = session()->get('warning'))
     <script>
         toastr.options = {
             positionClass: 'toast-bottom-left', 
@@ -6,6 +6,6 @@
             closeButton: true, 
             progressBar: true, 
         };
-        toastr.warning("{{ $message }}", "موفقیت آمیز");
+        toastr.warning("{{ $message }}", "توجه");
     </script>
 @endif

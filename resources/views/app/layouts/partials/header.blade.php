@@ -33,12 +33,12 @@
         </div>
         @endif
         <div class="d-flex align-items-center gap-2">
-            @if (!isVoterOnly())
-                <!-- Sidebar Menu Toggle Button -->
-                <button class="sidenav-toggle-button px-2">
-                    <i class="ti ti-menu-deep fs-24"></i>
-                </button>
+            <!-- Sidebar Menu Toggle Button -->
+            <button class="sidenav-toggle-button px-2" type="button" aria-label="باز کردن منو">
+                <i class="ti ti-menu-deep fs-24"></i>
+            </button>
 
+            @if (!isVoterOnly())
                 <!-- Horizontal Menu Toggle Button -->
                 <button class="topnav-toggle-button px-2" data-bs-toggle="collapse" data-bs-target="#topnav-menu-content">
                     <i class="ti ti-menu-deep fs-22"></i>

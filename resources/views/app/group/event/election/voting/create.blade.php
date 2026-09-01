@@ -22,6 +22,235 @@
             outline: 2px solid var(--bs-primary);
             outline-offset: 2px;
         }
+
+        .candidate-vote-card .form-check-input {
+            width: 1.35rem;
+            height: 1.35rem;
+        }
+
+        .candidate-vote-card .form-check-label {
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.35rem 0.75rem;
+        }
+
+        .candidate-vote-select-btn {
+            min-height: 44px;
+            min-width: 110px;
+            font-weight: 600;
+        }
+
+        .voting-sticky-bar {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1040;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+            background: rgba(255, 255, 255, 0.97);
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(8px);
+        }
+
+        .voting-sticky-bar__info {
+            font-size: 0.875rem;
+            color: var(--bs-secondary);
+            line-height: 1.35;
+        }
+
+        .voting-sticky-bar__count {
+            display: block;
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--bs-dark);
+        }
+
+        .voting-mobile-guide {
+            border-right: 4px solid var(--bs-primary);
+        }
+
+        .voting-mobile-guide ol {
+            line-height: 1.7;
+        }
+
+        .vote-preview-stat {
+            border-radius: 0.75rem;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            padding: 0.65rem 0.5rem;
+            text-align: center;
+            height: 100%;
+            background: #fff;
+        }
+
+        .vote-preview-stat__value {
+            font-size: 1.35rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 0.15rem;
+        }
+
+        .vote-preview-stat__label {
+            font-size: 0.72rem;
+            color: var(--bs-secondary);
+            line-height: 1.35;
+            margin-bottom: 0;
+        }
+
+        .vote-preview-stat--success {
+            border-color: rgba(25, 135, 84, 0.35);
+            background: rgba(25, 135, 84, 0.06);
+        }
+
+        .vote-preview-stat--success .vote-preview-stat__value {
+            color: var(--bs-success);
+        }
+
+        .vote-preview-stat--warning {
+            border-color: rgba(255, 193, 7, 0.45);
+            background: rgba(255, 193, 7, 0.08);
+        }
+
+        .vote-preview-stat--warning .vote-preview-stat__value {
+            color: #b58100;
+        }
+
+        .vote-preview-stat--primary {
+            border-color: rgba(13, 110, 253, 0.35);
+            background: rgba(13, 110, 253, 0.06);
+        }
+
+        .vote-preview-stat--primary .vote-preview-stat__value {
+            color: var(--bs-primary);
+        }
+
+        .vote-preview-stat--info {
+            border-color: rgba(13, 202, 240, 0.35);
+            background: rgba(13, 202, 240, 0.08);
+        }
+
+        .vote-preview-stat--info .vote-preview-stat__value {
+            color: #0aa2c0;
+        }
+
+        #votePreviewModal .modal-body {
+            padding: 1rem;
+        }
+
+        #votePreviewModal .modal-header {
+            padding: 0.75rem 1rem;
+        }
+
+        #votePreviewModal .modal-footer {
+            padding: 0.75rem 1rem;
+            gap: 0.5rem;
+        }
+
+        @media (max-width: 575.98px) {
+            #votePreviewModal .modal-footer {
+                flex-wrap: nowrap;
+            }
+
+            #votePreviewModal .modal-footer .btn {
+                flex: 1 1 50%;
+                padding-top: 0.65rem;
+                padding-bottom: 0.65rem;
+            }
+        }
+
+        @media (min-width: 576px) {
+            .vote-preview-stat {
+                padding: 0.85rem 0.75rem;
+            }
+
+            .vote-preview-stat__value {
+                font-size: 1.6rem;
+            }
+
+            .vote-preview-stat__label {
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 1199.98px) {
+            .voting-page-form {
+                padding-bottom: 5.5rem;
+            }
+
+            .page-title-head .breadcrumb {
+                display: none;
+            }
+
+            .candidate-vote-card .card-body {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+                text-align: center;
+                padding: 0.75rem 0.5rem;
+            }
+
+            .candidate-vote-card .candidate-vote-card__media img {
+                width: 64px;
+                height: 64px;
+                object-fit: cover;
+            }
+
+            .candidate-vote-card .candidate-vote-card__body {
+                width: 100%;
+            }
+
+            .candidate-vote-card .candidate-vote-card__body h5 {
+                font-size: 0.85rem;
+                margin-bottom: 0.25rem;
+                line-height: 1.4;
+            }
+
+            .candidate-vote-card .candidate-vote-card__action {
+                width: 100%;
+                margin-top: 0 !important;
+            }
+
+            .candidate-vote-card .candidate-vote-select-btn {
+                width: 100%;
+                min-width: 0;
+                font-size: 0.85rem;
+                padding: 0.4rem 0.5rem;
+            }
+
+            .candidate-vote-card:not(.candidate-vote-card--selectable) .card-body {
+                display: block;
+                text-align: center;
+            }
+
+            .candidate-vote-card .form-check {
+                position: relative;
+            }
+
+            .candidate-vote-card .form-check-input {
+                position: absolute;
+                opacity: 0;
+                width: 1px;
+                height: 1px;
+            }
+
+            #article88-live-summary .col-md-4 {
+                flex: 0 0 33.333%;
+                max-width: 33.333%;
+            }
+
+            #article88-live-summary .small {
+                font-size: 0.7rem;
+            }
+
+            #article88-live-summary .fs-4 {
+                font-size: 1.1rem !important;
+            }
+        }
     </style>
 @endsection
 
@@ -47,6 +276,15 @@
             ($totalEffectiveStockOfAllParticipants ?? 0) > 0
                 ? round(($effectiveStock / $totalEffectiveStockOfAllParticipants) * 100, 2)
                 : 0;
+
+        $maxSelectableDirectors = (int) ($election->main_member_count ?? 0);
+        $isCheckboxVote = in_array($election->type, [
+            App\Enums\ElectionType::PUBLIC_JOINT,
+            App\Enums\ElectionType::PRIVATE_JOINT,
+        ]);
+        $userVoteCapDisplay = $election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88
+            ? (float) $article88VotePool
+            : (float) $effectiveStock;
     @endphp
     <div class="page-title-head d-flex align-items-sm-center flex-sm-row flex-column gap-2 mb-3">
         <div class="flex-grow-1">
@@ -88,115 +326,143 @@
         </div>
     @endif
 
-    <form id="votingForm" action="{{ route('voting.store', [$group->slug, $event->slug, $election->slug]) }}"
+    <form id="votingForm" class="voting-page-form" action="{{ route('voting.store', [$group->slug, $event->slug, $election->slug]) }}"
         method="post">
         @csrf
         <input type="hidden" name="election_slug" value="{{ $election->slug }}">
         <input type="hidden" name="group_slug" value="{{ $group->slug }}">
         <input type="hidden" name="event_slug" value="{{ $event->slug }}">
-        <div class="row">
-            <div class="col-xl-4 col-lg-12">
+        <div class="row voting-page-row">
+            <div class="col-xl-4 col-lg-12 voting-sidebar-col order-xl-1 order-2">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex align-items-center gap-2">
                             <img src="{{ asset(user()->profile_image) }}" alt=""
                                 class="avatar-xl rounded-circle border border-light border-2">
                             <div>
-                                <h4 class="text-dark fw-medium">{{ user()->full_name }}</h4>
+                                <h4 class="text-dark fw-medium mb-0">{{ user()->full_name }}</h4>
+                                <p class="text-muted small mb-0">{{ $election->title }}</p>
                             </div>
                         </div>
-                        <div class="mt-3">
+
+                        <div class="voting-sidebar-extra d-none d-xl-block">
                             <div class="mt-3">
-                                <div class="d-flex align-items-center gap-2 mb-2">
-                                    <div class="bg-opacity-75 d-flex align-items-center justify-content-center rounded">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24">
-                                            <path fill="currentColor"
-                                                d="m17.578 4.432l-2-1.05C13.822 2.461 12.944 2 12 2s-1.822.46-3.578 1.382l-.321.169l8.923 5.099l4.016-2.01c-.646-.732-1.688-1.279-3.462-2.21m4.17 3.534l-3.998 2V13a.75.75 0 0 1-1.5 0v-2.286l-3.5 1.75v9.44c.718-.179 1.535-.607 2.828-1.286l2-1.05c2.151-1.129 3.227-1.693 3.825-2.708c.597-1.014.597-2.277.597-4.8v-.117c0-1.893 0-3.076-.252-3.978M11.25 21.904v-9.44l-8.998-4.5C2 8.866 2 10.05 2 11.941v.117c0 2.525 0 3.788.597 4.802c.598 1.015 1.674 1.58 3.825 2.709l2 1.049c1.293.679 2.11 1.107 2.828 1.286M2.96 6.641l9.04 4.52l3.411-1.705l-8.886-5.078l-.103.054c-1.773.93-2.816 1.477-3.462 2.21" />
-                                        </svg>
+                                <h4 class="fs-15">اطلاعات انتخابات:</h4>
+                                <div class="row mt-1 g-2">
+                                    <div class="col-6">
+                                        <h4 class="fw-medium mb-0">
+                                            {{ $election->candidates()->where('candidate_type', App\Enums\CandidateType::DIRECTOR)->count() }}
+                                        </h4>
+                                        <p class="mb-0 text-muted lh-lg"> کاندیدای هیت مدیره </p>
                                     </div>
-                                    <p class="mb-0 text-dark">{{ $election->title }}</p>
+                                    <div class="col-6">
+                                        @if ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
+                                            <h4 class="fw-medium mb-0">
+                                                {{ $totalArticle88VotePool == floor($totalArticle88VotePool) ? number_format((int) $totalArticle88VotePool) : number_format($totalArticle88VotePool, 2) }}
+                                            </h4>
+                                            <p class="mb-0 text-muted lh-lg">سقف مجموع آرا (کل گروه)</p>
+                                            <small class="text-muted">
+                                                مجموع سهام مؤثر حاضرین
+                                                ({{ number_format($totalEffectiveStockOfAllParticipants) }})
+                                                × {{ (int) ($election->main_member_count ?? 0) }} عضو اصلی
+                                            </small>
+                                            <small class="text-muted d-block mt-1">
+                                                @if ($election->ignore_stock_weight)
+                                                    (سهام عادی + سهام ممتاز بدون وزن)
+                                                @else
+                                                    (سهام عادی + (سهام ممتاز × {{ $election->prefered_stock_weight }}))
+                                                @endif
+                                            </small>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="mt-3">
-                            <h4 class="fs-15">اطلاعات انتخابات:</h4>
-                            <div class="row mt-1 g-2">
-                                <div class="col-6">
-                                    <h4 class="fw-medium mb-0">
-                                        {{ $election->candidates()->where('candidate_type', App\Enums\CandidateType::DIRECTOR)->count() }}
-                                    </h4>
-                                    <p class="mb-0 text-muted lh-lg"> کاندیدای هیت مدیره </p>
-                                </div>
-                                <div class="col-6">
-                                    @if ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
-                                        <h4 class="fw-medium mb-0">
-                                            {{ $totalArticle88VotePool == floor($totalArticle88VotePool) ? number_format((int) $totalArticle88VotePool) : number_format($totalArticle88VotePool, 2) }}
-                                        </h4>
-                                        <p class="mb-0 text-muted lh-lg">سقف مجموع آرا (کل گروه)</p>
-                                        <small class="text-muted">
-                                            مجموع سهام مؤثر حاضرین
-                                            ({{ number_format($totalEffectiveStockOfAllParticipants) }})
-                                            × {{ (int) ($election->main_member_count ?? 0) }} عضو اصلی
-                                        </small>
-                                        <small class="text-muted d-block mt-1">
-                                            @if ($election->ignore_stock_weight)
-                                                (سهام عادی + سهام ممتاز بدون وزن)
+                            <div class="mt-3">
+                                <h4 class="fs-15">اطلاعات رای دهنده:</h4>
+                                <div class="row mt-1 g-2">
+                                    @if (in_array($election->type, [App\Enums\ElectionType::PRIVATE_JOINT, App\Enums\ElectionType::PRIVATE_JOINT_WITH_88]))
+                                        <div class="col-lg-4 col-6">
+                                            <h4 class="fw-medium mb-0">{{ number_format($participant->normal_stock_count) }}
+                                            </h4>
+                                            <p class="mb-0 text-muted lh-lg">سهم عادی</p>
+                                        </div>
+                                        <div class="col-lg-4 col-6">
+                                            <h4 class="fw-medium mb-0">{{ number_format($participant->prefered_stock_count) }}
+                                            </h4>
+                                            <p class="mb-0 text-muted lh-lg">سهم ممتاز</p>
+                                        </div>
+                                        <div class="col-lg-4 col-6">
+                                            @if ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
+                                                <h4 class="fw-medium mb-0">{{ number_format((float) $article88VotePool) }}</h4>
+                                                <p class="mb-0 text-muted lh-lg">سقف رأی قابل تخصیص</p>
+                                                <small class="text-primary">
+                                                    {{ number_format($effectiveStock) }} × {{ (int) ($election->main_member_count ?? 0) }} عضو اصلی
+                                                </small>
                                             @else
-                                                (سهام عادی + (سهام ممتاز × {{ $election->prefered_stock_weight }}))
+                                                <h4 class="fw-medium mb-0">{{ number_format($effectiveStock) }}</h4>
+                                                <p class="mb-0 text-muted lh-lg"> سهم شما (رأی قابل‌تخصیص)</p>
                                             @endif
-                                        </small>
+                                            @if ($election->ignore_stock_weight)
+                                                <small class="text-info d-block">بدون وزن</small>
+                                            @endif
+                                        </div>
+                                        <div class="col-lg-4 col-6">
+                                            <h4 class="fw-medium mb-0">{{ $userImpactPercent }}٪</h4>
+                                            <p class="mb-0 text-muted lh-lg">درصد تأثیرگذاری</p>
+                                            <small class="text-muted">
+                                                از کل سهام حاضرین در جلسه
+                                            </small>
+                                        </div>
+                                    @else
+                                        <div class="col-lg-4 col-6">
+                                            <h4 class="fw-medium mb-0">1</h4>
+                                            <p class="mb-0 text-muted lh-lg">کل سهم</p>
+                                        </div>
                                     @endif
                                 </div>
                             </div>
                         </div>
-                        <div class="mt-3">
-                            <h4 class="fs-15">اطلاعات رای دهنده:</h4>
-                            <div class="row mt-1 g-2">
-                                @if (in_array($election->type, [App\Enums\ElectionType::PRIVATE_JOINT, App\Enums\ElectionType::PRIVATE_JOINT_WITH_88]))
-                                    <div class="col-lg-4 col-6">
-                                        <h4 class="fw-medium mb-0">{{ number_format($participant->normal_stock_count) }}
-                                        </h4>
-                                        <p class="mb-0 text-muted lh-lg">سهم عادی</p>
-                                    </div>
-                                    <div class="col-lg-4 col-6">
-                                        <h4 class="fw-medium mb-0">{{ number_format($participant->prefered_stock_count) }}
-                                        </h4>
-                                        <p class="mb-0 text-muted lh-lg">سهم ممتاز</p>
-                                    </div>
-                                    <div class="col-lg-4 col-6">
-                                        @if ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
-                                            <h4 class="fw-medium mb-0">{{ number_format((float) $article88VotePool) }}</h4>
-                                            <p class="mb-0 text-muted lh-lg">سقف رأی قابل تخصیص</p>
-                                            <small class="text-primary">
-                                                {{ number_format($effectiveStock) }} × {{ (int) ($election->main_member_count ?? 0) }} عضو اصلی
-                                            </small>
-                                        @else
-                                            <h4 class="fw-medium mb-0">{{ number_format($effectiveStock) }}</h4>
-                                            <p class="mb-0 text-muted lh-lg"> سهم شما (رأی قابل‌تخصیص)</p>
+
+                        <div class="d-xl-none mt-3">
+                            <button class="btn btn-light btn-sm w-100 d-flex align-items-center justify-content-between"
+                                type="button" data-bs-toggle="collapse" data-bs-target="#votingSidebarDetails"
+                                aria-expanded="false" aria-controls="votingSidebarDetails">
+                                <span>جزئیات سهام و انتخابات</span>
+                                <i class="ti ti-chevron-down"></i>
+                            </button>
+                            <div class="collapse mt-2" id="votingSidebarDetails">
+                                <div class="border rounded-3 p-3 bg-light-subtle">
+                                    <div class="row g-2 small">
+                                        @if (in_array($election->type, [App\Enums\ElectionType::PRIVATE_JOINT, App\Enums\ElectionType::PRIVATE_JOINT_WITH_88]))
+                                            <div class="col-6">
+                                                <div class="text-muted">سهم عادی</div>
+                                                <div class="fw-semibold">{{ number_format($participant->normal_stock_count) }}</div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="text-muted">سهم ممتاز</div>
+                                                <div class="fw-semibold">{{ number_format($participant->prefered_stock_count) }}</div>
+                                            </div>
                                         @endif
-                                        @if ($election->ignore_stock_weight)
-                                            <small class="text-info d-block">بدون وزن</small>
+                                        <div class="col-6">
+                                            <div class="text-muted">تعداد نامزدها</div>
+                                            <div class="fw-semibold">
+                                                {{ $election->candidates()->where('candidate_type', App\Enums\CandidateType::DIRECTOR)->count() }}
+                                            </div>
+                                        </div>
+                                        @if ($maxSelectableDirectors > 0)
+                                            <div class="col-6">
+                                                <div class="text-muted">عضو اصلی</div>
+                                                <div class="fw-semibold">{{ $maxSelectableDirectors }} نفر</div>
+                                            </div>
                                         @endif
                                     </div>
-                                    <div class="col-lg-4 col-6">
-                                        <h4 class="fw-medium mb-0">{{ $userImpactPercent }}٪</h4>
-                                        <p class="mb-0 text-muted lh-lg">درصد تأثیرگذاری</p>
-                                        <small class="text-muted">
-                                            از کل سهام حاضرین در جلسه
-                                        </small>
-                                    </div>
-                                @else
-                                    <div class="col-lg-4 col-6">
-                                        <h4 class="fw-medium mb-0">1</h4>
-                                        <p class="mb-0 text-muted lh-lg">کل سهم</p>
-                                    </div>
-                                @endif
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <div class="voting-sidebar-extra d-none d-xl-block">
                 <div class="card mt-3 border-primary border-opacity-25">
                     <div class="card-header bg-primary bg-opacity-10 border-bottom border-dashed py-3">
                         <h5 class="card-title mb-0 d-flex align-items-center gap-2 fs-16">
@@ -293,11 +559,52 @@
                         </div>
                     </div>
                 @endif
+                </div>
             </div>
-            <div class="col-xl-8 col-lg-12">
+            <div class="col-xl-8 col-lg-12 voting-main-col order-xl-2 order-1">
+                <div class="card d-xl-none mb-3 border-primary border-opacity-25">
+                    <div class="card-body py-3">
+                        <div class="d-flex align-items-center justify-content-between gap-2">
+                            <div>
+                                <div class="text-muted small">رأی شما</div>
+                                <div class="fs-4 fw-bold text-primary mb-0">
+                                    {{ number_format($userVoteCapDisplay) }}
+                                </div>
+                            </div>
+                            @if ($maxSelectableDirectors > 0)
+                                <div class="text-end">
+                                    <div class="text-muted small">حداکثر انتخاب</div>
+                                    <div class="fs-4 fw-bold text-dark mb-0">{{ $maxSelectableDirectors }} نفر</div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-primary voting-mobile-guide mb-3 d-xl-none">
+                    <div class="fw-semibold mb-2">راهنمای سریع رأی‌گیری</div>
+                    <ol class="mb-0 ps-3 small">
+                        @if ($isCheckboxVote)
+                            <li>روی نام هر کاندید بزنید تا انتخاب شود</li>
+                            @if ($maxSelectableDirectors > 0)
+                                <li>حداکثر {{ $maxSelectableDirectors }} نفر را می‌توانید انتخاب کنید</li>
+                            @endif
+                        @elseif ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
+                            <li>برای هر نامزد تعداد رأی را وارد کنید</li>
+                            <li>مجموع آرا نباید از {{ number_format($userVoteCapDisplay) }} بیشتر شود</li>
+                        @else
+                            <li>نامزدهای مورد نظر خود را انتخاب کنید</li>
+                        @endif
+                        <li>در پایان «ثبت نهایی» را بزنید و تأیید کنید</li>
+                    </ol>
+                </div>
+
                 <div class="card">
                     <div class="card-header border-bottom border-dashed">
-                        <h4 class="card-title mb-0">انتخاب کاندیدای </h4>
+                        <h4 class="card-title mb-0">انتخاب نامزدها</h4>
+                        @if ($isCheckboxVote)
+                            <p class="text-muted small mb-0 mt-1">برای انتخاب، روی کارت نامزد ضربه بزنید</p>
+                        @endif
                     </div>
                     @if ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
                         <div class="card-body border-bottom bg-light py-3" id="article88-live-summary">
@@ -324,47 +631,47 @@
                         </div>
                     @endif
                     <div class="card-body">
-                        <div class="row">
+                        <div class="row g-3">
                             @foreach ($election->candidates->where('candidate_type', App\Enums\CandidateType::DIRECTOR) as $candidate)
-                                <div class="col-xl-3 col-lg-6">
+                                <div class="col-6 col-xl-3">
                                     <div class="card candidate-vote-card h-100 border @if (in_array($election->type, [App\Enums\ElectionType::PUBLIC_JOINT, App\Enums\ElectionType::PRIVATE_JOINT])) candidate-vote-card--selectable @endif"
                                         data-candidate-card="{{ $candidate->id }}"
                                         @if (in_array($election->type, [App\Enums\ElectionType::PUBLIC_JOINT, App\Enums\ElectionType::PRIVATE_JOINT]))
                                             role="button" tabindex="0" title="برای انتخاب روی کارت کلیک کنید"
                                         @endif>
                                         <div class="card-body text-center">
-                                            <div class="row justify-content-between mb-3">
-                                                <div class="col-12">
-                                                    <img src="{{ asset($candidate->user->profile_image) }}"
-                                                        alt="" class="avatar-xl rounded">
-                                                </div>
+                                            <div class="candidate-vote-card__media">
+                                                <img src="{{ asset($candidate->user->profile_image) }}"
+                                                    alt="" class="avatar-xl rounded">
                                             </div>
-                                            <h5>{{ $candidate->user->full_name }}</h5>
-                                            <div class="candidate-vote-badge text-success fw-semibold small mb-2 d-none"
-                                                data-vote-badge="{{ $candidate->id }}"></div>
-                                            <div class="mt-3 d-flex gap-2 justify-content-center">
+                                            <div class="candidate-vote-card__body">
+                                                <h5 class="mb-0">{{ $candidate->user->full_name }}</h5>
+                                                <div class="candidate-vote-badge text-success fw-semibold small mt-1 d-none"
+                                                    data-vote-badge="{{ $candidate->id }}"></div>
+                                            </div>
+                                            <div class="candidate-vote-card__action mt-3 d-flex gap-2 justify-content-center">
 
                                                 {{-- تعاونی: PUBLIC_JOINT --}}
                                                 @if ($election->type == App\Enums\ElectionType::PUBLIC_JOINT)
-                                                    <div class="form-check form-checkbox-secondary mb-2">
+                                                    <div class="form-check form-checkbox-secondary mb-0">
                                                         <input type="checkbox" class="form-check-input candidate-vote-input"
                                                             name="director_candidates[{{ $candidate->id }}]"
                                                             value="1" id="candidate_{{ $candidate->id }}"
                                                             data-candidate-id="{{ $candidate->id }}">
                                                         <label for="candidate_{{ $candidate->id }}"
-                                                            class="form-check-label">انتخاب</label>
+                                                            class="form-check-label candidate-vote-select-btn btn btn-outline-primary mb-0">انتخاب</label>
                                                     </div>
 
                                                     {{-- خصوصی: PRIVATE_JOINT --}}
                                                 @elseif ($election->type == App\Enums\ElectionType::PRIVATE_JOINT)
-                                                    <div class="form-check form-checkbox-secondary mb-2">
+                                                    <div class="form-check form-checkbox-secondary mb-0">
                                                         <input type="checkbox" class="form-check-input candidate-vote-input"
                                                             name="director_candidates[{{ $candidate->id }}]"
                                                             value="{{ $effectiveStock }}"
                                                             id="candidate_{{ $candidate->id }}"
                                                             data-candidate-id="{{ $candidate->id }}">
                                                         <label for="candidate_{{ $candidate->id }}"
-                                                            class="form-check-label">انتخاب</label>
+                                                            class="form-check-label candidate-vote-select-btn btn btn-outline-primary mb-0">انتخاب</label>
                                                     </div>
 
                                                     {{-- ماده ۸۸: PRIVATE_JOINT_WITH_88 --}}
@@ -399,142 +706,118 @@
                         </div>
                     </div>
                 </div>
-                <div class="card">
-                    <button type="button" class="btn btn-primary" id="showVotePreviewBtn">
+                <div class="card d-none d-xl-block">
+                    <button type="button" class="btn btn-primary btn-lg w-100" id="showVotePreviewBtn">
                         ثبت نهایی
                     </button>
-                    <p class="text-muted small text-center mb-0 mt-2 px-3">
+                    <p class="text-muted small text-center mb-0 mt-2 px-3 pb-3">
                         اگر نمی‌خواهید به کسی رأی بدهید، بدون انتخاب کاندیدا هم می‌توانید ثبت کنید تا فقط شرکت شما در رأی‌گیری ذخیره شود.
                     </p>
+                </div>
+
+                <div class="voting-sticky-bar d-xl-none">
+                    <div class="voting-sticky-bar__info">
+                        <span class="voting-sticky-bar__count" id="stickySelectedCount">۰ نامزد</span>
+                        @if ($maxSelectableDirectors > 0)
+                            <span class="text-muted">از {{ $maxSelectableDirectors }} نفر</span>
+                        @endif
+                    </div>
+                    <button type="button" class="btn btn-primary btn-lg flex-shrink-0" id="showVotePreviewBtnSticky">
+                        ثبت نهایی
+                    </button>
                 </div>
 
                 {{-- مودال پیش‌نمایش رای قبل از ثبت --}}
                 <div class="modal fade" id="votePreviewModal" tabindex="-1" aria-labelledby="votePreviewModalLabel"
                     aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
                         <div class="modal-content">
-                            <div class="modal-header bg-primary text-white">
-                                <h5 class="modal-title" id="votePreviewModalLabel">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round" class="me-2">
-                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                        <polyline points="14 2 14 8 20 8"></polyline>
-                                    </svg>
+                            <div class="modal-header bg-primary text-white py-2">
+                                <h5 class="modal-title fs-16" id="votePreviewModalLabel">
                                     پیش‌نمایش رای شما
                                 </h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                                     aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <div class="row g-3 mb-3">
-                                    <div class="col-md-6">
-                                        <div class="card border border-success border-2 bg-light">
-                                            <div class="card-body text-center">
-                                                <h3 class="text-success fw-bold mb-2" id="preview-voted-count">0</h3>
-                                                <p class="mb-0 text-muted">کاندیدایی که رای داده‌اید</p>
-                                            </div>
+                                <div class="row g-2 mb-3 vote-preview-stats">
+                                    <div class="col-6">
+                                        <div class="vote-preview-stat vote-preview-stat--success">
+                                            <div class="vote-preview-stat__value" id="preview-voted-count">0</div>
+                                            <p class="vote-preview-stat__label mb-0">
+                                                <span class="d-md-none">انتخاب شده</span>
+                                                <span class="d-none d-md-inline">کاندیدای رأی‌داده‌شده</span>
+                                            </p>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="card border border-warning border-2 bg-light">
-                                            <div class="card-body text-center">
-                                                <h3 class="text-warning fw-bold mb-2" id="preview-not-voted-count">0</h3>
-                                                <p class="mb-0 text-muted">کاندیدایی که رای نداده‌اید</p>
-                                            </div>
+                                    <div class="col-6">
+                                        <div class="vote-preview-stat vote-preview-stat--warning">
+                                            <div class="vote-preview-stat__value" id="preview-not-voted-count">0</div>
+                                            <p class="vote-preview-stat__label mb-0">
+                                                <span class="d-md-none">بدون رأی</span>
+                                                <span class="d-none d-md-inline">کاندیدای بدون رأی</span>
+                                            </p>
                                         </div>
                                     </div>
                                     @if (in_array($election->type, [App\Enums\ElectionType::PRIVATE_JOINT, App\Enums\ElectionType::PRIVATE_JOINT_WITH_88]))
-                                        <div class="col-md-6">
-                                            <div class="card border border-primary border-2 bg-light">
-                                                <div class="card-body text-center">
-                                                    <h3 class="text-primary fw-bold mb-2" id="preview-total-votes">0</h3>
-                                                    <p class="mb-0 text-muted">
-                                                        @if ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
-                                                            مجموع رأی تخصیص‌داده‌شده
-                                                        @else
-                                                            تعداد کل رای داده شده
-                                                        @endif
-                                                    </p>
-                                                </div>
+                                        <div class="col-6">
+                                            <div class="vote-preview-stat vote-preview-stat--primary">
+                                                <div class="vote-preview-stat__value" id="preview-total-votes">0</div>
+                                                <p class="vote-preview-stat__label mb-0">
+                                                    @if ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
+                                                        <span class="d-md-none">مجموع رأی</span>
+                                                        <span class="d-none d-md-inline">مجموع رأی تخصیص‌داده‌شده</span>
+                                                    @else
+                                                        <span class="d-md-none">کل رأی</span>
+                                                        <span class="d-none d-md-inline">تعداد کل رای داده شده</span>
+                                                    @endif
+                                                </p>
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
-                                            <div class="card border border-info border-2 bg-light">
-                                                <div class="card-body text-center">
-                                                    <h3 class="text-info fw-bold mb-2" id="preview-remaining-votes">0</h3>
-                                                    <p class="mb-0 text-muted">
-                                                        @if ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
-                                                            باقی‌مانده تا سقف (سهم × نامزد)
-                                                        @else
-                                                            کل سهم شما (برای هر کاندیدا)
-                                                        @endif
-                                                    </p>
-                                                </div>
+                                        <div class="col-6">
+                                            <div class="vote-preview-stat vote-preview-stat--info">
+                                                <div class="vote-preview-stat__value" id="preview-remaining-votes">0</div>
+                                                <p class="vote-preview-stat__label mb-0">
+                                                    @if ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
+                                                        <span class="d-md-none">باقی‌مانده</span>
+                                                        <span class="d-none d-md-inline">باقی‌مانده تا سقف</span>
+                                                    @else
+                                                        <span class="d-md-none">رأی هر نفر</span>
+                                                        <span class="d-none d-md-inline">کل سهم شما (برای هر کاندیدا)</span>
+                                                    @endif
+                                                </p>
                                             </div>
                                         </div>
                                     @endif
                                 </div>
 
-                                <div id="abstain-preview-alert" class="alert alert-secondary small mb-3 d-none">
+                                <div id="abstain-preview-alert" class="alert alert-secondary py-2 px-3 small mb-3 d-none">
                                     <strong>شرکت بدون رأی:</strong>
-                                    هیچ کاندیدایی انتخاب نشده است. با تأیید، فقط حضور شما در رأی‌گیری ثبت می‌شود
-                                    و به هیچ‌کس رأی داده نمی‌شود. این عمل قابل ویرایش نیست.
+                                    هیچ کاندیدایی انتخاب نشده. با تأیید، فقط حضور شما ثبت می‌شود و رأیی داده نمی‌شود.
+                                    <span class="d-none d-md-inline">این عمل قابل ویرایش نیست.</span>
                                 </div>
 
                                 @if ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
-                                    <div class="alert alert-info small mb-3">
-                                        <strong>توضیح برای رأی‌دهنده:</strong>
-                                        سقف رأی شما برابر است با
-                                        <strong>کل سهم مؤثر × تعداد اعضای اصلی</strong>.
-                                        می‌توانید این سقف را بین کاندیداها تقسیم کنید؛ مجموع نباید از سقف بیشتر شود.
-                                        «کل سهم مؤثر» معمولاً برابر است با
-                                        سهام عادی + (سهام ممتاز × وزن سهام ممتاز).
+                                    <div class="alert alert-info small py-2 px-3 mb-3 d-none d-md-block">
+                                        <strong>توضیح:</strong>
+                                        سقف رأی شما = کل سهم × تعداد اعضای اصلی. مجموع آرا نباید از سقف بیشتر شود.
                                     </div>
                                 @elseif ($election->type == App\Enums\ElectionType::PRIVATE_JOINT)
-                                    <div class="alert alert-info small mb-3">
-                                        <strong>توضیح برای رأی‌دهنده:</strong>
-                                        «کل سهم شما» برابر است با
-                                        <strong>سهام عادی + (سهام ممتاز × وزن سهام ممتاز)</strong>.
-                                        با انتخاب هر کاندیدا، همان کل سهم شما برای او ثبت می‌شود.
-                                        بنابراین «تعداد کل رأی داده‌شده» برابر است با
-                                        <strong>کل سهم شما × تعداد کاندیداهایی که انتخاب کرده‌اید</strong>
-                                        (مثلاً اگر سهم شما ۲٬۵۲۲ باشد و ۳ نفر را انتخاب کنید، مجموع رأی ۷٬۵۶۶ می‌شود).
+                                    <div class="alert alert-info small py-2 px-3 mb-3 d-none d-md-block">
+                                        <strong>توضیح:</strong>
+                                        با انتخاب هر کاندید، همان کل سهم شما برای او ثبت می‌شود.
                                     </div>
                                 @endif
 
-                                <div class="alert alert-warning mb-0">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <path
-                                                d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
-                                            </path>
-                                            <line x1="12" y1="9" x2="12" y2="13"></line>
-                                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                                        </svg>
-                                        <p class="mb-0">بعد از ثبت امکان ویرایش وجود ندارد. لطفاً اطلاعات را بررسی کنید.
-                                        </p>
-                                    </div>
+                                <div class="alert alert-warning py-2 px-3 mb-0 small">
+                                    بعد از ثبت امکان ویرایش وجود ندارد.
                                 </div>
                             </div>
-                            <div class="modal-footer justify-content-center">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round" class="me-1">
-                                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                                    </svg>
+                            <div class="modal-footer justify-content-center border-top">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                                     انصراف
                                 </button>
                                 <button type="button" id="confirmSubmitBtn" class="btn btn-success">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round" class="me-1">
-                                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
                                     بله، ثبت شود
                                 </button>
                             </div>
@@ -723,11 +1006,12 @@
         document.addEventListener('DOMContentLoaded', function() {
 
             const showPreviewBtn = document.getElementById('showVotePreviewBtn');
+            const showPreviewBtnSticky = document.getElementById('showVotePreviewBtnSticky');
             const confirmBtn = document.getElementById('confirmSubmitBtn');
             const form = document.getElementById('votingForm');
             const previewModalEl = document.getElementById('votePreviewModal');
 
-            if (!showPreviewBtn || !confirmBtn || !form || !previewModalEl) {
+            if ((!showPreviewBtn && !showPreviewBtnSticky) || !confirmBtn || !form || !previewModalEl) {
                 console.error('Voting elements not found');
                 return;
             }
@@ -801,8 +1085,21 @@
             const maxDirectorCandidatesForArticle88 = Number(
                 "{{ (int) ($election->main_member_count ?? 0) }}");
 
-            showPreviewBtn.addEventListener('click', function(e) {
-                e.preventDefault();
+            if (showPreviewBtn) {
+                showPreviewBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    openVotePreview();
+                });
+            }
+
+            if (showPreviewBtnSticky) {
+                showPreviewBtnSticky.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    openVotePreview();
+                });
+            }
+
+            function openVotePreview() {
                 calculateVotePreview();
                 if (isArticle88 && article88Pool >= 0) {
                     const inputs = form.querySelectorAll('input[name^="director_candidates"]');
@@ -850,7 +1147,7 @@
                     }
                 }
                 previewModal.show();
-            });
+            }
 
             confirmBtn.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -924,6 +1221,31 @@
             }
         }
 
+        function updateStickySelectionCount() {
+            const stickyEl = document.getElementById('stickySelectedCount');
+            if (!stickyEl) {
+                return;
+            }
+
+            const inputs = document.querySelectorAll('#votingForm input[name^="director_candidates"]');
+            let selectedCount = 0;
+
+            inputs.forEach(function(input) {
+                if (input.type === 'checkbox' && input.checked) {
+                    selectedCount++;
+                } else if (input.type === 'number') {
+                    const value = window.isArticle88Voting ?
+                        parseLocaleNumberToFloat(input.value) :
+                        (parseFloat(input.value) || 0);
+                    if (value > 0) {
+                        selectedCount++;
+                    }
+                }
+            });
+
+            stickyEl.textContent = selectedCount.toLocaleString('fa-IR') + ' نامزد';
+        }
+
         function updateCandidateVoteCard(candidateId) {
             const card = document.querySelector('[data-candidate-card="' + candidateId + '"]');
             const badge = document.querySelector('[data-vote-badge="' + candidateId + '"]');
@@ -949,15 +1271,28 @@
             card.classList.toggle('border-2', selected);
             card.classList.toggle('bg-success-subtle', selected);
 
+            const label = card.querySelector('.form-check-label');
+            if (label) {
+                label.textContent = selected ? 'انتخاب شد' : 'انتخاب';
+                label.classList.toggle('btn-outline-primary', !selected);
+                label.classList.toggle('btn-success', selected);
+                label.classList.toggle('text-white', selected);
+            }
+
             if (badge) {
                 if (selected && window.isArticle88Voting) {
                     badge.textContent = voteValue.toLocaleString('fa-IR') + ' رأی';
+                    badge.classList.remove('d-none');
+                } else if (selected && input.type === 'checkbox') {
+                    badge.textContent = 'انتخاب شد ✓';
                     badge.classList.remove('d-none');
                 } else {
                     badge.textContent = '';
                     badge.classList.add('d-none');
                 }
             }
+
+            updateStickySelectionCount();
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -999,6 +1334,8 @@
                     }
                 });
             });
+
+            updateStickySelectionCount();
         });
 
         document.addEventListener('DOMContentLoaded', function() {

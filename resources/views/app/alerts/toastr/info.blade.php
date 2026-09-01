@@ -1,4 +1,4 @@
-@if ($message = session()->get('success'))
+@if ($message = session()->get('info'))
     <script>
         toastr.options = {
             positionClass: 'toast-bottom-left', 
@@ -6,6 +6,6 @@
             closeButton: true, 
             progressBar: true, 
         };
-        toastr.info("{{ $message }}", "موفقیت آمیز");
+        toastr.info("{{ $message }}", "اطلاع");
     </script>
 @endif

@@ -13,11 +13,14 @@ use App\Models\Group;
 use App\Models\Participant;
 use App\Models\User;
 use App\Models\Vote;
+use Carbon\Carbon;
 use Exception;
+use Hekmatinasser\Verta\Verta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class ElectionVotingController extends Controller
 {
@@ -135,8 +138,8 @@ class ElectionVotingController extends Controller
 
         // گرفتن فیلترها از درخواست
         $statusFilter = $request->input('status');
-        $startDate = $request->input('start_date') ? convert_persian_to_english($request->input('start_date')) : null;
-        $endDate = $request->input('end_date') ? convert_persian_to_english($request->input('end_date')) : null;
+        $startDate = $this->parseJalaliFilterDate($request->input('start_date'));
+        $endDate = $this->parseJalaliFilterDate($request->input('end_date'));
 
         $availableElections = collect();
         $unavailableElections = collect();
@@ -157,18 +160,12 @@ class ElectionVotingController extends Controller
                     if ($startDate || $endDate) {
                         $electionDate = $election->created_at;
 
-                        if ($startDate) {
-                            $startTimestamp = verta($startDate)->toCarbon()->startOfDay();
-                            if ($electionDate < $startTimestamp) {
-                                continue;
-                            }
+                        if ($startDate && $electionDate->lt($startDate->copy()->startOfDay())) {
+                            continue;
                         }
 
-                        if ($endDate) {
-                            $endTimestamp = verta($endDate)->toCarbon()->endOfDay();
-                            if ($electionDate > $endTimestamp) {
-                                continue;
-                            }
+                        if ($endDate && $electionDate->gt($endDate->copy()->endOfDay())) {
+                            continue;
                         }
                     }
 
@@ -914,6 +911,21 @@ class ElectionVotingController extends Controller
         $chosen->loadMissing('event.group');
 
         return $chosen;
+    }
+
+    protected function parseJalaliFilterDate(?string $date): ?Carbon
+    {
+        if (blank($date)) {
+            return null;
+        }
+
+        $normalized = convert_persian_to_english(trim($date));
+
+        try {
+            return Verta::parseFormat('Y/m/d', $normalized)->toCarbon();
+        } catch (Throwable) {
+            return null;
+        }
     }
 
     /**
