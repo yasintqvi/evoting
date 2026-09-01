@@ -42,7 +42,7 @@
 
                                 <div>
                                     <div class="mb-3">
-                                        <label for="title" class="form-label">عنوان رویداد</label>
+                                        <label for="title" class="form-label">متن خوش امد گویی</label>
                                         <input type="text" class="form-control" name="title" id="title"
                                             placeholder="عنوان را وارد کنید" value="{{ old('title') }}">
                                         @error('title')

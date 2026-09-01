@@ -173,7 +173,7 @@
                                             </small>
                                         @else
                                             <h4 class="fw-medium mb-0">{{ number_format($effectiveStock) }}</h4>
-                                            <p class="mb-0 text-muted lh-lg">کل سهم شما (رأی قابل‌تخصیص)</p>
+                                            <p class="mb-0 text-muted lh-lg"> سهم شما (رأی قابل‌تخصیص)</p>
                                         @endif
                                         @if ($election->ignore_stock_weight)
                                             <small class="text-info d-block">بدون وزن</small>
@@ -297,7 +297,7 @@
             <div class="col-xl-8 col-lg-12">
                 <div class="card">
                     <div class="card-header border-bottom border-dashed">
-                        <h4 class="card-title mb-0">انتخاب کاندیدای هیت مدیره</h4>
+                        <h4 class="card-title mb-0">انتخاب کاندیدای </h4>
                     </div>
                     @if ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
                         <div class="card-body border-bottom bg-light py-3" id="article88-live-summary">
