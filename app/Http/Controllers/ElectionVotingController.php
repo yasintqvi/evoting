@@ -300,6 +300,7 @@ class ElectionVotingController extends Controller
                 'user_id' => $user->id,
                 'group_id' => $group->id,
                 'is_present' => true,
+                'present_at' => now(),
                 'attorney_id' => null,
                 'normal_stock_count' => $election->normal_stock_count ?? 0,
                 'prefered_stock_count' => $election->prefered_stock_count ?? 0,
@@ -312,6 +313,15 @@ class ElectionVotingController extends Controller
 
         if (! $event->userCanParticipateInVoting((int) $user->id, $election)) {
             return back()->with('error', 'به دلیل نداشتن سهام، امکان شرکت در رأی‌گیری ندارید.');
+        }
+
+        if (
+            !$isAdmin
+            && $election->starts_at
+            && $participant->present_at
+            && $participant->present_at->gt($election->starts_at)
+        ) {
+            return back()->with('error', 'شما پس از شروع این همه‌پرسی حاضر شده‌اید و نمی‌توانید در آن رای بدهید.');
         }
 
         // جلوگیری از شرکت کاربرانی که مسدود شده‌اند
@@ -555,6 +565,15 @@ class ElectionVotingController extends Controller
                 return back()->with('error', 'شما در جلسه حاضر نیستید و نمی‌توانید رای بدهید.');
             }
 
+            if (
+                !$isAdmin
+                && $election->starts_at
+                && $participant->present_at
+                && $participant->present_at->gt($election->starts_at)
+            ) {
+                return back()->with('error', 'شما پس از شروع این همه‌پرسی حاضر شده‌اید و نمی‌توانید در آن رای بدهید.');
+            }
+
             // جلوگیری از ثبت رأی برای کاربران مسدود
             if ($election->blockedUsers()->where('users.id', $user->id)->exists()) {
                 return back()->with('error', 'شما مجاز به شرکت در رأی‌گیری این انتخابات نیستید.');
@@ -584,7 +603,10 @@ class ElectionVotingController extends Controller
                 $normalized = [];
                 foreach ($directorVotes as $candidateId => $voteCount) {
                     $voteValue = $this->parseIncomingVoteCount($voteCount);
-                    if ($voteValue <= 0) {
+                    if ($voteValue < 0) {
+                        throw new Exception('تعداد رأی نمی‌تواند منفی باشد.');
+                    }
+                    if ($voteValue === 0) {
                         continue;
                     }
 

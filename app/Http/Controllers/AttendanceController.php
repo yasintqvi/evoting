@@ -41,6 +41,7 @@ class AttendanceController extends Controller
     {
         try {
             $participant->is_present = !$participant->is_present;
+            $participant->present_at = $participant->is_present ? now() : null;
             $participant->save();
 
             return response()->json([

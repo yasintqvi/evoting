@@ -132,6 +132,7 @@ class ElectionParticipantController extends Controller
             if ($election->status === ElectionStatus::PARTICIPANTS_ATTENDEES && !$participant->is_present) {
                 $participant->update([
                     'is_present' => true,
+                    'present_at' => now(),
                 ]);
 
                 if ($election->precentParticipants() > 50) {

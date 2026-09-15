@@ -13,6 +13,7 @@ use App\Models\Candidate;
 use App\Models\Election;
 use App\Models\Event;
 use App\Models\Group;
+use App\Models\Participant;
 use App\Models\Position;
 use App\Models\User;
 use App\Models\Vote;
@@ -591,6 +592,56 @@ class ElectionController extends Controller
             'tieBreak',
             'existingRunoff'
         ));
+    }
+
+    public function attendanceReport(Request $request, Group $group, Event $event, Election $election): BinaryFileResponse
+    {
+        $event->load([
+            'participants' => fn ($query) => $query
+                ->visibleForAttendance($group)
+                ->with(['user', 'attorney.user']),
+        ]);
+
+        $votedParticipantIds = Vote::query()
+            ->where('election_id', $election->id)
+            ->pluck('participant_id')
+            ->unique()
+            ->all();
+
+        $presentParticipants = $event->participants
+            ->filter(fn (Participant $participant) => $participant->wasPresentForElection(
+                $election,
+                in_array($participant->id, $votedParticipantIds, true)
+            ))
+            ->sortBy(fn ($participant) => $participant->user?->full_name)
+            ->values();
+
+        $absentParticipants = $event->participants
+            ->reject(fn (Participant $participant) => $participant->wasPresentForElection(
+                $election,
+                in_array($participant->id, $votedParticipantIds, true)
+            ))
+            ->sortBy(fn ($participant) => $participant->user?->full_name)
+            ->values();
+
+        $proxies = $presentParticipants
+            ->whereNotNull('attorney_id')
+            ->sortBy(fn ($participant) => $participant->attorney?->user?->full_name)
+            ->values();
+
+        $pdf = Pdf::loadView('app.group.event.election.attendance-report-pdf', compact(
+            'group',
+            'event',
+            'election',
+            'presentParticipants',
+            'absentParticipants',
+            'proxies'
+        ), [], [
+            'format' => 'A4-L',
+            'orientation' => 'L',
+        ]);
+
+        return $pdf->download('attendance-report-' . $election->id . '.pdf');
     }
 
     public function detailedReport(Request $request, Group $group, Event $event, Election $election): View

@@ -1,451 +1,463 @@
 @extends('app.layouts.app')
 
-@section('content')
+@section('head-tag')
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@500;600;700;800&display=swap');
 
-        .dash-wrapper {
+        .proj {
             font-family: 'Vazirmatn', sans-serif;
             direction: rtl;
-            padding: 1.25rem 0.5rem;
+            color: #1e293b;
+            padding: 0.85rem 1rem 1.25rem;
+            max-width: 1280px;
+            margin: 0 auto;
         }
 
-        /* ── Page Title ── */
-        .dash-page-label {
-            font-size: 12px;
-            color: #6c757d;
-            font-weight: 400;
-            margin-bottom: 4px;
-            letter-spacing: 0.03em;
-        }
-
-        .dash-page-title {
-            font-size: 22px;
-            font-weight: 700;
-            color: #1a1a2e;
-            margin-bottom: 1.25rem;
-        }
-
-        /* ── Hero Banner ── */
-        .event-hero {
-            background: linear-gradient(135deg, #534AB7 0%, #6f42c1 50%, #6610f2 100%);
-            border-radius: 18px;
-            padding: 1.75rem 2rem;
-            margin-bottom: 1.5rem;
-            color: white;
+        .proj-header {
             display: flex;
             align-items: center;
-            gap: 1.25rem;
-            position: relative;
-            overflow: hidden;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 0.85rem;
         }
 
-        .event-hero::before {
-            content: '';
-            position: absolute;
-            top: -50px;
-            left: -50px;
-            width: 200px;
-            height: 200px;
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 50%;
-            pointer-events: none;
+        .proj-header h1 {
+            margin: 0;
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #0f172a;
         }
 
-        .event-hero::after {
-            content: '';
-            position: absolute;
-            bottom: -70px;
-            right: 20px;
-            width: 240px;
-            height: 240px;
-            background: rgba(255, 255, 255, 0.04);
-            border-radius: 50%;
-            pointer-events: none;
+        .proj-header p {
+            margin: 0.15rem 0 0;
+            font-size: 0.8rem;
+            color: #64748b;
+            font-weight: 500;
         }
 
-        .hero-icon-wrap {
-            width: 56px;
-            height: 56px;
-            background: rgba(255, 255, 255, 0.18);
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 26px;
-            flex-shrink: 0;
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero-body {
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero-body h2 {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .hero-body p {
-            font-size: 13px;
-            opacity: 0.8;
-            font-weight: 300;
-            margin-bottom: 0;
-        }
-
-        .badge-live {
+        .proj-live {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 20px;
-            padding: 3px 12px;
-            font-size: 11px;
-            margin-top: 10px;
+            gap: 0.35rem;
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+            border-radius: 999px;
+            padding: 0.3rem 0.7rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            white-space: nowrap;
         }
 
-        .badge-live-dot {
+        .proj-live::before {
+            content: '';
             width: 7px;
             height: 7px;
-            background: #4cff91;
             border-radius: 50%;
-            animation: livePulse 1.5s infinite;
-            flex-shrink: 0;
+            background: #22c55e;
+            animation: proj-pulse 1.4s infinite;
         }
 
-        @keyframes livePulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.3;
-            }
+        @keyframes proj-pulse {
+            50% { opacity: 0.3; }
         }
 
-        /* ── Main Grid ── */
-        .dash-grid {
+        /* راست: جدول انتخابات | چپ: حضور */
+        .proj-main {
             display: grid;
-            grid-template-columns: 1fr 310px;
-            gap: 1rem;
-            margin-bottom: 1rem;
+            grid-template-columns: 1fr 220px;
+            gap: 0.85rem;
+            margin-bottom: 0.85rem;
             align-items: start;
         }
 
         @media (max-width: 900px) {
-            .dash-grid {
+            .proj-main {
                 grid-template-columns: 1fr;
             }
         }
 
-        /* ── Cards ── */
-        .d-card {
-            background: #ffffff;
-            border: 1px solid #e9ecef;
-            border-radius: 16px;
-            overflow: hidden;
+        .proj-panel {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+            padding: 0.85rem 1rem 1rem;
         }
 
-        .d-card-body {
-            padding: 1.25rem 1.5rem;
+        .proj-panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
         }
 
-        .d-card-label {
-            font-size: 11px;
+        .proj-panel-head h2 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .proj-filter {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .proj-filter label {
+            font-size: 0.75rem;
             font-weight: 600;
-            color: #9ca3af;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin-bottom: 1rem;
+            color: #64748b;
+            margin: 0;
         }
 
-        /* ── Chart Card ── */
-        .chart-canvas-wrap {
-            height: 460px;
+        .proj-filter select {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.3rem 0.55rem;
+            font-size: 0.8rem;
+            font-family: inherit;
+            font-weight: 600;
+            color: #0f172a;
+            background: #f8fafc;
+            min-width: 150px;
+        }
+
+        .proj-table-wrap {
+            overflow: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+        }
+
+        .proj-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        .proj-table th {
+            background: #f8fafc;
+            color: #64748b;
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-align: right;
+            padding: 0.65rem 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+            white-space: nowrap;
+        }
+
+        .proj-table td {
+            padding: 0.8rem 0.75rem;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+            font-weight: 600;
+        }
+
+        .proj-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .proj-table .name {
+            font-weight: 800;
+            color: #0f172a;
+            font-size: 0.95rem;
+        }
+
+        .proj-status {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #fff;
+            border-radius: 6px;
+            padding: 0.2rem 0.5rem;
+            white-space: nowrap;
+        }
+
+        .proj-status.live { background: #16a34a; }
+        .proj-status.wait { background: #ea580c; }
+
+        .proj-pct {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .proj-meta {
+            font-size: 0.8rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .proj-bar {
+            width: 110px;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 0.35rem;
+        }
+
+        .proj-bar > i {
+            display: block;
+            height: 100%;
+            background: #16a34a;
+            border-radius: 999px;
+        }
+
+        .proj-bar.wait > i {
+            background: #ea580c;
+            width: 0 !important;
+        }
+
+        .proj-empty {
+            border: 1px dashed #cbd5e1;
+            border-radius: 10px;
+            padding: 1.25rem 1rem;
+            text-align: center;
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 0.875rem;
+            background: #f8fafc;
+        }
+
+        /* حضور: سمت چپ صفحه، فشرده + نمودار بزرگ‌تر */
+        .proj-attendance {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.85rem;
+            padding: 1rem 0.85rem;
+        }
+
+        .proj-chart {
+            width: 140px;
+            height: 140px;
             position: relative;
         }
 
-        /* ── Stats Column ── */
-        .stats-col {
+        .proj-stats-mini {
+            width: 100%;
             display: flex;
             flex-direction: column;
-            gap: 0.85rem;
+            gap: 0.45rem;
         }
 
-        .stat-card {
-            background: #ffffff;
-            border: 1px solid #e9ecef;
-            border-radius: 16px;
-            padding: 1.1rem 1.4rem;
+        .proj-stat-mini {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            transition: box-shadow 0.2s;
+            justify-content: space-between;
+            gap: 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.45rem 0.6rem;
+            background: #f8fafc;
         }
 
-        .stat-card:hover {
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+        .proj-stat-mini.present {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
         }
 
-        .stat-label {
-            font-size: 11px;
-            color: #9ca3af;
-            font-weight: 500;
-            margin-bottom: 5px;
-            letter-spacing: 0.03em;
+        .proj-stat-mini.absent {
+            background: #fef2f2;
+            border-color: #fecaca;
         }
 
-        .stat-value {
-            font-size: 28px;
+        .proj-stat-mini .side {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .proj-stat-mini .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .proj-stat-mini.present .dot { background: #16a34a; }
+        .proj-stat-mini.absent .dot { background: #dc2626; }
+
+        .proj-stat-mini .lbl {
+            font-size: 0.75rem;
             font-weight: 700;
+            color: #64748b;
+        }
+
+        .proj-stat-mini .val {
+            font-size: 1.15rem;
+            font-weight: 800;
             line-height: 1;
         }
 
-        .stat-value.present {
-            color: #16a34a;
+        .proj-stat-mini.present .val { color: #16a34a; }
+        .proj-stat-mini.absent .val { color: #dc2626; }
+
+        .proj-people-panel {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+            padding: 0.75rem 1rem 0.9rem;
         }
 
-        .stat-value.absent {
-            color: #dc2626;
+        .proj-people-panel h2 {
+            margin: 0 0 0.6rem;
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: #0f172a;
         }
 
-        .stat-value.date {
-            font-size: 17px;
-            color: #1a1a2e;
+        .proj-people {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 0.4rem;
+            max-height: 160px;
+            overflow: auto;
+        }
+
+        .proj-person {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.35rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.35rem 0.5rem;
+            background: #fff;
+            font-size: 0.75rem;
             font-weight: 600;
         }
 
-        .stat-icon {
-            width: 46px;
-            height: 46px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            flex-shrink: 0;
+        .proj-person.on {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
         }
 
-        .icon-present {
-            background: #dcfce7;
-            color: #16a34a;
-        }
-
-        .icon-absent {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-
-        .icon-date {
-            background: #ede9fe;
-            color: #7c3aed;
-        }
-
-        /* ── Progress Ratios Card ── */
-        .ratio-card {
-            background: #ffffff;
-            border: 1px solid #e9ecef;
-            border-radius: 16px;
-            padding: 1.1rem 1.4rem;
-        }
-
-        .ratio-row {
-            margin-bottom: 0.85rem;
-        }
-
-        .ratio-row:last-child {
-            margin-bottom: 0;
-        }
-
-        .ratio-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-        }
-
-        .ratio-name {
-            font-size: 13px;
-            color: #374151;
-            font-weight: 500;
-        }
-
-        .ratio-pct {
-            font-size: 13px;
+        .proj-person .tag {
+            font-size: 0.65rem;
             font-weight: 700;
+            border-radius: 5px;
+            padding: 0.1rem 0.35rem;
+            white-space: nowrap;
         }
 
-        .prog-track {
-            height: 8px;
-            background: #f1f5f9;
-            border-radius: 99px;
+        .proj-person.on .tag {
+            background: #16a34a;
+            color: #fff;
+        }
+
+        .proj-person.off .tag {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .proj-person .name {
             overflow: hidden;
-        }
-
-        .prog-fill {
-            height: 100%;
-            border-radius: 99px;
-            transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .fill-present {
-            background: linear-gradient(90deg, #16a34a, #4ade80);
-        }
-
-        .fill-absent {
-            background: linear-gradient(90deg, #dc2626, #f87171);
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            min-width: 0;
         }
     </style>
-
-    <div class="dash-wrapper">
-
-        {{-- Page Header --}}
-        <p class="dash-page-label">داشبورد رویداد / {{ $event->name }}</p>
-        <div class="dash-page-title">نمایش نمودار جلسه</div>
-
-        {{-- Hero Banner --}}
-        <div class="event-hero">
-            <div class="hero-icon-wrap">
-                <i class="bi bi-people-fill"></i>
-            </div>
-            <div class="hero-body">
-                <h2>{{ $event->title }}</h2>
-                <p>{{ $event->description }}</p>
-                <span class="badge-live">
-                    <span class="badge-live-dot"></span>
-                    آمار زنده
-                </span>
-            </div>
-        </div>
-
-        {{-- Main Dashboard Grid --}}
-        <div class="dash-grid">
-
-            {{-- Chart Card --}}
-            <div class="d-card">
-                <div class="d-card-body">
-                    <div class="d-card-label">وضعیت حضور و غیاب</div>
-                    <div class="chart-canvas-wrap" dir="ltr">
-                        <canvas id="attendanceChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Stats Column --}}
-            <div class="stats-col">
-
-                {{-- Present --}}
-                <div class="stat-card">
-                    <div>
-                        <div class="stat-label">تعداد حاضرین</div>
-                        <div class="stat-value present" id="present-count">{{ toPersianNum($event->present_count) }}</div>
-                    </div>
-                    <div class="stat-icon icon-present">
-                        <i class="bi bi-person-check-fill"></i>
-                    </div>
-                </div>
-
-                {{-- Absent --}}
-                <div class="stat-card">
-                    <div>
-                        <div class="stat-label">تعداد غایبین</div>
-                        <div class="stat-value absent" id="absent-count">{{ toPersianNum($event->absent_count) }}</div>
-                    </div>
-                    <div class="stat-icon icon-absent">
-                        <i class="bi bi-person-x-fill"></i>
-                    </div>
-                </div>
-
-                {{-- Date --}}
-                <div class="stat-card">
-                    <div>
-                        <div class="stat-label">تاریخ جلسه</div>
-                        <div class="stat-value date">{{ toPersianNum(verta($event->created_at)->format('Y/m/d')) }}</div>
-                    </div>
-                    <div class="stat-icon icon-date">
-                        <i class="bi bi-calendar3"></i>
-                    </div>
-                </div>
-
-                {{-- Progress Ratios --}}
-                <div class="ratio-card">
-                    <div class="d-card-label">نسبت حضور</div>
-
-                    <div class="ratio-row">
-                        <div class="ratio-meta">
-                            <span class="ratio-name">حاضر</span>
-                            <span class="ratio-pct" style="color:#16a34a;" id="present-pct">—</span>
-                        </div>
-                        <div class="prog-track">
-                            <div class="prog-fill fill-present" id="present-bar" style="width: 0%;"></div>
-                        </div>
-                    </div>
-
-                    <div class="ratio-row">
-                        <div class="ratio-meta">
-                            <span class="ratio-name">غایب</span>
-                            <span class="ratio-pct" style="color:#dc2626;" id="absent-pct">—</span>
-                        </div>
-                        <div class="prog-track">
-                            <div class="prog-fill fill-absent" id="absent-bar" style="width: 0%;"></div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-            {{-- /Stats Column --}}
-
-        </div>
-        {{-- /Main Grid --}}
-
-        {{-- Elections Container (if needed) --}}
-        <div class="row mt-3" id="elections-container"></div>
-
-    </div>
-    {{-- /dash-wrapper --}}
 @endsection
 
+@section('content')
+    <div class="proj">
+        <div class="proj-header">
+            <div>
+                <h1>{{ $event->title }}</h1>
+                <p>نمایش زنده جلسه برای پروژکتور</p>
+            </div>
+            <span class="proj-live">آمار زنده</span>
+        </div>
+
+        <div class="proj-main">
+            {{-- در RTL ستون اول سمت راست می‌آید: جدول انتخابات --}}
+            <div class="proj-panel">
+                <div class="proj-panel-head">
+                    <h2>انتخابات</h2>
+                    <div class="proj-filter">
+                        <label for="election-filter">فیلتر</label>
+                        <select id="election-filter">
+                            <option value="all">همه</option>
+                            <option value="ongoing">در حال برگزاری</option>
+                            <option value="waiting">شروع‌نشده</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="proj-table-wrap">
+                    <table class="proj-table">
+                        <thead>
+                            <tr>
+                                <th>عنوان</th>
+                                <th>وضعیت</th>
+                                <th>پیشرفت</th>
+                                <th>رأی‌دهندگان</th>
+                            </tr>
+                        </thead>
+                        <tbody id="elections-tbody">
+                            <tr>
+                                <td colspan="4"><div class="proj-empty">در حال بارگذاری...</div></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {{-- ستون دوم در RTL سمت چپ: حضور --}}
+            <div class="proj-panel proj-attendance">
+                <div class="proj-chart" dir="ltr">
+                    <canvas id="attendanceChart"></canvas>
+                </div>
+                <div class="proj-stats-mini">
+                    <div class="proj-stat-mini present">
+                        <div class="side">
+                            <span class="dot"></span>
+                            <span class="lbl">حاضر</span>
+                        </div>
+                        <span class="val" id="present-count">{{ toPersianNum($event->present_count ?? 0) }}</span>
+                    </div>
+                    <div class="proj-stat-mini absent">
+                        <div class="side">
+                            <span class="dot"></span>
+                            <span class="lbl">غایب</span>
+                        </div>
+                        <span class="val" id="absent-count">{{ toPersianNum($event->absent_count ?? 0) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="proj-people-panel">
+            <h2>لیست حاضرین و غایبین</h2>
+            <div class="proj-people" id="attendees-list">
+                <div class="proj-empty" style="grid-column:1/-1;padding:0.85rem;">در حال بارگذاری...</div>
+            </div>
+        </div>
+    </div>
+@endsection
 
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         function toPersianNum(str) {
-            const map = {
-                '0': '۰',
-                '1': '۱',
-                '2': '۲',
-                '3': '۳',
-                '4': '۴',
-                '5': '۵',
-                '6': '۶',
-                '7': '۷',
-                '8': '۸',
-                '9': '۹'
-            };
+            const map = { '0': '۰', '1': '۱', '2': '۲', '3': '۳', '4': '۴', '5': '۵', '6': '۶', '7': '۷', '8': '۸', '9': '۹' };
             return String(str).replace(/\d/g, w => map[w]);
         }
 
-        document.addEventListener("DOMContentLoaded", function() {
-
-            /* ── Chart Setup ── */
+        document.addEventListener('DOMContentLoaded', function() {
             const ctx = document.getElementById('attendanceChart').getContext('2d');
-
-            const attendanceChart = new Chart(ctx, {
+            const chart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: ['حاضر', 'غایب'],
                     datasets: [{
                         data: [0, 0],
                         backgroundColor: ['#16a34a', '#dc2626'],
-                        hoverBackgroundColor: ['#15803d', '#b91c1c'],
-                        borderWidth: 0,
-                        hoverOffset: 10
+                        borderWidth: 0
                     }]
                 },
                 options: {
@@ -453,103 +465,100 @@
                     maintainAspectRatio: false,
                     cutout: '68%',
                     plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 20,
-                                font: {
-                                    family: 'Vazirmatn',
-                                    size: 13
-                                },
-                                usePointStyle: true,
-                                pointStyleWidth: 10
-                            }
-                        },
-                        tooltip: {
-                            rtl: true,
-                            bodyFont: {
-                                family: 'Vazirmatn'
-                            },
-                            titleFont: {
-                                family: 'Vazirmatn'
-                            }
-                        }
+                        legend: { display: false },
+                        tooltip: { enabled: false }
                     }
                 }
             });
 
-            /* ── DOM References ── */
-            const presentCountEl = document.getElementById('present-count');
-            const absentCountEl = document.getElementById('absent-count');
-            const presentPctEl = document.getElementById('present-pct');
-            const absentPctEl = document.getElementById('absent-pct');
-            const presentBarEl = document.getElementById('present-bar');
-            const absentBarEl = document.getElementById('absent-bar');
+            const presentEl = document.getElementById('present-count');
+            const absentEl = document.getElementById('absent-count');
+            const peopleEl = document.getElementById('attendees-list');
+            const tbodyEl = document.getElementById('elections-tbody');
+            const filterEl = document.getElementById('election-filter');
+            const eventSlug = @json($event->slug);
 
-            /* ── Update UI ── */
-            function updateUI(present, absent) {
-                const total = (present + absent) || 1;
-                const pPct = Math.round((present / total) * 100);
-                const aPct = Math.round((absent / total) * 100);
+            let electionsCache = { ongoing: [], waiting: [] };
 
-                presentCountEl.textContent = toPersianNum(present);
-                absentCountEl.textContent = toPersianNum(absent);
-                presentPctEl.textContent = toPersianNum(pPct) + '٪';
-                absentPctEl.textContent = toPersianNum(aPct) + '٪';
-                presentBarEl.style.width = pPct + '%';
-                absentBarEl.style.width = aPct + '%';
+            function renderElections() {
+                const filter = filterEl.value;
+                let rows = [];
 
-                attendanceChart.data.datasets[0].data = [present, absent];
-                attendanceChart.update('active');
+                if (filter === 'all' || filter === 'ongoing') {
+                    rows = rows.concat(electionsCache.ongoing.map(e => ({ ...e, kind: 'live' })));
+                }
+                if (filter === 'all' || filter === 'waiting') {
+                    rows = rows.concat(electionsCache.waiting.map(e => ({ ...e, kind: 'wait' })));
+                }
+
+                if (!rows.length) {
+                    tbodyEl.innerHTML = '<tr><td colspan="4"><div class="proj-empty">موردی برای نمایش نیست</div></td></tr>';
+                    return;
+                }
+
+                tbodyEl.innerHTML = rows.map(e => {
+                    const pct = e.kind === 'live' ? Number(e.percent || 0) : 0;
+                    const voters = e.kind === 'live'
+                        ? `${toPersianNum(e.voted_count)} از ${toPersianNum(e.eligible_count)}`
+                        : '—';
+
+                    return `
+                        <tr>
+                            <td><div class="name">${e.title}</div></td>
+                            <td><span class="proj-status ${e.kind}">${e.status_label}</span></td>
+                            <td>
+                                <div class="proj-pct">${e.kind === 'live' ? toPersianNum(pct) + '٪' : '—'}</div>
+                                ${e.kind === 'live' ? `<div class="proj-bar"><i style="width:${pct}%"></i></div>` : `<div class="proj-bar wait"><i></i></div>`}
+                            </td>
+                            <td><div class="proj-meta">${voters}</div></td>
+                        </tr>
+                    `;
+                }).join('');
             }
 
-            /* ── Fetch Stats ── */
-            const eventId = "{{ $event->slug }}";
-
-            function fetchStats() {
-                fetch(`/events/${eventId}/attendance-stats`)
-                    .then(res => res.json())
-                    .then(data => updateUI(data.present, data.absent))
-                    .catch(err => console.error('خطا در دریافت آمار:', err));
-            }
-
-            fetchStats();
-            setInterval(fetchStats, 5000);
-
-            /* ── Elections (Uncomment to activate) ── */
-            /*
-            const electionsContainer = document.getElementById('elections-container');
-
-            function fetchElectionStats() {
-                fetch(`/events/{{ $event->id }}/live-election-stats`)
-                    .then(res => res.json())
+            function fetchAttendance() {
+                fetch(`/events/${eventSlug}/attendance-stats`)
+                    .then(r => r.json())
                     .then(data => {
-                        electionsContainer.innerHTML = data.map(election => `
-                    <div class="col-xl-4 mb-4">
-                        <div class="d-card">
-                            <div style="background: linear-gradient(135deg, #534AB7, #6610f2); padding: 0.85rem 1.25rem; border-radius: 16px 16px 0 0;">
-                                <h6 style="color:white; margin:0; font-family:'Vazirmatn',sans-serif;">${election.title}</h6>
+                        presentEl.textContent = toPersianNum(data.present);
+                        absentEl.textContent = toPersianNum(data.absent);
+                        chart.data.datasets[0].data = [data.present, data.absent];
+                        chart.update('none');
+
+                        if (!data.attendees || !data.attendees.length) {
+                            peopleEl.innerHTML = '<div class="proj-empty" style="grid-column:1/-1;padding:0.85rem;">شرکت‌کننده‌ای ثبت نشده است</div>';
+                            return;
+                        }
+
+                        peopleEl.innerHTML = data.attendees.map(a => `
+                            <div class="proj-person ${a.is_present ? 'on' : 'off'}">
+                                <span class="name">${a.name}</span>
+                                <span class="tag">${a.is_present ? 'حاضر' : 'غایب'}</span>
                             </div>
-                            <div class="d-card-body text-center">
-                                <h2 style="color:#534AB7; font-weight:700; font-size:32px;">${election.percent}%</h2>
-                                <p style="color:#9ca3af; font-size:13px; margin-bottom:12px;">
-                                    ${election.used_stock} سهم از ${election.total_stock} سهم
-                                </p>
-                                <div class="prog-track">
-                                    <div class="prog-fill" style="width:${election.percent}%; background:linear-gradient(90deg,#534AB7,#a78bfa);"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
+                        `).join('');
                     })
-                    .catch(err => console.error('Election error:', err));
+                    .catch(console.error);
             }
 
-            fetchElectionStats();
-            setInterval(fetchElectionStats, 5000);
-            */
+            function fetchElections() {
+                fetch(`/events/${eventSlug}/live-election-stats`)
+                    .then(r => r.json())
+                    .then(data => {
+                        electionsCache = {
+                            ongoing: data.ongoing || [],
+                            waiting: data.waiting || []
+                        };
+                        renderElections();
+                    })
+                    .catch(console.error);
+            }
 
+            filterEl.addEventListener('change', renderElections);
+
+            fetchAttendance();
+            fetchElections();
+            setInterval(fetchAttendance, 5000);
+            setInterval(fetchElections, 5000);
         });
     </script>
 @endsection

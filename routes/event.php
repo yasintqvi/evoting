@@ -26,3 +26,6 @@ Route::get('/groups/{group:slug}/events/{event}/edit', [EventController::class, 
 
 Route::get('/events/{event}/attendance-stats', [EventController::class, 'attendanceStats'])
     ->name('events.attendance.stats');
+
+Route::get('/events/{event}/live-election-stats', [EventController::class, 'liveElectionStats'])
+    ->name('events.live-election-stats');

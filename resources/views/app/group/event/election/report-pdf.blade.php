@@ -13,17 +13,14 @@
             font-size: 12px;
         }
 
-        h1,
-        h2,
-        h3,
-        p {
+        h2, h3, p {
             margin: 0;
             padding: 0;
         }
 
         .header {
             margin-bottom: 16px;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #333;
             padding-bottom: 8px;
         }
 
@@ -34,31 +31,39 @@
         }
 
         .stats {
-            margin: 16px 0;
             width: 100%;
+            border-collapse: collapse;
+            margin: 14px 0;
         }
 
         .stats td {
-            border: 1px solid #ddd;
-            padding: 8px;
+            border: 1px solid #ccc;
+            padding: 10px;
             text-align: center;
+            width: 25%;
+        }
+
+        .stats strong {
+            display: block;
+            font-size: 15px;
+            margin-bottom: 3px;
         }
 
         table.results {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
+            margin-top: 8px;
         }
 
         table.results th,
         table.results td {
-            border: 1px solid #ddd;
+            border: 1px solid #ccc;
             padding: 8px;
             vertical-align: middle;
         }
 
         table.results th {
-            background: #f5f5f5;
+            background: #f0f0f0;
             font-weight: bold;
         }
 
@@ -70,21 +75,8 @@
             color: #666;
         }
 
-        .bar-wrap {
-            width: 100%;
-            height: 14px;
-            background: #eee;
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .bar {
-            height: 14px;
-            background: #4e73df;
-        }
-
         .footer {
-            margin-top: 18px;
+            margin-top: 20px;
             font-size: 10px;
             color: #777;
             text-align: center;
@@ -93,66 +85,80 @@
 </head>
 
 <body>
+    @php
+        $mainWinnersCount = (int) ($election->main_member_count ?? 0);
+        $substituteWinnersCount = (int) ($election->substitute_member_count ?? 0);
+        $winnersLimit = $mainWinnersCount + $substituteWinnersCount;
+        $elected = $candidateVotes->take($winnersLimit > 0 ? $winnersLimit : $candidateVotes->count());
+    @endphp
+
     <div class="header">
         <h2>گزارش نتایج انتخابات</h2>
         <p style="margin-top:6px;">{{ $election->title }}</p>
         <div class="meta">
-            <span>گروه: {{ $group->title ?? '-' }}</span>
+            گروه: {{ $group->title ?? '-' }}
             |
-            <span>رویداد: {{ $event->title ?? '-' }}</span>
+            رویداد: {{ $event->title ?? '-' }}
             |
-            <span>تاریخ گزارش: {{ now()->format('Y-m-d H:i') }}</span>
+            تاریخ:
+            {{ function_exists('verta') ? verta(now())->format('Y/m/d H:i') : now()->format('Y-m-d H:i') }}
         </div>
     </div>
 
     <table class="stats">
         <tr>
             <td>
-                <strong>{{ $totalCandidates }}</strong><br>
+                <strong>{{ $totalCandidates }}</strong>
                 <span class="muted">تعداد کاندیدا</span>
             </td>
             <td>
-                <strong>{{ $totalParticipants }}</strong><br>
-                <span class="muted">تعداد رای‌دهندگان</span>
+                <strong>{{ $totalParticipants }}</strong>
+                <span class="muted">مشارکت‌کنندگان</span>
             </td>
             <td>
-                <strong>{{ number_format($totalVotes) }}</strong><br>
-                <span class="muted">کل آرا</span>
+                <strong>{{ number_format($totalVotes) }}</strong>
+                <span class="muted">آرای ثبت‌شده</span>
+            </td>
+            <td>
+                <strong>{{ $elected->count() }}</strong>
+                <span class="muted">منتخبان</span>
             </td>
         </tr>
     </table>
 
-    <h3 style="margin-bottom:8px;">نتایج کاندیداها</h3>
+    <h3 style="margin-bottom:8px;">افراد انتخاب‌شده</h3>
 
-    @if ($detailedVotes->count() > 0)
+    @if ($elected->count() > 0)
         <table class="results">
             <thead>
                 <tr>
-                    <th class="text-center" style="width: 50px;">ردیف</th>
-                    <th class="text-center" style="width: 150px;">کد پیگیری (کد ملی)</th>
-                    <th>نام کاندیدای انتخابی</th>
-                    <th class="text-center" style="width: 100px;">تعداد سهم (بخش)</th>
+                    <th class="text-center" style="width:60px;">رتبه</th>
+                    <th>نام</th>
+                    <th class="text-center" style="width:120px;">تعداد آرا</th>
+                    <th class="text-center" style="width:120px;">وضعیت</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach ($detailedVotes as $index => $detail)
+                @foreach ($elected as $index => $candidate)
+                    @php
+                        $voteCount = (int) ($candidate->votes_sum_vote_count ?? 0);
+                        $status = $index < $mainWinnersCount ? 'عضو اصلی' : 'علی‌البدل';
+                    @endphp
                     <tr>
                         <td class="text-center">{{ $index + 1 }}</td>
-                        <td class="text-center" style="font-family: monospace; font-size: 14px;">
-                            {{ $detail['masked_national_code'] }}
-                        </td>
-                        <td>{{ $detail['candidate_name'] }}</td>
-                        <td class="text-center">{{ number_format($detail['vote_chunk']) }}</td>
+                        <td>{{ $candidate->user?->full_name ?? '—' }}</td>
+                        <td class="text-center">{{ number_format($voteCount) }}</td>
+                        <td class="text-center">{{ $status }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
     @else
-        <p class="muted">هیچ رای ثبتی وجود ندارد.</p>
+        <p class="muted">هنوز فردی انتخاب نشده است.</p>
     @endif
 
     <div class="footer">
-        این گزارش به صورت خودکار توسط سامانه تولید شده است.
+        این گزارش به‌صورت خودکار توسط سامانه تولید شده است.
     </div>
 </body>
 

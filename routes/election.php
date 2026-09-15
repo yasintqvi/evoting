@@ -41,6 +41,10 @@ Route::prefix('{group:slug}/events/{event:slug}')->group(function () {
 
     Route::get('/elections/{election:slug}/detailed-report', [ElectionController::class, 'detailedReport'])->name('elections.detailed-report');
 
+    Route::get('elections/{election:slug}/attendance-report', [ElectionController::class, 'attendanceReport'])
+        ->name('elections.attendance-report')
+        ->can(Permission::SHOW_ELECTION);
+
     Route::get('/elections/create', [ElectionController::class, 'create'])
         ->name('elections.create')
         ->can(Permission::CREATE_ELECTIONS);

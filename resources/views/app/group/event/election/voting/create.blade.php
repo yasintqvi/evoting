@@ -462,7 +462,7 @@
                     </div>
                 </div>
 
-                <div class="voting-sidebar-extra d-none d-xl-block">
+                <div class="voting-sidebar-extra">
                 <div class="card mt-3 border-primary border-opacity-25">
                     <div class="card-header bg-primary bg-opacity-10 border-bottom border-dashed py-3">
                         <h5 class="card-title mb-0 d-flex align-items-center gap-2 fs-16">
@@ -687,6 +687,8 @@
                                                             data-candidate-id="{{ $candidate->id }}"
                                                             data-max-hint-for="article88-max-hint-{{ $candidate->id }}"
                                                             max="{{ $article88VotePool }}" value="0"
+                                                            onfocus="if (this.value === '0') { this.value = ''; }"
+                                                            onblur="if (this.value === '') { this.value = '0'; updateVoteValue('director-candidate-input-{{ $candidate->id }}', 'director-candidate-value-{{ $candidate->id }}'); updateArticle88Totals(); updateCandidateVoteCard({{ $candidate->id }}); }"
                                                             oninput="updateVoteValue('director-candidate-input-{{ $candidate->id }}', 'director-candidate-value-{{ $candidate->id }}'); updateArticle88Totals(); updateCandidateVoteCard({{ $candidate->id }});">
 
                                                         <div class="d-flex justify-content-center mt-1">
@@ -1105,15 +1107,32 @@
                     const inputs = form.querySelectorAll('input[name^="director_candidates"]');
                     let sum = 0;
                     let votedCandidatesCount = 0;
+                    let hasNegative = false;
                     inputs.forEach(function(input) {
                         if (input.type === 'number') {
                             const value = parseLocaleNumberToFloat(input.value);
+                            if (value < 0) {
+                                hasNegative = true;
+                            }
                             sum += value;
                             if (value > 0) {
                                 votedCandidatesCount++;
                             }
                         }
                     });
+                    if (hasNegative) {
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'خطا...',
+                                text: 'تعداد رأی نمی‌تواند منفی باشد.',
+                                confirmButtonText: 'باشه'
+                            });
+                        } else {
+                            alert('تعداد رأی نمی‌تواند منفی باشد.');
+                        }
+                        return;
+                    }
                     if (maxDirectorCandidatesForArticle88 > 0 && votedCandidatesCount >
                         maxDirectorCandidatesForArticle88) {
                         if (typeof Swal !== 'undefined') {
@@ -1211,6 +1230,14 @@
         function updateVoteValue(inputId, valueId) {
             var inputElement = document.getElementById(inputId);
             var valueElement = document.getElementById(valueId);
+
+            if (inputElement && window.isArticle88Voting) {
+                var parsed = parseLocaleNumberToFloat(inputElement.value);
+                if (parsed < 0) {
+                    inputElement.value = 0;
+                    parsed = 0;
+                }
+            }
 
             if (inputElement && valueElement) {
                 if (window.isArticle88Voting) {

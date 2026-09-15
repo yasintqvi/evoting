@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ElectionStatus;
 use App\Http\Requests\Group\EventRequest;
 use App\Models\Election;
 use App\Models\Event;
@@ -81,9 +82,79 @@ class EventController extends Controller
             ->visibleForAttendance($event->group)
             ->whereNotIn('id', $event->attorneyOnlyParticipantIds());
 
+        $attendees = (clone $statsQuery)
+            ->with('user')
+            ->orderByDesc('is_present')
+            ->get()
+            ->map(fn ($participant) => [
+                'name' => $participant->user->full_name,
+                'is_present' => (bool) $participant->is_present,
+            ]);
+
         return response()->json([
             'present' => (clone $statsQuery)->where('is_present', $map['present'])->count(),
             'absent' => (clone $statsQuery)->where('is_present', $map['absent'])->count(),
+            'attendees' => $attendees,
+        ]);
+    }
+
+    /**
+     * آمار زنده انتخابات رویداد برای نمایش روی پروژکتور.
+     */
+    public function liveElectionStats(Event $event)
+    {
+        $elections = $event->elections()
+            ->whereIn('status', [
+                ElectionStatus::ONGOING->value,
+                ElectionStatus::WAITING_TO_START->value,
+                ElectionStatus::PARTICIPANTS_ATTENDEES->value,
+                ElectionStatus::CREATED->value,
+            ])
+            ->latest('id')
+            ->get();
+
+        $presentVoters = (int) $event->participants()
+            ->visibleForAttendance($event->group)
+            ->whereNotIn('id', $event->attorneyOnlyParticipantIds())
+            ->where('is_present', true)
+            ->whereNull('attorney_id')
+            ->count();
+
+        $ongoing = [];
+        $waiting = [];
+
+        foreach ($elections as $election) {
+            $votedCount = (int) Vote::query()
+                ->where('election_id', $election->id)
+                ->distinct('participant_id')
+                ->count('participant_id');
+
+            $eligible = max(1, $presentVoters);
+            $percent = min(100, (int) round(($votedCount / $eligible) * 100));
+
+            $item = [
+                'id' => $election->id,
+                'title' => $election->title,
+                'status' => $election->status->value,
+                'status_label' => $election->status->toFa(),
+                'voted_count' => $votedCount,
+                'eligible_count' => $presentVoters,
+                'percent' => $percent,
+                'starts_at' => $election->starts_at
+                    ? verta($election->starts_at)->format('Y/m/d H:i')
+                    : null,
+            ];
+
+            if ($election->status === ElectionStatus::ONGOING) {
+                $ongoing[] = $item;
+            } else {
+                $waiting[] = $item;
+            }
+        }
+
+        return response()->json([
+            'ongoing' => $ongoing,
+            'waiting' => $waiting,
         ]);
     }
 

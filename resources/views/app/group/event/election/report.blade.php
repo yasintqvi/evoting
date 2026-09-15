@@ -220,9 +220,7 @@
                                         <th class="text-center" style="width: 50px;">رتبه</th>
                                         <th>نام کاندید</th>
                                         <th class="text-center">تعداد آرا</th>
-                                        <th class="text-center" style="width: 240px;"><small>درصد آرا (نسبت به آرای اختصاص
-                                                داده شده)</small></th>
-                                        <th class="text-center" style="width: 240px;">درصد آرا (نسبت به کل آرا)</th>
+                                        <th class="text-center" style="width: 160px;">وضعیت</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -239,20 +237,15 @@
                                                     ? 'badge-soft-success'
                                                     : ($candidateType === 'substitute'
                                                         ? 'badge-soft-warning'
-                                                        : 'badge-soft-danger');
-                                            $barClass =
+                                                        : 'badge-soft-secondary');
+                                            $statusLabel =
                                                 $candidateType === 'main'
-                                                    ? 'bg-success'
+                                                    ? 'عضو اصلی'
                                                     : ($candidateType === 'substitute'
-                                                        ? 'bg-warning'
-                                                        : 'bg-danger');
+                                                        ? 'علی‌البدل'
+                                                        : '-');
 
                                             $voteCount = (int) ($candidate->votes_sum_vote_count ?? 0);
-                                            $percentage = $totalVotes > 0 ? ($voteCount / $totalVotes) * 100 : 0;
-                                            $percentageByAllVotes =
-                                                $election->all_votes > 0
-                                                    ? ($voteCount / $election->all_votes) * 100
-                                                    : 0;
                                         @endphp
                                         <tr>
                                             <td class="text-center">
@@ -279,28 +272,8 @@
                                                     {{ number_format($voteCount) }}
                                                 </h5>
                                             </td>
-                                            <td>
-                                                <div class="progress" style="height: 25px;position: relative;">
-                                                    <div class="progress-bar {{ $barClass }}" role="progressbar"
-                                                        style="width: {{ $percentage }}%;"
-                                                        aria-valuenow="{{ $percentage }}" aria-valuemin="0"
-                                                        aria-valuemax="100">
-                                                        <span
-                                                            class="text-dark fw-semibold"style="position:absolute; left: 2%">{{ number_format($percentage, 1) }}%</span>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div class="progress" style="height: 25px;position: relative;">
-                                                    <div class="progress-bar {{ $barClass }}" role="progressbar"
-                                                        style="width: {{ $percentageByAllVotes }}%"
-                                                        aria-valuenow="{{ $percentageByAllVotes }}" aria-valuemin="0"
-                                                        aria-valuemax="100">
-                                                        <span class="text-dark fw-semibold"
-                                                            style="position:absolute; left: 2%">{{ number_format($percentageByAllVotes, 1) }}%</span>
-                                                    </div>
-
-                                                </div>
+                                            <td class="text-center">
+                                                <span class="badge {{ $badgeClass }}">{{ $statusLabel }}</span>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -357,6 +330,18 @@
                                     <line x1="12" y1="15" x2="12" y2="3"></line>
                                 </svg>
                                 دانلود گزارش PDF با جزئیات
+                            </a>
+
+                            <a href="{{ route('elections.attendance-report', [$group, $event, $election]) }}"
+                                class="btn btn-outline-danger" target="_blank">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                                دانلود گزارش حضور و وکالت‌ها (PDF)
                             </a>
 
                             <a href="{{ route('elections.report', [$group, $event, $election]) }}?download_excel=1"

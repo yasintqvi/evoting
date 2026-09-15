@@ -27,6 +27,7 @@ class Participant extends Model
         'delegated_normal_stock_count',
         'delegated_prefered_stock_count',
         'is_present',
+        'present_at',
         'group_id',
     ];
 
@@ -49,6 +50,7 @@ class Participant extends Model
     {
         return [
             'is_present' => 'boolean',
+            'present_at' => 'datetime',
         ];
     }
 
@@ -112,6 +114,28 @@ class Participant extends Model
         }
 
         return $query;
+    }
+
+    /**
+     * آیا این شرکت‌کننده در زمان شروع این انتخابات حاضر محسوب می‌شود؟
+     * اگر بعد از شروع انتخابات حاضر شده باشد، برای همان انتخابات غایب است
+     * ولی برای انتخابات بعدی (که بعد از حضورش شروع شده) حاضر است.
+     */
+    public function wasPresentForElection(Election $election, bool $hasVotedInElection = false): bool
+    {
+        if ($hasVotedInElection) {
+            return true;
+        }
+
+        if (! $this->is_present) {
+            return false;
+        }
+
+        if (! $election->starts_at || ! $this->present_at) {
+            return true;
+        }
+
+        return $this->present_at->lte($election->starts_at);
     }
 
     public function getTotalStockAttribute()
