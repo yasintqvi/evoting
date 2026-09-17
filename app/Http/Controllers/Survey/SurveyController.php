@@ -49,7 +49,10 @@ class SurveyController extends Controller
     {
         $survey = null;
         if ($request->has('survey_id')) {
-            $survey = $event->surveys()->where('slug', $request->get('survey_id'))->firstOrFail();
+            $survey = $event->surveys()
+                ->where('slug', $request->get('survey_id'))
+                ->with('blockedUsers')
+                ->firstOrFail();
         }
 
         if ($survey && $survey->isLockedForEditing() && $request->has('editSurvey')) {

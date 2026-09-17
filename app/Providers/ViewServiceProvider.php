@@ -33,6 +33,7 @@ class ViewServiceProvider extends ServiceProvider
                     'event.elections.candidates.user',
                     'event.elections.position',
                     'event.surveys.questions',
+                    'event.surveys.blockedUsers',
                     'is_attorney',
                 ])
                 ->get();
@@ -72,8 +73,12 @@ class ViewServiceProvider extends ServiceProvider
                             'has_voted' => false,
                         ]);
                     } elseif (in_array($election->status, [ElectionStatus::COMPLETED, ElectionStatus::CANCELED, ElectionStatus::ONGOING], true)) {
-                        // وکیل نباید انتخابات گذشته را در سایدبار ببیند.
-                        if ($election->isFinished() && $participant->is_attorney->isNotEmpty()) {
+                        // وکیلِ بدون رأی شخصی را برای انتخابات تمام‌شده رد کن
+                        if (
+                            $election->isFinished()
+                            && ! $hasVoted
+                            && $participant->is_attorney->isNotEmpty()
+                        ) {
                             continue;
                         }
 
@@ -92,6 +97,10 @@ class ViewServiceProvider extends ServiceProvider
                 }
 
                 foreach ($event->surveys->where('status', 1) as $survey) {
+                    if ($survey->blockedUsers->contains('id', $user->id)) {
+                        continue;
+                    }
+
                     if (
                         ($survey->start_at && $now->lt($survey->start_at)) ||
                         ($survey->end_at && $now->gt($survey->end_at))

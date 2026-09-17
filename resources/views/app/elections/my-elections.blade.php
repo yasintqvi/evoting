@@ -485,7 +485,7 @@
                                             </p>
                                         </div>
                                         <div class="d-flex align-items-center gap-2 flex-shrink-0">
-                                            <span class="badge badge-soft-info">{{ $item['election']->status->toFa() }}</span>
+                                            <span class="badge badge-soft-info">{{ $item['status_text'] ?? $item['election']->status->toFa() }}</span>
                                             @if ($election->isFinished())
                                                 <form action="{{ route('my-elections.destroy', $election) }}"
                                                     method="POST" class="mb-0"

@@ -119,8 +119,8 @@ class ElectionVotingController extends Controller
             ->unique()
             ->values();
 
+        // رکورد مشارکت خود کاربر (نه موکل‌هایی که به دیگری وکالت داده‌اند)
         $participants = Participant::where('user_id', $user->id)
-            ->where('is_present', true)
             ->whereNull('attorney_id')
             ->with([
                 'event.group',
@@ -146,8 +146,24 @@ class ElectionVotingController extends Controller
 
         foreach ($participants as $participant) {
             $event = $participant->event;
-            if ($event && $event->elections) {
-                foreach ($event->elections as $election) {
+            if (! $event || ! $event->elections) {
+                continue;
+            }
+
+            foreach ($event->elections as $election) {
+                $hasVoted = $participant->votes
+                    ->where('election_id', $election->id)
+                    ->isNotEmpty();
+
+                // انتخابات گذشته: اگر رأی داده، حتماً نشان بده (حتی اگر الان غایب باشد)
+                // انتخابات فعال: فقط اگر الان حاضر باشد و حق رأی داشته باشد
+                $isPast = $election->isFinished() || ($election->status === ElectionStatus::ONGOING && $hasVoted);
+
+                if (! $isPast) {
+                    if (! $participant->is_present) {
+                        continue;
+                    }
+
                     if ($this->effectiveVotePower($election, $event, $user) <= 0) {
                         continue;
                     }
@@ -155,108 +171,123 @@ class ElectionVotingController extends Controller
                     if (! $event->userCanParticipateInVoting((int) $user->id, $election)) {
                         continue;
                     }
-
-                    // اعمال فیلتر تاریخ
-                    if ($startDate || $endDate) {
-                        $electionDate = $election->created_at;
-
-                        if ($startDate && $electionDate->lt($startDate->copy()->startOfDay())) {
-                            continue;
-                        }
-
-                        if ($endDate && $electionDate->gt($endDate->copy()->endOfDay())) {
-                            continue;
-                        }
+                } elseif (! $hasVoted) {
+                    // گذشته بدون رأی: فقط اگر در آن انتخابات حاضر محسوب می‌شده
+                    if (! $participant->wasPresentForElection($election, false)) {
+                        continue;
                     }
 
-                    // انتخابات در حال برگزاری
-                    if ($election->status === ElectionStatus::ONGOING) {
-                        // اعمال فیلتر وضعیت
-                        if ($statusFilter && $statusFilter !== 'ongoing') {
-                            continue;
-                        }
+                    if ($this->effectiveVotePower($election, $event, $user) <= 0
+                        && ! $event->userCanParticipateInVoting((int) $user->id, $election)) {
+                        continue;
+                    }
+                }
 
-                        // بررسی انقضا
-                        if ($election->isExpired()) {
-                            if ($statusFilter === 'expired') {
-                                $unavailableElections->push([
-                                    'election' => $election,
-                                    'event' => $event,
-                                    'group' => $event->group,
-                                    'participant' => $participant,
-                                    'status_text' => 'منقضی شده',
-                                    'status_type' => 'expired'
-                                ]);
-                            }
-                            continue;
-                        }
+                // اعمال فیلتر تاریخ
+                if ($startDate || $endDate) {
+                    $electionDate = $election->created_at;
 
-                        $hasVoted = Vote::where('election_id', $election->id)
-                            ->where('participant_id', $participant->id)
-                            ->exists();
-
-                        if (!$hasVoted && ($election->candidates->count() > 0 || $election->type === ElectionType::SURVEY)) {
-                            $availableElections->push([
-                                'election' => $election,
-                                'event' => $event,
-                                'group' => $event->group,
-                                'participant' => $participant,
-                                'has_voted' => false,
-                                'status_text' => 'در حال برگزاری',
-                                'status_type' => 'ongoing'
-                            ]);
-                        }
+                    if ($startDate && $electionDate->lt($startDate->copy()->startOfDay())) {
+                        continue;
                     }
 
-                    // انتخابات تمام شده یا لغو شده
-                    // وکیل (کسی که به او وکالت داده شده) نباید انتخابات گذشته را ببیند.
-                    if ($election->isFinished()) {
-                        if ($participant->is_attorney->isNotEmpty()) {
-                            continue;
-                        }
+                    if ($endDate && $electionDate->gt($endDate->copy()->endOfDay())) {
+                        continue;
+                    }
+                }
 
-                        if (!$hiddenPastElectionIds->contains((int) $election->id)) {
-                            // اعمال فیلتر وضعیت
-                            if ($statusFilter) {
-                                if ($statusFilter === 'completed' && $election->status !== ElectionStatus::COMPLETED) {
-                                    continue;
-                                }
-                                if ($statusFilter === 'canceled' && $election->status !== ElectionStatus::CANCELED) {
-                                    continue;
-                                }
-                                if ($statusFilter === 'expired' && !$election->isExpired()) {
-                                    continue;
-                                }
-                                if (!in_array($statusFilter, ['completed', 'canceled', 'expired'])) {
-                                    continue;
-                                }
-                            }
+                // انتخابات در حال برگزاری و هنوز رأی نداده
+                if ($election->status === ElectionStatus::ONGOING && ! $hasVoted) {
+                    if ($statusFilter && $statusFilter !== 'ongoing') {
+                        continue;
+                    }
 
-                            $statusText = '';
-                            $statusType = '';
-
-                            if ($election->isExpired()) {
-                                $statusText = 'منقضی شده';
-                                $statusType = 'expired';
-                            } elseif ($election->status === ElectionStatus::COMPLETED) {
-                                $statusText = 'تمام شده';
-                                $statusType = 'completed';
-                            } elseif ($election->status === ElectionStatus::CANCELED) {
-                                $statusText = 'لغو شده';
-                                $statusType = 'canceled';
-                            }
-
+                    if ($election->isExpired()) {
+                        if ($statusFilter === 'expired' || ! $statusFilter) {
                             $unavailableElections->push([
                                 'election' => $election,
                                 'event' => $event,
                                 'group' => $event->group,
                                 'participant' => $participant,
-                                'status_text' => $statusText,
-                                'status_type' => $statusType
+                                'status_text' => 'منقضی شده',
+                                'status_type' => 'expired',
                             ]);
                         }
+                        continue;
+                    }
+
+                    if ($election->candidates->count() > 0 || $election->type === ElectionType::SURVEY) {
+                        $availableElections->push([
+                            'election' => $election,
+                            'event' => $event,
+                            'group' => $event->group,
+                            'participant' => $participant,
+                            'has_voted' => false,
+                            'status_text' => 'در حال برگزاری',
+                            'status_type' => 'ongoing',
+                        ]);
+                    }
+
+                    continue;
+                }
+
+                // انتخابات گذشته / رأی‌داده‌شده
+                // وکیلِ بدون رأی شخصی (فقط نمایندگی دیگران) انتخابات گذشته را نبیند
+                $isAttorneyOnlyWithoutVote = $participant->is_attorney->isNotEmpty()
+                    && ! $hasVoted
+                    && $this->effectiveVotePower($election, $event, $user) <= 0;
+
+                if ($isAttorneyOnlyWithoutVote) {
+                    continue;
+                }
+
+                if ($hiddenPastElectionIds->contains((int) $election->id)) {
+                    continue;
+                }
+
+                if ($statusFilter) {
+                    if ($statusFilter === 'completed' && $election->status !== ElectionStatus::COMPLETED) {
+                        continue;
+                    }
+                    if ($statusFilter === 'canceled' && $election->status !== ElectionStatus::CANCELED) {
+                        continue;
+                    }
+                    if ($statusFilter === 'expired' && ! $election->isExpired()) {
+                        continue;
+                    }
+                    if ($statusFilter === 'ongoing' && ! ($election->status === ElectionStatus::ONGOING && $hasVoted)) {
+                        continue;
+                    }
+                    if (! in_array($statusFilter, ['completed', 'canceled', 'expired', 'ongoing'], true)) {
+                        continue;
                     }
                 }
+
+                $statusText = 'تمام شده';
+                $statusType = 'completed';
+
+                if ($election->status === ElectionStatus::ONGOING && $hasVoted) {
+                    $statusText = 'رأی داده‌اید';
+                    $statusType = 'voted';
+                } elseif ($election->isExpired()) {
+                    $statusText = 'منقضی شده';
+                    $statusType = 'expired';
+                } elseif ($election->status === ElectionStatus::COMPLETED) {
+                    $statusText = 'تمام شده';
+                    $statusType = 'completed';
+                } elseif ($election->status === ElectionStatus::CANCELED) {
+                    $statusText = 'لغو شده';
+                    $statusType = 'canceled';
+                }
+
+                $unavailableElections->push([
+                    'election' => $election,
+                    'event' => $event,
+                    'group' => $event->group,
+                    'participant' => $participant,
+                    'status_text' => $statusText,
+                    'status_type' => $statusType,
+                ]);
             }
         }
 
@@ -818,7 +849,7 @@ class ElectionVotingController extends Controller
         $participants = Participant::where('user_id', $user->id)
             ->where('is_present', true)
             ->whereNull('attorney_id')
-            ->with(['event.group', 'event.surveys.questions'])
+            ->with(['event.group', 'event.surveys.questions', 'event.surveys.blockedUsers'])
             ->get();
 
         $availableSurveys = collect();
@@ -834,6 +865,10 @@ class ElectionVotingController extends Controller
             }
 
             foreach ($event->surveys->where('status', 1) as $survey) {
+                if ($survey->blockedUsers->contains('id', $user->id)) {
+                    continue;
+                }
+
                 if (
                     ($survey->start_at && $now->lt($survey->start_at)) ||
                     ($survey->end_at && $now->gt($survey->end_at))

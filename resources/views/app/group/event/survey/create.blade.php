@@ -74,7 +74,8 @@
                                 <label class="form-label">عدم اجازه شرکت در نظردهی</label>
                                 <select name="blocked_user_ids[]" class="form-select" multiple data-toggle="select2">
                                     @foreach ($participants as $p)
-                                        <option value="{{ $p->user->id }}" @selected(in_array($p->user->id, old('blocked_user_ids', [])))>
+                                        <option value="{{ $p->user->id }}"
+                                            @selected(in_array($p->user->id, old('blocked_user_ids', $survey->blockedUsers->pluck('id')->all())))>
                                             {{ $p->user->first_name }} {{ $p->user->last_name }}
                                         </option>
                                     @endforeach

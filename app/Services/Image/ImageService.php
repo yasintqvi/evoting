@@ -2,14 +2,13 @@
 
 namespace App\Services\Image;
 
-use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
 
 class ImageService extends ImageToolsService
 {
     /**
-     * Save image
+     * Save image into public/ and return its relative web path.
      */
     public function save(): bool|string
     {
@@ -17,15 +16,20 @@ class ImageService extends ImageToolsService
 
         $this->provider();
 
-        $file_path = $this->getFinalImageDirectory().'/'.$this->getFinalImageName();
+        $absolutePath = $this->getAbsoluteImagePath();
+        $result = file_put_contents($absolutePath, file_get_contents($image->getRealPath()));
 
-        $result = Storage::put($file_path, file_get_contents($image));
+        if ($result === false) {
+            return false;
+        }
 
-        return $result ? $this->getImageAddress() : false;
+        @chmod($absolutePath, 0644);
+
+        return $this->getImageAddress();
     }
 
     /**
-     * Resize and save image
+     * Resize and save image into public/.
      *
      * @param  mixed  $width
      * @param  mixed  $height
@@ -36,20 +40,24 @@ class ImageService extends ImageToolsService
 
         $this->provider();
 
-        [$width, $height] = getimagesize($image);
+        [$width, $height] = getimagesize($image->getRealPath());
 
         $width = (int) floor($scale * $width);
         $height = (int) floor($scale * $height);
 
         $manager = new ImageManager(new Driver);
 
-        $file_path = $this->getFinalImageDirectory().'/'.$this->getFinalImageName();
-
+        $absolutePath = $this->getAbsoluteImagePath();
         $resizedImage = $manager->read($image->getRealPath())->resize($width, $height);
+        $result = file_put_contents($absolutePath, (string) $resizedImage->encode());
 
-        $result = Storage::put($file_path, $resizedImage->encode());
+        if ($result === false) {
+            return false;
+        }
 
-        return $result ? $this->getImageAddress() : false;
+        @chmod($absolutePath, 0644);
+
+        return $this->getImageAddress();
     }
 
     /**
@@ -59,8 +67,10 @@ class ImageService extends ImageToolsService
      */
     public function deleteImage($image_path): void
     {
-        if (file_exists($image_path)) {
-            unlink($image_path);
+        $path = public_path(ltrim(str_replace('\\', '/', (string) $image_path), '/'));
+
+        if (is_file($path)) {
+            unlink($path);
         }
     }
 }
