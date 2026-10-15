@@ -236,5 +236,37 @@ class EventController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Group $group, Event $event) {}
+    public function destroy(Group $group, Event $event)
+    {
+        try {
+            // اگر انتخاباتی از این رویداد شروع شده باشد، حذف رویداد مجاز نیست.
+            $hasStartedElection = $event->elections()
+                ->whereIn('status', [
+                    ElectionStatus::ONGOING->value,
+                    ElectionStatus::COMPLETED->value,
+                    ElectionStatus::CANCELED->value,
+                ])
+                ->exists();
+
+            if ($hasStartedElection) {
+                return back()->with('error', __('messages.event.has_started_election'));
+            }
+
+            $event->delete();
+
+            return redirect()
+                ->route('events.index', $group)
+                ->with('success', __('messages.event.deleted'));
+        } catch (\Throwable $th) {
+            Log::error('Error while deleting event', [
+                'event_id' => $event->id,
+                'group_id' => $group->id,
+                'user_id' => auth()->id(),
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+
+            return back()->with('error', __('messages.event.delete_error'));
+        }
+    }
 }

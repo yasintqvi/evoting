@@ -101,7 +101,7 @@
             رویداد: {{ $event->title ?? '-' }}
             |
             تاریخ:
-            {{ function_exists('verta') ? verta(now())->format('Y/m/d H:i') : now()->format('Y-m-d H:i') }}
+            {{ function_exists('verta') ? verta(now('Asia/Tehran'))->format('Y/m/d H:i') : now('Asia/Tehran')->format('Y-m-d H:i') }}
         </div>
     </div>
 

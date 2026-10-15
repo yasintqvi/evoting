@@ -145,6 +145,19 @@
                                                             کلون گیری
                                                         </a>
                                                     </li>
+                                                    @can(\App\Enums\Permission::DELETE_GROUP_EVENT->value)
+                                                        <li>
+                                                            <form action="{{ route('events.delete', [$group, $event]) }}"
+                                                                method="POST" class="d-inline delete-role-form">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="button"
+                                                                    class="dropdown-item text-danger delete-role-btn">
+                                                                    <i class="ti ti-trash me-1"></i> حذف رویداد
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    @endcan
                                                 </ul>
                                             </div>
                                         </div>

@@ -381,15 +381,36 @@
                                 <h4 class="fs-15">اطلاعات رای دهنده:</h4>
                                 <div class="row mt-1 g-2">
                                     @if (in_array($election->type, [App\Enums\ElectionType::PRIVATE_JOINT, App\Enums\ElectionType::PRIVATE_JOINT_WITH_88]))
+                                        @php
+                                            $ownStock = $ownStock ?? [
+                                                'normal' => (float) $participant->normal_stock_count,
+                                                'prefered' => (float) $participant->prefered_stock_count,
+                                            ];
+                                            $delegatedTotals = $delegatedTotals ?? ['normal' => 0, 'prefered' => 0, 'effective' => 0];
+                                            $combinedNormal = $ownStock['normal'] + $delegatedTotals['normal'];
+                                            $combinedPrefered = $ownStock['prefered'] + $delegatedTotals['prefered'];
+                                        @endphp
                                         <div class="col-lg-4 col-6">
                                             <h4 class="fw-medium mb-0">{{ number_format($participant->normal_stock_count) }}
                                             </h4>
                                             <p class="mb-0 text-muted lh-lg">سهم عادی</p>
+                                            @if ($delegatedTotals['normal'] > 0)
+                                                <small class="text-muted d-block">
+                                                    شخصی: {{ number_format($ownStock['normal']) }} + وکالت:
+                                                    {{ number_format($delegatedTotals['normal']) }}
+                                                </small>
+                                            @endif
                                         </div>
                                         <div class="col-lg-4 col-6">
                                             <h4 class="fw-medium mb-0">{{ number_format($participant->prefered_stock_count) }}
                                             </h4>
                                             <p class="mb-0 text-muted lh-lg">سهم ممتاز</p>
+                                            @if ($delegatedTotals['prefered'] > 0)
+                                                <small class="text-muted d-block">
+                                                    شخصی: {{ number_format($ownStock['prefered']) }} + وکالت:
+                                                    {{ number_format($delegatedTotals['prefered']) }}
+                                                </small>
+                                            @endif
                                         </div>
                                         <div class="col-lg-4 col-6">
                                             @if ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
@@ -405,6 +426,12 @@
                                             @if ($election->ignore_stock_weight)
                                                 <small class="text-info d-block">بدون وزن</small>
                                             @endif
+                                            @if ($delegatedTotals['effective'] > 0)
+                                                <small class="text-muted d-block">
+                                                    شخصی: {{ number_format($effectiveStock - $delegatedTotals['effective']) }}
+                                                    + وکالت: {{ number_format($delegatedTotals['effective']) }}
+                                                </small>
+                                            @endif
                                         </div>
                                         <div class="col-lg-4 col-6">
                                             <h4 class="fw-medium mb-0">{{ $userImpactPercent }}٪</h4>
@@ -413,6 +440,16 @@
                                                 از کل سهام حاضرین در جلسه
                                             </small>
                                         </div>
+                                        @if ($delegatedTotals['normal'] > 0 || $delegatedTotals['prefered'] > 0)
+                                            <div class="col-12">
+                                                <div class="rounded-3 border border-warning border-opacity-25 bg-warning bg-opacity-10 p-2 small">
+                                                    <span class="fw-semibold text-warning-emphasis">جمع سهام شما (با وکالت):</span>
+                                                    عادی {{ number_format($combinedNormal) }} + ممتاز
+                                                    {{ number_format($combinedPrefered) }} =
+                                                    <span class="fw-bold">{{ number_format($combinedNormal + $combinedPrefered) }}</span>
+                                                </div>
+                                            </div>
+                                        @endif
                                     @else
                                         <div class="col-lg-4 col-6">
                                             <h4 class="fw-medium mb-0">1</h4>
@@ -437,10 +474,22 @@
                                             <div class="col-6">
                                                 <div class="text-muted">سهم عادی</div>
                                                 <div class="fw-semibold">{{ number_format($participant->normal_stock_count) }}</div>
+                                                @if (($delegatedTotals['normal'] ?? 0) > 0)
+                                                    <div class="text-muted" style="font-size:11px;">
+                                                        شخصی: {{ number_format($ownStock['normal']) }} + وکالت:
+                                                        {{ number_format($delegatedTotals['normal']) }}
+                                                    </div>
+                                                @endif
                                             </div>
                                             <div class="col-6">
                                                 <div class="text-muted">سهم ممتاز</div>
                                                 <div class="fw-semibold">{{ number_format($participant->prefered_stock_count) }}</div>
+                                                @if (($delegatedTotals['prefered'] ?? 0) > 0)
+                                                    <div class="text-muted" style="font-size:11px;">
+                                                        شخصی: {{ number_format($ownStock['prefered']) }} + وکالت:
+                                                        {{ number_format($delegatedTotals['prefered']) }}
+                                                    </div>
+                                                @endif
                                             </div>
                                         @endif
                                         <div class="col-6">
@@ -532,6 +581,15 @@
                         <div class="card-body pt-3 px-2">
                             <div class="list-group list-group-flush">
                                 @foreach ($representedParticipants as $rep)
+                                    @php
+                                        $repStock = $delegatedStockPerPrincipal
+                                            ->firstWhere('participant_id', $rep->id) ?? [
+                                                'normal' => (float) $rep->delegated_normal_stock_count,
+                                                'prefered' => (float) $rep->delegated_prefered_stock_count,
+                                                'effective' => 0,
+                                            ];
+                                        $repTotal = (float) $repStock['normal'] + (float) $repStock['prefered'];
+                                    @endphp
                                     <div class="list-group-item px-2 py-2 d-flex align-items-center gap-2">
                                         <img src="{{ asset($rep->user->profile_image) }}" alt=""
                                             class="rounded-circle border"
@@ -541,12 +599,18 @@
                                                 {{ $rep->user->full_name }}</div>
                                             @if (in_array($election->type, [App\Enums\ElectionType::PRIVATE_JOINT, App\Enums\ElectionType::PRIVATE_JOINT_WITH_88]))
                                                 <div class="text-muted" style="font-size:11px;">
-                                                    @if ($rep->normal_stock_count > 0)
-                                                        <span>عادی: {{ number_format($rep->normal_stock_count) }}</span>
+                                                    <span class="fw-semibold">سهام دریافتی از او:</span>
+                                                    @if ($repStock['normal'] > 0)
+                                                        <span>عادی: {{ number_format($repStock['normal']) }}</span>
                                                     @endif
-                                                    @if ($rep->prefered_stock_count > 0)
+                                                    @if ($repStock['prefered'] > 0)
                                                         <span class="ms-2">ممتاز:
-                                                            {{ number_format($rep->prefered_stock_count) }}</span>
+                                                            {{ number_format($repStock['prefered']) }}</span>
+                                                    @endif
+                                                    @if ($repTotal <= 0)
+                                                        <span>بدون سهام</span>
+                                                    @else
+                                                        <span class="ms-2 fw-semibold">(جمع: {{ number_format($repTotal) }})</span>
                                                     @endif
                                                 </div>
                                             @endif
@@ -555,6 +619,20 @@
                                             class="badge bg-warning-subtle text-warning border border-warning border-opacity-25">وکیل</span>
                                     </div>
                                 @endforeach
+
+                                @if ($delegatedTotals['normal'] > 0 || $delegatedTotals['prefered'] > 0)
+                                    <div class="list-group-item px-2 py-2 bg-warning bg-opacity-10 rounded-3 mt-1 small">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="fw-semibold">جمع سهام دریافتی از موکل‌ها:</span>
+                                            <span>عادی {{ number_format($delegatedTotals['normal']) }} + ممتاز
+                                                {{ number_format($delegatedTotals['prefered']) }} =
+                                                <span class="fw-bold">
+                                                    {{ number_format($delegatedTotals['normal'] + $delegatedTotals['prefered']) }}
+                                                </span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>

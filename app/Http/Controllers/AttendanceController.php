@@ -71,17 +71,42 @@ class AttendanceController extends Controller
             $eventId = $request->integer('event_id');
             $currentParticipantId = $request->integer('current_participant_id');
 
+            // کاربرانی که در این رویداد وکیلِ کسی هستند (برای نمایش در لیست و برچسب "وکیل").
+            // attorney_id روی participants به ردیف وکیل اشاره می‌کند؛ ابتدا به user_id نگاشت می‌شود.
+            $attorneyUserIds = collect();
+            if ($eventId > 0) {
+                $attorneyParticipantIds = Participant::query()
+                    ->where('event_id', $eventId)
+                    ->whereNotNull('attorney_id')
+                    ->pluck('attorney_id')
+                    ->unique()
+                    ->values();
+
+                if ($attorneyParticipantIds->isNotEmpty()) {
+                    $attorneyUserIds = Participant::query()
+                        ->whereIn('id', $attorneyParticipantIds)
+                        ->pluck('user_id')
+                        ->unique()
+                        ->values();
+                }
+            }
+
             $hiddenUserIds = $group->managerOnlyUserIds();
 
             $query = $group->users()
                 ->select('users.id', 'users.phone', 'users.first_name', 'users.last_name')
                 ->whereNotIn('users.id', $hiddenUserIds);
 
-            // در گروه‌های سهامی خاص فقط سهامداران واقعی نمایش داده شوند.
+            // در گروه‌های سهامی خاص فقط سهامداران واقعی یا وکیل‌های فعال همین رویداد نمایش داده شوند؛
+            // وکیل بیرونی روی pivot گروه سهام صفر دارد و بدون این شرط از لیست حذف می‌شد.
             if ($group->type === \App\Enums\GroupType::SPECIAL) {
-                $query->where(function ($q) {
+                $query->where(function ($q) use ($attorneyUserIds) {
                     $q->where('group_user.normal_stock_count', '>', 0)
                         ->orWhere('group_user.prefered_stock_count', '>', 0);
+
+                    if ($attorneyUserIds->isNotEmpty()) {
+                        $q->orWhereIn('users.id', $attorneyUserIds->all());
+                    }
                 });
             }
 
@@ -107,8 +132,14 @@ class AttendanceController extends Controller
 
             $users = $query->paginate($perPage, ['*'], 'page', $page);
 
+            $results = collect($users->items())->each(function ($user) use ($attorneyUserIds) {
+                $user->is_attorney = $attorneyUserIds->contains($user->id);
+
+                return $user;
+            });
+
             return response()->json([
-                'results' => $users->items(),
+                'results' => $results,
                 'pagination' => ['more' => $users->hasMorePages()],
             ]);
         } catch (\Throwable $exception) {

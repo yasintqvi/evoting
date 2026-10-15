@@ -396,6 +396,31 @@ class ElectionVotingController extends Controller
                 ->get()
             : collect();
 
+        // تفکیک سهام: سهام شخصی (خود وکیل) و سهام واگذارشدهٔ هر موکل، برای نمایش شفاف به کاربر.
+        $ownStock = [
+            'normal' => (float) $participant->normal_stock_count,
+            'prefered' => (float) $participant->prefered_stock_count,
+        ];
+
+        $delegatedStockPerPrincipal = $representedParticipants->map(function (Participant $rep) use ($election) {
+            return [
+                'participant_id' => $rep->id,
+                'name' => $rep->user?->full_name ?? '—',
+                'normal' => (float) $rep->delegated_normal_stock_count,
+                'prefered' => (float) $rep->delegated_prefered_stock_count,
+                'effective' => $this->participantElectionStockUnits($election, new Participant([
+                    'normal_stock_count' => $rep->delegated_normal_stock_count,
+                    'prefered_stock_count' => $rep->delegated_prefered_stock_count,
+                ])),
+            ];
+        })->values();
+
+        $delegatedTotals = [
+            'normal' => (float) $delegatedStockPerPrincipal->sum('normal'),
+            'prefered' => (float) $delegatedStockPerPrincipal->sum('prefered'),
+            'effective' => (float) $delegatedStockPerPrincipal->sum('effective'),
+        ];
+
 
         $effectiveStock = $this->effectiveVotePower($election, $event, $user);
 
@@ -444,6 +469,9 @@ class ElectionVotingController extends Controller
             'totalEffectiveStockOfAllParticipants',
             'totalArticle88VotePool',
             'yourEffectiveStock',
+            'ownStock',
+            'delegatedStockPerPrincipal',
+            'delegatedTotals',
         ));
     }
 

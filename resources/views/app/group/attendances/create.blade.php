@@ -353,17 +353,18 @@
                                 current_participant_id: $('#current-participant-id').val() || ''
                             };
                         },
-                        processResults: function(data) {
-                            return {
-                                results: $.map(data.results || [], function(item) {
-                                    const phone = normalizePhone(item.phone);
-                                    return {
-                                        id: phone,
-                                        text: (item.first_name || '') + ' ' + (item.last_name || '') + ' - ' + phone,
-                                        first_name: item.first_name,
-                                        last_name: item.last_name
-                                    };
-                                }),
+                    processResults: function(data) {
+                        return {
+                            results: $.map(data.results || [], function(item) {
+                                const phone = normalizePhone(item.phone);
+                                const attorneySuffix = item.is_attorney ? ' (وکیل)' : '';
+                                return {
+                                    id: phone,
+                                    text: (item.first_name || '') + ' ' + (item.last_name || '') + ' - ' + phone + attorneySuffix,
+                                    first_name: item.first_name,
+                                    last_name: item.last_name
+                                };
+                            }),
                                 pagination: {
                                     more: !!(data.pagination && data.pagination.more)
                                 }

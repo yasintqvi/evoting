@@ -97,7 +97,7 @@
             <span>رویداد: {{ $event->title ?? '-' }}</span>
             |
             <span>تاریخ گزارش:
-                {{ function_exists('verta') ? verta(now())->format('Y/m/d H:i') : now()->format('Y-m-d H:i') }}
+                {{ function_exists('verta') ? verta(now('Asia/Tehran'))->format('Y/m/d H:i') : now('Asia/Tehran')->format('Y-m-d H:i') }}
             </span>
         </div>
         <div class="meta" style="margin-top:4px;">

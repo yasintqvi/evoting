@@ -555,8 +555,8 @@ class ElectionController extends Controller
                 'totalCandidates',
                 'detailedVotes'
             ), [], [
-                'format' => 'A4-L',
-                'orientation' => 'L',
+                'format' => 'A4',
+                'orientation' => 'P',
             ]);
 
             return $pdf->download('election-report-' . $election->id . '.pdf');
@@ -637,8 +637,8 @@ class ElectionController extends Controller
             'absentParticipants',
             'proxies'
         ), [], [
-            'format' => 'A4-L',
-            'orientation' => 'L',
+            'format' => 'A4',
+            'orientation' => 'P',
         ]);
 
         return $pdf->download('attendance-report-' . $election->id . '.pdf');
