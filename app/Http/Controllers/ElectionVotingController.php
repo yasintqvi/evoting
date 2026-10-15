@@ -665,7 +665,7 @@ class ElectionVotingController extends Controller
                     if ($voteValue < 0) {
                         throw new Exception('تعداد رأی نمی‌تواند منفی باشد.');
                     }
-                    if ($voteValue === 0) {
+                    if ($voteValue == 0) {
                         continue;
                     }
 
