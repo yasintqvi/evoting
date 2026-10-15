@@ -81,36 +81,37 @@
     <script src="{{asset('assets/js/persian-numbers.js')}}"></script>
 
     <script>
-        function sendOtp(event) {
+        async function sendOtp(event) {
             event.preventDefault();
-
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-            const identitifier = document.querySelector('input[name=identifier]').value;
-
-            fetch("/otp/send", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        "identifier": identitifier
-                    }),
+            const button = event.currentTarget;
+            if (button.dataset.pending) return;
+            const error = document.getElementById('identitifier-error');
+            error.textContent = '';
+            button.dataset.pending = '1';
+            button.classList.add('disabled');
+            try {
+                const response = await fetch(@json(route('otp.send')), {
+                    method: 'POST',
+                    body: JSON.stringify({identifier: document.getElementById('identifier').value}),
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    },
-                }).then(response => response.json())
-                .then(data => {
-
-                    if (!data.success && data.status === 422) {
-                        document.getElementById('identitifier-error').innerHTML = data.message;
-                    } else {
-                        if (!data.status) {
-                            localStorage.setItem('identifier', identitifier);
-                            localStorage.setItem('two_factor_type', data['two_factor_type']);
-                            window.location.href = "login/otp";
-                        }
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     }
-
                 });
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(data.message || 'ارسال کد انجام نشد. لطفاً دوباره تلاش کنید.');
+                }
+                localStorage.setItem('identifier', data.identifier);
+                localStorage.setItem('two_factor_type', data.two_factor_type);
+                window.location.href = @json(route('otp.form'));
+            } catch (failure) {
+                error.textContent = failure.message || 'ارتباط با سرور برقرار نشد.';
+            } finally {
+                delete button.dataset.pending;
+                button.classList.remove('disabled');
+            }
         }
     </script>
 

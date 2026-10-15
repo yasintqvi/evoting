@@ -36,6 +36,7 @@
                             <span class="text-danger font-weight-bold">{{ $message }}</span>
                             @enderror
                         </div>
+                        <span id="identitifier-error" class="text-danger" role="alert"></span>
                         <input type="hidden" name="auth_type" value="{{ App\Enums\AuthType::OTP->value }}">
                         <div class="mb-3">
                             <label class="form-label" id="otp-label" for="otp"></label>
@@ -125,28 +126,37 @@
                     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                     const identifier = document.querySelector('input[name=identifier]').value;
 
-                    fetch("/otp/send", {
+                    fetch(@json(route('otp.send')), {
                             method: "POST",
                             body: JSON.stringify({
                                 "identifier": identifier
                             }),
                             headers: {
                                 'Content-Type': 'application/json',
+                                'Accept': 'application/json',
                                 'X-CSRF-TOKEN': csrfToken
                             },
-                        }).then(response => response.json())
+                        }).then(async response => {
+                            const data = await response.json().catch(() => ({}));
+                            if (!response.ok) throw new Error(data.message || 'ارسال کد انجام نشد.');
+                            return data;
+                        })
                         .then(data => {
                             if (!data.success && data.status === 422) {
                                 const identifierErrorElement = document.getElementById('identitifier-error');
                                 if (identifierErrorElement) {
-                                    identifierErrorElement.innerHTML = data.message;
+                                    identifierErrorElement.textContent = data.message;
                                 }
                             } else {
                                 localStorage.setItem('identifier', identifier);
                                 localStorage.setItem('two_factor_type', data['two_factor_type']);
                                 document.getElementById('resend-success').classList.remove('d-none');
+                                document.getElementById('identitifier-error').textContent = '';
                                 startCountdown();
                             }
+                        }).catch(error => {
+                            document.getElementById('resend-success').classList.add('d-none');
+                            document.getElementById('identitifier-error').textContent = error.message;
                         });
                 }
             } else {

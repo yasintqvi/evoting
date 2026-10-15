@@ -77,7 +77,9 @@ class AuthController extends Controller
             return response()->json($response);
         } catch (UserNotExistException $e) {
 
-            return response()->noContent(Response::HTTP_NOT_FOUND);
+            return response()->json([
+                'message' => 'کاربری با این شماره ثبت نشده است.',
+            ], Response::HTTP_NOT_FOUND);
         } catch (Exception $e) {
             Log::critical("The send otp operation encountered a system error. message: {$e->getMessage()}", ['trace' => $e->getTrace()]);
 
