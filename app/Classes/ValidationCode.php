@@ -14,8 +14,8 @@ final class ValidationCode
      */
     public static function generate()
     {
-        $length = config('auth.constats.code_length');
+        $length = (int) config('auth.constants.code_length', 5);
 
-        return substr(str_shuffle('0123456789'), 0, $length);
+        return implode('', array_map(fn () => (string) random_int(0, 9), range(1, $length)));
     }
 }

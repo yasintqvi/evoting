@@ -3,7 +3,7 @@
 namespace App\Services\SMS;
 
 use App\Services\SMS\Contracts\SMSFactoryContract;
-use App\Services\SMS\Drivers\KavenegarDriver;
+use App\Services\SMS\Drivers\TsmsDriver;
 use Illuminate\Support\Manager;
 
 /**
@@ -13,7 +13,7 @@ class SMSManagerService extends Manager implements SMSFactoryContract
 {
     public const CONFIG_FILE_NAME = 'sms';
 
-    public const KAVENEGAR = 'KAVENEGAR';
+    public const TSMS = 'tsms';
 
     /**
      * Get all the available "drivers".
@@ -23,20 +23,20 @@ class SMSManagerService extends Manager implements SMSFactoryContract
     public static function availableDrivers()
     {
         return [
-            self::KAVENEGAR,
+            self::TSMS,
         ];
     }
 
     public function getDefaultDriver()
     {
-        return self::KAVENEGAR;
+        return self::TSMS;
     }
 
-    protected function createKavenegarDriver()
+    protected function createTsmsDriver()
     {
-        $config = $this->container['config'][self::CONFIG_FILE_NAME.'.drivers.kavenegar'];
+        $config = $this->container['config'][self::CONFIG_FILE_NAME.'.drivers.tsms'];
 
-        return $this->buildDriver(KavenegarDriver::class, $config);
+        return $this->buildDriver(TsmsDriver::class, $config);
     }
 
     /**
@@ -44,7 +44,7 @@ class SMSManagerService extends Manager implements SMSFactoryContract
      *
      * @param  string  $driver
      * @param  array  $config
-     * @return \App\Services\SMS\AbstractSmsDriver
+     * @return AbstractSmsDriver
      */
     public function buildDriver($driver, $config)
     {

@@ -1,18 +1,13 @@
 <?php
 
-use App\Constants\SMSPattern;
-
 return [
     'drivers' => [
-        'kavenegar' => [
-            'lookup_type' => 'SendLogin',
-            'api' => env('KAVENEGAR_API_KEY'),
-            'for_test' => config('app.env') === 'testing',
-            'sample' => 12345,
-            'patterns' => [
-                SMSPattern::OTP,
-            ],
-            'messages' => [],
+        'tsms' => [
+            'url' => env('TSMS_URL', 'https://www.tsms.ir/url/tsmshttp.php'),
+            'username' => env('TSMS_USERNAME'),
+            'password' => env('TSMS_PASSWORD'),
+            'from' => env('TSMS_FROM'),
+            'otp_message' => env('TSMS_OTP_MESSAGE', 'کد ورود شما: :code'),
         ],
     ],
 ];
