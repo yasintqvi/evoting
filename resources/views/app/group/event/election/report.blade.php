@@ -37,7 +37,7 @@
     </div>
 
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-12">
             <div class="card">
                 <div class="card-header border-bottom border-dashed">
                     <h4 class="card-title mb-0 d-flex align-items-center gap-2">
@@ -98,7 +98,10 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
             <div class="card">
                 <div class="card-header border-bottom border-dashed">
                     <div class="d-flex align-items-center gap-2">
@@ -107,8 +110,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div id="candidate-chart" class="apex-charts" data-colors="#39afd1,#ffbc00"></div>
+                <div class="card-body overflow-auto">
+                    <div id="candidate-chart" class="apex-charts"
+                        style="min-width: {{ max(600, (count($candidateVotes) + 1) * 130) }}px;"></div>
                 </div>
             </div>
         </div>
@@ -415,20 +419,55 @@
 
             var options = {
                 chart: {
-                    type: 'pie',
-                    height: 400
+                    type: 'bar',
+                    height: 600,
+                    fontFamily: 'inherit',
+                    toolbar: {
+                        show: false
+                    }
                 },
-                series: @json($chartData),
-                labels: @json($chartLabels),
+                series: [{
+                    name: 'درصد آرا',
+                    data: @json($chartData)
+                }],
                 colors: @json($chartColors),
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                        distributed: true,
+                        columnWidth: '55%'
+                    }
+                },
+                xaxis: {
+                    categories: @json($chartLabels),
+                    labels: {
+                        rotate: -45,
+                        trim: false,
+                        hideOverlappingLabels: false,
+                        style: {
+                            fontSize: '14px'
+                        }
+                    }
+                },
+                yaxis: {
+                    min: 0,
+                    max: 100,
+                    labels: {
+                        formatter: function(val) {
+                            return Number(val).toLocaleString('fa-IR') + '٪';
+                        }
+                    }
+                },
+                dataLabels: {
+                    enabled: false
+                },
                 legend: {
-                    position: 'bottom',
-                    fontSize: '14px'
+                    show: false
                 },
                 tooltip: {
                     y: {
                         formatter: function(val) {
-                            return val.toLocaleString() + " درصد آرا";
+                            return val.toLocaleString('fa-IR') + " درصد آرا";
                         }
                     }
                 }

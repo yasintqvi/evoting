@@ -95,6 +95,7 @@ class EventController extends Controller
             'present' => (clone $statsQuery)->where('is_present', $map['present'])->count(),
             'absent' => (clone $statsQuery)->where('is_present', $map['absent'])->count(),
             'attendees' => $attendees,
+            'quorum' => $event->attendanceQuorum(),
         ]);
     }
 

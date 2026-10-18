@@ -132,6 +132,23 @@ class Event extends Model
             ->count();
     }
 
+    public function attendanceQuorum(): array
+    {
+        $total = (float) $this->group->normal_stock_count + (float) $this->group->prefered_stock_count;
+        // Delegated shares already belong to the attorney's participant row.
+        $present = (float) $this->participants
+            ->where('is_present', true)
+            ->whereNull('attorney_id')
+            ->sum(fn ($participant) => $participant->normal_stock_count + $participant->prefered_stock_count);
+
+        return [
+            'total_shares' => $total,
+            'present_shares' => $present,
+            'percent' => $total > 0 ? ($present / $total) * 100 : 0,
+            'is_official' => $total > 0 && $present >= $total * 0.5,
+        ];
+    }
+
     public function getAbsentCountAttribute()
     {
         return $this->attendanceStatsQuery()

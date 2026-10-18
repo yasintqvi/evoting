@@ -58,6 +58,24 @@
             animation: proj-pulse 1.4s infinite;
         }
 
+        .proj-quorum {
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            border: 2px solid #fcd34d;
+            border-radius: 12px;
+            background: #fffbeb;
+            color: #92400e;
+        }
+
+        .proj-quorum.official {
+            border-color: #86efac;
+            background: #f0fdf4;
+            color: #166534;
+        }
+
+        .proj-quorum h2 { font-size: 1.5rem; font-weight: 800; color: inherit; }
+        .proj-quorum p { margin: 0.5rem 0 0; }
+
         @keyframes proj-pulse {
             50% { opacity: 0.3; }
         }
@@ -374,6 +392,14 @@
             <span class="proj-live">آمار زنده</span>
         </div>
 
+        @php($quorum = $event->attendanceQuorum())
+        <section id="meeting-quorum" class="proj-quorum {{ $quorum['is_official'] ? 'official' : '' }}" aria-live="polite" aria-atomic="true">
+            <div>وضعیت رسمیت جلسه · حد نصاب: ۵۰٪ سهام</div>
+            <h2 id="quorum-status" class="mt-2 mb-0">{{ $quorum['is_official'] ? 'جلسه رسمی است' : 'جلسه رسمی نشده است' }}</h2>
+            <p id="quorum-details">سهام حاضر: {{ toPersianNum(number_format($quorum['present_shares'])) }} از {{ toPersianNum(number_format($quorum['total_shares'])) }} سهم ({{ toPersianNum(number_format($quorum['percent'], 2)) }}٪)</p>
+            <p id="quorum-update" class="small" role="status"></p>
+        </section>
+
         <div class="proj-main">
             {{-- در RTL ستون اول سمت راست می‌آید: جدول انتخابات --}}
             <div class="proj-panel">
@@ -518,8 +544,19 @@
 
             function fetchAttendance() {
                 fetch(`/events/${eventSlug}/attendance-stats`)
-                    .then(r => r.json())
+                    .then(r => {
+                        if (!r.ok) throw new Error('Attendance request failed');
+                        return r.json();
+                    })
                     .then(data => {
+                        const quorum = data.quorum;
+                        document.getElementById('meeting-quorum').classList.toggle('official', quorum.is_official);
+                        document.getElementById('quorum-status').textContent = quorum.is_official
+                            ? 'جلسه رسمی است' : 'جلسه رسمی نشده است';
+                        const format = value => Number(value).toLocaleString('fa-IR', { maximumFractionDigits: 2 });
+                        document.getElementById('quorum-details').textContent =
+                            `سهام حاضر: ${format(quorum.present_shares)} از ${format(quorum.total_shares)} سهم (${format(quorum.percent)}٪)`;
+                        document.getElementById('quorum-update').textContent = '';
                         presentEl.textContent = toPersianNum(data.present);
                         absentEl.textContent = toPersianNum(data.absent);
                         chart.data.datasets[0].data = [data.present, data.absent];
@@ -537,7 +574,10 @@
                             </div>
                         `).join('');
                     })
-                    .catch(console.error);
+                    .catch(error => {
+                        document.getElementById('quorum-update').textContent = 'به‌روزرسانی انجام نشد؛ وضعیت نمایش‌داده‌شده مربوط به آخرین اطلاعات دریافتی است.';
+                        console.error(error);
+                    });
             }
 
             function fetchElections() {
