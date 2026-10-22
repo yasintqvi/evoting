@@ -1,120 +1,73 @@
 <!DOCTYPE html>
-<html lang="en" dir="rtl">
-
+<html lang="fa" dir="rtl">
 <head>
-    <meta charset="utf-8" />
-    <title>ورود | سامانه انتخابات</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
-    <meta content="Coderthemes" name="author" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <!-- Theme Config Js -->
-    <script src="{{asset('assets/js/config.js')}}"></script>
-
-    <!-- Vendor css -->
-    <link href="{{asset('assets/css/vendor.min.css')}}" rel="stylesheet" type="text/css" />
-
-    <!-- App css -->
-    <link href="{{asset('assets/css/app.min.css')}}" rel="stylesheet" type="text/css" id="app-style" />
-
-    <!-- Icons css -->
-    <link href="{{asset('assets/css/icons.min.css')}}" rel="stylesheet" type="text/css" />
+    <meta name="theme-color" content="#465dff">
+    <title>ورود به حساب | سامانه انتخابات</title>
+    <link rel="stylesheet" href="{{ asset('assets/css/auth.css') }}">
+    <script src="{{ asset('assets/js/auth.js') }}" defer></script>
 </head>
-
 <body>
+    <main class="auth-shell">
+        <section class="form-panel" aria-labelledby="form-title">
+            <div class="form-wrap">
+                <div class="form-brand"><span class="brand-mark" aria-hidden="true">✓</span>سامانه انتخابات</div>
+                <span class="section-kicker">خوش آمدید</span>
+                <h2 id="form-title">ورود به حساب کاربری</h2>
+                <p class="form-intro">روش ورود خود را انتخاب کنید.</p>
 
-    <div class="auth-bg d-flex min-vh-100 justify-content-center align-items-center">
-        <div class="row g-0 justify-content-center w-100 m-xxl-5 px-xxl-4 m-3">
-            <div class="col-xl-4 col-lg-5 col-md-6">
-                <div class="card overflow-hidden text-center h-100 p-xxl-4 p-3 mb-0">
-
-                    <h3 class="fw-semibold mb-2"> ورود به سامانه انتخابات</h3>
-
-                    <p class="text-muted mb-4">خوش آمدید</p>
-
-                    <form action="{{ route('login') }}" method="post" class="text-start mb-3">
-                        @csrf
-                        <div class="mb-3">
-                            <label class="form-label" for="identifier">شناسه کاربری</label>
-                            <input type="text" id="identifier" name="identifier" value="{{ old('identifier') }}" class="form-control" placeholder="شناسه کاربری">
-                            <span id="identitifier-error" class="text-danger"></span>
-                            @error('identifier')
-                            <span class="text-danger font-weight-bold">{{ $message }}</span>
-                            @enderror
-                        </div>
-                        <input type="hidden" name="auth_type" value="{{ App\Enums\AuthType::PASSWORD->value }}">
-                        <div class="mb-3">
-                            <label class="form-label" for="password">کلمه عبور</label>
-                            <input type="password" id="password" name="password" class="form-control" placeholder="رمز ورود خود را وارد کنید">
-                            @error('password')
-                            <span class="text-danger font-weight-bold">{{ $message }}</span>
-                            @enderror
-                        </div>
-
-                        <div class="d-flex justify-content-between mb-3">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="checkbox-signin">
-                                <label class="form-check-label" name="remember" name="remember" @checked(old('remember')) for="checkbox-signin">من را به یاد بیاورید</label>
-                            </div>
-
-                            <a href="auth-recoverpw.html" class="text-muted border-bottom border-dashed">فراموشی رمز عبور</a>
-                        </div>
-
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-primary col-md-6" type="submit">ورود</button>
-                            <a href="" onclick="sendOtp(event)" class="btn btn-success col-md-6" type="submit">ورود با کد یکبار مصرف</a>
-                        </div>
-                    </form>
+                <div class="method-switch" role="group" aria-label="روش ورود">
+                    <button type="button" id="password-method" aria-pressed="true" data-mode="password">ورود با رمز عبور</button>
+                    <button type="button" id="otp-method" aria-pressed="false" data-mode="otp">کد یک‌بارمصرف</button>
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Vendor js -->
-    <script src="{{asset('assets/js/vendor.min.js')}}"></script>
+                <div id="feedback" class="feedback {{ $errors->any() ? 'is-error' : '' }}" role="status" aria-live="polite" tabindex="-1" @if(!$errors->any()) hidden @endif>
+                    {{ $errors->first() }}
+                </div>
 
-    <!-- App js -->
-    <script src="{{asset('assets/js/app.js')}}"></script>
-
-    <!-- Persian -> English digit conversion for all inputs -->
-    <script src="{{asset('assets/js/persian-numbers.js')}}"></script>
-
-    <script>
-        async function sendOtp(event) {
-            event.preventDefault();
-            const button = event.currentTarget;
-            if (button.dataset.pending) return;
-            const error = document.getElementById('identitifier-error');
-            error.textContent = '';
-            button.dataset.pending = '1';
-            button.classList.add('disabled');
-            try {
-                const response = await fetch(@json(route('otp.send')), {
-                    method: 'POST',
-                    body: JSON.stringify({identifier: document.getElementById('identifier').value}),
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    }
-                });
-                const data = await response.json().catch(() => ({}));
-                if (!response.ok) {
-                    throw new Error(data.message || 'ارسال کد انجام نشد. لطفاً دوباره تلاش کنید.');
-                }
-                localStorage.setItem('identifier', data.identifier);
-                localStorage.setItem('two_factor_type', data.two_factor_type);
-                window.location.href = @json(route('otp.form'));
-            } catch (failure) {
-                error.textContent = failure.message || 'ارتباط با سرور برقرار نشد.';
-            } finally {
-                delete button.dataset.pending;
-                button.classList.remove('disabled');
-            }
-        }
-    </script>
-
+                <form id="login-form" action="{{ route('login') }}" method="post"
+                    data-send-url="{{ route('otp.send') }}"
+                    data-initial-mode="{{ (int) old('auth_type', isset($otpPage) ? App\Enums\AuthType::OTP->value : App\Enums\AuthType::PASSWORD->value) === App\Enums\AuthType::OTP->value ? 'otp' : 'password' }}"
+                    data-code-step="{{ old('auth_type') == App\Enums\AuthType::OTP->value ? '1' : '0' }}"
+                    data-code-length="{{ config('auth.constants.code_length', 5) }}"
+                    data-resend-seconds="{{ config('auth.constants.new_sms_expire_minutes', 3) * 60 }}">
+                    @csrf
+                    <input type="hidden" id="auth-type" name="auth_type" value="{{ App\Enums\AuthType::PASSWORD->value }}">
+                    <div class="field" id="phone-field">
+                        <label for="identifier">شماره موبایل <span>نام کاربری شما</span></label>
+                        <input type="tel" id="identifier" name="identifier" value="{{ old('identifier') }}" placeholder="09xxxxxxxxx" autocomplete="username" inputmode="tel" dir="ltr" required aria-describedby="phone-help">
+                        <p class="field-help" id="phone-help">شماره موبایلی که با آن در سامانه ثبت شده‌اید.</p>
+                    </div>
+                    <div class="phone-summary" id="phone-summary" hidden>
+                        <div><small>شماره موبایل</small><b id="phone-display" dir="ltr"></b></div>
+                        <button type="button" id="edit-phone" class="text-button">ویرایش شماره</button>
+                    </div>
+                    <div class="field" id="password-field">
+                        <label for="password">رمز عبور</label>
+                        <div class="password-wrap">
+                            <input type="password" id="password" name="password" autocomplete="current-password" placeholder="رمز عبور خود را وارد کنید" required aria-describedby="password-help">
+                            <button type="button" id="toggle-password" aria-label="نمایش رمز عبور" aria-pressed="false">نمایش</button>
+                        </div>
+                        <p class="field-help" id="password-help">رمز پیش‌فرض: چهار رقم آخر کد ملی شما.</p>
+                    </div>
+                    <div class="otp-description" id="otp-description" hidden>کد تأیید برای شماره موبایل ثبت‌شده شما ارسال می‌شود؛ نیازی به وارد کردن رمز عبور ندارید.</div>
+                    <div class="field" id="code-field" hidden>
+                        <label for="otp" id="code-label">کد تأیید</label>
+                        <input type="text" id="otp" name="otp" class="code-input" inputmode="numeric" autocomplete="one-time-code" dir="ltr" aria-describedby="code-help" disabled>
+                        <p class="field-help" id="code-help"></p>
+                        <div class="resend-row" id="resend-row">
+                            <span id="countdown"></span>
+                            <button type="button" class="text-button" id="resend-code">ارسال مجدد کد</button>
+                        </div>
+                    </div>
+                    <label class="remember"><input type="checkbox" name="remember" value="1" @checked(old('remember'))><span>مرا به خاطر بسپار</span></label>
+                    <button class="primary-button" type="submit" id="submit-button"><span id="submit-label">ورود به سامانه</span><span class="button-arrow" aria-hidden="true">←</span><span class="spinner" aria-hidden="true" hidden></span></button>
+                    <p class="alternative" id="password-alternative">رمز عبور را ندارید؟ <button type="button" class="text-button" id="use-otp">با کد یک‌بارمصرف وارد شوید</button></p>
+                    <noscript><p class="field-help">برای دریافت کد یک‌بارمصرف، جاوااسکریپت مرورگر را فعال کنید. ورود با رمز عبور در دسترس است.</p></noscript>
+                </form>            </div>
+        </section>
+    </main>
 </body>
-
 </html>

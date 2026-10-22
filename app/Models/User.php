@@ -145,16 +145,17 @@ class User extends Authenticatable
         parent::boot();
 
         static::creating(function ($user) {
-            // If nationalcode is provided and password is not set, use nationalcode as password
-            if (! empty($user->nationalcode) && empty($user->password)) {
-                $user->password = bcrypt(substr($user->phone, -4));
+            // Derive the default password from the national code, preserving leading zeros.
+            if (preg_match('/^[0-9]{4,10}$/', ed($user->nationalcode ?? '')) && empty($user->password)) {
+                $user->password = bcrypt(substr(ed($user->nationalcode), -4));
             }
         });
 
         static::updating(function ($user) {
-            // If nationalcode is updated and password is not explicitly set, update password
-            if ($user->isDirty('nationalcode') && empty($user->getOriginal('password'))) {
-                $user->password = bcrypt(substr($user->phone, -4));
+            // Keep default credentials in sync unless a password is explicitly supplied.
+            if (preg_match('/^[0-9]{4,10}$/', ed($user->nationalcode ?? '')) && ! $user->isDirty('password')
+                && ($user->isDirty('nationalcode') || empty($user->getOriginal('password')))) {
+                $user->password = bcrypt(substr(ed($user->nationalcode), -4));
             }
         });
     }

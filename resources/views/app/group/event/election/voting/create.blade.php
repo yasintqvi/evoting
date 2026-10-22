@@ -905,6 +905,26 @@
                     </div>
                 </div>
 
+                <div class="modal fade" id="remainingVotesModal" tabindex="-1"
+                    aria-labelledby="remainingVotesModalLabel" aria-describedby="remainingVotesMessage" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="remainingVotesModalLabel">هنوز رأی استفاده‌نشده دارید</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p id="remainingVotesMessage"></p>
+                                <p class="mb-0 text-muted">آیا مطمئنید رأی شما با همین انتخاب‌ها ثبت شود؟ پس از ثبت، امکان ویرایش یا استفاده از رأی باقی‌مانده وجود ندارد.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">بازگشت و تکمیل رأی</button>
+                                <button type="button" class="btn btn-success" id="confirmRemainingVotesBtn">بله، رأی من ثبت شود</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {{-- مودال نمایش نتیجه رای‌گیری --}}
                 @if (session('vote_summary'))
                     @php
@@ -1097,6 +1117,9 @@
             }
 
             const previewModal = new bootstrap.Modal(previewModalEl);
+            const remainingModal = new bootstrap.Modal(document.getElementById('remainingVotesModal'));
+            const confirmRemainingBtn = document.getElementById('confirmRemainingVotesBtn');
+            let submitting = false;
 
             const totalCandidates =
                 {{ $election->candidates()->where('candidate_type', App\Enums\CandidateType::DIRECTOR)->count() }};
@@ -1160,6 +1183,8 @@
                         remEl.classList.add('text-info');
                     }
                 @endif
+
+                return { votedCount, remainingVotes };
             }
 
             const maxDirectorCandidatesForArticle88 = Number(
@@ -1248,12 +1273,38 @@
 
             confirmBtn.addEventListener('click', function(e) {
                 e.preventDefault();
+                if (submitting) return;
 
-                console.log('Submitting form to:', form.action);
+                const { votedCount, remainingVotes } = calculateVotePreview();
+                const selectionCap = maxDirectorCandidatesForArticle88 > 0
+                    ? Math.min(totalCandidates, maxDirectorCandidatesForArticle88) : totalCandidates;
+                const remaining = isArticle88 ? remainingVotes : selectionCap - votedCount;
 
+                if (remaining > 0) {
+                    document.getElementById('remainingVotesMessage').textContent = isArticle88
+                        ? `هنوز ${remaining.toLocaleString('fa-IR')} رأی از سهم رأی شما باقی مانده است.`
+                        : `هنوز می‌توانید به ${remaining.toLocaleString('fa-IR')} نامزد دیگر رأی بدهید.`;
+                    previewModalEl.addEventListener('hidden.bs.modal', () => remainingModal.show(), { once: true });
+                    previewModal.hide();
+                    return;
+                }
+
+                submitVote();
+            });
+
+            function submitVote() {
+                if (submitting) return;
+                submitting = true;
+                confirmBtn.disabled = true;
+                confirmRemainingBtn.disabled = true;
                 previewModal.hide();
-
                 form.submit();
+            }
+
+            confirmRemainingBtn.addEventListener('click', submitVote);
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (!submitting) openVotePreview();
             });
 
         });

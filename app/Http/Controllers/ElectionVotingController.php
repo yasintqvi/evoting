@@ -241,10 +241,6 @@ class ElectionVotingController extends Controller
                     continue;
                 }
 
-                if ($hiddenPastElectionIds->contains((int) $election->id)) {
-                    continue;
-                }
-
                 if ($statusFilter) {
                     if ($statusFilter === 'completed' && $election->status !== ElectionStatus::COMPLETED) {
                         continue;
@@ -300,9 +296,14 @@ class ElectionVotingController extends Controller
             return $item['election']->created_at;
         })->values();
 
+        [$archivedElections, $unavailableElections] = $unavailableElections->partition(
+            fn ($item) => $hiddenPastElectionIds->contains((int) $item['election']->id)
+        );
+
         return view('app.elections.my-elections', [
             'availableElections' => $availableElections,
             'unavailableElections' => $unavailableElections,
+            'archivedElections' => $archivedElections,
             'title' => 'انتخابات من',
         ]);
     }
@@ -805,7 +806,7 @@ class ElectionVotingController extends Controller
         if (!$election->isFinished()) {
             return redirect()
                 ->route('my-elections.index')
-                ->with('error', 'فقط انتخابات پایان‌یافته را می‌توانید از لیست خود حذف کنید.');
+                ->with('error', 'فقط انتخابات پایان‌یافته را می‌توانید به آرشیو منتقل کنید.');
         }
 
         $user = User::query()->findOrFail(auth()->id());
@@ -835,8 +836,8 @@ class ElectionVotingController extends Controller
         $user->save();
 
         return redirect()
-            ->route('my-elections.index')
-            ->with('success', 'انتخابات از لیست شما حذف شد.');
+            ->route('my-elections.index', ['tab' => 'archive'])
+            ->with('success', 'انتخابات به آرشیو منتقل شد.');
     }
 
     public function terminate(Request $request, Group $group, Election $election)

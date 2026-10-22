@@ -135,7 +135,6 @@ class ElectionCandidateController extends Controller
             [
                 'first_name' => $validated['first_name'],
                 'last_name' => $validated['last_name'],
-                'password' => bcrypt(substr($validated['phone'], -4)),
             ]
         );
 

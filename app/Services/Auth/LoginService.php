@@ -54,7 +54,9 @@ class LoginService
             throw new InvalidOtpCodeException;
         }
 
-        Auth::login($user);
+        Auth::login($user, $loginDTO->remember);
+
+        return true;
     }
 
     protected function checkUserStatus(User $user)

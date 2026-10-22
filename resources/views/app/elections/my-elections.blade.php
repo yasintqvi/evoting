@@ -203,6 +203,7 @@
         <div class="collapse @if (request()->hasAny(['status', 'start_date', 'end_date'])) show @endif" id="electionFilters">
             <div class="card-body pt-3 pb-3">
                 <form method="GET" action="{{ route('my-elections.index') }}" id="filterForm">
+                    <input type="hidden" name="tab" id="elections-tab-input" value="{{ request('tab', 'home') }}">
                     <div class="row g-3">
                         <div class="col-12 col-sm-6 col-lg-4">
                             <label class="form-label mb-1">وضعیت</label>
@@ -258,6 +259,13 @@
                 <span class="d-md-none">گذشته</span>
                 <span class="d-none d-md-inline">انتخابات گذشته</span>
                 <span class="badge bg-success ms-1">{{ $unavailableElections->count() }}</span>
+            </a>
+        </li>
+        <li class="nav-item flex-fill" role="presentation">
+            <a href="#archive" data-bs-toggle="tab" aria-expanded="false" class="nav-link text-center"
+                aria-selected="false" tabindex="-1" role="tab">
+                آرشیو
+                <span class="badge bg-secondary ms-1">{{ $archivedElections->count() }}</span>
             </a>
         </li>
     </ul>
@@ -464,10 +472,11 @@
         </div>
 
 
-        <div class="tab-pane mb-4" id="profile" role="tabpanel">
-            @if ($unavailableElections->count() > 0)
+        @foreach (['profile' => $unavailableElections, 'archive' => $archivedElections] as $pastTab => $pastElections)
+        <div class="tab-pane mb-4" id="{{ $pastTab }}" role="tabpanel">
+            @if ($pastElections->count() > 0)
                 <div class="row g-3">
-                    @foreach ($unavailableElections as $item)
+                    @foreach ($pastElections as $item)
                         @php
                             $election = $item['election'];
                             $event = $item['event'];
@@ -486,13 +495,13 @@
                                         </div>
                                         <div class="d-flex align-items-center gap-2 flex-shrink-0">
                                             <span class="badge badge-soft-info">{{ $item['status_text'] ?? $item['election']->status->toFa() }}</span>
-                                            @if ($election->isFinished())
+                                            @if ($pastTab !== 'archive' && $election->isFinished())
                                                 <form action="{{ route('my-elections.destroy', $election) }}"
                                                     method="POST" class="mb-0"
-                                                    onsubmit="return confirm('آیا مطمئن هستید که می‌خواهید این انتخابات را از لیست خود حذف کنید؟')">
+                                                    onsubmit="return confirm('این انتخابات از لیست گذشته به آرشیو منتقل شود؟')">
                                                     @csrf
                                                     <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                        حذف
+                                                        انتقال به آرشیو
                                                     </button>
                                                 </form>
                                             @endif
@@ -501,9 +510,12 @@
                                 </div>
                                 <div class="card-body">
                                     @php
-                                        $participantVotes = $participant->votes;
-                                        $votedCount = $participantVotes
-                                            ->filter(fn ($vote) => $vote->candidate_id && $vote->vote_count > 0)
+                                        $participantVotes = $participant->votes
+                                            ->where('election_id', $election->id)
+                                            ->filter(fn ($vote) => $vote->candidate_id && $vote->vote_count > 0);
+                                        $votedCandidateIds = $participantVotes->pluck('candidate_id');
+                                        $votedCount = $election->candidates
+                                            ->whereIn('id', $votedCandidateIds)
                                             ->count();
                                     @endphp
                                     <div class="my-election-card__details">
@@ -570,7 +582,7 @@
                                 </svg>
                                 <h5 class="text-muted mb-2">هیچ انتخاباتی یافت نشد</h5>
                                 <p class="text-muted mb-0 fs-14">
-                                    هیچ مشارکتی از سمت شما تاکنون صورت نگرفته است.
+                                    {{ $pastTab === 'archive' ? 'هنوز انتخاباتی به آرشیو منتقل نکرده‌اید یا موردی با فیلترهای فعلی وجود ندارد.' : 'هیچ انتخاباتی با فیلترهای فعلی در بخش گذشته وجود ندارد.' }}
                                 </p>
                             </div>
                         </div>
@@ -578,6 +590,7 @@
                 </div>
             @endif
         </div>
+        @endforeach
     </div>
     </div>
 @endsection
@@ -585,21 +598,20 @@
 @section('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Auto-switch tab based on status filter
-            const status = '{{ request('status') }}';
-            if (status && status !== 'ongoing') {
-                const profileTab = document.querySelector('a[href="#profile"]');
-                const homeTab = document.querySelector('a[href="#home"]');
-                const profilePane = document.getElementById('profile');
-                const homePane = document.getElementById('home');
-                if (profileTab && homeTab && profilePane && homePane) {
-                    homeTab.classList.remove('active');
-                    homeTab.setAttribute('aria-selected', 'false');
-                    homePane.classList.remove('show', 'active');
-                    profileTab.classList.add('active');
-                    profileTab.setAttribute('aria-selected', 'true');
-                    profilePane.classList.add('show', 'active');
-                }
+            const status = @json(request('status'));
+            const requestedTab = @json(request('tab'));
+            const selectedTab = requestedTab === 'archive' ? 'archive'
+                : (status && status !== 'ongoing') || requestedTab === 'profile' ? 'profile' : 'home';
+            const tabInput = document.getElementById('elections-tab-input');
+            document.querySelectorAll('.my-elections-tabs a[data-bs-toggle="tab"]').forEach(link => {
+                link.addEventListener('shown.bs.tab', () => {
+                    tabInput.value = link.getAttribute('href').slice(1);
+                });
+            });
+            const selectedLink = document.querySelector(`.my-elections-tabs a[href="#${selectedTab}"]`);
+            if (selectedLink) {
+                bootstrap.Tab.getOrCreateInstance(selectedLink).show();
+                tabInput.value = selectedTab;
             }
 
             // Datepicker

@@ -72,7 +72,6 @@ class MiladHospitalGroupSeeder extends Seeder
                     'first_name' => $member['first_name'],
                     'last_name' => $member['last_name'],
                     'nationalcode' => $nationalcode,
-                    'password' => bcrypt(substr($member['phone'], -4)),
                 ]
             );
 

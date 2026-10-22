@@ -323,10 +323,19 @@
         }
 
         .proj-people-panel h2 {
-            margin: 0 0 0.6rem;
+            margin: 0;
             font-size: 0.9rem;
             font-weight: 800;
             color: #0f172a;
+        }
+
+        .proj-people-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-bottom: 0.6rem;
         }
 
         .proj-people {
@@ -458,7 +467,16 @@
         </div>
 
         <div class="proj-people-panel">
-            <h2>لیست حاضرین و غایبین</h2>
+            <div class="proj-people-head">
+                <h2>لیست حاضرین و غایبین</h2>
+                <div class="proj-filter">
+                    <label for="attendees-sort">مرتب‌سازی</label>
+                    <select id="attendees-sort">
+                        <option value="presence">وضعیت حضور (حاضرین ابتدا)</option>
+                        <option value="alphabetical">حروف الفبا</option>
+                    </select>
+                </div>
+            </div>
             <div class="proj-people" id="attendees-list">
                 <div class="proj-empty" style="grid-column:1/-1;padding:0.85rem;">در حال بارگذاری...</div>
             </div>
@@ -500,11 +518,43 @@
             const presentEl = document.getElementById('present-count');
             const absentEl = document.getElementById('absent-count');
             const peopleEl = document.getElementById('attendees-list');
+            const peopleSortEl = document.getElementById('attendees-sort');
             const tbodyEl = document.getElementById('elections-tbody');
             const filterEl = document.getElementById('election-filter');
             const eventSlug = @json($event->slug);
 
             let electionsCache = { ongoing: [], waiting: [] };
+            let attendeesCache = [];
+            const nameCollator = new Intl.Collator('fa', { sensitivity: 'base' });
+            const normalizedName = name => String(name ?? '').replace(/ي/g, 'ی').replace(/ك/g, 'ک').trim();
+
+            function renderAttendees() {
+                if (!attendeesCache.length) {
+                    peopleEl.innerHTML = '<div class="proj-empty" style="grid-column:1/-1;padding:0.85rem;">شرکت‌کننده‌ای ثبت نشده است</div>';
+                    return;
+                }
+
+                const attendees = [...attendeesCache].sort((a, b) => {
+                    if (peopleSortEl.value === 'presence') {
+                        const presenceOrder = Number(b.is_present) - Number(a.is_present);
+                        if (presenceOrder) return presenceOrder;
+                    }
+                    return nameCollator.compare(normalizedName(a.name), normalizedName(b.name));
+                });
+
+                peopleEl.replaceChildren(...attendees.map(a => {
+                    const person = document.createElement('div');
+                    person.className = `proj-person ${a.is_present ? 'on' : 'off'}`;
+                    const name = document.createElement('span');
+                    name.className = 'name';
+                    name.textContent = a.name;
+                    const tag = document.createElement('span');
+                    tag.className = 'tag';
+                    tag.textContent = a.is_present ? 'حاضر' : 'غایب';
+                    person.append(name, tag);
+                    return person;
+                }));
+            }
 
             function renderElections() {
                 const filter = filterEl.value;
@@ -562,17 +612,8 @@
                         chart.data.datasets[0].data = [data.present, data.absent];
                         chart.update('none');
 
-                        if (!data.attendees || !data.attendees.length) {
-                            peopleEl.innerHTML = '<div class="proj-empty" style="grid-column:1/-1;padding:0.85rem;">شرکت‌کننده‌ای ثبت نشده است</div>';
-                            return;
-                        }
-
-                        peopleEl.innerHTML = data.attendees.map(a => `
-                            <div class="proj-person ${a.is_present ? 'on' : 'off'}">
-                                <span class="name">${a.name}</span>
-                                <span class="tag">${a.is_present ? 'حاضر' : 'غایب'}</span>
-                            </div>
-                        `).join('');
+                        attendeesCache = data.attendees || [];
+                        renderAttendees();
                     })
                     .catch(error => {
                         document.getElementById('quorum-update').textContent = 'به‌روزرسانی انجام نشد؛ وضعیت نمایش‌داده‌شده مربوط به آخرین اطلاعات دریافتی است.';
@@ -594,6 +635,7 @@
             }
 
             filterEl.addEventListener('change', renderElections);
+            peopleSortEl.addEventListener('change', renderAttendees);
 
             fetchAttendance();
             fetchElections();
