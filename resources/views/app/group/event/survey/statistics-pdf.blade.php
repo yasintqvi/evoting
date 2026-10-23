@@ -77,12 +77,20 @@
             height: 10px;
             background: #e9ecef;
             border-radius: 2px;
-            overflow: hidden;
+            border-collapse: collapse;
         }
 
-        .bar {
+        .bar-wrap td {
             height: 10px;
+            padding: 0;
+        }
+
+        .bar-wrap .bar {
             background: #0d6efd;
+        }
+
+        .bar-wrap .bar-empty {
+            background: transparent;
         }
 
         .footer {
@@ -140,9 +148,13 @@
                         <td class="text-center">{{ number_format((float) $count, $isWeighted ? 2 : 0) }}</td>
                         <td class="text-center">{{ number_format($pct, 1) }}٪</td>
                         <td>
-                            <div class="bar-wrap">
-                                <div class="bar" style="width: {{ min(100, max(0, $pct)) }}%;"></div>
-                            </div>
+                            @php $barPct = (int) round(min(100, max(0, $pct))); @endphp
+                            <table class="bar-wrap">
+                                <tr>
+                                    <td class="bar" width="{{ $barPct }}%"></td>
+                                    <td class="bar-empty" width="{{ 100 - $barPct }}%"></td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
                 @endforeach

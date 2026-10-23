@@ -288,7 +288,8 @@
     @endphp
     <div class="page-title-head d-flex align-items-sm-center flex-sm-row flex-column gap-2 mb-3">
         <div class="flex-grow-1">
-            <h4 class="fs-18 fw-semibold mb-0">انتخابات {{ $election->title }}</h4>
+            <h4 class="fs-18 fw-semibold mb-0">{{ $election->title }}</h4>
+            <span class="badge badge-soft-info mt-1">{{ $election->type->toFa() }}</span>
         </div>
 
         <div class="text-end">
@@ -757,17 +758,17 @@
                                                     <div class="mt-2">
 
 
-                                                        <input type="number"
+                                                        <input type="text"
                                                             name="director_candidates[{{ $candidate->id }}]"
                                                             id="director-candidate-input-{{ $candidate->id }}"
                                                             class="form-control article88-vote-input candidate-vote-input"
-                                                            min="0" step="any" inputmode="decimal" lang="en"
+                                                            inputmode="numeric" autocomplete="off" lang="en"
                                                             data-candidate-id="{{ $candidate->id }}"
                                                             data-max-hint-for="article88-max-hint-{{ $candidate->id }}"
                                                             max="{{ $article88VotePool }}" value="0"
                                                             onfocus="if (this.value === '0') { this.value = ''; }"
-                                                            onblur="if (this.value === '') { this.value = '0'; updateVoteValue('director-candidate-input-{{ $candidate->id }}', 'director-candidate-value-{{ $candidate->id }}'); updateArticle88Totals(); updateCandidateVoteCard({{ $candidate->id }}); }"
-                                                            oninput="updateVoteValue('director-candidate-input-{{ $candidate->id }}', 'director-candidate-value-{{ $candidate->id }}'); updateArticle88Totals(); updateCandidateVoteCard({{ $candidate->id }});">
+                                                            onblur="if (this.value === '') { this.value = '0'; } formatArticle88Input(this); updateVoteValue('director-candidate-input-{{ $candidate->id }}', 'director-candidate-value-{{ $candidate->id }}'); updateArticle88Totals(); updateCandidateVoteCard({{ $candidate->id }});"
+                                                            oninput="formatArticle88Input(this); updateVoteValue('director-candidate-input-{{ $candidate->id }}', 'director-candidate-value-{{ $candidate->id }}'); updateArticle88Totals(); updateCandidateVoteCard({{ $candidate->id }});">
 
                                                         <div class="d-flex justify-content-center mt-1">
                                                             <h4 id="director-candidate-value-{{ $candidate->id }}">0</h4>
@@ -873,8 +874,8 @@
 
                                 <div id="abstain-preview-alert" class="alert alert-secondary py-2 px-3 small mb-3 d-none">
                                     <strong>شرکت بدون رأی:</strong>
-                                    هیچ کاندیدایی انتخاب نشده. با تأیید، فقط حضور شما ثبت می‌شود و رأیی داده نمی‌شود.
-                                    <span class="d-none d-md-inline">این عمل قابل ویرایش نیست.</span>
+                                    هیچ کاندیدایی انتخاب نشده. در صورت تایید، صرفا حضور شما ثبت می‌شود و هیچ رأیی ثبت نمیگردد.
+                                    {{-- <span class="d-none d-md-inline">این عمل قابل ویرایش نیست.</span> --}}
                                 </div>
 
                                 @if ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
@@ -885,7 +886,7 @@
                                 @elseif ($election->type == App\Enums\ElectionType::PRIVATE_JOINT)
                                     <div class="alert alert-info small py-2 px-3 mb-3 d-none d-md-block">
                                         <strong>توضیح:</strong>
-                                        با انتخاب هر کاندید، همان کل سهم شما برای او ثبت می‌شود.
+                                        با انتخاب هر کاندیدا، کل سهم شما برای او ثبت می‌شود.
                                     </div>
                                 @endif
 
@@ -1061,6 +1062,19 @@
             s = s.replace(/[^\d.\-]/g, '');
             var n = parseFloat(s);
             return isNaN(n) ? 0 : n;
+        }
+
+        function formatArticle88Input(inputEl) {
+            if (!inputEl) {
+                return;
+            }
+            var digits = String(inputEl.value || '').replace(/[^\d]/g, '');
+            digits = digits.replace(/^0+(?=\d)/, '');
+            if (!digits) {
+                inputEl.value = '';
+                return;
+            }
+            inputEl.value = digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         }
 
         function updateArticle88Totals() {

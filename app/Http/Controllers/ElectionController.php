@@ -579,7 +579,11 @@ class ElectionController extends Controller
         // نمایش عادی در مرورگر
         $election->loadMissing('parentElection');
         $tieBreak = $this->runoffService->analyzeTieBreak($election);
-        $existingRunoff = $election->isRunoff() ? null : $this->runoffService->existingRunoff($election);
+        $existingRunoff = $this->runoffService->existingRunoff($election);
+
+        $participants = $event->participants()
+            ->with(['user', 'attorney.user'])
+            ->get();
 
         return view('app.group.event.election.report', compact(
             'group',
@@ -590,7 +594,8 @@ class ElectionController extends Controller
             'totalCandidates',
             'totalVotes',
             'tieBreak',
-            'existingRunoff'
+            'existingRunoff',
+            'participants'
         ));
     }
 

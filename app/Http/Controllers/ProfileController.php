@@ -9,6 +9,7 @@ use App\Services\Image\ImageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 use Log;
 use PragmaRX\Google2FAQRCode\Google2FA;
@@ -68,6 +69,8 @@ class ProfileController extends Controller
                     'current_password' => __('messages.current_password_invalid'),
                 ]);
             }
+
+            user()->update(['password' => Hash::make($request->validated('password'))]);
 
             return back()->with('password_changed', __('messages.password_changed'));
         } catch (\Throwable $th) {

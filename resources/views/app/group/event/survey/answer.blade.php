@@ -88,7 +88,7 @@
                         <div class="alert alert-info d-flex align-items-center gap-2 mb-3">
                             <i class="ti ti-chart-bar fs-18"></i>
                             <div>
-                                <strong>سهام شما در این رویداد (سهامی خاص):</strong>
+                                <strong>سهام شما در این رویداد :</strong>
                                 عادی: {{ $normal }} | ممتاز: {{ $prefered }} | کل: {{ $effective }}
                             </div>
                         </div>

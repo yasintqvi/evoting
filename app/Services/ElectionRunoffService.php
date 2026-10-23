@@ -124,12 +124,22 @@ class ElectionRunoffService
     /**
      * ایجاد انتخابات دور دوم فقط با کاندیداهای دارای رأی مساوی.
      */
-    public function createRunoff(Election $parent, ?User $owner = null): Election
+    /**
+     * شماره دور فعلی (۱ برای انتخابات اصلی، ۲ برای دور دوم و...).
+     */
+    public function roundNumber(Election $election): int
     {
-        if ($parent->parent_election_id) {
-            throw new Exception('برای انتخابات دور دوم نمی‌توان دوباره دور دوم ساخت.');
+        $round = 1;
+        while ($election->parent_election_id) {
+            $round++;
+            $election = $election->parentElection;
         }
 
+        return $round;
+    }
+
+    public function createRunoff(Election $parent, ?User $owner = null): Election
+    {
         if ($parent->status !== ElectionStatus::COMPLETED) {
             throw new Exception('فقط پس از پایان انتخابات اصلی می‌توان دور دوم را ایجاد کرد.');
         }
@@ -154,7 +164,16 @@ class ElectionRunoffService
                 $contestedSub = 0;
             }
 
-            $title = 'دور دوم — '.$parent->title.' (تعیین اصلی و علی‌البدل)';
+            $roundNumber = $this->roundNumber($parent) + 1;
+            $roundLabels = [2 => 'دوم', 3 => 'سوم', 4 => 'چهارم', 5 => 'پنجم', 6 => 'ششم', 7 => 'هفتم', 8 => 'هشتم', 9 => 'نهم', 10 => 'دهم'];
+            $roundLabel = $roundLabels[$roundNumber] ?? "{$roundNumber}ام";
+
+            $rootElection = $parent;
+            while ($rootElection->parent_election_id) {
+                $rootElection = $rootElection->parentElection;
+            }
+
+            $title = "دور {$roundLabel} — {$rootElection->title} (تعیین اصلی و علی‌البدل)";
 
             $runoff = Election::create([
                 'event_id' => $parent->event_id,

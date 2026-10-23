@@ -113,6 +113,13 @@
                                             <span class="menu-text">انتخابات</span>
                                         </a>
                                     </li>
+                                    @if ($group->type === \App\Enums\GroupType::SPECIAL)
+                                    <li class="side-nav-item">
+                                        <a href="{{ route('my-elections.index', ['tab' => 'archive']) }}" target="_blank" class="side-nav-link">
+                                            <span class="menu-text">آرشیو انتخابات سهام‌داران</span>
+                                        </a>
+                                    </li>
+                                    @endif
                                     <li class="side-nav-item">
                                         <a href="{{ route('surveys.index', [$group, $event]) }}" class="side-nav-link">
                                             <span class="menu-text">نظرسنجی‌ها</span>

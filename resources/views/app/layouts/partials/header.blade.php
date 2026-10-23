@@ -86,135 +86,22 @@
 
                         <div class="position-relative z-2 card shadow-none rounded-0" style="max-height: 300px;"
                             data-simplebar>
-                            <!-- item-->
-                            <div class="dropdown-item notification-item py-2 text-wrap active" id="notification-1">
-                                <span class="d-flex align-items-center">
-                                    <span class="me-3 position-relative flex-shrink-0">
-                                        <img src="assets/images/users/avatar-2.jpg" class="avatar-md rounded-circle"
-                                            alt="" />
-                                        <span class="position-absolute rounded-pill bg-danger notification-badge">
-                                            <i class="ti ti-message-circle"></i>
-                                            <span class="visually-hidden">پیام های خوانده نشده</span>
+                            @forelse (user()->notifications->take(10) as $notification)
+                                <div class="dropdown-item notification-item py-2 text-wrap {{ empty($notification->read_at) ? 'active' : '' }}"
+                                    id="notification-{{ $notification->id }}">
+                                    <span class="d-flex align-items-center">
+                                        <span class="flex-grow-1 text-muted">
+                                            {{ $notification->data['message'] ?? '' }}
+                                            <br />
+                                            <span class="fs-12">{{ $notification->created_at->diffForHumans() }}</span>
                                         </span>
                                     </span>
-                                    <span class="flex-grow-1 text-muted">
-                                        <span class="fw-medium text-body"> گلدی هیاد </span>نظر داد روی<span
-                                            class="fw-medium text-body"> تغییر ادمین </span>
-                                        <br />
-                                        <span class="fs-12">25 دقیقه قبل</span>
-                                    </span>
-                                    <span class="notification-item-close">
-                                        <button type="button" class="btn btn-ghost-danger rounded-circle btn-sm btn-icon"
-                                            data-dismissible="#notification-1">
-                                            <i class="ti ti-x fs-16"></i>
-                                        </button>
-                                    </span>
-                                </span>
-                            </div>
-
-                            <!-- item-->
-                            <div class="dropdown-item notification-item py-2 text-wrap" id="notification-2">
-                                <span class="d-flex align-items-center">
-                                    <span class="me-3 position-relative flex-shrink-0">
-                                        <img src="assets/images/users/avatar-4.jpg" class="avatar-md rounded-circle"
-                                            alt="" />
-                                        <span class="position-absolute rounded-pill bg-info notification-badge">
-                                            <i class="ti ti-currency-dollar"></i>
-                                            <span class="visually-hidden">پیام های خوانده نشده</span>
-                                        </span>
-                                    </span>
-                                    <span class="flex-grow-1 text-muted">
-                                        <span class="fw-medium text-body"> تامی بری </span>اهدا کرد<span
-                                            class="text-success">1000 تومان</span> برای <span class="fw-medium text-body">
-                                            برنامه حذف کربن</span>
-                                        <br />
-                                        <span class="fs-12">58 دقیقه قبل</span>
-                                    </span>
-                                    <span class="notification-item-close">
-                                        <button type="button" class="btn btn-ghost-danger rounded-circle btn-sm btn-icon"
-                                            data-dismissible="#notification-2">
-                                            <i class="ti ti-x fs-16"></i>
-                                        </button>
-                                    </span>
-                                </span>
-                            </div>
-
-                            <!-- item-->
-                            <div class="dropdown-item notification-item py-2 text-wrap" id="notification-3">
-                                <span class="d-flex align-items-center">
-                                    <div class="avatar-md flex-shrink-0 me-3">
-                                        <span class="avatar-title bg-success-subtle text-success rounded-circle fs-22">
-                                            <iconify-icon icon="solar:wallet-money-bold-duotone"></iconify-icon>
-                                        </span>
-                                    </div>
-                                    <span class="flex-grow-1 text-muted">
-                                        شما انتقال دادید <span class="fw-medium text-body">500 تومان</span> توسط <span
-                                            class="fw-medium text-body"> ای تی ام </span>
-                                        <br />
-                                        <span class="fs-12">2 ساعت قبل</span>
-                                    </span>
-                                    <span class="notification-item-close">
-                                        <button type="button" class="btn btn-ghost-danger rounded-circle btn-sm btn-icon"
-                                            data-dismissible="#notification-3">
-                                            <i class="ti ti-x fs-16"></i>
-                                        </button>
-                                    </span>
-                                </span>
-                            </div>
-
-                            <!-- item-->
-                            <div class="dropdown-item notification-item py-2 text-wrap" id="notification-4">
-                                <span class="d-flex align-items-center">
-                                    <span class="me-3 position-relative flex-shrink-0">
-                                        <img src="assets/images/users/avatar-7.jpg" class="avatar-md rounded-circle"
-                                            alt="" />
-                                        <span class="position-absolute rounded-pill bg-secondary notification-badge">
-                                            <i class="ti ti-plus"></i>
-                                            <span class="visually-hidden">پیام های خوانده نشده</span>
-                                        </span>
-                                    </span>
-                                    <span class="flex-grow-1 text-muted">
-                                        <span class="fw-medium text-body"> ریچارد الن </span>شما را دنبال کرد در<span
-                                            class="fw-medium text-body">فیسبوک</span>
-                                        <br />
-                                        <span class="fs-12">3 ساعت قبل</span>
-                                    </span>
-                                    <span class="notification-item-close">
-                                        <button type="button" class="btn btn-ghost-danger rounded-circle btn-sm btn-icon"
-                                            data-dismissible="#notification-4">
-                                            <i class="ti ti-x fs-16"></i>
-                                        </button>
-                                    </span>
-                                </span>
-                            </div>
-
-                            <!-- item-->
-                            <div class="dropdown-item notification-item py-2 text-wrap" id="notification-5">
-                                <span class="d-flex align-items-center">
-                                    <span class="me-3 position-relative flex-shrink-0">
-                                        <img src="assets/images/users/avatar-10.jpg" class="avatar-md rounded-circle"
-                                            alt="" />
-                                        <span class="position-absolute rounded-pill bg-danger notification-badge">
-                                            <i class="ti ti-heart-filled"></i>
-                                            <span class="visually-hidden">پیام های خوانده نشده</span>
-                                        </span>
-                                    </span>
-                                    <span class="flex-grow-1 text-muted">
-                                        <span class="fw-medium text-body">ویکتور کولیر</span> پست شما را لایک کرد در <span
-                                            class="fw-medium text-body">اینستاگرام</span>
-                                        <br />
-                                        <span class="fs-12">10 ساعت قبل</span>
-                                    </span>
-                                    <span class="notification-item-close">
-                                        <button type="button" class="btn btn-ghost-danger rounded-circle btn-sm btn-icon"
-                                            data-dismissible="#notification-5">
-                                            <i class="ti ti-x fs-16"></i>
-                                        </button>
-                                    </span>
-                                </span>
-                            </div>
+                                </div>
+                            @empty
+                            @endforelse
                         </div>
 
+                        @if (user()->notifications->isEmpty())
                         <div style="height: 300px;"
                             class="d-flex align-items-center justify-content-center text-center position-absolute top-0 bottom-0 start-0 end-0 z-1">
                             <div>
@@ -223,6 +110,7 @@
                                 <h4 class="fw-semibold mb-0 fst-italic lh-base mt-3">سلام! 👋 <br />اطلاعیه ای ندارید</h4>
                             </div>
                         </div>
+                        @endif
 
                         <!-- All-->
                         <a href="javascript:void(0);"

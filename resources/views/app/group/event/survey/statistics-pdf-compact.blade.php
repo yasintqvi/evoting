@@ -106,11 +106,20 @@
             height: 6px;
             background: #eee;
             border-radius: 2px;
+            border-collapse: collapse;
         }
 
-        .bar {
+        .bar-wrap td {
             height: 6px;
+            padding: 0;
+        }
+
+        .bar-wrap .bar {
             background: #0d6efd;
+        }
+
+        .bar-wrap .bar-empty {
+            background: transparent;
         }
 
         .footer {
@@ -162,10 +171,13 @@
                                         <tr>
                                             <td class="opt-label">{{ $label }}</td>
                                             <td class="opt-bar">
-                                                <div class="bar-wrap">
-                                                    <div class="bar" style="width: {{ min(100, max(0, $pct)) }}%;">
-                                                    </div>
-                                                </div>
+                                                @php $barPct = (int) round(min(100, max(0, $pct))); @endphp
+                                                <table class="bar-wrap">
+                                                    <tr>
+                                                        <td class="bar" width="{{ $barPct }}%"></td>
+                                                        <td class="bar-empty" width="{{ 100 - $barPct }}%"></td>
+                                                    </tr>
+                                                </table>
                                             </td>
                                             <td class="opt-value">
                                                 {{ number_format((float) $count, $isWeighted ? 1 : 0) }} ({{ number_format($pct, 1) }}٪)

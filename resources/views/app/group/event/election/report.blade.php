@@ -67,7 +67,7 @@
                             <div class="card border border-dashed bg-light">
                                 <div class="card-body text-center p-4">
                                     <h3 class="mb-1 text-success fw-bold">{{ $totalParticipants }}</h3>
-                                    <p class="mb-0 text-muted">تعداد مشارکت کنندگان</p>
+                                    <p class="mb-0 text-muted">تعداد شرکت کنندگان</p>
                                 </div>
                             </div>
                         </div>
@@ -120,7 +120,7 @@
 
     <div class="row mt-4">
         <div class="col-12">
-            @if (!empty($tieBreak['has_tie']) && ! $election->isRunoff())
+            @if (!empty($tieBreak['has_tie']))
                 <div class="alert alert-warning border-warning d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-3">
                     <div>
                         <h5 class="alert-heading mb-1">
@@ -228,26 +228,34 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    @php
+                                        $tiedCandidateIds = !empty($tieBreak['has_tie'])
+                                            ? $tieBreak['candidates']->pluck('id')->all()
+                                            : [];
+                                    @endphp
                                     @foreach ($candidateVotes as $index => $candidate)
                                         @php
+                                            $isTied = in_array($candidate->id, $tiedCandidateIds, true);
                                             $candidateType =
                                                 $index < $mainWinnersCount
                                                     ? 'main'
                                                     : ($index < $mainWinnersCount + $substituteWinnersCount
                                                         ? 'substitute'
                                                         : 'invalid');
-                                            $badgeClass =
-                                                $candidateType === 'main'
+                                            $badgeClass = $isTied
+                                                ? 'badge-soft-danger'
+                                                : ($candidateType === 'main'
                                                     ? 'badge-soft-success'
                                                     : ($candidateType === 'substitute'
                                                         ? 'badge-soft-warning'
-                                                        : 'badge-soft-secondary');
-                                            $statusLabel =
-                                                $candidateType === 'main'
+                                                        : 'badge-soft-secondary'));
+                                            $statusLabel = $isTied
+                                                ? 'عدم انتساب رأی (مساوی)'
+                                                : ($candidateType === 'main'
                                                     ? 'عضو اصلی'
                                                     : ($candidateType === 'substitute'
                                                         ? 'علی‌البدل'
-                                                        : '-');
+                                                        : '-'));
 
                                             $voteCount = (int) ($candidate->votes_sum_vote_count ?? 0);
                                         @endphp
@@ -295,6 +303,50 @@
                             </svg>
                             <p class="text-muted fs-16">هنوز نامزدی برای این انتخابات ثبت نشده است.</p>
                         </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header border-bottom border-dashed">
+                    <h4 class="card-title mb-0 d-flex align-items-center gap-2">
+                        مشارکت‌کنندگان
+                    </h4>
+                </div>
+                <div class="card-body">
+                    @if ($participants->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-nowrap mb-0">
+                                <thead class="bg-light-subtle">
+                                    <tr>
+                                        <th class="text-center" style="width: 50px;">ردیف</th>
+                                        <th>نام و نام خانوادگی</th>
+                                        <th>وکیل (رأی‌دهنده از طرف این سهام‌دار)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($participants as $index => $participant)
+                                        <tr>
+                                            <td class="text-center">{{ $index + 1 }}</td>
+                                            <td>{{ $participant->user?->full_name ?? '-' }}</td>
+                                            <td>
+                                                @if ($participant->attorney)
+                                                    {{ $participant->attorney->user?->full_name ?? '-' }}
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <p class="text-muted mb-0">شرکت‌کننده‌ای ثبت نشده است.</p>
                     @endif
                 </div>
             </div>

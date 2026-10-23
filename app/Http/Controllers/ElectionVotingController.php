@@ -676,6 +676,9 @@ class ElectionVotingController extends Controller
                     }
 
                     if ($election->type === ElectionType::PRIVATE_JOINT_WITH_88) {
+                        if (floor($voteValue) != $voteValue) {
+                            throw new Exception('تعداد رأی باید عددی صحیح باشد.');
+                        }
                         if ($article88MaxPool !== null && $voteValue > $article88MaxPool) {
                             throw new Exception("به هر نامزد حداکثر {$article88MaxPool} رأی می‌توانید اختصاص دهید.");
                         }
