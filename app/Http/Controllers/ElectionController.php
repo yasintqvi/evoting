@@ -735,6 +735,9 @@ class ElectionController extends Controller
             }
         }
 
+        // ردیف‌ها را به‌طور کامل قاطی می‌کنیم تا ردیف‌های مربوط به یک رأی‌دهنده کنار هم نباشند.
+        $voterRows = $voterRows->shuffle()->values();
+
         return view('app.group.event.election.detailed-report', compact(
             'group',
             'event',
