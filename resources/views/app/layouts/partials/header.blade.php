@@ -1,7 +1,7 @@
 <!-- Topbar Start -->
 <header class="app-topbar">
     <div class="page-container topbar-menu">
-        @if (request()->route('group'))
+        @if (request()->route('group') && !isVoterOnly())
         <!-- Brand Logo -->
         <div style="margin-top: 1rem;">
             <div class="btn-group mb-2">

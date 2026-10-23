@@ -494,15 +494,18 @@ class ElectionController extends Controller
 
         $totalVotes = $electionVotes->sum('vote_count');
 
-        $votedParticipantIds = $electionVotes->pluck('participant_id')->unique();
-        $votedAttendees = $event->participants()
-            ->whereIn('id', $votedParticipantIds)
-            ->whereNull('attorney_id')
-            ->pluck('id');
-        $representedByVoters = $event->participants()
-            ->whereIn('attorney_id', $votedParticipantIds)
+        $hiddenUserIds = $group->managerOnlyUserIds();
+        $presentParticipants = $event->participants()
+            ->where('is_present', true)
+            ->whereNotIn('user_id', $hiddenUserIds)
+            ->get();
+
+        $presentVoterIds = $presentParticipants->whereNull('attorney_id')->pluck('id');
+        $representedByPresentVoters = $presentParticipants
+            ->whereNotNull('attorney_id')
+            ->whereIn('attorney_id', $presentVoterIds)
             ->count();
-        $totalParticipants = $votedAttendees->count() + $representedByVoters;
+        $totalParticipants = $presentVoterIds->count() + $representedByPresentVoters;
 
         $totalCandidates = $candidateVotes->count();
 
@@ -659,6 +662,11 @@ class ElectionController extends Controller
         return $pdf->download('attendance-report-' . $election->id . '.pdf');
     }
 
+    /**
+     * مبنای تقسیم سهام؛ هر مبلغ این پلکان، یک ردیف جدا در گزارش می‌شود.
+     */
+    private const SHARE_DENOMINATIONS = [50000, 20000, 10000, 5000, 2000, 1000, 500, 200, 100, 50, 20, 10, 5, 2, 1];
+
     public function detailedReport(Request $request, Group $group, Event $event, Election $election): View
     {
         $votes = Vote::where('election_id', $election->id)
@@ -666,6 +674,17 @@ class ElectionController extends Controller
             ->get();
 
         $candidates = $election->candidates()->with('user')->get();
+
+        // کمترین سهام مؤثر در بین شرکت‌کنندگانی که رای داده‌اند، به عنوان مبنای تقسیم.
+        $minShare = $votes
+            ->groupBy('participant_id')
+            ->map(function ($participantVotes) use ($election, $group) {
+                $participant = $participantVotes->first()->participant;
+
+                return $this->effectiveParticipantShare($participant, $election, $group);
+            })
+            ->filter(fn ($share) => $share > 0)
+            ->min();
 
         $voterRows = collect();
 
@@ -685,9 +704,9 @@ class ElectionController extends Controller
 
             $votesByCandidate = $participantVotes->keyBy('candidate_id');
 
-            // هر کاندیدای این رأی‌دهنده را به قطعات می‌شکنیم.
+            // هر کاندیدای این رأی‌دهنده را بر مبنای کمترین سهام به ردیف‌های پلکانی می‌شکنیم.
             $chunksByCandidate = $votesByCandidate->map(
-                fn ($vote) => $this->splitVoteCount((int) $vote->vote_count)
+                fn ($vote) => $this->splitVoteCountByShare((int) $vote->vote_count, $minShare)
             );
 
             // تعداد ردیف‌های این رأی‌دهنده = بیشترین تعداد قطعه میان کاندیداهایش.
@@ -719,36 +738,56 @@ class ElectionController extends Controller
     }
 
     /**
-     * عدد رأی را با روش حریصانه به قطعات ۱۰۰۰/۱۰۰/۱۰/۱ می‌شکند و ترتیب را به‌هم می‌ریزد
-     * (مثلاً 1232 -> [10, 1000, 200, 2, 30])؛ برای مبهم کردن عدد خام رأی در گزارش.
-     * هر قطعه در ویو به‌صورت یک خط مجزا درون همان سلول جدول نمایش داده می‌شود.
-     *
-     * @return array<int>
+     * سهام مؤثر یک شرکت‌کننده (عادی + ممتاز با وزن)، مطابق منطق محاسبه رأی.
      */
-    private function splitVoteCount(int $count): array
+    private function effectiveParticipantShare(?Participant $participant, Election $election, Group $group): int
+    {
+        if (! $participant) {
+            return 0;
+        }
+
+        if ($election->ignore_stock_weight) {
+            return (int) $participant->normal_stock_count + (int) $participant->prefered_stock_count;
+        }
+
+        $weight = $group->prefered_stock_weight ?? 1;
+
+        return (int) $participant->normal_stock_count + (int) round($participant->prefered_stock_count * $weight);
+    }
+
+    /**
+     * عدد رأی هر کاندیدا را بر مبنای «کمترین سهام» به پلکان مبالغ ثابت می‌شکند؛
+     * هر ردیف برابر است با: vote_count * denomination / minShare (با دو رقم اعشار).
+     * جمع این ردیف‌ها باید برابر تعداد رأیی باشد که آن شخص به آن کاندیدا داده است،
+     * و انسان با جمع زدن ردیف‌ها صحت رأی‌گیری را تأیید می‌کند.
+     *
+     * @return array<float>
+     */
+    private function splitVoteCountByShare(int $count, ?int $minShare): array
     {
         if ($count <= 0) {
             return [$count];
         }
 
-        $units = [1000, 100, 10, 1];
-        $parts = [];
-        $remaining = $count;
-
-        foreach ($units as $unit) {
-            $chunks = intdiv($remaining, $unit);
-            for ($i = 0; $i < $chunks; $i++) {
-                $parts[] = $unit;
-            }
-            $remaining -= $chunks * $unit;
+        if (! $minShare || $minShare <= 0) {
+            return [$count];
         }
 
-        // اگر عدد فقط یک قطعه شد (مثل 100 یا 10)، به دو عدد نامساوی می‌شکنیم تا خام نماند.
-        if (count($parts) === 1 && $parts[0] > 1) {
-            $ratio = random_int(20, 80) / 100;
-            $first = max(1, (int) round($parts[0] * $ratio));
-            $first = min($first, $parts[0] - 1);
-            $parts = [$first, $parts[0] - $first];
+        $remaining = $count;
+        $parts = [];
+
+        foreach (self::SHARE_DENOMINATIONS as $denomination) {
+            $chunks = intdiv($remaining, $denomination);
+
+            for ($i = 0; $i < $chunks; $i++) {
+                $parts[] = round(($count * $denomination) / $minShare, 2);
+            }
+
+            $remaining -= $chunks * $denomination;
+        }
+
+        if ($parts === []) {
+            $parts[] = round($count, 2);
         }
 
         shuffle($parts);

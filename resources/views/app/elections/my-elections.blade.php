@@ -261,13 +261,6 @@
                 <span class="badge bg-success ms-1">{{ $unavailableElections->count() }}</span>
             </a>
         </li>
-        <li class="nav-item flex-fill" role="presentation">
-            <a href="#archive" data-bs-toggle="tab" aria-expanded="false" class="nav-link text-center"
-                aria-selected="false" tabindex="-1" role="tab">
-                آرشیو
-                <span class="badge bg-secondary ms-1">{{ $archivedElections->count() }}</span>
-            </a>
-        </li>
     </ul>
     <div class="tab-content">
         {{-- <div class="tab-pane show active mb-4 " id="home" role="tabpanel">
@@ -608,6 +601,19 @@
             if (selectedLink) {
                 bootstrap.Tab.getOrCreateInstance(selectedLink).show();
                 tabInput.value = selectedTab;
+            } else if (selectedTab === 'archive') {
+                document.querySelectorAll('.tab-pane').forEach(pane => {
+                    pane.classList.remove('show', 'active');
+                });
+                const archivePane = document.getElementById('archive');
+                if (archivePane) {
+                    archivePane.classList.add('show', 'active');
+                }
+                document.querySelectorAll('.my-elections-tabs .nav-link').forEach(link => {
+                    link.classList.remove('active');
+                    link.setAttribute('aria-selected', 'false');
+                });
+                tabInput.value = 'archive';
             }
 
             // Datepicker

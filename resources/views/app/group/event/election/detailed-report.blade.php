@@ -100,8 +100,8 @@
                         <td class="text-center">{{ $index + 1 }}</td>
                         <td class="text-center" dir="ltr">{{ $row['masked_national_code'] }}</td>
                         @foreach ($candidates as $candidate)
-                            <td class="text-center">
-                                {{ $row['votes_by_candidate'][$candidate->id] ?? '' }}
+                            <td class="text-center" dir="ltr">
+                                {{ isset($row['votes_by_candidate'][$candidate->id]) ? number_format($row['votes_by_candidate'][$candidate->id], 2) : '' }}
                             </td>
                         @endforeach
                     </tr>

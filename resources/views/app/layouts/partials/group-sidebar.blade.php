@@ -44,7 +44,59 @@
                 </a>
             </li>
 
+            @if (isVoterOnly())
+                <li class="side-nav-title">مشارکت های من</li>
 
+                <li class="side-nav-item">
+                    <a href="{{ route('my-elections.index') }}" class="side-nav-link">
+                        <span class="menu-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-ballot">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M3 10m0 1a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v8a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1z" />
+                                <path d="M12 6l0 .01" />
+                                <path d="M8 8l0 .01" />
+                                <path d="M16 8l0 .01" />
+                                <path d="M9 15l2 2l4 -4" />
+                            </svg>
+                        </span>
+                        <span class="menu-text"> انتخابات من </span>
+                        <span class="badge bg-danger {{ $sidebarAvailableElections->count() > 0 ? '' : 'd-none' }}">{{ $sidebarAvailableElections->count() }}</span>
+                    </a>
+                </li>
+
+                <li class="side-nav-item">
+                    <a href="{{ route('my-surveys.index') }}" class="side-nav-link">
+                        <span class="menu-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-message-question">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M8 9h8" />
+                                <path d="M8 13h6" />
+                                <path d="M14 18l-2 3l-2 -3h-3a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h10a3 3 0 0 1 3 3v4.5" />
+                                <path d="M19 22v.01" />
+                                <path d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
+                            </svg>
+                        </span>
+                        <span class="menu-text"> نظرسنجی‌های من </span>
+                        <span class="badge bg-danger {{ $sidebarAvailableSurveys->count() > 0 ? '' : 'd-none' }}">{{ $sidebarAvailableSurveys->count() }}</span>
+                    </a>
+                </li>
+
+                @if ($sidebarHasArchivedElections)
+                <li class="side-nav-item">
+                    <a href="{{ route('my-elections.index', ['tab' => 'archive']) }}" class="side-nav-link">
+                        <span class="menu-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-archive">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M3 4m0 1a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v3a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1z" />
+                                <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+                                <path d="M10 12l4 0" />
+                            </svg>
+                        </span>
+                        <span class="menu-text"> آرشیو انتخابات </span>
+                    </a>
+                </li>
+                @endif
+            @endif
 
             @can(\App\Enums\Permission::VIEW_GROUP_USERS->value)
                 <li class="side-nav-item">

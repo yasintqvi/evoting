@@ -162,6 +162,18 @@
             }
         }
 
+        @media (max-width: 1199.98px) {
+            #votingSidebarDetails .text-muted {
+                font-weight: 600;
+                color: #495057 !important;
+            }
+
+            #votingSidebarDetails .fw-semibold {
+                font-weight: 700 !important;
+                font-size: 1.05rem;
+            }
+        }
+
         @media (min-width: 576px) {
             .vote-preview-stat {
                 padding: 0.85rem 0.75rem;
