@@ -675,16 +675,8 @@ class ElectionController extends Controller
 
         $candidates = $election->candidates()->with('user')->get();
 
-        // کمترین سهام مؤثر در بین شرکت‌کنندگانی که رای داده‌اند، به عنوان مبنای تقسیم.
-        $minShare = $votes
-            ->groupBy('participant_id')
-            ->map(function ($participantVotes) use ($election, $group) {
-                $participant = $participantVotes->first()->participant;
-
-                return $this->effectiveParticipantShare($participant, $election, $group);
-            })
-            ->filter(fn ($share) => $share > 0)
-            ->min();
+        // کمترین سهام مؤثر در بین تمام سهام‌داران گروه، به عنوان مبنای تقسیم.
+        $minShare = $this->minGroupShareholderShare($group, $election);
 
         $voterRows = collect();
 
@@ -704,10 +696,25 @@ class ElectionController extends Controller
 
             $votesByCandidate = $participantVotes->keyBy('candidate_id');
 
-            // هر کاندیدای این رأی‌دهنده را بر مبنای کمترین سهام به ردیف‌های پلکانی می‌شکنیم.
-            $chunksByCandidate = $votesByCandidate->map(
-                fn ($vote) => $this->splitVoteCountByShare((int) $vote->vote_count, $minShare)
-            );
+            // سهام مؤثر خودِ رأی‌دهنده را به پلکان مبالغ ثابت می‌شکنیم؛
+            // این قطعات بین همهٔ کاندیداهای این رأی‌دهنده مشترک است.
+            $voterShare = $this->effectiveParticipantShare($participant, $election, $group);
+            $shareChunks = $this->splitIntoDenominations($voterShare);
+
+            // برای هر کاندیدا، به ازای هر قطعهٔ سهام یک ردیف می‌سازیم:
+            // vote_count * قطعه / سهام خودِ رأی‌دهنده.
+            $chunksByCandidate = $votesByCandidate->map(function ($vote) use ($shareChunks, $voterShare) {
+                $count = (int) $vote->vote_count;
+
+                if ($count <= 0 || $voterShare <= 0 || $shareChunks === []) {
+                    return [$count];
+                }
+
+                return array_map(
+                    fn ($chunk) => round(($count * $chunk) / $voterShare, 2),
+                    $shareChunks
+                );
+            });
 
             // تعداد ردیف‌های این رأی‌دهنده = بیشترین تعداد قطعه میان کاندیداهایش.
             $rowCount = $chunksByCandidate->map(fn ($chunks) => count($chunks))->max() ?: 1;
@@ -738,6 +745,28 @@ class ElectionController extends Controller
     }
 
     /**
+     * کمترین سهام مؤثر در بین تمام سهام‌داران گروه (نه فقط رأی‌دهندگان این انتخابات).
+     * کاربرانی که سهامشان صفر است (مثلاً کاربران مدیریتی بدون سهم) نادیده گرفته می‌شوند.
+     */
+    private function minGroupShareholderShare(Group $group, Election $election): ?int
+    {
+        $weight = $election->ignore_stock_weight ? 1 : ($group->prefered_stock_weight ?? 1);
+
+        return $group->users()
+            ->get()
+            ->map(function ($user) use ($election, $weight) {
+                $normal = (int) $user->pivot->normal_stock_count;
+                $prefered = (int) $user->pivot->prefered_stock_count;
+
+                return $election->ignore_stock_weight
+                    ? $normal + $prefered
+                    : $normal + (int) round($prefered * $weight);
+            })
+            ->filter(fn ($share) => $share > 0)
+            ->min();
+    }
+
+    /**
      * سهام مؤثر یک شرکت‌کننده (عادی + ممتاز با وزن)، مطابق منطق محاسبه رأی.
      */
     private function effectiveParticipantShare(?Participant $participant, Election $election, Group $group): int
@@ -756,38 +785,28 @@ class ElectionController extends Controller
     }
 
     /**
-     * عدد رأی هر کاندیدا را بر مبنای «کمترین سهام» به پلکان مبالغ ثابت می‌شکند؛
-     * هر ردیف برابر است با: vote_count * denomination / minShare (با دو رقم اعشار).
-     * جمع این ردیف‌ها باید برابر تعداد رأیی باشد که آن شخص به آن کاندیدا داده است،
-     * و انسان با جمع زدن ردیف‌ها صحت رأی‌گیری را تأیید می‌کند.
+     * یک عدد را با روش حریصانه بر اساس پلکان مبالغ ثابت (SHARE_DENOMINATIONS) می‌شکند.
+     * مثال: 1300 -> [1000, 200, 100].
      *
-     * @return array<float>
+     * @return array<int>
      */
-    private function splitVoteCountByShare(int $count, ?int $minShare): array
+    private function splitIntoDenominations(int $amount): array
     {
-        if ($count <= 0) {
-            return [$count];
+        if ($amount <= 0) {
+            return [];
         }
 
-        if (! $minShare || $minShare <= 0) {
-            return [$count];
-        }
-
-        $remaining = $count;
+        $remaining = $amount;
         $parts = [];
 
         foreach (self::SHARE_DENOMINATIONS as $denomination) {
             $chunks = intdiv($remaining, $denomination);
 
             for ($i = 0; $i < $chunks; $i++) {
-                $parts[] = round(($count * $denomination) / $minShare, 2);
+                $parts[] = $denomination;
             }
 
             $remaining -= $chunks * $denomination;
-        }
-
-        if ($parts === []) {
-            $parts[] = round($count, 2);
         }
 
         shuffle($parts);
