@@ -124,7 +124,9 @@ class ViewServiceProvider extends ServiceProvider
                 }
             }
 
-            $view->with(compact('sidebarAvailableElections', 'sidebarAvailableSurveys', 'sidebarUnavailableElections'));
+            $sidebarHasArchivedElections = collect((array) data_get($user->meta ?? [], 'hidden_past_election_ids', []))->isNotEmpty();
+
+            $view->with(compact('sidebarAvailableElections', 'sidebarAvailableSurveys', 'sidebarUnavailableElections', 'sidebarHasArchivedElections'));
         });
 
         View::composer('app.group.*', function ($view) {

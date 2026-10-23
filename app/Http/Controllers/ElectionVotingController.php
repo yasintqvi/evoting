@@ -885,6 +885,7 @@ class ElectionVotingController extends Controller
             ->get();
 
         $availableSurveys = collect();
+        $pastSurveys = collect();
 
         foreach ($participants as $participant) {
             $event = $participant->event;
@@ -901,18 +902,14 @@ class ElectionVotingController extends Controller
                     continue;
                 }
 
-                if (
-                    ($survey->start_at && $now->lt($survey->start_at)) ||
-                    ($survey->end_at && $now->gt($survey->end_at))
-                ) {
-                    continue;
-                }
-
                 $hasAnswered = $survey->responses()
                     ->where('user_id', $user->id)
                     ->exists();
 
-                if (!$hasAnswered) {
+                $isExpired = $survey->end_at && $now->gt($survey->end_at);
+                $isNotStarted = $survey->start_at && $now->lt($survey->start_at);
+
+                if (!$hasAnswered && !$isExpired && !$isNotStarted) {
                     $availableSurveys->push([
                         'survey' => $survey,
                         'event' => $event,
@@ -920,12 +917,21 @@ class ElectionVotingController extends Controller
                         'participant' => $participant,
                         'has_answered' => false,
                     ]);
+                } elseif ($hasAnswered || $isExpired) {
+                    $pastSurveys->push([
+                        'survey' => $survey,
+                        'event' => $event,
+                        'group' => $event->group,
+                        'participant' => $participant,
+                        'has_answered' => $hasAnswered,
+                    ]);
                 }
             }
         }
 
         return view('app.surveys.my-surveys', [
             'availableSurveys' => $availableSurveys,
+            'pastSurveys' => $pastSurveys,
         ]);
     }
 

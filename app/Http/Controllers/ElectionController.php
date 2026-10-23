@@ -493,7 +493,17 @@ class ElectionController extends Controller
             ->get();
 
         $totalVotes = $electionVotes->sum('vote_count');
-        $totalParticipants = $electionVotes->groupBy('participant_id')->count();
+
+        $votedParticipantIds = $electionVotes->pluck('participant_id')->unique();
+        $votedAttendees = $event->participants()
+            ->whereIn('id', $votedParticipantIds)
+            ->whereNull('attorney_id')
+            ->pluck('id');
+        $representedByVoters = $event->participants()
+            ->whereIn('attorney_id', $votedParticipantIds)
+            ->count();
+        $totalParticipants = $votedAttendees->count() + $representedByVoters;
+
         $totalCandidates = $candidateVotes->count();
 
         // Calculate detailed votes for PDF report

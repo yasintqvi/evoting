@@ -277,7 +277,7 @@
                         @php
                             $election = $item['election'];
                             $event = $item['event'];
-                            $group = $item['group'];
+                            $itemGroup = $item['group'];
                             $participant = $item['participant'];
                         @endphp
                         <div class="col-xl-4 col-lg-12">
@@ -285,6 +285,10 @@
                                 <div class="card-header border-bottom border-dashed">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
+                                            <p class="text-muted mb-1 fs-13 fw-semibold d-flex align-items-center gap-2">
+                                                <span>{{ $itemGroup->title }}</span>
+                                                <span class="text-muted fw-normal">· {{ verta($election->created_at)->format('Y/m/d') }}</span>
+                                            </p>
                                             <h5 class="card-title mb-1 fw-semibold">{{ $election->title }}</h5>
                                             <p class="text-muted mb-0 fs-13">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
@@ -295,7 +299,7 @@
                                                     </path>
                                                     <polyline points="14 2 14 8 20 8"></polyline>
                                                 </svg>
-                                                {{ $event->title }} - {{ $group->title }}
+                                                {{ $event->title }}
                                             </p>
                                         </div>
                                         <span class="badge badge-soft-success">در حال برگزاری</span>
@@ -324,7 +328,7 @@
                                     <div class="mb-3">
                                         <h6 class="fs-14 fw-semibold mb-2">کاندیداها:</h6>
                                         <div class="d-flex flex-wrap gap-2">
-                                            @foreach ($election->candidates->take(3) as $candidate)
+                                            @foreach ($election->candidates as $candidate)
                                                 <div class="d-flex align-items-center gap-1">
                                                     <img src="{{ asset($candidate->user->profile_image) }}"
                                                         alt="{{ $candidate->user->full_name }}"
@@ -332,15 +336,11 @@
                                                     <small class="text-muted">{{ $candidate->user->full_name }}</small>
                                                 </div>
                                             @endforeach
-                                            @if ($election->candidates->count() > 3)
-                                                <small class="text-muted">+{{ $election->candidates->count() - 3 }} نفر
-                                                    دیگر</small>
-                                            @endif
                                         </div>
                                     </div>
 
                                     <div class="d-grid">
-                                        <a href="{{ route('voting.create', [$group->slug, $event->slug, $election->slug]) }}"
+                                        <a href="{{ route('voting.create', [$itemGroup->slug, $event->slug, $election->slug]) }}"
                                             class="btn btn-primary">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -386,7 +386,7 @@
                         @php
                             $election = $item['election'];
                             $event = $item['event'];
-                            $group = $item['group'];
+                            $itemGroup = $item['group'];
                             $participant = $item['participant'];
                         @endphp
                         <div class="col-12 col-xl-4">
@@ -394,12 +394,13 @@
                                 <div class="card-header border-bottom border-dashed bg-light-subtle">
                                     <div class="d-flex justify-content-between align-items-start gap-2">
                                         <div class="min-w-0">
-                                            <h5 class="card-title mb-1 fw-semibold">{{ $election->title }}</h5>
-                                            <p class="text-muted mb-1 fs-13 my-election-card__meta">
-                                                {{ $event->title }} · {{ $group->title }}
+                                            <p class="text-muted mb-1 fs-13 fw-semibold my-election-card__meta d-flex align-items-center gap-2">
+                                                <span>{{ $itemGroup->title }}</span>
+                                                <span class="text-muted fw-normal">· {{ verta($election->created_at)->format('Y/m/d') }}</span>
                                             </p>
+                                            <h5 class="card-title mb-1 fw-semibold">{{ $election->title }}</h5>
                                             <small class="text-muted my-election-card__meta">
-                                                {{ verta($election->created_at)->format('Y/m/d') }}
+                                                {{ $event->title }}
                                             </small>
                                         </div>
                                         <span class="badge badge-soft-success flex-shrink-0">فعال</span>
@@ -420,7 +421,7 @@
 
                                         <div class="small fw-semibold mb-2">کاندیداها</div>
                                         <div class="d-flex flex-wrap gap-1">
-                                            @foreach ($election->candidates->take(4) as $candidate)
+                                            @foreach ($election->candidates as $candidate)
                                                 <div class="my-election-card__candidate">
                                                     <img src="{{ asset($candidate->user->profile_image) }}"
                                                         alt="{{ $candidate->user->full_name }}"
@@ -428,19 +429,14 @@
                                                     <span>{{ $candidate->user->full_name }}</span>
                                                 </div>
                                             @endforeach
-                                            @if ($election->candidates->count() > 4)
-                                                <div class="my-election-card__candidate">
-                                                    <span>+{{ $election->candidates->count() - 4 }} نفر دیگر</span>
-                                                </div>
-                                            @endif
                                         </div>
                                     </div>
 
                                     <div class="d-grid mt-auto">
-                                        <a href="{{ route('voting.create', [$group->slug, $event->slug, $election->slug]) }}"
+                                        <a href="{{ route('voting.create', [$itemGroup->slug, $event->slug, $election->slug]) }}"
                                             class="btn btn-primary btn-lg my-election-card__cta">
                                             <i class="ti ti-checkbox me-1"></i>
-                                            رأی بدهید
+                                            شروع رأی گیری
                                         </a>
                                     </div>
                                 </div>
@@ -480,7 +476,7 @@
                         @php
                             $election = $item['election'];
                             $event = $item['event'];
-                            $group = $event->group;
+                            $itemGroup = $event->group;
                             $participant = $item['participant'];
                         @endphp
                         <div class="col-12 col-xl-4 mb-2">
@@ -490,7 +486,7 @@
                                         <div class="min-w-0">
                                             <h5 class="card-title mb-1 fw-semibold">{{ $election->title }}</h5>
                                             <p class="text-muted mb-0 fs-13 my-election-card__meta">
-                                                {{ $event->title }} · {{ $group->title }}
+                                                {{ $event->title }} · {{ $itemGroup->title }}
                                             </p>
                                         </div>
                                         <div class="d-flex align-items-center gap-2 flex-shrink-0">

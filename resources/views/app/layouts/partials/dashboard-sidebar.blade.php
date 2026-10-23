@@ -123,22 +123,35 @@
              <li class="side-nav-item">
                  <a href="{{route('my-elections.index')}}" class="side-nav-link">
                      <span class="menu-icon">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-checkup-list">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-ballot">
                              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                             <path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
-                             <path d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
-                             <path d="M9 14h.01" />
-                             <path d="M12 14h.01" />
-                             <path d="M15 14h.01" />
-                             <path d="M9 17h.01" />
-                             <path d="M12 17h.01" />
-                             <path d="M15 17h.01" />
+                             <path d="M3 10m0 1a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v8a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1z" />
+                             <path d="M12 6l0 .01" />
+                             <path d="M8 8l0 .01" />
+                             <path d="M16 8l0 .01" />
+                             <path d="M9 15l2 2l4 -4" />
                          </svg>
                      </span>
                      <span class="menu-text"> انتخابات من </span>
                      <span class="badge bg-danger {{ $sidebarAvailableElections->count() > 0 ? '' : 'd-none' }}">{{ $sidebarAvailableElections->count() }}</span>
                  </a>
              </li>
+
+             @if ($sidebarHasArchivedElections)
+             <li class="side-nav-item">
+                 <a href="{{ route('my-elections.index', ['tab' => 'archive']) }}" class="side-nav-link">
+                     <span class="menu-icon">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-archive">
+                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                             <path d="M3 4m0 1a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v3a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1z" />
+                             <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+                             <path d="M10 12l4 0" />
+                         </svg>
+                     </span>
+                     <span class="menu-text"> آرشیو انتخابات </span>
+                 </a>
+             </li>
+             @endif
 
              <li class="side-nav-item">
                  <a href="{{route('my-surveys.index')}}" class="side-nav-link">
