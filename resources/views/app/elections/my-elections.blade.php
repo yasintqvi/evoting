@@ -261,6 +261,13 @@
                 <span class="badge bg-success ms-1">{{ $unavailableElections->count() }}</span>
             </a>
         </li>
+        <li class="nav-item flex-fill" role="presentation">
+            <a href="#archive" data-bs-toggle="tab" aria-expanded="false" class="nav-link text-center" aria-selected="false"
+                tabindex="-1" role="tab">
+                <span>آرشیو</span>
+                <span class="badge bg-secondary ms-1">{{ $archivedElections->count() }}</span>
+            </a>
+        </li>
     </ul>
     <div class="tab-content">
         {{-- <div class="tab-pane show active mb-4 " id="home" role="tabpanel">
@@ -392,9 +399,6 @@
                                                 <span class="text-muted fw-normal">· {{ verta($election->created_at)->format('Y/m/d') }}</span>
                                             </p>
                                             <h5 class="card-title mb-1 fw-semibold">{{ $election->title }}</h5>
-                                            <small class="text-muted my-election-card__meta">
-                                                {{ $event->title }}
-                                            </small>
                                         </div>
                                         <span class="badge badge-soft-success flex-shrink-0">فعال</span>
                                     </div>

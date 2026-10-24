@@ -250,7 +250,7 @@
                                                         ? 'badge-soft-warning'
                                                         : 'badge-soft-secondary'));
                                             $statusLabel = $isTied
-                                                ? 'عدم انتساب رأی (مساوی)'
+                                                ? 'عدم کسب نساب رأی (مساوی)'
                                                 : ($candidateType === 'main'
                                                     ? 'عضو اصلی'
                                                     : ($candidateType === 'substitute'
@@ -325,7 +325,7 @@
                                     <tr>
                                         <th class="text-center" style="width: 50px;">ردیف</th>
                                         <th>نام و نام خانوادگی</th>
-                                        <th>وکیل (رأی‌دهنده از طرف این سهام‌دار)</th>
+                                        <th>وکیل </th>
                                     </tr>
                                 </thead>
                                 <tbody>

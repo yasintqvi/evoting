@@ -44,7 +44,7 @@
             position: fixed;
             left: 0;
             right: 0;
-            bottom: 0;
+            bottom: var(--voting-sticky-bar-offset, 0px);
             z-index: 1040;
             display: flex;
             align-items: center;
@@ -55,6 +55,7 @@
             border-top: 1px solid rgba(0, 0, 0, 0.08);
             box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
             backdrop-filter: blur(8px);
+            transition: bottom 0.15s ease-out;
         }
 
         .voting-sticky-bar__info {
@@ -1172,7 +1173,7 @@
                         totalVotesGiven += parseFloat(input.value) || 1;
                     }
 
-                    if (input.type === 'number') {
+                    if (input.type === 'number' || input.type === 'text') {
                         const value = isArticle88 ? parseLocaleNumberToFloat(input.value) :
                             (parseFloat(input.value) || 0);
                         if (value > 0) {
@@ -1334,6 +1335,26 @@
             });
 
         });
+    </script>
+
+    <script>
+        // نگه داشتن دکمه «ثبت نهایی» بالای کیبورد موبایل هنگام فوکوس روی ورودی‌ها
+        (function() {
+            if (!window.visualViewport) {
+                return;
+            }
+            var vv = window.visualViewport;
+
+            function updateStickyBarOffset() {
+                var keyboardHeight = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+                document.documentElement.style.setProperty('--voting-sticky-bar-offset',
+                    keyboardHeight + 'px');
+            }
+
+            vv.addEventListener('resize', updateStickyBarOffset);
+            vv.addEventListener('scroll', updateStickyBarOffset);
+            updateStickyBarOffset();
+        })();
     </script>
 
     <script>

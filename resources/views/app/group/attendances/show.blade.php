@@ -396,7 +396,7 @@
         <div class="proj-header">
             <div>
                 <h1>{{ $event->title }}</h1>
-                <p>نمایش زنده جلسه برای پروژکتور</p>
+                {{-- <p>نمایش زنده جلسه برای پروژکتور</p> --}}
             </div>
             <span class="proj-live">آمار زنده</span>
         </div>

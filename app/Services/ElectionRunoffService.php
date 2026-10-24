@@ -173,7 +173,7 @@ class ElectionRunoffService
                 $rootElection = $rootElection->parentElection;
             }
 
-            $title = "دور {$roundLabel} — {$rootElection->title} (تعیین اصلی و علی‌البدل)";
+            $title = "دور {$roundLabel} — {$rootElection->title}";
 
             $runoff = Election::create([
                 'event_id' => $parent->event_id,

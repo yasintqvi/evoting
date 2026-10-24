@@ -1,7 +1,65 @@
 @extends('app.layouts.app')
 
+@section('head-tag')
+    <style>
+        .my-election-card__cta {
+            min-height: 46px;
+            font-weight: 600;
+        }
+
+        .my-election-card__details {
+            border: 1px dashed rgba(0, 0, 0, 0.1);
+            border-radius: 0.65rem;
+            background: rgba(0, 0, 0, 0.02);
+            padding: 0.75rem;
+        }
+
+        .my-election-card__stats {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .my-election-card__stat {
+            flex: 1;
+            text-align: center;
+            padding: 0.5rem 0.35rem;
+            border: 1px dashed rgba(0, 0, 0, 0.08);
+            border-radius: 0.5rem;
+            background: #fff;
+        }
+
+        .my-election-card__stat-value {
+            font-size: 1.15rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        @media (max-width: 767.98px) {
+            .my-election-card .card-header {
+                padding: 0.85rem 1rem;
+            }
+
+            .my-election-card .card-body {
+                padding: 0.85rem 1rem 1rem;
+            }
+
+            .my-election-card__meta {
+                font-size: 0.8rem;
+            }
+
+            .my-election-card__details {
+                padding: 0.65rem;
+            }
+
+            .my-election-card__stat-value {
+                font-size: 1rem;
+            }
+        }
+    </style>
+@endsection
+
 @section('content')
-    <div class="page-title-head d-flex align-items-sm-center flex-sm-row flex-column gap-2">
+    <div class="page-title-head d-flex align-items-sm-center flex-sm-row flex-column gap-2 mb-3">
         <div class="flex-grow-1">
             <h4 class="fs-18 fw-semibold mb-0">نظرسنجی‌های من</h4>
         </div>
@@ -31,64 +89,51 @@
     <div class="tab-content">
         <div class="tab-pane show active" id="active-surveys" role="tabpanel">
             @if ($availableSurveys->count() > 0)
-                <div class="row">
+                <div class="row g-3">
                     @foreach ($availableSurveys as $item)
                         @php
                             $survey  = $item['survey'];
                             $event   = $item['event'];
                             $itemGroup   = $item['group'];
                         @endphp
-                        <div class="col-xl-4 col-lg-12">
-                            <div class="card border border-dashed h-100">
-                                <div class="card-header border-bottom border-dashed bg-light">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h5 class="card-title mb-1 fw-semibold">{{ $survey->title }}</h5>
-                                            <p class="text-muted mb-0 fs-13">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                    stroke-linecap="round" stroke-linejoin="round" class="me-1">
-                                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                                    <polyline points="14 2 14 8 20 8"></polyline>
-                                                </svg>
-                                                {{ $event->title }} - {{ $itemGroup->title }}
+                        <div class="col-12 col-xl-4">
+                            <div class="card border border-dashed h-100 my-election-card">
+                                <div class="card-header border-bottom border-dashed bg-light-subtle">
+                                    <div class="d-flex justify-content-between align-items-start gap-2">
+                                        <div class="min-w-0">
+                                            <p class="text-muted mb-1 fs-13 fw-semibold my-election-card__meta d-flex align-items-center gap-2">
+                                                <span>{{ $itemGroup->title }}</span>
+                                                <span class="text-muted fw-normal">· {{ verta($survey->created_at)->format('Y/m/d') }}</span>
                                             </p>
+                                            <h5 class="card-title mb-1 fw-semibold">{{ $survey->title }}</h5>
                                         </div>
-                                        <span class="badge badge-soft-info">فعال</span>
+                                        <span class="badge badge-soft-success flex-shrink-0">فعال</span>
                                     </div>
                                 </div>
-                                <div class="card-body">
-                                    @if ($survey->description)
-                                        <p class="text-muted fs-13 mb-3">{{ $survey->description }}</p>
-                                    @endif
-
-                                    <div class="row g-3 mb-3">
-                                        <div class="col-6">
-                                            <div class="text-center p-2 border border-dashed rounded bg-light">
-                                                <h6 class="mb-0 text-primary fw-bold">{{ $survey->questions->count() }}</h6>
+                                <div class="card-body d-flex flex-column">
+                                    <div class="my-election-card__details mb-3">
+                                        <div class="my-election-card__stats mb-2">
+                                            <div class="my-election-card__stat">
+                                                <div class="my-election-card__stat-value">{{ $survey->questions->count() }}</div>
                                                 <small class="text-muted">تعداد سوال</small>
                                             </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="text-center p-2 border border-dashed rounded bg-light">
-                                                <h6 class="mb-0 text-secondary fw-bold">
-                                                    {{ $survey->is_anonymous ? 'بله' : 'خیر' }}
-                                                </h6>
+                                            <div class="my-election-card__stat">
+                                                <div class="my-election-card__stat-value">{{ $survey->is_anonymous ? 'بله' : 'خیر' }}</div>
                                                 <small class="text-muted">ناشناس</small>
                                             </div>
                                         </div>
+
+                                        @if ($survey->end_at)
+                                            <div class="d-flex align-items-center gap-1 text-muted fs-12">
+                                                <i class="ti ti-clock"></i>
+                                                پایان: {{ \Carbon\Carbon::parse($survey->end_at)->timezone('Asia/Tehran')->format('Y-m-d H:i') }}
+                                            </div>
+                                        @endif
                                     </div>
 
-                                    @if ($survey->end_at)
-                                        <div class="d-flex align-items-center gap-1 text-muted fs-12 mb-3">
-                                            <i class="ti ti-clock"></i>
-                                            پایان: {{ \Carbon\Carbon::parse($survey->end_at)->timezone('Asia/Tehran')->format('Y-m-d H:i') }}
-                                        </div>
-                                    @endif
-
-                                    <div class="d-grid">
+                                    <div class="d-grid mt-auto">
                                         <a href="{{ route('surveys.answer', [$itemGroup->slug, $event->slug, $survey->slug]) }}"
-                                            class="btn btn-primary">
+                                            class="btn btn-primary btn-lg my-election-card__cta">
                                             <i class="ti ti-clipboard-check me-1"></i>
                                             پاسخ به نظرسنجی
                                         </a>
@@ -117,66 +162,52 @@
 
         <div class="tab-pane" id="past-surveys" role="tabpanel">
             @if ($pastSurveys->count() > 0)
-                <div class="row">
+                <div class="row g-3">
                     @foreach ($pastSurveys as $item)
                         @php
                             $survey  = $item['survey'];
                             $event   = $item['event'];
                             $itemGroup   = $item['group'];
                         @endphp
-                        <div class="col-xl-4 col-lg-12">
-                            <div class="card border border-dashed h-100">
-                                <div class="card-header border-bottom border-dashed bg-light">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
+                        <div class="col-12 col-xl-4">
+                            <div class="card border border-dashed h-100 my-election-card">
+                                <div class="card-header border-bottom border-dashed">
+                                    <div class="d-flex justify-content-between align-items-start gap-2">
+                                        <div class="min-w-0">
                                             <h5 class="card-title mb-1 fw-semibold">{{ $survey->title }}</h5>
-                                            <p class="text-muted mb-0 fs-13">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                    stroke-linecap="round" stroke-linejoin="round" class="me-1">
-                                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                                    <polyline points="14 2 14 8 20 8"></polyline>
-                                                </svg>
-                                                {{ $event->title }} - {{ $itemGroup->title }}
+                                            <p class="text-muted mb-0 fs-13 my-election-card__meta">
+                                                {{ $itemGroup->title }}
                                             </p>
                                         </div>
-                                        <span class="badge {{ $item['has_answered'] ? 'badge-soft-success' : 'badge-soft-secondary' }}">
+                                        <span class="badge {{ $item['has_answered'] ? 'badge-soft-success' : 'badge-soft-secondary' }} flex-shrink-0">
                                             {{ $item['has_answered'] ? 'پاسخ داده شده' : 'پایان یافته' }}
                                         </span>
                                     </div>
                                 </div>
-                                <div class="card-body">
-                                    @if ($survey->description)
-                                        <p class="text-muted fs-13 mb-3">{{ $survey->description }}</p>
-                                    @endif
-
-                                    <div class="row g-3 mb-3">
-                                        <div class="col-6">
-                                            <div class="text-center p-2 border border-dashed rounded bg-light">
-                                                <h6 class="mb-0 text-primary fw-bold">{{ $survey->questions->count() }}</h6>
+                                <div class="card-body d-flex flex-column">
+                                    <div class="my-election-card__details mb-3">
+                                        <div class="my-election-card__stats mb-2">
+                                            <div class="my-election-card__stat">
+                                                <div class="my-election-card__stat-value">{{ $survey->questions->count() }}</div>
                                                 <small class="text-muted">تعداد سوال</small>
                                             </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="text-center p-2 border border-dashed rounded bg-light">
-                                                <h6 class="mb-0 text-secondary fw-bold">
-                                                    {{ $survey->is_anonymous ? 'بله' : 'خیر' }}
-                                                </h6>
+                                            <div class="my-election-card__stat">
+                                                <div class="my-election-card__stat-value">{{ $survey->is_anonymous ? 'بله' : 'خیر' }}</div>
                                                 <small class="text-muted">ناشناس</small>
                                             </div>
                                         </div>
+
+                                        @if ($survey->end_at)
+                                            <div class="d-flex align-items-center gap-1 text-muted fs-12">
+                                                <i class="ti ti-clock"></i>
+                                                پایان: {{ \Carbon\Carbon::parse($survey->end_at)->timezone('Asia/Tehran')->format('Y-m-d H:i') }}
+                                            </div>
+                                        @endif
                                     </div>
 
-                                    @if ($survey->end_at)
-                                        <div class="d-flex align-items-center gap-1 text-muted fs-12 mb-3">
-                                            <i class="ti ti-clock"></i>
-                                            پایان: {{ \Carbon\Carbon::parse($survey->end_at)->timezone('Asia/Tehran')->format('Y-m-d H:i') }}
-                                        </div>
-                                    @endif
-
-                                    <div class="d-grid">
+                                    <div class="d-grid mt-auto">
                                         <a href="{{ route('surveys.answer', [$itemGroup->slug, $event->slug, $survey->slug]) }}"
-                                            class="btn btn-outline-secondary">
+                                            class="btn btn-outline-secondary btn-lg my-election-card__cta">
                                             <i class="ti ti-eye me-1"></i>
                                             مشاهده نظرسنجی
                                         </a>

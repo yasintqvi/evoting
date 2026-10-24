@@ -61,7 +61,7 @@
     <div class="dashboard-page">
     <div class="page-title-head d-flex align-items-sm-center flex-sm-row flex-column gap-2 mb-3">
         <div class="flex-grow-1">
-            <h4 class="fs-18 fw-semibold mb-0"> خوش آمدید ، {{ user()->first_name }} </h4>
+            <h4 class="fs-18 fw-semibold mb-0"> خوش آمدید </h4>
         </div>
 
         <div class="text-end">
