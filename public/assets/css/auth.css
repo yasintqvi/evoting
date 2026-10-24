@@ -82,7 +82,7 @@ input:focus {
     font-size:18px;
     font-weight:800;
     line-height:1.4;
-    margin-bottom:18px;
+    margin-bottom:24px;
 }
 .section-kicker {
     font-size:12px;
@@ -356,9 +356,13 @@ h2 {
     display:block;
     width:44px;
     height:44px;
+    max-width:44px;
+    max-height:44px;
     border-radius:10px;
     object-fit:contain;
+    object-position:center;
     flex-shrink:0;
+    aspect-ratio:1/1;
 }
 @media (max-width:480px) {
     .auth-shell { padding:12px; }

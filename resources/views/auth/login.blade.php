@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#465dff">
     <title>ورود به حساب | سامانه انتخابات</title>
-    <link rel="stylesheet" href="{{ asset('assets/css/auth.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/auth.css') }}?v={{ filemtime(public_path('assets/css/auth.css')) }}">
     <script src="{{ asset('assets/js/auth.js') }}" defer></script>
 </head>
 <body>
