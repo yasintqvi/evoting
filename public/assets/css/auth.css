@@ -78,9 +78,10 @@ input:focus {
 .form-brand {
     display:flex;
     align-items:center;
-    gap:10px;
-    font-size:14px;
-    font-weight:700;
+    gap:12px;
+    font-size:18px;
+    font-weight:800;
+    line-height:1.4;
     margin-bottom:18px;
 }
 .section-kicker {
@@ -352,14 +353,12 @@ h2 {
 }
 
 .brand-mark {
-    display:grid;
-    place-items:center;
-    width:34px;
-    height:34px;
+    display:block;
+    width:44px;
+    height:44px;
     border-radius:10px;
-    background:#e3e7ff;
-    color:var(--primary);
-    font:24px sans-serif;
+    object-fit:contain;
+    flex-shrink:0;
 }
 @media (max-width:480px) {
     .auth-shell { padding:12px; }

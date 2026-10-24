@@ -358,7 +358,7 @@
                             </div>
                         </div>
 
-                        <div class="voting-sidebar-extra d-none d-xl-block">
+                        <div class="voting-sidebar-extra">
                             <div class="mt-3">
                                 <h4 class="fs-15">اطلاعات انتخابات:</h4>
                                 <div class="row mt-1 g-2">

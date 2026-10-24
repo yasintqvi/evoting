@@ -413,7 +413,7 @@
 
                                         <div class="small fw-semibold mb-2">کاندیداها</div>
                                         <div class="d-flex flex-wrap gap-1">
-                                            @foreach ($election->candidates as $candidate)
+                                            @foreach ($election->candidates->sortBy(fn ($candidate) => $candidate->user->full_name, SORT_FLAG_CASE | SORT_STRING) as $candidate)
                                                 <div class="my-election-card__candidate">
                                                     <img src="{{ asset($candidate->user->profile_image) }}"
                                                         alt="{{ $candidate->user->full_name }}"

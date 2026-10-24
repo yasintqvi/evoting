@@ -108,7 +108,7 @@
                                         </div>
                                         <div class="text-end flex-shrink-0">
                                             <span class="badge badge-soft-success d-block">فعال</span>
-                                            <span class="text-muted fs-12 d-block mt-1">{{ verta($survey->created_at)->format('Y/m/d') }}</span>
+                                            <span class="text-muted fs-12 d-block mt-1">{{ verta($survey->created_at->copy()->setTimezone('Asia/Tehran'))->format('Y/m/d') }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -124,7 +124,7 @@
                                         @if ($survey->end_at)
                                             <div class="d-flex align-items-center gap-1 text-muted fs-12">
                                                 <i class="ti ti-clock"></i>
-                                                پایان: {{ verta($survey->end_at)->format('Y/m/d H:i') }}
+                                                پایان: {{ verta($survey->end_at->copy()->setTimezone('Asia/Tehran'))->format('Y/m/d H:i') }}
                                             </div>
                                         @endif
                                     </div>
@@ -192,7 +192,7 @@
                                         @if ($survey->end_at)
                                             <div class="d-flex align-items-center gap-1 text-muted fs-12 mt-2">
                                                 <i class="ti ti-clock"></i>
-                                                پایان: {{ verta($survey->end_at)->format('Y/m/d H:i') }}
+                                                پایان: {{ verta($survey->end_at->copy()->setTimezone('Asia/Tehran'))->format('Y/m/d H:i') }}
                                             </div>
                                         @endif
                                     </div>

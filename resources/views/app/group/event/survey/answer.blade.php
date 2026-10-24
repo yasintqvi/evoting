@@ -29,7 +29,7 @@
                     <i class="ti ti-calendar-event fs-18"></i>
                     <div>
                         <strong>زمان شروع نظرسنجی:</strong>
-                        {{ verta($survey->start_at)->format('Y/m/d H:i') }}
+                        {{ verta($survey->start_at->copy()->setTimezone('Asia/Tehran'))->format('Y/m/d H:i') }}
                     </div>
                 </div>
             @endif
@@ -41,10 +41,10 @@
                     <div>
                         @if ($isExpired)
                             <strong>این نظرسنجی منقضی شده است.</strong>
-                            زمان پایان: {{ verta($survey->end_at)->format('Y/m/d H:i') }}
+                            زمان پایان: {{ verta($survey->end_at->copy()->setTimezone('Asia/Tehran'))->format('Y/m/d H:i') }}
                         @else
                             <strong>زمان پایان نظرسنجی:</strong>
-                            {{ verta($survey->end_at)->format('Y/m/d H:i') }}
+                            {{ verta($survey->end_at->copy()->setTimezone('Asia/Tehran'))->format('Y/m/d H:i') }}
                             <div>
                                 <small class="text-primary survey-countdown" data-end="{{ $survey->end_at?->toDateTimeString() }}">
                                     زمان باقی‌مانده: <span class="value"></span>

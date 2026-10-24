@@ -105,10 +105,10 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td class="fw-semibold">{{ $survey->title }}</td>
                                     <td class="text-muted small">
-                                        {{ $survey->start_at ? verta($survey->start_at)->format('Y/m/d H:i') : '---' }}
+                                        {{ $survey->start_at ? verta($survey->start_at->copy()->setTimezone('Asia/Tehran'))->format('Y/m/d H:i') : '---' }}
                                     </td>
                                     <td class="text-muted small">
-                                        {{ $survey->end_at ? verta($survey->end_at)->format('Y/m/d H:i') : '---' }}
+                                        {{ $survey->end_at ? verta($survey->end_at->copy()->setTimezone('Asia/Tehran'))->format('Y/m/d H:i') : '---' }}
                                     </td>
                                     <td>
                                         @if ($survey->is_anonymous)
