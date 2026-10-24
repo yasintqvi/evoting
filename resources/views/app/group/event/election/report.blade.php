@@ -250,7 +250,7 @@
                                                         ? 'badge-soft-warning'
                                                         : 'badge-soft-secondary'));
                                             $statusLabel = $isTied
-                                                ? 'عدم کسب نساب رأی (مساوی)'
+                                                ? 'عدم کسب نصاب رأی'
                                                 : ($candidateType === 'main'
                                                     ? 'عضو اصلی'
                                                     : ($candidateType === 'substitute'

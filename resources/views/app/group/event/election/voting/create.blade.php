@@ -484,9 +484,9 @@
                                 class="avatar-sm rounded-circle bg-primary d-inline-flex align-items-center justify-content-center">
                                 <i class="ti ti-users-group text-white"></i>
                             </span>
-                            حضور در این رویداد
-                        </h5>
-                        <p class="text-muted mb-0 mt-2 small">تعداد سهام‌داران حاضر (موکل از طریق وکالت حاضر است؛ وکیل فقط وقتی شمرده می‌شود که خودش هم سهام‌دار باشد).</p>
+                            وضعیت حضور در این رویداد
+                        </h5> 
+                        {{-- <p class="text-muted mb-0 mt-2 small">تعداد سهام‌داران حاضر (موکل از طریق وکالت حضور دارد وکیل فقط زمانی محسوب میگردد که خودش هم سهام‌دار باشد).</p> --}}
                     </div>
                     <div class="card-body pt-3">
                         <div class="row g-3">
@@ -669,7 +669,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <p class="small text-muted mb-0 mt-3 text-center">می‌توانید کل سقف را به یک نامزد بدهید یا بین
+                            <p class="small text-muted mb-0 mt-3 text-center">می‌توانید کل سقف رأی را به یک نامزد تخصیص بدهید یا بین
                                 چند نامزد تقسیم کنید؛ مجموع نباید از سقف بیشتر شود.</p>
                         </div>
                     @endif

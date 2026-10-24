@@ -23,16 +23,16 @@
 
         .proj-header h1 {
             margin: 0;
-            font-size: 1.35rem;
+            font-size: 2rem;
             font-weight: 800;
             color: #0f172a;
         }
 
         .proj-header p {
             margin: 0.15rem 0 0;
-            font-size: 0.8rem;
+            font-size: 1.05rem;
             color: #64748b;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .proj-live {
@@ -43,8 +43,8 @@
             color: #166534;
             border: 1px solid #bbf7d0;
             border-radius: 999px;
-            padding: 0.3rem 0.7rem;
-            font-size: 0.75rem;
+            padding: 0.45rem 1rem;
+            font-size: 1.05rem;
             font-weight: 700;
             white-space: nowrap;
         }
@@ -73,8 +73,9 @@
             color: #166534;
         }
 
-        .proj-quorum h2 { font-size: 1.5rem; font-weight: 800; color: inherit; }
-        .proj-quorum p { margin: 0.5rem 0 0; }
+        .proj-quorum h2 { font-size: 2.1rem; font-weight: 800; color: inherit; }
+        .proj-quorum div { font-size: 1.1rem; font-weight: 700; }
+        .proj-quorum p { margin: 0.5rem 0 0; font-size: 1.15rem; font-weight: 600; }
 
         @keyframes proj-pulse {
             50% { opacity: 0.3; }
@@ -114,7 +115,7 @@
 
         .proj-panel-head h2 {
             margin: 0;
-            font-size: 1rem;
+            font-size: 1.4rem;
             font-weight: 800;
             color: #0f172a;
         }
@@ -126,8 +127,8 @@
         }
 
         .proj-filter label {
-            font-size: 0.75rem;
-            font-weight: 600;
+            font-size: 1rem;
+            font-weight: 700;
             color: #64748b;
             margin: 0;
         }
@@ -135,10 +136,10 @@
         .proj-filter select {
             border: 1px solid #e2e8f0;
             border-radius: 8px;
-            padding: 0.3rem 0.55rem;
-            font-size: 0.8rem;
+            padding: 0.4rem 0.65rem;
+            font-size: 1rem;
             font-family: inherit;
-            font-weight: 600;
+            font-weight: 700;
             color: #0f172a;
             background: #f8fafc;
             min-width: 150px;
@@ -153,25 +154,25 @@
         .proj-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.875rem;
+            font-size: 1.1rem;
         }
 
         .proj-table th {
             background: #f8fafc;
             color: #64748b;
             font-weight: 700;
-            font-size: 0.75rem;
+            font-size: 1rem;
             text-align: right;
-            padding: 0.65rem 0.75rem;
+            padding: 0.75rem 0.85rem;
             border-bottom: 1px solid #e2e8f0;
             white-space: nowrap;
         }
 
         .proj-table td {
-            padding: 0.8rem 0.75rem;
+            padding: 0.9rem 0.85rem;
             border-bottom: 1px solid #f1f5f9;
             vertical-align: middle;
-            font-weight: 600;
+            font-weight: 700;
         }
 
         .proj-table tr:last-child td {
@@ -181,16 +182,16 @@
         .proj-table .name {
             font-weight: 800;
             color: #0f172a;
-            font-size: 0.95rem;
+            font-size: 1.2rem;
         }
 
         .proj-status {
             display: inline-block;
-            font-size: 0.7rem;
+            font-size: 0.95rem;
             font-weight: 700;
             color: #fff;
             border-radius: 6px;
-            padding: 0.2rem 0.5rem;
+            padding: 0.3rem 0.65rem;
             white-space: nowrap;
         }
 
@@ -198,15 +199,15 @@
         .proj-status.wait { background: #ea580c; }
 
         .proj-pct {
-            font-size: 1.15rem;
+            font-size: 1.5rem;
             font-weight: 800;
             color: #0f172a;
         }
 
         .proj-meta {
-            font-size: 0.8rem;
+            font-size: 1.05rem;
             color: #64748b;
-            font-weight: 600;
+            font-weight: 700;
         }
 
         .proj-bar {
@@ -236,8 +237,8 @@
             padding: 1.25rem 1rem;
             text-align: center;
             color: #94a3b8;
-            font-weight: 600;
-            font-size: 0.875rem;
+            font-weight: 700;
+            font-size: 1.1rem;
             background: #f8fafc;
         }
 
@@ -251,8 +252,8 @@
         }
 
         .proj-chart {
-            width: 140px;
-            height: 140px;
+            width: 170px;
+            height: 170px;
             position: relative;
         }
 
@@ -300,13 +301,13 @@
         .proj-stat-mini.absent .dot { background: #dc2626; }
 
         .proj-stat-mini .lbl {
-            font-size: 0.75rem;
+            font-size: 1rem;
             font-weight: 700;
             color: #64748b;
         }
 
         .proj-stat-mini .val {
-            font-size: 1.15rem;
+            font-size: 1.5rem;
             font-weight: 800;
             line-height: 1;
         }
@@ -324,7 +325,7 @@
 
         .proj-people-panel h2 {
             margin: 0;
-            font-size: 0.9rem;
+            font-size: 1.4rem;
             font-weight: 800;
             color: #0f172a;
         }
@@ -340,9 +341,9 @@
 
         .proj-people {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 0.4rem;
-            max-height: 160px;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 0.5rem;
+            max-height: 220px;
             overflow: auto;
         }
 
@@ -350,13 +351,13 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 0.35rem;
+            gap: 0.4rem;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
-            padding: 0.35rem 0.5rem;
+            padding: 0.5rem 0.65rem;
             background: #fff;
-            font-size: 0.75rem;
-            font-weight: 600;
+            font-size: 1rem;
+            font-weight: 700;
         }
 
         .proj-person.on {
@@ -365,10 +366,10 @@
         }
 
         .proj-person .tag {
-            font-size: 0.65rem;
+            font-size: 0.85rem;
             font-weight: 700;
             border-radius: 5px;
-            padding: 0.1rem 0.35rem;
+            padding: 0.15rem 0.45rem;
             white-space: nowrap;
         }
 
