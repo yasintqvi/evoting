@@ -474,54 +474,6 @@
                             </div>
                         </div>
 
-                        <div class="d-xl-none mt-3">
-                            <button class="btn btn-light btn-sm w-100 d-flex align-items-center justify-content-between"
-                                type="button" data-bs-toggle="collapse" data-bs-target="#votingSidebarDetails"
-                                aria-expanded="false" aria-controls="votingSidebarDetails">
-                                <span>جزئیات سهام و انتخابات</span>
-                                <i class="ti ti-chevron-down"></i>
-                            </button>
-                            <div class="collapse mt-2" id="votingSidebarDetails">
-                                <div class="border rounded-3 p-3 bg-light-subtle">
-                                    <div class="row g-2 small">
-                                        @if (in_array($election->type, [App\Enums\ElectionType::PRIVATE_JOINT, App\Enums\ElectionType::PRIVATE_JOINT_WITH_88]))
-                                            <div class="col-6">
-                                                <div class="text-muted">سهم عادی</div>
-                                                <div class="fw-semibold">{{ number_format($participant->normal_stock_count) }}</div>
-                                                @if (($delegatedTotals['normal'] ?? 0) > 0)
-                                                    <div class="text-muted" style="font-size:11px;">
-                                                        شخصی: {{ number_format($ownStock['normal']) }} + وکالت:
-                                                        {{ number_format($delegatedTotals['normal']) }}
-                                                    </div>
-                                                @endif
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="text-muted">سهم ممتاز</div>
-                                                <div class="fw-semibold">{{ number_format($participant->prefered_stock_count) }}</div>
-                                                @if (($delegatedTotals['prefered'] ?? 0) > 0)
-                                                    <div class="text-muted" style="font-size:11px;">
-                                                        شخصی: {{ number_format($ownStock['prefered']) }} + وکالت:
-                                                        {{ number_format($delegatedTotals['prefered']) }}
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        @endif
-                                        <div class="col-6">
-                                            <div class="text-muted">تعداد نامزدها</div>
-                                            <div class="fw-semibold">
-                                                {{ $election->candidates()->where('candidate_type', App\Enums\CandidateType::DIRECTOR)->count() }}
-                                            </div>
-                                        </div>
-                                        @if ($maxSelectableDirectors > 0)
-                                            <div class="col-6">
-                                                <div class="text-muted">عضو اصلی</div>
-                                                <div class="fw-semibold">{{ $maxSelectableDirectors }} نفر</div>
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 

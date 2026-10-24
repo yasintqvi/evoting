@@ -261,13 +261,6 @@
                 <span class="badge bg-success ms-1">{{ $unavailableElections->count() }}</span>
             </a>
         </li>
-        <li class="nav-item flex-fill" role="presentation">
-            <a href="#archive" data-bs-toggle="tab" aria-expanded="false" class="nav-link text-center" aria-selected="false"
-                tabindex="-1" role="tab">
-                <span>آرشیو</span>
-                <span class="badge bg-secondary ms-1">{{ $archivedElections->count() }}</span>
-            </a>
-        </li>
     </ul>
     <div class="tab-content">
         {{-- <div class="tab-pane show active mb-4 " id="home" role="tabpanel">
@@ -394,13 +387,15 @@
                                 <div class="card-header border-bottom border-dashed bg-light-subtle">
                                     <div class="d-flex justify-content-between align-items-start gap-2">
                                         <div class="min-w-0">
-                                            <p class="text-muted mb-1 fs-13 fw-semibold my-election-card__meta d-flex align-items-center gap-2">
-                                                <span>{{ $itemGroup->title }}</span>
-                                                <span class="text-muted fw-normal">· {{ verta($election->created_at)->format('Y/m/d') }}</span>
+                                            <p class="text-muted mb-1 fs-13 fw-semibold my-election-card__meta">
+                                                {{ $itemGroup->title }}
                                             </p>
                                             <h5 class="card-title mb-1 fw-semibold">{{ $election->title }}</h5>
                                         </div>
-                                        <span class="badge badge-soft-success flex-shrink-0">فعال</span>
+                                        <div class="text-end flex-shrink-0">
+                                            <span class="badge badge-soft-success d-block">فعال</span>
+                                            <span class="text-muted fs-12 d-block mt-1">{{ verta($election->created_at)->format('Y/m/d') }}</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="card-body d-flex flex-column">

@@ -117,10 +117,6 @@
                                                 <div class="my-election-card__stat-value">{{ $survey->questions->count() }}</div>
                                                 <small class="text-muted">تعداد سوال</small>
                                             </div>
-                                            <div class="my-election-card__stat">
-                                                <div class="my-election-card__stat-value">{{ $survey->is_anonymous ? 'بله' : 'خیر' }}</div>
-                                                <small class="text-muted">ناشناس</small>
-                                            </div>
                                         </div>
 
                                         @if ($survey->end_at)
@@ -186,31 +182,17 @@
                                 </div>
                                 <div class="card-body d-flex flex-column">
                                     <div class="my-election-card__details mb-3">
-                                        <div class="my-election-card__stats mb-2">
-                                            <div class="my-election-card__stat">
-                                                <div class="my-election-card__stat-value">{{ $survey->questions->count() }}</div>
-                                                <small class="text-muted">تعداد سوال</small>
-                                            </div>
-                                            <div class="my-election-card__stat">
-                                                <div class="my-election-card__stat-value">{{ $survey->is_anonymous ? 'بله' : 'خیر' }}</div>
-                                                <small class="text-muted">ناشناس</small>
-                                            </div>
-                                        </div>
+                                        <div class="small fw-semibold mb-1">سوال</div>
+                                        <p class="text-muted fs-13 mb-0">
+                                            {{ $survey->questions->first()->question_text ?? '-' }}
+                                        </p>
 
                                         @if ($survey->end_at)
-                                            <div class="d-flex align-items-center gap-1 text-muted fs-12">
+                                            <div class="d-flex align-items-center gap-1 text-muted fs-12 mt-2">
                                                 <i class="ti ti-clock"></i>
                                                 پایان: {{ \Carbon\Carbon::parse($survey->end_at)->timezone('Asia/Tehran')->format('Y-m-d H:i') }}
                                             </div>
                                         @endif
-                                    </div>
-
-                                    <div class="d-grid mt-auto">
-                                        <a href="{{ route('surveys.answer', [$itemGroup->slug, $event->slug, $survey->slug]) }}"
-                                            class="btn btn-outline-secondary btn-lg my-election-card__cta">
-                                            <i class="ti ti-eye me-1"></i>
-                                            مشاهده نظرسنجی
-                                        </a>
                                     </div>
                                 </div>
                             </div>
