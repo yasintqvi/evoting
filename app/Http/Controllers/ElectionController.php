@@ -413,9 +413,11 @@ class ElectionController extends Controller
 
             $tieAnalysis = $this->runoffService->analyzeTieBreak($election);
             if ($tieAnalysis['has_tie'] && ! $election->isRunoff()) {
+                $nextRoundLabel = $this->runoffService->nextRoundLabel($election);
+
                 return redirect()
                     ->route('elections.report', [$group, $event, $election])
-                    ->with('warning', $tieAnalysis['message'].' از دکمه «شروع دور دوم» در گزارش استفاده کنید.');
+                    ->with('warning', $tieAnalysis['message']." از دکمه «شروع دور {$nextRoundLabel}» در گزارش استفاده کنید.");
             }
 
             return back()->with('success', 'انتخابات با موفقیت به پایان رسید.');
@@ -436,11 +438,12 @@ class ElectionController extends Controller
                 abort(404);
             }
 
+            $roundLabel = $this->runoffService->nextRoundLabel($election);
             $runoff = $this->runoffService->createRunoff($election, auth()->user());
 
             return redirect()
                 ->route('elections.index', [$group, $event])
-                ->with('success', 'دور دوم انتخابات ایجاد شد. برای شروع رأی‌گیری، از منوی عملیات «شروع انتخابات» را بزنید.')
+                ->with('success', "دور {$roundLabel} انتخابات ایجاد شد. برای شروع رأی‌گیری، از منوی عملیات «شروع انتخابات» را بزنید.")
                 ->with('runoff_election_id', $runoff->id);
         } catch (Throwable $e) {
             Log::error('Error creating runoff election', [
@@ -593,6 +596,8 @@ class ElectionController extends Controller
         $election->loadMissing('parentElection');
         $tieBreak = $this->runoffService->analyzeTieBreak($election);
         $existingRunoff = $this->runoffService->existingRunoff($election);
+        $nextRoundLabel = $this->runoffService->nextRoundLabel($election);
+        $currentRoundLabel = $this->runoffService->roundLabel($this->runoffService->roundNumber($election));
 
         $participants = $event->participants()
             ->with(['user', 'attorney.user'])
@@ -608,7 +613,9 @@ class ElectionController extends Controller
             'totalVotes',
             'tieBreak',
             'existingRunoff',
-            'participants'
+            'participants',
+            'nextRoundLabel',
+            'currentRoundLabel'
         ));
     }
 

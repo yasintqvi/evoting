@@ -98,7 +98,9 @@
                                             <span class="text-dark fw-medium">{{ $election['title'] }}</span>
                                         @endcan
                                         @if (!empty($election['is_runoff']))
-                                            <span class="badge bg-warning-subtle text-warning ms-1">دور دوم</span>
+                                            <span class="badge bg-warning-subtle text-warning ms-1">
+                                                دور {{ app(\App\Services\ElectionRunoffService::class)->roundLabel((int) $election['round_number']) }}
+                                            </span>
                                         @endif
                                     </td>
                                     <td>

@@ -25,6 +25,7 @@ class ElectionResource extends JsonResource
             'status' => $this->status,
             'fa_status' => $this->status->toFa(),
             'is_runoff' => $this->isRunoff(),
+            'round_number' => app(\App\Services\ElectionRunoffService::class)->roundNumber($this->resource),
             'parent_election_id' => $this->parent_election_id,
             'main_member_count' => $this->main_member_count,
             'substitute_member_count' => $this->substitute_member_count,

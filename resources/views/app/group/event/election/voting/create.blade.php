@@ -355,7 +355,6 @@
                                 class="avatar-xl rounded-circle border border-light border-2">
                             <div>
                                 <h4 class="text-dark fw-medium mb-0">{{ user()->full_name }}</h4>
-                                <p class="text-muted small mb-0">{{ $election->title }}</p>
                             </div>
                         </div>
 
@@ -1191,7 +1190,7 @@
                     let votedCandidatesCount = 0;
                     let hasNegative = false;
                     inputs.forEach(function(input) {
-                        if (input.type === 'number') {
+                        if (input.type === 'number' || input.type === 'text') {
                             const value = parseLocaleNumberToFloat(input.value);
                             if (value < 0) {
                                 hasNegative = true;
@@ -1513,6 +1512,24 @@
                 // نمایش مودال نتیجه رای‌گیری
                 var voteResultModal = new bootstrap.Modal(document.getElementById('voteResultModal'));
                 voteResultModal.show();
+            });
+        </script>
+    @endif
+
+    @if (session('error'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var errorMessage = @json(session('error'));
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'خطا در ثبت رای',
+                        text: errorMessage,
+                        confirmButtonText: 'باشه'
+                    });
+                } else {
+                    alert(errorMessage);
+                }
             });
         </script>
     @endif

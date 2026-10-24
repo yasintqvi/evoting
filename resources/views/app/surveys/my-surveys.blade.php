@@ -101,13 +101,15 @@
                                 <div class="card-header border-bottom border-dashed bg-light-subtle">
                                     <div class="d-flex justify-content-between align-items-start gap-2">
                                         <div class="min-w-0">
-                                            <p class="text-muted mb-1 fs-13 fw-semibold my-election-card__meta d-flex align-items-center gap-2">
-                                                <span>{{ $itemGroup->title }}</span>
-                                                <span class="text-muted fw-normal">· {{ verta($survey->created_at)->format('Y/m/d') }}</span>
+                                            <p class="text-muted mb-1 fs-13 fw-semibold my-election-card__meta">
+                                                {{ $itemGroup->title }}
                                             </p>
                                             <h5 class="card-title mb-1 fw-semibold">{{ $survey->title }}</h5>
                                         </div>
-                                        <span class="badge badge-soft-success flex-shrink-0">فعال</span>
+                                        <div class="text-end flex-shrink-0">
+                                            <span class="badge badge-soft-success d-block">فعال</span>
+                                            <span class="text-muted fs-12 d-block mt-1">{{ verta($survey->created_at)->format('Y/m/d') }}</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="card-body d-flex flex-column">
@@ -122,7 +124,7 @@
                                         @if ($survey->end_at)
                                             <div class="d-flex align-items-center gap-1 text-muted fs-12">
                                                 <i class="ti ti-clock"></i>
-                                                پایان: {{ \Carbon\Carbon::parse($survey->end_at)->timezone('Asia/Tehran')->format('Y-m-d H:i') }}
+                                                پایان: {{ verta($survey->end_at)->format('Y/m/d H:i') }}
                                             </div>
                                         @endif
                                     </div>
@@ -190,7 +192,7 @@
                                         @if ($survey->end_at)
                                             <div class="d-flex align-items-center gap-1 text-muted fs-12 mt-2">
                                                 <i class="ti ti-clock"></i>
-                                                پایان: {{ \Carbon\Carbon::parse($survey->end_at)->timezone('Asia/Tehran')->format('Y-m-d H:i') }}
+                                                پایان: {{ verta($survey->end_at)->format('Y/m/d H:i') }}
                                             </div>
                                         @endif
                                     </div>

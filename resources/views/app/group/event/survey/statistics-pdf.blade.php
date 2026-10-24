@@ -74,15 +74,17 @@
 
         .bar-wrap {
             width: 100%;
+            table-layout: fixed;
             height: 10px;
             background: #e9ecef;
-            border-radius: 2px;
             border-collapse: collapse;
         }
 
         .bar-wrap td {
             height: 10px;
             padding: 0;
+            font-size: 1px;
+            line-height: 1px;
         }
 
         .bar-wrap .bar {
@@ -148,11 +150,11 @@
                         <td class="text-center">{{ number_format((float) $count, $isWeighted ? 2 : 0) }}</td>
                         <td class="text-center">{{ number_format($pct, 1) }}٪</td>
                         <td>
-                            @php $barPct = (int) round(min(100, max(0, $pct))); @endphp
+                            @php $barPct = max(1, min(100, (int) round($pct))); @endphp
                             <table class="bar-wrap">
                                 <tr>
-                                    <td class="bar" width="{{ $barPct }}%"></td>
-                                    <td class="bar-empty" width="{{ 100 - $barPct }}%"></td>
+                                    <td class="bar" style="width:{{ $barPct }}%;"></td>
+                                    <td class="bar-empty" style="width:{{ 100 - $barPct }}%;"></td>
                                 </tr>
                             </table>
                         </td>

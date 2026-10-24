@@ -146,30 +146,30 @@
                     </div>
                     <div class="text-md-end">
                         @if ($election->status !== App\Enums\ElectionStatus::COMPLETED)
-                            <span class="badge bg-secondary">پس از پایان انتخابات می‌توانید دور دوم را شروع کنید</span>
+                            <span class="badge bg-secondary">پس از پایان انتخابات می‌توانید دور {{ $nextRoundLabel }} را شروع کنید</span>
                         @elseif ($existingRunoff)
                             <a href="{{ route('elections.report', [$group, $event, $existingRunoff]) }}"
                                 class="btn btn-outline-primary mb-2 d-block">
-                                مشاهده دور دوم
+                                مشاهده دور {{ $nextRoundLabel }}
                             </a>
                             @if ($existingRunoff->status === App\Enums\ElectionStatus::WAITING_TO_START)
                                 <form action="{{ route('elections.start', [$group, $event, $existingRunoff]) }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="btn btn-warning d-block w-100">شروع رأی‌گیری دور دوم</button>
+                                    <button type="submit" class="btn btn-warning d-block w-100">شروع رأی‌گیری دور {{ $nextRoundLabel }}</button>
                                 </form>
                             @elseif ($existingRunoff->status === App\Enums\ElectionStatus::ONGOING)
-                                <span class="badge bg-primary">دور دوم در حال برگزاری است</span>
+                                <span class="badge bg-primary">دور {{ $nextRoundLabel }} در حال برگزاری است</span>
                             @elseif ($existingRunoff->status === App\Enums\ElectionStatus::COMPLETED)
-                                <span class="badge bg-success">دور دوم پایان یافته</span>
+                                <span class="badge bg-success">دور {{ $nextRoundLabel }} پایان یافته</span>
                             @endif
                         @else
                             @can(\App\Enums\Permission::CREATE_ELECTION_ROUNDS->value)
                                 <form action="{{ route('elections.start-runoff', [$group, $event, $election]) }}"
                                     method="POST"
-                                    onsubmit="return confirm('انتخابات دور دوم فقط با کاندیداهای هم‌رأی ساخته می‌شود. ادامه می‌دهید؟');">
+                                    onsubmit="return confirm('انتخابات دور {{ $nextRoundLabel }} فقط با کاندیداهای هم‌رأی ساخته می‌شود. ادامه می‌دهید؟');">
                                     @csrf
                                     <button type="submit" class="btn btn-warning fw-semibold">
-                                        <i class="ti ti-repeat me-1"></i>شروع دور دوم
+                                        <i class="ti ti-repeat me-1"></i>شروع دور {{ $nextRoundLabel }}
                                     </button>
                                 </form>
                             @endcan
@@ -181,7 +181,7 @@
             @if ($election->isRunoff() && $election->parentElection)
                 <div class="alert alert-info mb-3">
                     این گزارش مربوط به
-                    <strong>دور دوم</strong>
+                    <strong>دور {{ $currentRoundLabel }}</strong>
                     برای شکستن تساوی انتخابات
                     «{{ $election->parentElection->title }}»
                     است.

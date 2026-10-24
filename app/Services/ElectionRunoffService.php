@@ -138,6 +138,24 @@ class ElectionRunoffService
         return $round;
     }
 
+    /**
+     * برچسب فارسی شماره دور (۲ => دوم، ۳ => سوم و...).
+     */
+    public function roundLabel(int $roundNumber): string
+    {
+        $roundLabels = [2 => 'دوم', 3 => 'سوم', 4 => 'چهارم', 5 => 'پنجم', 6 => 'ششم', 7 => 'هفتم', 8 => 'هشتم', 9 => 'نهم', 10 => 'دهم'];
+
+        return $roundLabels[$roundNumber] ?? "{$roundNumber}ام";
+    }
+
+    /**
+     * برچسب فارسی دور بعدی نسبت به انتخابات داده‌شده (مثلاً «سوم» اگر election دور دوم باشد).
+     */
+    public function nextRoundLabel(Election $election): string
+    {
+        return $this->roundLabel($this->roundNumber($election) + 1);
+    }
+
     public function createRunoff(Election $parent, ?User $owner = null): Election
     {
         if ($parent->status !== ElectionStatus::COMPLETED) {
@@ -165,8 +183,7 @@ class ElectionRunoffService
             }
 
             $roundNumber = $this->roundNumber($parent) + 1;
-            $roundLabels = [2 => 'دوم', 3 => 'سوم', 4 => 'چهارم', 5 => 'پنجم', 6 => 'ششم', 7 => 'هفتم', 8 => 'هشتم', 9 => 'نهم', 10 => 'دهم'];
-            $roundLabel = $roundLabels[$roundNumber] ?? "{$roundNumber}ام";
+            $roundLabel = $this->roundLabel($roundNumber);
 
             $rootElection = $parent;
             while ($rootElection->parent_election_id) {
