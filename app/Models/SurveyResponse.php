@@ -11,4 +11,19 @@ class SurveyResponse extends Model
         'user_id',
         'submitted_at',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function answers()
+    {
+        return $this->hasMany(SurveyAnswer::class, 'response_id');
+    }
+
+    public function survey()
+    {
+        return $this->belongsTo(Survey::class);
+    }
 }

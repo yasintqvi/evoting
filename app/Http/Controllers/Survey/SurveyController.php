@@ -298,8 +298,60 @@ class SurveyController extends Controller
             return back()->with('error', 'به دلیل نداشتن سهام، امکان شرکت در نظرسنجی ندارید.');
         }
 
+        $isWeighted = (int) $survey->weight_by_stock === 1 && $group->type->value === GroupType::SPECIAL->value;
+
+        $participant = Participant::where('user_id', auth()->id())
+            ->where('event_id', $event->id)
+            ->whereNull('attorney_id')
+            ->first();
+
+        $representedParticipants = $participant
+            ? Participant::where('event_id', $event->id)
+                ->where('attorney_id', $participant->id)
+                ->with('user')
+                ->get()
+            : collect();
+
+        $ownStock = [
+            'normal' => (float) ($participant->normal_stock_count ?? 0),
+            'prefered' => (float) ($participant->prefered_stock_count ?? 0),
+        ];
+
+        $preferedStockWeight = (float) ($group->prefered_stock_weight ?? 0);
+        $stockUnits = fn (float $normal, float $prefered) => $normal + ($prefered * $preferedStockWeight);
+
+        $delegatedStockPerPrincipal = $representedParticipants->map(function (Participant $rep) use ($stockUnits) {
+            return [
+                'name' => $rep->user?->full_name ?? '—',
+                'normal' => (float) $rep->normal_stock_count,
+                'prefered' => (float) $rep->prefered_stock_count,
+                'effective' => $stockUnits((float) $rep->normal_stock_count, (float) $rep->prefered_stock_count),
+            ];
+        })->values();
+
+        $delegatedTotals = [
+            'normal' => (float) $delegatedStockPerPrincipal->sum('normal'),
+            'prefered' => (float) $delegatedStockPerPrincipal->sum('prefered'),
+            'effective' => (float) $delegatedStockPerPrincipal->sum('effective'),
+        ];
+
+        $effectiveStock = $stockUnits($ownStock['normal'], $ownStock['prefered']) + $delegatedTotals['effective'];
+
         return response()
-            ->view('app.group.event.survey.answer', compact('group', 'event', 'survey', 'isExpired', 'isNotStarted', 'hasSubmitted'))
+            ->view('app.group.event.survey.answer', compact(
+                'group',
+                'event',
+                'survey',
+                'isExpired',
+                'isNotStarted',
+                'hasSubmitted',
+                'isWeighted',
+                'ownStock',
+                'representedParticipants',
+                'delegatedStockPerPrincipal',
+                'delegatedTotals',
+                'effectiveStock'
+            ))
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
             ->header('Pragma', 'no-cache');
     }
@@ -415,6 +467,75 @@ class SurveyController extends Controller
     }
 
     /**
+     * گزارش تفصیلی نظرسنجی: اینکه چه کسی به چه پاسخی رأی داده است.
+     * فقط برای نظرسنجی‌های غیرناشناس قابل تولید است.
+     */
+    public function detailedReport(Group $group, Event $event, Survey $survey)
+    {
+        if ($survey->is_anonymous) {
+            abort(403, 'این نظرسنجی ناشناس است؛ امکان تهیه گزارش تفصیلی هویت پاسخ‌دهندگان وجود ندارد.');
+        }
+
+        $isWeighted = (int) $survey->weight_by_stock === 1 && $group->type->value === GroupType::SPECIAL->value;
+        $preferedStockWeight = (float) ($group->prefered_stock_weight ?? 0);
+
+        $responses = SurveyResponse::query()
+            ->where('survey_id', $survey->id)
+            ->with(['user', 'answers.question', 'answers.option'])
+            ->get();
+
+        $participantsByUserId = $isWeighted
+            ? Participant::query()
+                ->where('event_id', $event->id)
+                ->whereNull('attorney_id')
+                ->get()
+                ->keyBy('user_id')
+            : collect();
+
+        $rows = $responses->map(function (SurveyResponse $response) use ($participantsByUserId, $isWeighted, $preferedStockWeight) {
+            $participant = $participantsByUserId->get($response->user_id);
+
+            $answersByQuestion = $response->answers
+                ->groupBy('question_id')
+                ->map(function ($answers) {
+                    $question = $answers->first()->question;
+                    $texts = $question && (int) $question->type === 1
+                        ? $answers->map(fn ($a) => $a->option?->option_text ?? $a->answer_text ?? '—')->first()
+                        : $answers->map(fn ($a) => $a->option?->option_text ?? $a->answer_text ?? '—')->implode('، ');
+
+                    return [
+                        'question_text' => $question?->question_text ?? '—',
+                        'answer_text' => $texts,
+                    ];
+                })
+                ->values();
+
+            return [
+                'name' => $response->user?->full_name ?? '—',
+                'national_code' => $response->user?->nationalcode ?? '—',
+                'stock_weight' => $isWeighted
+                    ? (float) ($participant?->normal_stock_count ?? 0) + ((float) ($participant?->prefered_stock_count ?? 0) * $preferedStockWeight)
+                    : null,
+                'answers' => $answersByQuestion,
+            ];
+        })->sortBy('name')->values();
+
+        $pdf = Pdf::loadView(
+            'app.group.event.survey.detailed-report-pdf',
+            compact('group', 'event', 'survey', 'rows', 'isWeighted'),
+            [],
+            [
+                'format' => 'A4',
+                'orientation' => 'P',
+            ]
+        );
+
+        $safeSlug = preg_replace('/[^\p{L}\p{N}\-_]+/u', '-', (string) $survey->slug) ?: 'survey';
+
+        return $pdf->download('survey-detailed-report-'.$safeSlug.'.pdf');
+    }
+
+    /**
      * @return array{stats: Collection, isWeighted: bool}
      */
     protected function buildSurveyStatistics(Group $group, Event $event, Survey $survey): array
@@ -424,23 +545,51 @@ class SurveyController extends Controller
         if ($isWeighted) {
             $preferedStockWeight = (float) ($group->prefered_stock_weight ?? 0);
 
+            // وزن هر پاسخ‌دهنده = سهام شخصی او + مجموع سهام همهٔ موکل‌هایی که به او وکالت داده‌اند
+            // (مشابه effectiveVotePower در انتخابات؛ بدون این subquery، سهام وکالتی از محاسبه حذف می‌شد).
+            $ownStockSubquery = DB::table('participants')
+                ->where('event_id', $event->id)
+                ->whereNull('attorney_id')
+                ->groupBy('user_id', 'id')
+                ->select(
+                    'id',
+                    'user_id',
+                    DB::raw('COALESCE(normal_stock_count, 0) + (COALESCE(prefered_stock_count, 0) * '.$preferedStockWeight.') as own_stock')
+                );
+
+            $delegatedStockSubquery = DB::table('participants as principal')
+                ->join('participants as attorney', 'attorney.id', '=', 'principal.attorney_id')
+                ->where('attorney.event_id', $event->id)
+                ->groupBy('attorney.id')
+                ->select(
+                    'attorney.id as attorney_participant_id',
+                    DB::raw('SUM(COALESCE(principal.normal_stock_count, 0) + (COALESCE(principal.prefered_stock_count, 0) * '.$preferedStockWeight.')) as delegated_stock')
+                );
+
+            $effectiveStockSubquery = DB::query()
+                ->fromSub($ownStockSubquery, 'own')
+                ->leftJoinSub($delegatedStockSubquery, 'delegated', function ($join) {
+                    $join->on('delegated.attorney_participant_id', '=', 'own.id');
+                })
+                ->groupBy('own.user_id')
+                ->select(
+                    'own.user_id',
+                    DB::raw('SUM(own.own_stock + COALESCE(delegated.delegated_stock, 0)) as effective_stock')
+                );
+
             $raw = DB::table('survey_answers')
                 ->join('survey_responses', 'survey_answers.response_id', '=', 'survey_responses.id')
                 ->join('survey_questions', 'survey_answers.question_id', '=', 'survey_questions.id')
                 ->leftJoin('survey_options', 'survey_answers.option_id', '=', 'survey_options.id')
-                ->leftJoin('participants', function ($join) use ($event) {
-                    $join->on('participants.user_id', '=', 'survey_responses.user_id')
-                        ->where('participants.event_id', '=', $event->id)
-                        ->whereNull('participants.attorney_id');
+                ->leftJoinSub($effectiveStockSubquery, 'stock', function ($join) {
+                    $join->on('stock.user_id', '=', 'survey_responses.user_id');
                 })
                 ->select(
                     'survey_questions.id as question_id',
                     'survey_questions.question_text as question_title',
                     'survey_options.id as option_id',
                     'survey_options.option_text as option_title',
-                    DB::raw(
-                        'SUM(COALESCE(participants.normal_stock_count, 0) + (COALESCE(participants.prefered_stock_count, 0) * '.$preferedStockWeight.')) as weight_sum'
-                    )
+                    DB::raw('SUM(COALESCE(stock.effective_stock, 0)) as weight_sum')
                 )
                 ->where('survey_responses.survey_id', $survey->id)
                 ->groupBy('survey_questions.id', 'survey_questions.question_text', 'survey_options.id', 'survey_options.option_text')

@@ -47,4 +47,7 @@ Route::prefix('{group:slug}/events/{event}')->group(function () {
 
     Route::get('/surveys/{survey}/statistics', [SurveyController::class, 'statistics'])
         ->name('surveys.statistics');
+
+    Route::get('/surveys/{survey}/detailed-report', [SurveyController::class, 'detailedReport'])
+        ->name('surveys.detailed-report');
 });

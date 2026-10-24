@@ -12,4 +12,19 @@ class SurveyAnswer extends Model
         "option_id",
         "answer_text",
     ];
+
+    public function response()
+    {
+        return $this->belongsTo(SurveyResponse::class, 'response_id');
+    }
+
+    public function question()
+    {
+        return $this->belongsTo(Question::class);
+    }
+
+    public function option()
+    {
+        return $this->belongsTo(Option::class);
+    }
 }

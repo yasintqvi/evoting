@@ -55,6 +55,90 @@
                 </div>
             @endif
 
+            {{-- کارت اطلاعات نظرسنجی: وکالت‌ها، ناشناس بودن، تأثیر سهام --}}
+            <div class="card border mb-3">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="ti ti-user-check fs-18 {{ $survey->is_anonymous ? 'text-success' : 'text-warning' }}"></i>
+                                <div>
+                                    <div class="small text-muted mb-0">ناشناس بودن پاسخ‌ها</div>
+                                    <div class="fw-semibold">{{ $survey->is_anonymous ? 'ناشناس است' : 'ناشناس نیست' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="ti ti-chart-bar fs-18 {{ $isWeighted ? 'text-primary' : 'text-muted' }}"></i>
+                                <div>
+                                    <div class="small text-muted mb-0">تأثیر تعداد سهام</div>
+                                    <div class="fw-semibold">{{ $isWeighted ? 'مؤثر است' : 'مؤثر نیست (هر نفر یک رأی)' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        @if ($isWeighted)
+                            <div class="col-sm-6 col-lg-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="ti ti-chart-pie fs-18 text-info"></i>
+                                    <div>
+                                        <div class="small text-muted mb-0">سهام شخصی شما</div>
+                                        <div class="fw-semibold">عادی: {{ number_format($ownStock['normal']) }} | ممتاز: {{ number_format($ownStock['prefered']) }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-lg-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="ti ti-scale fs-18 text-dark"></i>
+                                    <div>
+                                        <div class="small text-muted mb-0">مجموع وزن رأی شما</div>
+                                        <div class="fw-semibold">{{ number_format($effectiveStock, 2) }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+
+                    @if ($representedParticipants->isNotEmpty())
+                        <hr class="my-3">
+                        <div>
+                            <div class="fw-semibold mb-2 d-flex align-items-center gap-1">
+                                <i class="ti ti-shield-check text-warning"></i>
+                                وکالت‌های شما در این رویداد
+                                <span class="badge bg-warning-subtle text-warning border border-warning border-opacity-25">{{ $representedParticipants->count() }} نفر</span>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>موکل</th>
+                                            @if ($isWeighted)
+                                                <th class="text-center">سهم عادی</th>
+                                                <th class="text-center">سهم ممتاز</th>
+                                            @endif
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($delegatedStockPerPrincipal as $delegate)
+                                            <tr>
+                                                <td>{{ $delegate['name'] }}</td>
+                                                @if ($isWeighted)
+                                                    <td class="text-center">{{ number_format($delegate['normal']) }}</td>
+                                                    <td class="text-center">{{ number_format($delegate['prefered']) }}</td>
+                                                @endif
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p class="text-muted small mt-2 mb-0">
+                                شما پاسخ این نظرسنجی را هم به نمایندگی از افراد بالا و هم برای خودتان، یک‌جا ثبت می‌کنید.
+                            </p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
             @if ($isExpired)
                 <div class="text-center py-5">
                     <i class="ti ti-lock fs-48 text-danger"></i>
@@ -77,22 +161,6 @@
                     @error('survey')
                         <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
-
-                    @if ($group->type === App\Enums\GroupType::SPECIAL)
-                        @php
-                            $participant = $event->participants()->where('user_id', user()->id)->whereNull('attorney_id')->first();
-                            $normal = $participant?->normal_stock_count ?? 0;
-                            $prefered = $participant?->prefered_stock_count ?? 0;
-                            $effective = $normal + $prefered;
-                        @endphp
-                        <div class="alert alert-info d-flex align-items-center gap-2 mb-3">
-                            <i class="ti ti-chart-bar fs-18"></i>
-                            <div>
-                                <strong>سهام شما در این رویداد :</strong>
-                                عادی: {{ $normal }} | ممتاز: {{ $prefered }} | کل: {{ $effective }}
-                            </div>
-                        </div>
-                    @endif
 
                     @foreach ($survey->questions as $question)
                         <div class="mb-3 border p-3 rounded">
