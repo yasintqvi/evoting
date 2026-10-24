@@ -17,6 +17,11 @@
                     <i class="ti ti-file-type-pdf me-1"></i>
                     دانلود PDF فشرده
                 </a>
+                <a href="{{ route('surveys.statistics', [$group, $event, $survey]) }}?download_excel=1"
+                    class="btn btn-success bg-gradient" target="_blank" rel="noopener">
+                    <i class="ti ti-file-type-xls me-1"></i>
+                    دانلود اکسل (با نمودار)
+                </a>
                 @if (! $survey->is_anonymous)
                     <a href="{{ route('surveys.detailed-report', [$group, $event, $survey]) }}"
                         class="btn btn-outline-dark" target="_blank" rel="noopener">

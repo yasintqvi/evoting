@@ -409,7 +409,7 @@
                                     <path d="M10 12l-2-2l-2 2l2 2z"></path>
                                     <path d="M14 12l2-2l2 2l-2 2z"></path>
                                 </svg>
-                                دانلود گزارش Excel
+                                دانلود گزارش Excel (با نمودار)
                             </a>
 
                         </div>

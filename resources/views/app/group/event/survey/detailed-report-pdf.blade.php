@@ -115,7 +115,7 @@
             <div>گروه: {{ $group->title ?? '—' }}</div>
             <div>رویداد: {{ $event->title ?? '—' }}</div>
             <div>تعداد پاسخ‌دهندگان: {{ $rows->count() }}</div>
-            <div>تاریخ گزارش: {{ now()->format('Y-m-d H:i') }}</div>
+            <div>تاریخ گزارش: {{ verta(now('Asia/Tehran'))->format('Y/m/d H:i') }}</div>
         </div>
     </div>
 

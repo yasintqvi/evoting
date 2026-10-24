@@ -39,7 +39,7 @@
                         <tr>
                             <td class="ps-3">{{ $loop->iteration }}</td>
                             <td>{{ $role->name }}</td>
-                            <td>{{ verta($role->created_at)->format('Y/m/d H:i') }}</td>
+                            <td>{{ verta($role->created_at->copy()->setTimezone('Asia/Tehran'))->format('Y/m/d H:i') }}</td>
                             <td class="pe-3">
                                 <div class="hstack gap-1 justify-content-end">
                                     <a href="{{ route('roles.edit', $role->id) }}" class="btn btn-secondary btn-sm"><i class="ti ti-edit"></i></a>

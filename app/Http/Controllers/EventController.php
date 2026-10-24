@@ -142,7 +142,7 @@ class EventController extends Controller
                 'eligible_count' => $presentVoters,
                 'percent' => $percent,
                 'starts_at' => $election->starts_at
-                    ? verta($election->starts_at)->format('Y/m/d H:i')
+                    ? verta($election->starts_at->copy()->setTimezone('Asia/Tehran'))->format('Y/m/d H:i')
                     : null,
             ];
 

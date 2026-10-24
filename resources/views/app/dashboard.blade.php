@@ -255,7 +255,7 @@
                                                 N/A
                                             @endif
                                         </td>
-                                        <td>{{ verta($activity->created_at)->format('Y/m/d H:i') }}</td>
+                                        <td>{{ verta($activity->created_at->copy()->setTimezone('Asia/Tehran'))->format('Y/m/d H:i') }}</td>
                                     </tr>
                                 @empty
                                     <tr>

@@ -187,7 +187,7 @@
                                                                 </a>
                                                                 <span class="mb-1">{{ $activity->description }}</span>
                                                                 <div class="mb-0 pb-3 flex justify-content-between align-items-center">
-                                                                    <small class="text-muted">{{ jalali($activity->created_at)->format("H:i:s Y/m/d")  }} - </small>
+                                                                    <small class="text-muted">{{ jalali($activity->created_at->copy()->setTimezone('Asia/Tehran'))->format("H:i:s Y/m/d")  }} - </small>
                                                                     <small class="text-muted">ایجاد شده توسط {{ $activity?->causer?->full_name  }}</small>
                                                                 </div>
                                                             </div>
@@ -244,7 +244,7 @@
                     <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded-3">
                         <div>
                             <p class="mb-1 text-muted small">تاریخ جلسه</p>
-                            <h5 class="fw-bold text-primary">{{ $event->created_at->format('Y/m/d') }}</h5>
+                            <h5 class="fw-bold text-primary">{{ verta($event->created_at->copy()->setTimezone('Asia/Tehran'))->format('Y/m/d') }}</h5>
                         </div>
                         <div class="display-4 text-primary"><i class="bi bi-calendar3"></i></div>
                     </div>

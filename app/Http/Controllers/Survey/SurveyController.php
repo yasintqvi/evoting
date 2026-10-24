@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Survey;
 
 use App\Enums\GroupType;
+use App\Exports\SurveyExport;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\Group;
@@ -17,6 +18,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as Pdf;
 
 class SurveyController extends Controller
@@ -463,6 +465,25 @@ class SurveyController extends Controller
             return $pdf->download('survey-statistics-'.$safeSlug.$suffix.'.pdf');
         }
 
+        if ($request->boolean('download_excel')) {
+            $responseCount = SurveyResponse::query()->where('survey_id', $survey->id)->count();
+
+            $export = new SurveyExport(
+                $group->title ?? '',
+                $event->title ?? '',
+                $survey->title ?? '',
+                (bool) $survey->is_anonymous,
+                $isWeighted,
+                $responseCount,
+                verta(now('Asia/Tehran'))->format('Y/m/d H:i'),
+                $stats
+            );
+
+            $safeSlug = preg_replace('/[^\p{L}\p{N}\-_]+/u', '-', (string) $survey->slug) ?: 'survey';
+
+            return Excel::download($export, 'survey-statistics-'.$safeSlug.'.xlsx');
+        }
+
         return view('app.group.event.survey.statistics', compact('group', 'event', 'survey', 'stats', 'isWeighted'));
     }
 
@@ -510,9 +531,14 @@ class SurveyController extends Controller
                 })
                 ->values();
 
+            $nationalCode = $response->user?->nationalcode ?? '';
+            $maskedNationalCode = mb_strlen($nationalCode) === 10
+                ? mb_substr($nationalCode, 0, 3).'***'.mb_substr($nationalCode, 6, 4)
+                : '**********';
+
             return [
                 'name' => $response->user?->full_name ?? '—',
-                'national_code' => $response->user?->nationalcode ?? '—',
+                'national_code' => $maskedNationalCode,
                 'stock_weight' => $isWeighted
                     ? (float) ($participant?->normal_stock_count ?? 0) + ((float) ($participant?->prefered_stock_count ?? 0) * $preferedStockWeight)
                     : null,

@@ -78,7 +78,7 @@
             |
             <span>رویداد: {{ $event->title ?? '-' }}</span>
             |
-            <span>تاریخ گزارش: {{ now('Asia/Tehran')->format('Y-m-d H:i') }}</span>
+            <span>تاریخ گزارش: {{ verta(now('Asia/Tehran'))->format('Y/m/d H:i') }}</span>
         </div>
     </div>
 

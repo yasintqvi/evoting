@@ -325,10 +325,10 @@
                 @if ($election->isExpired())
                     <strong>این انتخابات منقضی شده است.</strong>
                     زمان پایان:
-                    {{ verta($election->ends_at)->format('Y/m/d H:i') }}
+                    {{ verta($election->ends_at->copy()->setTimezone('Asia/Tehran'))->format('Y/m/d H:i') }}
                 @else
                     <strong>زمان پایان انتخابات:</strong>
-                    {{ verta($election->ends_at)->format('Y/m/d H:i') }}
+                    {{ verta($election->ends_at->copy()->setTimezone('Asia/Tehran'))->format('Y/m/d H:i') }}
                     <div>
                         <small class="text-primary election-countdown"
                             data-end="{{ $election->ends_at?->toDateTimeString() }}">

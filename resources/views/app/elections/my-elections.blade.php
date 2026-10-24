@@ -394,7 +394,7 @@
                                         </div>
                                         <div class="text-end flex-shrink-0">
                                             <span class="badge badge-soft-success d-block">فعال</span>
-                                            <span class="text-muted fs-12 d-block mt-1">{{ verta($election->created_at)->format('Y/m/d') }}</span>
+                                            <span class="text-muted fs-12 d-block mt-1">{{ verta($election->created_at->copy()->setTimezone('Asia/Tehran'))->format('Y/m/d') }}</span>
                                         </div>
                                     </div>
                                 </div>

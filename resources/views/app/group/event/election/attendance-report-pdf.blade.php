@@ -103,7 +103,7 @@
         <div class="meta" style="margin-top:4px;">
             وضعیت حضور بر اساس زمان شروع این انتخابات محاسبه شده است.
             @if ($election->starts_at)
-                (شروع: {{ function_exists('verta') ? verta($election->starts_at)->format('Y/m/d H:i') : $election->starts_at }})
+                (شروع: {{ function_exists('verta') ? verta($election->starts_at->copy()->setTimezone('Asia/Tehran'))->format('Y/m/d H:i') : $election->starts_at }})
             @endif
         </div>
     </div>
