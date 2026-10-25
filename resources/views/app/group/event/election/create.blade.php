@@ -426,7 +426,7 @@
             }
 
             infoText.textContent =
-                `صندلی‌های انتخابی: ${mainMemberCount} عضو اصلی + ${substituteMemberCount} علی‌البدل (مجموع ذخیره‌شده در سیستم به‌عنوان «تعداد نامزد» برابر ${totalSeats} است).`;
+                `صندلی‌ها ی انتخابی: ${mainMemberCount} عضو اصلی + ${substituteMemberCount} علی‌البدل (مجموع ذخیره‌شده در سیستم به‌عنوان «تعداد نامزد» برابر ${totalSeats} است).`;
             infoDiv.className = 'alert alert-info';
             infoDiv.style.display = 'block';
             return true;
