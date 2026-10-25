@@ -89,9 +89,9 @@
 
 <body>
     <div class="header" style="text-align:center;">
-        <h1 style="font-size:20px;">{{ $group->title ?? '-' }}</h1>
-        <h2 style="margin-top:6px;">گزارش حاضرین در جلسه</h2>
-        <p style="margin-top:6px;">{{ $event->name ?? '-' }}</p>
+        <h2 style="font-size:18px;">گزارش حاضرین در جلسه</h2>
+        <p style="margin-top:6px; font-size:13px;">{{ $group->title ?? '-' }}</p>
+        <p style="margin-top:4px; font-size:11px; color:#666;">{{ $event->name ?? '-' }}</p>
         <div class="meta">
             <span>تاریخ گزارش:
                 {{ function_exists('verta') ? verta(now('Asia/Tehran'))->format('Y/m/d H:i') : now('Asia/Tehran')->format('Y-m-d H:i') }}

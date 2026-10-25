@@ -678,6 +678,8 @@ class ElectionController extends Controller
                 ],
             ],
             'default_font' => 'vazir',
+            'useOTL' => 0xFF,
+            'useKashida' => 75,
         ]);
 
         return $pdf->download('attendance-report-' . $election->id . '.pdf');
