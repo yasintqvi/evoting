@@ -15,7 +15,7 @@ class SendOtpRequest extends FormRequest
     {
         if ($this->has('identifier')) {
             $this->merge([
-                'identifier' => ed($this->identifier),
+                'identifier' => preg_replace('/^(?:\+98|0098|98)?9(\d{9})$/', '09$1', ed($this->identifier)),
             ]);
         }
     }

@@ -47,6 +47,10 @@
         password.disabled = isOtp;
         password.required = !isOtp;
         get('password-alternative').hidden = isOtp;
+        get('identifier-label').textContent = isOtp ? 'شماره موبایل' : 'کد ملی';
+        phone.placeholder = isOtp ? '09xxxxxxxxx' : 'کد ملی ۱۰ رقمی';
+        phone.inputMode = isOtp ? 'tel' : 'numeric';
+        get('phone-help').textContent = isOtp ? 'شماره موبایلی که با آن در سامانه ثبت شده‌اید.' : 'کد ملی ثبت‌شده در سامانه را وارد کنید.';
         get('phone-field').hidden = isCode;
         phone.readOnly = isCode;
         get('phone-summary').hidden = !isCode;
@@ -138,7 +142,7 @@
     get('resend-code').addEventListener('click', sendCode);
     form.addEventListener('submit', event => {
         if (busy) { event.preventDefault(); return; }
-        phone.value = normalizePhone(phone.value);
+        if (mode === 'otp') phone.value = normalizePhone(phone.value);
         if (mode === 'otp' && step === 'phone') { event.preventDefault(); sendCode(); return; }
         setBusy(true);
     });

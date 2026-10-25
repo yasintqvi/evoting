@@ -25,7 +25,7 @@ class LoginRequest extends FormRequest
      */
     public function rules(): array
     {
-        $identifier_field = config('auth.identifier');
+        $identifier_field = (int) $this->auth_type === AuthType::OTP->value ? 'phone' : config('auth.identifier');
 
         return [
             'auth_type' => ['required', Rule::in(AuthType::getTypes())],

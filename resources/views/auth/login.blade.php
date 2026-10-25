@@ -29,7 +29,6 @@
                 <div id="feedback" class="feedback {{ $errors->any() ? 'is-error' : '' }}" role="status" aria-live="polite" tabindex="-1" @if(!$errors->any()) hidden @endif>
                     {{ $errors->first() }}
                 </div>
-
                 <form id="login-form" action="{{ route('login') }}" method="post"
                     data-send-url="{{ route('otp.send') }}"
                     data-initial-mode="{{ (int) old('auth_type', isset($otpPage) ? App\Enums\AuthType::OTP->value : App\Enums\AuthType::PASSWORD->value) === App\Enums\AuthType::OTP->value ? 'otp' : 'password' }}"
@@ -39,7 +38,7 @@
                     @csrf
                     <input type="hidden" id="auth-type" name="auth_type" value="{{ App\Enums\AuthType::PASSWORD->value }}">
                     <div class="field" id="phone-field">
-                        <label for="identifier"> کد ملی </label>
+                        <label for="identifier" id="identifier-label">کد ملی</label>
                         <input type="tel" id="identifier" name="identifier" value="{{ old('identifier') }}" placeholder="09xxxxxxxxx" autocomplete="username" inputmode="tel" dir="ltr" required aria-describedby="phone-help">
                         <p class="field-help" id="phone-help">شماره موبایلی که با آن در سامانه ثبت شده‌اید.</p>
                     </div>

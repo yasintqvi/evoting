@@ -18,9 +18,7 @@ class OtpService
 {
     public function sendOtp(SendOtpDTO $sendOtpDTO)
     {
-        $identifier = config('auth.identifier');
-
-        $user = User::where($identifier, $sendOtpDTO->identifier)->first();
+        $user = User::where('phone', $sendOtpDTO->identifier)->first();
 
         if (! $user) {
             throw new UserNotExistException;
@@ -32,7 +30,7 @@ class OtpService
 
         return [
             'two_factor_type' => $user->two_factor_type,
-            'identifier' => $user->$identifier,
+            'identifier' => $user->phone,
             'phone' => $user->phone,
         ];
     }

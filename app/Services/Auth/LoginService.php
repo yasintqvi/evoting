@@ -35,10 +35,7 @@ class LoginService
 
     public function loginWithOtp(LoginDTO $loginDTO)
     {
-
-        $identifier_field = config('auth.identifier');
-
-        $user = User::where($identifier_field, $loginDTO->identifier)->first();
+        $user = User::where('phone', $loginDTO->identifier)->first();
 
         if (! $user) {
             return false;
