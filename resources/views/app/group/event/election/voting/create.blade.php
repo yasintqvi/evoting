@@ -648,6 +648,12 @@
                         @if ($isCheckboxVote)
                             <p class="text-muted small mb-0 mt-1">برای انتخاب، روی کارت نامزد ضربه بزنید</p>
                         @endif
+                        @if ((int) ($election->substitute_member_count ?? 0) > 0)
+                            <div class="alert alert-info mt-2 mb-0 py-2 px-3 fs-13">
+                                شما به {{ $maxSelectableDirectors }} نفر عضو اصلی رأی می‌دهید؛
+                                {{ (int) $election->substitute_member_count }} نفر عضو علی‌البدل نیز از میان سایر نامزدها بر اساس تعداد آرا تعیین خواهد شد.
+                            </div>
+                        @endif
                     </div>
                     @if ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88)
                         <div class="card-body border-bottom bg-light py-3" id="article88-live-summary">

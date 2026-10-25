@@ -64,7 +64,7 @@ class ViewServiceProvider extends ServiceProvider
                         ->where('participant_id', $participant->id)
                         ->exists();
 
-                    if (! $hasVoted && $election->status == ElectionStatus::ONGOING) {
+                    if (! $hasVoted && $election->status == ElectionStatus::ONGOING && ! $election->isExpired()) {
                         $sidebarAvailableElections->push([
                             'election' => $election,
                             'event' => $event,

@@ -476,23 +476,26 @@
                                 <div class="card-header border-bottom border-dashed">
                                     <div class="d-flex justify-content-between align-items-start gap-2">
                                         <div class="min-w-0">
-                                            <h5 class="card-title mb-1 fw-semibold">{{ $election->title }}</h5>
-                                            <p class="text-muted mb-0 fs-13 my-election-card__meta">
-                                                {{ $event->title }} · {{ $itemGroup->title }}
+                                            <p class="text-muted mb-1 fs-13 my-election-card__meta">
+                                                {{ $itemGroup->title }}
                                             </p>
+                                            <h5 class="card-title mb-0 fw-semibold">{{ $election->title }}</h5>
                                         </div>
-                                        <div class="d-flex align-items-center gap-2 flex-shrink-0">
-                                            <span class="badge badge-soft-info">{{ $item['status_text'] ?? $item['election']->status->toFa() }}</span>
-                                            @if ($pastTab !== 'archive' && $election->isFinished())
-                                                <form action="{{ route('my-elections.destroy', $election) }}"
-                                                    method="POST" class="mb-0"
-                                                    onsubmit="return confirm('این انتخابات از لیست گذشته به آرشیو منتقل شود؟')">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                        انتقال به آرشیو
-                                                    </button>
-                                                </form>
-                                            @endif
+                                        <div class="d-flex flex-column align-items-end gap-2 flex-shrink-0">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="badge badge-soft-info">{{ $item['status_text'] ?? $item['election']->status->toFa() }}</span>
+                                                @if ($pastTab !== 'archive' && $election->isFinished())
+                                                    <form action="{{ route('my-elections.destroy', $election) }}"
+                                                        method="POST" class="mb-0"
+                                                        onsubmit="return confirm('این انتخابات از لیست گذشته به آرشیو منتقل شود؟')">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                            انتقال به آرشیو
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            </div>
+                                            <small class="text-muted fs-12">{{ verta($election->created_at->copy()->setTimezone('Asia/Tehran'))->format('Y/m/d') }}</small>
                                         </div>
                                     </div>
                                 </div>
