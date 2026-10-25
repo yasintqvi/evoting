@@ -389,6 +389,18 @@
             white-space: nowrap;
             min-width: 0;
         }
+
+        .proj-people-subhead {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: #64748b;
+            padding: 0.25rem 0.1rem 0.1rem;
+            margin-top: 0.1rem;
+        }
+
+        .proj-people-subhead:first-child {
+            margin-top: 0;
+        }
     </style>
 @endsection
 
@@ -529,32 +541,57 @@
             const nameCollator = new Intl.Collator('fa', { sensitivity: 'base' });
             const normalizedName = name => String(name ?? '').replace(/ي/g, 'ی').replace(/ك/g, 'ک').trim();
 
+            function makePersonEl(a) {
+                const person = document.createElement('div');
+                person.className = `proj-person ${a.is_present ? 'on' : 'off'}`;
+                const name = document.createElement('span');
+                name.className = 'name';
+                name.textContent = a.name;
+                const tag = document.createElement('span');
+                tag.className = 'tag';
+                tag.textContent = a.is_present ? 'حاضر' : 'غایب';
+                person.append(name, tag);
+                return person;
+            }
+
+            function byName(a, b) {
+                return nameCollator.compare(normalizedName(a.name), normalizedName(b.name));
+            }
+
             function renderAttendees() {
                 if (!attendeesCache.length) {
                     peopleEl.innerHTML = '<div class="proj-empty" style="grid-column:1/-1;padding:0.85rem;">شرکت‌کننده‌ای ثبت نشده است</div>';
                     return;
                 }
 
-                const attendees = [...attendeesCache].sort((a, b) => {
-                    if (peopleSortEl.value === 'presence') {
-                        const presenceOrder = Number(b.is_present) - Number(a.is_present);
-                        if (presenceOrder) return presenceOrder;
-                    }
-                    return nameCollator.compare(normalizedName(a.name), normalizedName(b.name));
-                });
+                if (peopleSortEl.value === 'presence') {
+                    const present = attendeesCache.filter(a => a.is_present).sort(byName);
+                    const absent = attendeesCache.filter(a => !a.is_present).sort(byName);
 
-                peopleEl.replaceChildren(...attendees.map(a => {
-                    const person = document.createElement('div');
-                    person.className = `proj-person ${a.is_present ? 'on' : 'off'}`;
-                    const name = document.createElement('span');
-                    name.className = 'name';
-                    name.textContent = a.name;
-                    const tag = document.createElement('span');
-                    tag.className = 'tag';
-                    tag.textContent = a.is_present ? 'حاضر' : 'غایب';
-                    person.append(name, tag);
-                    return person;
-                }));
+                    const nodes = [];
+
+                    if (present.length) {
+                        const heading = document.createElement('div');
+                        heading.className = 'proj-people-subhead';
+                        heading.style.gridColumn = '1/-1';
+                        heading.textContent = `حاضرین (${present.length})`;
+                        nodes.push(heading, ...present.map(makePersonEl));
+                    }
+
+                    if (absent.length) {
+                        const heading = document.createElement('div');
+                        heading.className = 'proj-people-subhead';
+                        heading.style.gridColumn = '1/-1';
+                        heading.textContent = `غایبین (${absent.length})`;
+                        nodes.push(heading, ...absent.map(makePersonEl));
+                    }
+
+                    peopleEl.replaceChildren(...nodes);
+                    return;
+                }
+
+                const attendees = [...attendeesCache].sort(byName);
+                peopleEl.replaceChildren(...attendees.map(makePersonEl));
             }
 
             function renderElections() {
