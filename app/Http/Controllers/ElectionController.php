@@ -675,11 +675,11 @@ class ElectionController extends Controller
                     'R' => 'Vazir.ttf',
                     'B' => 'Vazir-Bold.ttf',
                     'L' => 'Vazir-Light.ttf',
+                    'useOTL' => 0xFF,
+                    'useKashida' => 75,
                 ],
             ],
             'default_font' => 'vazir',
-            'useOTL' => 0xFF,
-            'useKashida' => 75,
             'autoScriptToLang' => false,
             'autoLangToFont' => false,
         ]);

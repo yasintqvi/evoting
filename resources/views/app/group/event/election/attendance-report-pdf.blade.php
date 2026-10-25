@@ -141,10 +141,6 @@
                         <td>
                             @if ($participant->attorney)
                                 {{ $participant->attorney->user?->full_name ?? '-' }}
-                                <span class="muted">
-                                    (سهم عادی: {{ number_format($participant->delegated_normal_stock_count) }} -
-                                    سهم ممتاز: {{ number_format($participant->delegated_prefered_stock_count) }})
-                                </span>
                             @else
                                 <span class="muted">-</span>
                             @endif
