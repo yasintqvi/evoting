@@ -3,16 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>گزارش حضور و وکالت - {{ $election->title }}</title>
+    <title>گزارش حضور - {{ $election->title }}</title>
     <style>
-        body {
-            font-family: vazir, sans-serif;
-            direction: rtl;
-            text-align: right;
-            color: #222;
-            font-size: 12px;
-        }
-
         h1,
         h2,
         h3,
@@ -87,11 +79,11 @@
     </style>
 </head>
 
-<body>
+<body style="font-family: vazir, sans-serif; direction: rtl; text-align: right; color: #222; font-size: 12px;">
     <div class="header" style="text-align:center;">
-        <p style="margin-top:6px; font-size:13px;">{{ $group->title ?? '-' }}</p>
-        <h2 style="font-size:18px;">گزارش حاضرین در جلسه</h2>
-        <p style="margin-top:4px; font-size:11px; color:#666;">{{ $event->name ?? '-' }}</p>
+        <p style="margin-top:18px;">{{ $group->title ?? '-' }}</p>
+        <p style="margin-top:6px; font-size:14px; color:#666;">{{ $event->name ?? '-' }}</p>
+        <h2 style="font-size:4px; font-size:11px; color:#666;">گزارش حاضرین در جلسه</h2>
         <div class="meta">
             <span>تاریخ گزارش:
                 {{ function_exists('verta') ? verta(now('Asia/Tehran'))->format('Y/m/d H:i') : now('Asia/Tehran')->format('Y-m-d H:i') }}
@@ -149,6 +141,10 @@
                         <td>
                             @if ($participant->attorney)
                                 {{ $participant->attorney->user?->full_name ?? '-' }}
+                                <span class="muted">
+                                    (سهم عادی: {{ number_format($participant->delegated_normal_stock_count) }} -
+                                    سهم ممتاز: {{ number_format($participant->delegated_prefered_stock_count) }})
+                                </span>
                             @else
                                 <span class="muted">-</span>
                             @endif

@@ -76,13 +76,12 @@ input:focus {
     width:100%;
 }
 .form-brand {
-    display:flex;
-    align-items:center;
-    gap:12px;
+    display:block;
+    text-align:center;
     font-size:18px;
     font-weight:800;
     line-height:1.4;
-    margin-bottom:24px;
+    margin:10px 0 24px;
 }
 .section-kicker {
     font-size:12px;
@@ -363,6 +362,7 @@ h2 {
     object-position:center;
     flex-shrink:0;
     aspect-ratio:1/1;
+    margin:0 auto;
 }
 @media (max-width:480px) {
     .auth-shell { padding:12px; }
