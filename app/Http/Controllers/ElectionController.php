@@ -619,6 +619,11 @@ class ElectionController extends Controller
         ));
     }
 
+    private function mpdfFontDirs(): array
+    {
+        return (new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'];
+    }
+
     public function attendanceReport(Request $request, Group $group, Event $event, Election $election): BinaryFileResponse
     {
         $event->load([
@@ -664,6 +669,15 @@ class ElectionController extends Controller
         ), [], [
             'format' => 'A4',
             'orientation' => 'P',
+            'fontDir' => array_merge($this->mpdfFontDirs(), [public_path('assets/fonts/7-Vazir')]),
+            'fontdata' => [
+                'vazir' => [
+                    'R' => 'Vazir.ttf',
+                    'B' => 'Vazir-Bold.ttf',
+                    'L' => 'Vazir-Light.ttf',
+                ],
+            ],
+            'default_font' => 'vazir',
         ]);
 
         return $pdf->download('attendance-report-' . $election->id . '.pdf');

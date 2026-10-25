@@ -13,8 +13,8 @@
     <main class="auth-shell">
         <section class="form-panel" aria-labelledby="form-title">
             <div class="form-wrap">
+                <img src="{{ asset('images/logo.png') }}" style="align-content: center" alt="لوگو" class="brand-mark ">
                 <div class="form-brand">
-                    <img src="{{ asset('images/logo.png') }}" alt="لوگو" class="brand-mark">
                     سامانه انتخابات بیمارستان فوق تخصصی میلاد لاهیجان
                 </div>
                 <span class="section-kicker">خوش آمدید</span>

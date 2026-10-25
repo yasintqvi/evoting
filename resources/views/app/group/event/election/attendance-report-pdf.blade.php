@@ -6,7 +6,7 @@
     <title>گزارش حضور و وکالت - {{ $election->title }}</title>
     <style>
         body {
-            font-family: DejaVu Sans, sans-serif;
+            font-family: vazir, sans-serif;
             direction: rtl;
             text-align: right;
             color: #222;
@@ -88,24 +88,21 @@
 </head>
 
 <body>
-    <div class="header">
-        <h2>گزارش حضور و وکالت‌ها</h2>
-        <p style="margin-top:6px;">{{ $election->title }}</p>
+    <div class="header" style="text-align:center;">
+        <h1 style="font-size:20px;">{{ $group->title ?? '-' }}</h1>
+        <h2 style="margin-top:6px;">گزارش حاضرین در جلسه</h2>
+        <p style="margin-top:6px;">{{ $event->name ?? '-' }}</p>
         <div class="meta">
-            <span>گروه: {{ $group->title ?? '-' }}</span>
-            |
-            <span>رویداد: {{ $event->title ?? '-' }}</span>
-            |
             <span>تاریخ گزارش:
                 {{ function_exists('verta') ? verta(now('Asia/Tehran'))->format('Y/m/d H:i') : now('Asia/Tehran')->format('Y-m-d H:i') }}
             </span>
         </div>
-        <div class="meta" style="margin-top:4px;">
+        {{-- <div class="meta" style="margin-top:4px;">
             وضعیت حضور بر اساس زمان شروع این انتخابات محاسبه شده است.
             @if ($election->starts_at)
                 (شروع: {{ function_exists('verta') ? verta($election->starts_at->copy()->setTimezone('Asia/Tehran'))->format('Y/m/d H:i') : $election->starts_at }})
             @endif
-        </div>
+        </div> --}}
     </div>
 
     <table class="stats">
@@ -148,6 +145,10 @@
                         <td>
                             @if ($participant->attorney)
                                 {{ $participant->attorney->user?->full_name ?? '-' }}
+                                <span class="muted">
+                                    (سهم عادی: {{ number_format($participant->normal_stock_count) }} -
+                                    سهم ممتاز: {{ number_format($participant->prefered_stock_count) }})
+                                </span>
                             @else
                                 <span class="muted">-</span>
                             @endif

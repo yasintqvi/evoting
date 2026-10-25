@@ -124,7 +124,7 @@
                 <div class="alert alert-warning border-warning d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-3">
                     <div>
                         <h5 class="alert-heading mb-1">
-                            <i class="ti ti-scale me-1"></i>تساوی در مرز اصلی و علی‌البدل
+                            {{-- <i class="ti ti-scale me-1"></i>تساوی در مرز اصلی و علی‌البدل --}}
                         </h5>
                         <p class="mb-1">{{ $tieBreak['message'] }}</p>
                         <ul class="mb-0 small">
@@ -136,13 +136,13 @@
                                 </li>
                             @endforeach
                         </ul>
-                        <p class="mb-0 mt-2 small text-muted">
+                        {{-- <p class="mb-0 mt-2 small text-muted">
                             کرسی‌های مورد اختلاف:
                             {{ (int) $tieBreak['contested_main_seats'] }} اصلی
                             @if ((int) $tieBreak['contested_substitute_seats'] > 0)
                                 و {{ (int) $tieBreak['contested_substitute_seats'] }} علی‌البدل
                             @endif
-                        </p>
+                        </p> --}}
                     </div>
                     <div class="text-md-end">
                         @if ($election->status !== App\Enums\ElectionStatus::COMPLETED)
