@@ -212,8 +212,27 @@
                         </div>
                     @endforeach
 
-                    <button type="submit" id="surveySubmitBtn" class="btn btn-primary">ارسال پاسخ‌ها</button>
+                    <button type="button" id="surveySubmitBtn" class="btn btn-primary">ارسال پاسخ‌ها</button>
                 </form>
+
+                {{-- مودال تایید ثبت پاسخ نظرسنجی --}}
+                <div class="modal fade" id="surveyConfirmModal" tabindex="-1" aria-labelledby="surveyConfirmModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="surveyConfirmModalLabel">تایید ارسال پاسخ</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="mb-0">آیا از ثبت پاسخ‌های خود مطمئن هستید؟ پس از ارسال، امکان ویرایش پاسخ وجود ندارد.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">انصراف</button>
+                                <button type="button" id="surveyConfirmSubmitBtn" class="btn btn-success">بله، ارسال شود</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             @endif
         </div>
     </div>
@@ -224,7 +243,21 @@
         (function () {
             var form = document.getElementById('surveyAnswerForm');
             var submitBtn = document.getElementById('surveySubmitBtn');
-            if (form && submitBtn) {
+            var confirmModalEl = document.getElementById('surveyConfirmModal');
+            var confirmSubmitBtn = document.getElementById('surveyConfirmSubmitBtn');
+            if (form && submitBtn && confirmModalEl && confirmSubmitBtn) {
+                var confirmModal = new bootstrap.Modal(confirmModalEl);
+                submitBtn.addEventListener('click', function () {
+                    if (typeof form.reportValidity === 'function' && !form.reportValidity()) {
+                        return;
+                    }
+                    confirmModal.show();
+                });
+                confirmSubmitBtn.addEventListener('click', function () {
+                    confirmSubmitBtn.disabled = true;
+                    confirmModal.hide();
+                    form.submit();
+                });
                 form.addEventListener('submit', function () {
                     submitBtn.disabled = true;
                     submitBtn.textContent = 'در حال ارسال...';
