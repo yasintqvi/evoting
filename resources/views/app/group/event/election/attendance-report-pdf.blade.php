@@ -140,14 +140,14 @@
                     <tr>
                         <td class="text-center">{{ $index + 1 }}</td>
                         <td>{{ $participant->user?->full_name ?? '-' }}</td>
-                        <td class="text-center">{{ number_format($participant->normal_stock_count) }}</td>
-                        <td class="text-center">{{ number_format($participant->prefered_stock_count) }}</td>
+                        <td class="text-center">{{ number_format($participant->attorney_id ? $participant->delegated_normal_stock_count : $participant->normal_stock_count) }}</td>
+                        <td class="text-center">{{ number_format($participant->attorney_id ? $participant->delegated_prefered_stock_count : $participant->prefered_stock_count) }}</td>
                         <td>
                             @if ($participant->attorney)
                                 {{ $participant->attorney->user?->full_name ?? '-' }}
                                 <span class="muted">
-                                    (سهم عادی: {{ number_format($participant->normal_stock_count) }} -
-                                    سهم ممتاز: {{ number_format($participant->prefered_stock_count) }})
+                                    (سهم عادی: {{ number_format($participant->delegated_normal_stock_count) }} -
+                                    سهم ممتاز: {{ number_format($participant->delegated_prefered_stock_count) }})
                                 </span>
                             @else
                                 <span class="muted">-</span>
@@ -207,8 +207,8 @@
                         <td class="text-center">{{ $index + 1 }}</td>
                         <td>{{ $participant->user?->full_name ?? '-' }}</td>
                         <td>{{ $participant->attorney?->user?->full_name ?? '-' }}</td>
-                        <td class="text-center">{{ number_format($participant->normal_stock_count) }}</td>
-                        <td class="text-center">{{ number_format($participant->prefered_stock_count) }}</td>
+                        <td class="text-center">{{ number_format($participant->delegated_normal_stock_count) }}</td>
+                        <td class="text-center">{{ number_format($participant->delegated_prefered_stock_count) }}</td>
                     </tr>
                 @endforeach
             </tbody>
