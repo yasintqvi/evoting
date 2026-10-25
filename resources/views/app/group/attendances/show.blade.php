@@ -416,7 +416,7 @@
 
         @php($quorum = $event->attendanceQuorum())
         <section id="meeting-quorum" class="proj-quorum {{ $quorum['is_official'] ? 'official' : '' }}" aria-live="polite" aria-atomic="true">
-            <div>وضعیت رسمیت جلسه · حد نصاب: ۵۰٪ سهام</div>
+            <div>وضعیت رسمیت جلسه · حد نصاب: {{ toPersianNum(number_format($quorum['quorum_percent'])) }}٪ سهام</div>
             <h2 id="quorum-status" class="mt-2 mb-0">{{ $quorum['is_official'] ? 'جلسه رسمی است' : 'جلسه رسمی نشده است' }}</h2>
             <p id="quorum-details">سهام حاضر: {{ toPersianNum(number_format($quorum['present_shares'])) }} از {{ toPersianNum(number_format($quorum['total_shares'])) }} سهم ({{ toPersianNum(number_format($quorum['percent'], 2)) }}٪)</p>
             <p id="quorum-update" class="small" role="status"></p>
@@ -565,7 +565,8 @@
                 }
 
                 if (peopleSortEl.value === 'presence') {
-                    const present = attendeesCache.filter(a => a.is_present).sort(byName);
+                    const present = attendeesCache.filter(a => a.is_present)
+                        .sort((a, b) => (a.present_at ?? 0) - (b.present_at ?? 0));
                     const absent = attendeesCache.filter(a => !a.is_present).sort(byName);
 
                     const nodes = [];

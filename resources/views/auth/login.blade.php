@@ -23,7 +23,7 @@
 
                 <div class="method-switch" role="group" aria-label="روش ورود">
                     <button type="button" id="password-method" aria-pressed="true" data-mode="password">ورود با رمز عبور</button>
-                    <button type="button" id="otp-method" aria-pressed="false" data-mode="otp">کد یک‌بارمصرف</button>
+                    <button type="button" id="otp-method" aria-pressed="false" data-mode="otp">ورود با کد یک‌بار مصرف</button>
                 </div>
 
                 <div id="feedback" class="feedback {{ $errors->any() ? 'is-error' : '' }}" role="status" aria-live="polite" tabindex="-1" @if(!$errors->any()) hidden @endif>
@@ -39,7 +39,7 @@
                     @csrf
                     <input type="hidden" id="auth-type" name="auth_type" value="{{ App\Enums\AuthType::PASSWORD->value }}">
                     <div class="field" id="phone-field">
-                        <label for="identifier">شماره موبایل <span>نام کاربری شما</span></label>
+                        <label for="identifier"> کد ملی </label>
                         <input type="tel" id="identifier" name="identifier" value="{{ old('identifier') }}" placeholder="09xxxxxxxxx" autocomplete="username" inputmode="tel" dir="ltr" required aria-describedby="phone-help">
                         <p class="field-help" id="phone-help">شماره موبایلی که با آن در سامانه ثبت شده‌اید.</p>
                     </div>
@@ -53,7 +53,7 @@
                             <input type="password" id="password" name="password" autocomplete="current-password" placeholder="رمز عبور خود را وارد کنید" required aria-describedby="password-help">
                             <button type="button" id="toggle-password" aria-label="نمایش رمز عبور" aria-pressed="false">نمایش</button>
                         </div>
-                        <p class="field-help" id="password-help">رمز پیش‌فرض: چهار رقم آخر کد ملی شما.</p>
+                        {{-- <p class="field-help" id="password-help"></p> --}}
                     </div>
                     <div class="otp-description" id="otp-description" hidden>کد تأیید برای شماره موبایل ثبت‌شده شما ارسال می‌شود؛ نیازی به وارد کردن رمز عبور ندارید.</div>
                     <div class="field" id="code-field" hidden>

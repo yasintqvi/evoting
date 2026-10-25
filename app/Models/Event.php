@@ -141,11 +141,14 @@ class Event extends Model
             ->whereNull('attorney_id')
             ->sum(fn ($participant) => $participant->normal_stock_count + $participant->prefered_stock_count);
 
+        $quorumPercent = (float) $this->quorum_percent;
+
         return [
             'total_shares' => $total,
             'present_shares' => $present,
             'percent' => $total > 0 ? ($present / $total) * 100 : 0,
-            'is_official' => $total > 0 && $present >= $total * 0.5,
+            'quorum_percent' => $quorumPercent,
+            'is_official' => $total > 0 && $present >= $total * ($quorumPercent / 100),
         ];
     }
 

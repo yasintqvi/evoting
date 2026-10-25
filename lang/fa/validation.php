@@ -272,7 +272,7 @@ return [
         'max-files' => 'حداکثر تعداد فایل',
         'allowed-extensions' => 'پسوند های مجاز',
         'identifier' => 'شناسه کاربری',
-        'otp' => 'کد یکبار مصرف',
+        'otp' => 'ورود با کد یکبار مصرف',
         'logo' => 'لوگو',
         'nationalcode' => 'کد ملی',
         'current_password' => 'کلمه عبور فعلی',

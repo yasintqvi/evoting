@@ -85,10 +85,12 @@ class EventController extends Controller
         $attendees = (clone $statsQuery)
             ->with('user')
             ->orderByDesc('is_present')
+            ->orderBy('present_at')
             ->get()
             ->map(fn ($participant) => [
                 'name' => $participant->user->full_name,
                 'is_present' => (bool) $participant->is_present,
+                'present_at' => optional($participant->present_at)->timestamp,
             ]);
 
         return response()->json([

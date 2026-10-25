@@ -112,7 +112,7 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
-    'identifier' => 'phone',
+    'identifier' => 'nationalcode',
 
     'constants' => [
         'sms_expire_minutes' => 5,
