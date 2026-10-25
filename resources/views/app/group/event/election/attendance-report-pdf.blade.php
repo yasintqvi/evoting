@@ -79,7 +79,7 @@
     </style>
 </head>
 
-<body style="font-family: vazir, sans-serif; direction: rtl; text-align: right; color: #222; font-size: 12px;">
+<body style="font-family: DejaVu Sans, sans-serif; direction: rtl; text-align: right; color: #222; font-size: 12px;">
     <div class="header" style="text-align:center;">
         <p style="margin-top:18px;">{{ $group->title ?? '-' }}</p>
         <p style="margin-top:6px; font-size:14px; color:#666;">{{ $event->name ?? '-' }}</p>
