@@ -89,8 +89,8 @@
 
 <body>
     <div class="header" style="text-align:center;">
-        <h2 style="font-size:18px;">گزارش حاضرین در جلسه</h2>
         <p style="margin-top:6px; font-size:13px;">{{ $group->title ?? '-' }}</p>
+        <h2 style="font-size:18px;">گزارش حاضرین در جلسه</h2>
         <p style="margin-top:4px; font-size:11px; color:#666;">{{ $event->name ?? '-' }}</p>
         <div class="meta">
             <span>تاریخ گزارش:
@@ -140,15 +140,15 @@
                     <tr>
                         <td class="text-center">{{ $index + 1 }}</td>
                         <td>{{ $participant->user?->full_name ?? '-' }}</td>
-                        <td class="text-center">{{ number_format($participant->attorney_id ? $participant->delegated_normal_stock_count : $participant->normal_stock_count) }}</td>
-                        <td class="text-center">{{ number_format($participant->attorney_id ? $participant->delegated_prefered_stock_count : $participant->prefered_stock_count) }}</td>
+                        <td class="text-center">
+                            {{ number_format($participant->attorney_id ? $participant->delegated_normal_stock_count : $participant->normal_stock_count) }}
+                        </td>
+                        <td class="text-center">
+                            {{ number_format($participant->attorney_id ? $participant->delegated_prefered_stock_count : $participant->prefered_stock_count) }}
+                        </td>
                         <td>
                             @if ($participant->attorney)
                                 {{ $participant->attorney->user?->full_name ?? '-' }}
-                                <span class="muted">
-                                    (سهم عادی: {{ number_format($participant->delegated_normal_stock_count) }} -
-                                    سهم ممتاز: {{ number_format($participant->delegated_prefered_stock_count) }})
-                                </span>
                             @else
                                 <span class="muted">-</span>
                             @endif
