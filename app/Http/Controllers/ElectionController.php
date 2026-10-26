@@ -602,7 +602,27 @@ class ElectionController extends Controller
             ->with(['user', 'attorney.user'])
             ->get();
 
+        $previousRounds = collect();
+        $ancestor = $election->parentElection;
+        while ($ancestor) {
+            $previousRounds->prepend([
+                'election' => $ancestor,
+                'label' => $ancestor->parent_election_id ? $this->runoffService->roundLabel($this->runoffService->roundNumber($ancestor)) : 'اول',
+                'candidates' => $ancestor->candidates()
+                    ->with('user')
+                    ->withSum('votes', 'vote_count')
+                    ->orderByDesc('votes_sum_vote_count')
+                    ->orderBy('id')
+                    ->get(),
+                'runoffCandidateUserIds' => $ancestor->is($election->parentElection)
+                    ? $election->candidates()->pluck('user_id')->all()
+                    : [],
+            ]);
+            $ancestor = $ancestor->parentElection;
+        }
+
         return view('app.group.event.election.report', compact(
+            'previousRounds',
             'group',
             'event',
             'election',

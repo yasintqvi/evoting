@@ -448,14 +448,18 @@ class SurveyController extends Controller
 
         if ($request->boolean('download_pdf')) {
             $isCompact = $request->boolean('compact');
+            $responseCount = SurveyResponse::query()->where('survey_id', $survey->id)->count();
 
             $pdf = Pdf::loadView(
                 $isCompact ? 'app.group.event.survey.statistics-pdf-compact' : 'app.group.event.survey.statistics-pdf',
-                compact('group', 'event', 'survey', 'stats', 'isWeighted'),
+                compact('group', 'event', 'survey', 'stats', 'isWeighted', 'responseCount'),
                 [],
                 [
                     'format' => 'A4',
                     'orientation' => 'P',
+                    'margin_top' => 12,
+                    'margin_bottom' => 18,
+                    'margin_footer' => 6,
                 ]
             );
 

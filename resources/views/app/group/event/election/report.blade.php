@@ -191,6 +191,61 @@
                 </div>
             @endif
 
+            @foreach ($previousRounds ?? [] as $round)
+                @php
+                    $prev = $round['election'];
+                    $prevMain = (int) $prev->main_member_count;
+                    $prevSub = (int) $prev->substitute_member_count;
+                    $prevTotal = (int) $round['candidates']->sum('votes_sum_vote_count');
+                @endphp
+                <div class="card border-info">
+                    <div class="card-header border-bottom border-dashed bg-info-subtle">
+                        <h4 class="card-title mb-0">نتایج دور {{ $round['label'] }} — {{ $prev->title }}</h4>
+                        <small class="text-muted">
+                            {{ $prevMain }} عضو اصلی و {{ $prevSub }} علی‌البدل ·
+                            <a href="{{ route('elections.report', [$group, $event, $prev]) }}">مشاهده گزارش کامل این دور</a>
+                        </small>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-nowrap mb-0">
+                                <thead class="bg-light-subtle">
+                                    <tr>
+                                        <th class="text-center" style="width: 50px;">رتبه</th>
+                                        <th>نام کاندید</th>
+                                        <th class="text-center">تعداد آرا</th>
+                                        <th class="text-center">درصد</th>
+                                        <th class="text-center" style="width: 180px;">نتیجه</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($round['candidates'] as $i => $c)
+                                        @php
+                                            $v = (int) ($c->votes_sum_vote_count ?? 0);
+                                            $toNext = in_array($c->user_id, $round['runoffCandidateUserIds'], true);
+                                            [$cls, $lbl] = $toNext
+                                                ? ['badge-soft-danger', 'تساوی — راه‌یافته به دور بعد']
+                                                : ($i < $prevMain
+                                                    ? ['badge-soft-success', 'عضو اصلی']
+                                                    : ($i < $prevMain + $prevSub
+                                                        ? ['badge-soft-warning', 'علی‌البدل']
+                                                        : ['badge-soft-secondary', '-']));
+                                        @endphp
+                                        <tr>
+                                            <td class="text-center">{{ $i + 1 }}</td>
+                                            <td>{{ $c->user?->full_name ?? '-' }}</td>
+                                            <td class="text-center fw-semibold">{{ number_format($v) }}</td>
+                                            <td class="text-center">{{ $prevTotal > 0 ? number_format($v * 100 / $prevTotal, 1) : 0 }}٪</td>
+                                            <td class="text-center"><span class="badge {{ $cls }}">{{ $lbl }}</span></td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+
             <div class="card">
                 <div class="card-header border-bottom border-dashed">
                     <h4 class="card-title mb-0 d-flex align-items-center gap-2">

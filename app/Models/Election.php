@@ -205,6 +205,20 @@ class Election extends Model
         return $this->parent_election_id !== null;
     }
 
+    /**
+     * تعداد کرسی‌هایی که هر رأی‌دهنده برایشان رأی می‌دهد؛ در دور دوم علی‌البدل هم جزو کرسی‌های محل رقابت است.
+     */
+    public function votableSeatCount(): int
+    {
+        $seats = max(0, (int) $this->main_member_count);
+
+        if ($this->isRunoff()) {
+            $seats += max(0, (int) $this->substitute_member_count);
+        }
+
+        return $seats;
+    }
+
     public function precentParticipants()
     {
         $hiddenUserIds = $this->group->managerOnlyUserIds();
@@ -275,7 +289,7 @@ class Election extends Model
      */
     protected function maxVoteSeatMultiplier(): int
     {
-        $mainSeats = max(0, (int) $this->main_member_count);
+        $mainSeats = $this->votableSeatCount();
         $directorCount = $this->candidates
             ->where('candidate_type', CandidateType::DIRECTOR)
             ->count();

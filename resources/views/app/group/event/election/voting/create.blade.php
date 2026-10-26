@@ -279,7 +279,7 @@
         $article88VotePool =
             $article88VotePool ??
             ($election->type == App\Enums\ElectionType::PRIVATE_JOINT_WITH_88
-                ? (float) $effectiveStock * (float) max(0, (int) $election->main_member_count)
+                ? (float) $effectiveStock * (float) $election->votableSeatCount()
                 : 0.0);
 
         $presentParticipantsCount = $presentParticipantsCount ?? 0;
@@ -290,7 +290,7 @@
                 ? round(($effectiveStock / $totalEffectiveStockOfAllParticipants) * 100, 2)
                 : 0;
 
-        $maxSelectableDirectors = (int) ($election->main_member_count ?? 0);
+        $maxSelectableDirectors = $election->votableSeatCount();
         $isCheckboxVote = in_array($election->type, [
             App\Enums\ElectionType::PUBLIC_JOINT,
             App\Enums\ElectionType::PRIVATE_JOINT,
@@ -377,7 +377,7 @@
                                             <small class="text-muted">
                                                 مجموع سهام مؤثر حاضرین
                                                 ({{ number_format($totalEffectiveStockOfAllParticipants) }})
-                                                × {{ (int) ($election->main_member_count ?? 0) }} عضو اصلی
+                                                × {{ $election->votableSeatCount() }} کرسی
                                             </small>
                                             <small class="text-muted d-block mt-1">
                                                 @if ($election->ignore_stock_weight)
@@ -430,7 +430,7 @@
                                                 <h4 class="fw-medium mb-0">{{ number_format((float) $article88VotePool) }}</h4>
                                                 <p class="mb-0 text-muted lh-lg">سقف رأی قابل تخصیص</p>
                                                 <small class="text-primary">
-                                                    {{ number_format($effectiveStock) }} × {{ (int) ($election->main_member_count ?? 0) }} عضو اصلی
+                                                    {{ number_format($effectiveStock) }} × {{ $election->votableSeatCount() }} کرسی
                                                 </small>
                                             @else
                                                 <h4 class="fw-medium mb-0">{{ number_format($effectiveStock) }}</h4>
@@ -1172,7 +1172,7 @@
             }
 
             const maxDirectorCandidatesForArticle88 = Number(
-                "{{ (int) ($election->main_member_count ?? 0) }}");
+                "{{ $election->votableSeatCount() }}");
 
             if (showPreviewBtn) {
                 showPreviewBtn.addEventListener('click', function(e) {
@@ -1316,7 +1316,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const maxDirectorCandidates = Number("{{ (int) ($election->main_member_count ?? 0) }}");
+            const maxDirectorCandidates = Number("{{ $election->votableSeatCount() }}");
 
             const directorCheckboxes = document.querySelectorAll('input[name^="director_candidates"]');
 

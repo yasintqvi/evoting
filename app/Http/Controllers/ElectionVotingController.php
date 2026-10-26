@@ -442,7 +442,7 @@ class ElectionVotingController extends Controller
 
         // سقف کل آرای گروه (مجموع سهام مؤثر همه حاضرین × تعداد اعضای اصلی)
         $totalArticle88VotePool = $election->type === ElectionType::PRIVATE_JOINT_WITH_88
-            ? (float) $totalEffectiveStockOfAllParticipants * (float) max(0, (int) $election->main_member_count)
+            ? (float) $totalEffectiveStockOfAllParticipants * (float) $election->votableSeatCount()
             : 0.0;
 
         // سهم شخصی شما
@@ -450,7 +450,7 @@ class ElectionVotingController extends Controller
         // ========================================================
 
         $article88VotePool = $election->type === ElectionType::PRIVATE_JOINT_WITH_88
-            ? (float) $effectiveStock * (float) max(0, (int) $election->main_member_count)
+            ? (float) $effectiveStock * (float) $election->votableSeatCount()
             : 0.0;
 
 
@@ -657,7 +657,7 @@ class ElectionVotingController extends Controller
             DB::transaction(function () use ($election, $event, $participant, $directorVotes, &$totalVotesGiven, $user, &$votedCandidatesCount, &$isAbstain) {
                 $userVotePower = $this->effectiveVotePower($election, $event, $user);
                 $article88MaxPool = $election->type === ElectionType::PRIVATE_JOINT_WITH_88
-                    ? $userVotePower * max(0, (int) $election->main_member_count)
+                    ? $userVotePower * $election->votableSeatCount()
                     : null;
 
                 $normalized = [];
@@ -689,7 +689,7 @@ class ElectionVotingController extends Controller
                     $normalized[(int) $candidateId] = $voteValue;
                 }
 
-                $mainSeatCount = (int) ($election->main_member_count ?? 0);
+                $mainSeatCount = $election->votableSeatCount();
                 if ($mainSeatCount > 0 && count($normalized) > $mainSeatCount) {
                     throw new Exception("شما نمی‌توانید به بیش از {$mainSeatCount} کاندیدا رأی دهید.");
                 }
@@ -745,7 +745,7 @@ class ElectionVotingController extends Controller
 
             $userVotePowerAfter = $this->effectiveVotePower($election, $event, $user);
             if ($election->type === ElectionType::PRIVATE_JOINT_WITH_88) {
-                $totalAvailableStock = $userVotePowerAfter * max(0, (int) $election->main_member_count);
+                $totalAvailableStock = $userVotePowerAfter * $election->votableSeatCount();
             } else {
                 $totalAvailableStock = (float) $participant->total_stock;
             }
