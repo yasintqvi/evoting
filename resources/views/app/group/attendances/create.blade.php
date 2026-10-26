@@ -79,7 +79,8 @@
                                                                 data-participant-id="{{ $participant->id }}"
                                                                 data-attorney-phone="{{ $participant->attorney?->user?->phone }}"
                                                                 data-attorney-first-name="{{ $participant->attorney?->user?->first_name }}"
-                                                                data-attorney-last-name="{{ $participant->attorney?->user?->last_name }}">
+                                                                data-attorney-last-name="{{ $participant->attorney?->user?->last_name }}"
+                                                                data-attorney-national-code="{{ $participant->attorney?->user?->nationalcode }}">
                                                                 ویرایش
                                                             </button>
                                                             <button type="button"
@@ -95,7 +96,8 @@
                                                                 data-participant-id="{{ $participant->id }}"
                                                                 data-attorney-phone=""
                                                                 data-attorney-first-name=""
-                                                                data-attorney-last-name="">
+                                                                data-attorney-last-name=""
+                                                                data-attorney-national-code="">
                                                                 انتخاب
                                                             </button>
                                                         @endif
@@ -160,6 +162,14 @@
                             <input type="text" class="form-control" id="attorney-l-name" name="last_name"
                                 value="{{ old('last_name') }}" autocomplete="family-name">
                             <div id="attorney-l-name-error" class="invalid-feedback d-block"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="attorney-national-code" class="form-label">کد ملی وکیل <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="attorney-national-code" name="nationalcode"
+                                value="{{ old('nationalcode') }}" inputmode="numeric" maxlength="10" dir="ltr">
+                            <div id="attorney-national-code-error" class="invalid-feedback d-block"></div>
                         </div>
 
                         <input type="hidden" id="current-participant-id" name="participant_id"
@@ -234,6 +244,8 @@
     <script>
         (function() {
             const PHONE_REGEX = /^09\d{9}$/;
+            // همان قاعدهٔ سمت سرور: numeric|digits:10
+            const NATIONAL_CODE_REGEX = /^\d{10}$/;
             const DIGIT_MAP = {
                 '۰': '0', '۱': '1', '۲': '2', '۳': '3', '۴': '4',
                 '۵': '5', '۶': '6', '۷': '7', '۸': '8', '۹': '9',
@@ -262,14 +274,19 @@
                 return PHONE_REGEX.test(normalizePhone(value));
             }
 
+            function normalizeNationalCode(value) {
+                return toEnglishDigits(value).trim();
+            }
+
             function clearAttorneyErrors() {
-                ['attorney-phone', 'attorney-name', 'attorney-l-name'].forEach(function(id) {
+                ['attorney-phone', 'attorney-name', 'attorney-l-name', 'attorney-national-code'].forEach(function(id) {
                     const el = document.getElementById(id);
                     if (el) el.classList.remove('is-invalid');
                 });
                 document.getElementById('attorney-phone-error').textContent = '';
                 document.getElementById('attorney-name-error').textContent = '';
                 document.getElementById('attorney-l-name-error').textContent = '';
+                document.getElementById('attorney-national-code-error').textContent = '';
                 const alertBox = document.getElementById('attorney-form-alert');
                 alertBox.classList.add('d-none');
                 alertBox.textContent = '';
@@ -279,7 +296,8 @@
                 const map = {
                     phone: ['attorney-phone', 'attorney-phone-error'],
                     first_name: ['attorney-name', 'attorney-name-error'],
-                    last_name: ['attorney-l-name', 'attorney-l-name-error']
+                    last_name: ['attorney-l-name', 'attorney-l-name-error'],
+                    nationalcode: ['attorney-national-code', 'attorney-national-code-error']
                 };
                 const pair = map[field];
                 if (!pair) return;
@@ -329,6 +347,9 @@
                         if (data.last_name) {
                             document.getElementById('attorney-l-name').value = data.last_name;
                         }
+                        if (data.nationalcode) {
+                            document.getElementById('attorney-national-code').value = data.nationalcode;
+                        }
                     })
                     .catch(function() {});
             }
@@ -362,7 +383,8 @@
                                     id: phone,
                                     text: (item.first_name || '') + ' ' + (item.last_name || '') + ' - ' + phone + attorneySuffix,
                                     first_name: item.first_name,
-                                    last_name: item.last_name
+                                    last_name: item.last_name,
+                                    nationalcode: item.nationalcode
                                 };
                             }),
                                 pagination: {
@@ -395,6 +417,7 @@
                 const currentParticipantId = document.getElementById('current-participant-id');
                 const attorneyNameInput = document.getElementById('attorney-name');
                 const attorneyLastNameInput = document.getElementById('attorney-l-name');
+                const attorneyNationalCodeInput = document.getElementById('attorney-national-code');
                 let keepFormValuesOnClose = false;
 
                 document.addEventListener('click', function(event) {
@@ -413,6 +436,7 @@
 
                     attorneyNameInput.value = firstName;
                     attorneyLastNameInput.value = lastName;
+                    attorneyNationalCodeInput.value = btn.getAttribute('data-attorney-national-code') || '';
 
                     if (phone) {
                         const normalized = normalizePhone(phone);
@@ -429,6 +453,7 @@
                     clearAttorneyErrors();
                     const data = e.params.data || {};
                     const phone = normalizePhone(data.id || $(this).val());
+                    attorneyNationalCodeInput.value = data.nationalcode || '';
 
                     if (data.first_name) {
                         attorneyNameInput.value = data.first_name;
@@ -460,6 +485,7 @@
                     const attorneyName = attorneyNameInput.value.trim();
                     const attorneyLastName = attorneyLastNameInput.value.trim();
                     const attorneyPhone = normalizePhone($('#attorney-phone').val());
+                    const attorneyNationalCode = normalizeNationalCode(attorneyNationalCodeInput.value);
 
                     let hasError = false;
 
@@ -478,6 +504,14 @@
 
                     if (!attorneyLastName) {
                         setFieldError('last_name', 'نام خانوادگی وکیل الزامی است.');
+                        hasError = true;
+                    }
+
+                    if (!attorneyNationalCode) {
+                        setFieldError('nationalcode', 'کد ملی وکیل الزامی است.');
+                        hasError = true;
+                    } else if (!NATIONAL_CODE_REGEX.test(attorneyNationalCode)) {
+                        setFieldError('nationalcode', 'کد ملی باید ۱۰ رقم باشد.');
                         hasError = true;
                     }
 
@@ -517,6 +551,7 @@
                             first_name: attorneyName,
                             last_name: attorneyLastName,
                             phone: attorneyPhone,
+                            nationalcode: attorneyNationalCode,
                             participant_id: participantId
                         })
                         .then(function(response) {
@@ -596,7 +631,8 @@
                                     data-participant-id="${participantId}"
                                     data-attorney-phone="${attorneyPhone}"
                                     data-attorney-first-name="${attorneyName}"
-                                    data-attorney-last-name="${attorneyLastName}">
+                                    data-attorney-last-name="${attorneyLastName}"
+                                    data-attorney-national-code="${attorneyNationalCode}">
                                     ویرایش
                                 </button>
                                 <button type="button" class="btn btn-danger btn-sm attorney-delete-btn"

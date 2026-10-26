@@ -15,9 +15,14 @@ class LoginService
 {
     public function __construct(protected OtpOtpService $otpService) {}
 
+    public static function passwordIdentifierField(?string $identifier): string
+    {
+        return preg_match('/^09\d{9}$/', (string) $identifier) ? 'phone' : config('auth.identifier');
+    }
+
     public function loginWithPassword(LoginDTO $loginDTO)
     {
-        $identifier_field = config('auth.identifier');
+        $identifier_field = self::passwordIdentifierField($loginDTO->identifier);
 
         $user = User::where($identifier_field, $loginDTO->identifier)->first();
 

@@ -22,6 +22,7 @@ class DevEnvironmentSeeder extends Seeder
         $adminUser = User::factory()->create([
             'first_name' => 'مدیر سایت',
             'phone' => '09931623277',
+            'nationalcode' => '2710351943',
             'password' => bcrypt('12345678'),
         ]);
 

@@ -4,6 +4,7 @@ namespace App\Http\Requests\Auth;
 
 use App\DTOs\Auth\LoginDTO;
 use App\Enums\AuthType;
+use App\Services\Auth\LoginService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -25,7 +26,9 @@ class LoginRequest extends FormRequest
      */
     public function rules(): array
     {
-        $identifier_field = (int) $this->auth_type === AuthType::OTP->value ? 'phone' : config('auth.identifier');
+        $identifier_field = (int) $this->auth_type === AuthType::OTP->value
+            ? 'phone'
+            : LoginService::passwordIdentifierField($this->input('identifier'));
 
         return [
             'auth_type' => ['required', Rule::in(AuthType::getTypes())],

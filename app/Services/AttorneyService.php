@@ -19,15 +19,19 @@ class AttorneyService
             [
                 'first_name' => $attorneyDto->user->first_name,
                 'last_name' => $attorneyDto->user->last_name,
+                'nationalcode' => $attorneyDto->user->nationalcode,
                 'password' => bcrypt($password),
             ]
         );
+
+        if (! $user->wasRecentlyCreated && blank($user->nationalcode)) {
+            $user->update(['nationalcode' => $attorneyDto->user->nationalcode]);
+        }
         $participant = $attorneyDto->participant;
         $deleted = null;
         if ($participant->attorney) {
             $oldAttorney = $participant->attorney;
 
-            // فقط سهام واگذارشدهٔ همین موکل برمی‌گردد؛ سهام شخصی وکیل قبلی (اگر خودش سهام‌دار باشد) دست‌نخورده می‌ماند.
             $returnNormal = (int) $participant->delegated_normal_stock_count;
             $returnPrefered = (int) $participant->delegated_prefered_stock_count;
 
@@ -47,7 +51,6 @@ class AttorneyService
                 ->where('id', '!=', $participant->id)
                 ->exists();
 
-            // اگر وکیل قبلی موکل دیگری داشته باشد، رأی‌هایش متعلق به همه است و نباید به این موکل منتقل شود.
             if (!$hasOtherPrincipals) {
                 Vote::reassignAllFromParticipantTo((int) $oldAttorney->id, (int) $participant->id);
             }
@@ -72,7 +75,6 @@ class AttorneyService
             ->where('event_id', $participant->event_id)
             ->first();
 
-        // سهام کسی که خودش وکالت داده نزد وکیل خودش است؛ اگر وکیل شود سهام موکل روی ردیفی می‌نشیند که در رأی‌گیری دیده نمی‌شود.
         if ($attorney && $attorney->attorney_id) {
             throw new \Exception(__('messages.attorneys.attorney_has_delegated'));
         }
@@ -90,7 +92,6 @@ class AttorneyService
         $participant->delegated_normal_stock_count = (int) $participant->normal_stock_count;
         $participant->delegated_prefered_stock_count = (int) $participant->prefered_stock_count;
 
-        // هم‌راستا با حضور و غیاب گروهی: سهام موکل به وکیل منتقل می‌شود تا ثبت رأی و UI یکسان باشد.
         $attorney->normal_stock_count += (int) $participant->normal_stock_count;
         $attorney->prefered_stock_count += (int) $participant->prefered_stock_count;
         $attorney->is_present = true;
@@ -101,7 +102,6 @@ class AttorneyService
 
         $participant->is_present = 1;
 
-        // syncWithoutDetaching فقط id گروه بدهد، روی pivot ردیف جدید پیش‌فرض دیتابیس (۱ سهام عادی) می‌خورد.
         if (!$user->groups()->where('groups.id', $group->id)->exists()) {
             $user->groups()->attach($group->id, [
                 'normal_stock_count' => 0,

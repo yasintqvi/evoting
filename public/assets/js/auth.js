@@ -47,10 +47,10 @@
         password.disabled = isOtp;
         password.required = !isOtp;
         get('password-alternative').hidden = isOtp;
-        get('identifier-label').textContent = isOtp ? 'شماره موبایل' : 'کد ملی';
-        phone.placeholder = isOtp ? '09xxxxxxxxx' : 'کد ملی ۱۰ رقمی';
+        get('identifier-label').textContent = isOtp ? 'شماره موبایل' : 'کد ملی یا شماره موبایل';
+        phone.placeholder = isOtp ? '09xxxxxxxxx' : 'کد ملی ۱۰ رقمی یا 09xxxxxxxxx';
         phone.inputMode = isOtp ? 'tel' : 'numeric';
-        get('phone-help').textContent = isOtp ? 'شماره موبایلی که با آن در سامانه ثبت شده‌اید.' : 'کد ملی ثبت‌شده در سامانه را وارد کنید.';
+        get('phone-help').textContent = isOtp ? 'شماره موبایلی که با آن در سامانه ثبت شده‌اید.' : 'کد ملی یا شماره موبایل ثبت‌شده در سامانه را وارد کنید.';
         get('phone-field').hidden = isCode;
         phone.readOnly = isCode;
         get('phone-summary').hidden = !isCode;

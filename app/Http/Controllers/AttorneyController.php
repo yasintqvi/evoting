@@ -51,7 +51,7 @@ class AttorneyController extends Controller
                 'phone.regex' => 'شماره تماس باید ۱۱ رقم و با ۰۹ شروع شود.',
             ]);
 
-            $users = User::where('phone', $data['phone'])->select('first_name', 'last_name', 'phone')
+            $users = User::where('phone', $data['phone'])->select('first_name', 'last_name', 'phone', 'nationalcode')
                 ->first();
             if (!$users) {
                 return response()->json(
@@ -98,7 +98,6 @@ class AttorneyController extends Controller
                 ], 400);
             }
 
-            // کسی که خودش وکیل دیگران است نمی‌تواند وکالت بدهد (زنجیرهٔ وکالت پشتیبانی نمی‌شود).
             if (Participant::where('attorney_id', $participant->id)->exists()) {
                 return response()->json([
                     'status' => 'error',
@@ -106,8 +105,16 @@ class AttorneyController extends Controller
                 ], 400);
             }
 
-            // کسی که خودش وکالت داده، سهامی برای رأی ندارد و نمی‌تواند وکیل شود.
             $attorneyUser = User::where('phone', $data['phone'])->first();
+
+            if ($attorneyUser && filled($attorneyUser->nationalcode) && $attorneyUser->nationalcode !== $data['nationalcode']) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => __('messages.attorneys.nationalcode_mismatch'),
+                    'errors' => ['nationalcode' => [__('messages.attorneys.nationalcode_mismatch')]],
+                ], 422);
+            }
+
             if (
                 $attorneyUser &&
                 Participant::where('event_id', $participant->event_id)
@@ -253,11 +260,6 @@ class AttorneyController extends Controller
             ) {
                 $group->users()->detach($attorneyParticipant->user_id);
             }
-
-            /*
-             * رکورد شرکت‌کنندهٔ وکیل را اینجا حذف نمی‌کنیم: همان رکورد ممکن است هم برای سهام‌دار باشد
-             * و حذف آن کاربر را از رویداد می‌اندازد. رکورد با سهام صفر می‌ماند؛ موکل سهامش را پس می‌گیرد.
-             */
 
             DB::commit();
 

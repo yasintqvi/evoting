@@ -71,8 +71,7 @@ class AttendanceController extends Controller
             $eventId = $request->integer('event_id');
             $currentParticipantId = $request->integer('current_participant_id');
 
-            // کاربرانی که در این رویداد وکیلِ کسی هستند (برای نمایش در لیست و برچسب "وکیل").
-            // attorney_id روی participants به ردیف وکیل اشاره می‌کند؛ ابتدا به user_id نگاشت می‌شود.
+
             $attorneyUserIds = collect();
             if ($eventId > 0) {
                 $attorneyParticipantIds = Participant::query()
@@ -94,11 +93,9 @@ class AttendanceController extends Controller
             $hiddenUserIds = $group->managerOnlyUserIds();
 
             $query = $group->users()
-                ->select('users.id', 'users.phone', 'users.first_name', 'users.last_name')
+                ->select('users.id', 'users.phone', 'users.first_name', 'users.last_name', 'users.nationalcode')
                 ->whereNotIn('users.id', $hiddenUserIds);
 
-            // در گروه‌های سهامی خاص فقط سهامداران واقعی یا وکیل‌های فعال همین رویداد نمایش داده شوند؛
-            // وکیل بیرونی روی pivot گروه سهام صفر دارد و بدون این شرط از لیست حذف می‌شد.
             if ($group->type === \App\Enums\GroupType::SPECIAL) {
                 $query->where(function ($q) use ($attorneyUserIds) {
                     $q->where('group_user.normal_stock_count', '>', 0)

@@ -5,6 +5,7 @@ namespace App\Http\Requests\Attorney;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class StoreAttorneyRequest extends FormRequest
 {
@@ -18,6 +19,12 @@ class StoreAttorneyRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        if ($this->filled('nationalcode')) {
+            $this->merge([
+                'nationalcode' => trim($this->toEnglishDigits((string) $this->input('nationalcode'))),
+            ]);
+        }
+
         if (! $this->filled('phone')) {
             return;
         }
@@ -49,6 +56,7 @@ class StoreAttorneyRequest extends FormRequest
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'phone' => ['required', 'string', 'regex:/^09\d{9}$/'],
+            'nationalcode' => ['required', 'numeric', 'digits:10', Rule::unique('users', 'nationalcode')->ignore($this->input('phone'), 'phone')],
             'participant_id' => 'required|integer|exists:participants,id',
         ];
     }
@@ -60,6 +68,10 @@ class StoreAttorneyRequest extends FormRequest
             'last_name.required' => 'نام خانوادگی وکیل الزامی است.',
             'phone.required' => 'شماره تماس وکیل الزامی است.',
             'phone.regex' => 'شماره تماس باید ۱۱ رقم و با ۰۹ شروع شود (مثال: ۰۹۱۲۳۴۵۶۷۸۹).',
+            'nationalcode.required' => 'کد ملی وکیل الزامی است.',
+            'nationalcode.numeric' => 'کد ملی باید فقط شامل عدد باشد.',
+            'nationalcode.digits' => 'کد ملی باید ۱۰ رقم باشد.',
+            'nationalcode.unique' => 'این کد ملی برای کاربر دیگری ثبت شده است.',
             'participant_id.required' => 'شناسه موکل نامعتبر است.',
             'participant_id.exists' => 'موکل یافت نشد.',
         ];
@@ -71,6 +83,7 @@ class StoreAttorneyRequest extends FormRequest
             'first_name' => 'نام',
             'last_name' => 'نام خانوادگی',
             'phone' => 'شماره تماس',
+            'nationalcode' => 'کد ملی',
             'participant_id' => 'موکل',
         ];
     }
