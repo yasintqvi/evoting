@@ -144,6 +144,22 @@ class Election extends Model
         return $this->hasMany(Participant::class, 'event_id', 'event_id');
     }
 
+    /**
+     * Number of participants present for this election who have not voted yet.
+     */
+    public function presentNotVotedCount(): int
+    {
+        return $this->participants()
+            ->where('is_present', true)
+            ->when($this->starts_at, function (Builder $query) {
+                $query->where(function (Builder $q) {
+                    $q->whereNull('present_at')->orWhere('present_at', '<=', $this->starts_at);
+                });
+            })
+            ->whereDoesntHave('votes', fn (Builder $q) => $q->where('election_id', $this->id))
+            ->count();
+    }
+
     public function candidates(): HasMany
     {
         return $this->hasMany(Candidate::class);

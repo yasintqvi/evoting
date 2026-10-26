@@ -249,7 +249,8 @@
                                                                 class="dropdown-item d-flex align-items-center gap-2 election-end-btn fw-semibold text-danger"
                                                                 data-bs-toggle="modal" data-bs-target="#endElectionModal"
                                                                 data-end-url="{{ $ns['url'] }}"
-                                                                data-election-title="{{ e($election['title']) }}">
+                                                                data-election-title="{{ e($election['title']) }}"
+                                                                data-not-voted-count="{{ (int) ($ns['not_voted_count'] ?? 0) }}">
                                                                 <i class="ti ti-flag"></i>
                                                                 <span>{{ $nsTitle }}</span>
                                                             </button>
@@ -544,6 +545,12 @@
                             <i class="ti ti-alert-triangle me-1"></i>
                             این عمل قابل بازگشت نیست.
                         </div>
+                        <div class="alert alert-danger mb-3 d-none" id="end-election-not-voted-alert">
+                            <i class="ti ti-users me-1"></i>
+                            <strong id="end-election-not-voted-count"></strong>
+                            نفر از حاضرین هنوز در این انتخابات رأی خود را ثبت نکرده‌اند.
+                            با پایان انتخابات، امکان ثبت رأی برای آن‌ها وجود نخواهد داشت.
+                        </div>
                         <p class="mb-2">
                             آیا از پایان انتخابات
                             <strong id="end-election-title-display"></strong>
@@ -616,6 +623,13 @@
                 }
                 if (titleEl) {
                     titleEl.textContent = title;
+                }
+                var notVoted = parseInt(this.getAttribute('data-not-voted-count') || '0', 10);
+                var notVotedAlert = document.getElementById('end-election-not-voted-alert');
+                if (notVotedAlert) {
+                    document.getElementById('end-election-not-voted-count').textContent =
+                        notVoted.toLocaleString('fa-IR');
+                    notVotedAlert.classList.toggle('d-none', notVoted <= 0);
                 }
             });
         });

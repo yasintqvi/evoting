@@ -114,6 +114,7 @@ class ElectionResource extends JsonResource
                 'url' => route('elections.end', [$this->event->group->slug, $this->event->slug, $this->slug]),
                 'method' => 'POST',
                 'action' => 'end',
+                'not_voted_count' => $this->presentNotVotedCount(),
             ];
         }
 

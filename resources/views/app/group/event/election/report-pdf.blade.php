@@ -157,6 +157,9 @@
         <p class="muted">هنوز فردی انتخاب نشده است.</p>
     @endif
 
+    @include('app.group.event.election.partials.pdf-signatures')
+
+
     <div class="footer">
         این گزارش به‌صورت خودکار توسط سامانه تولید شده است.
     </div>

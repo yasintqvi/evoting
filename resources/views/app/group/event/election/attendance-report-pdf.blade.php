@@ -209,6 +209,9 @@
         <p class="muted">هیچ وکالتی ثبت نشده است.</p>
     @endif
 
+    @include('app.group.event.election.partials.pdf-signatures')
+
+
     <div class="footer">
         این گزارش به صورت خودکار توسط سامانه تولید شده است.
     </div>
