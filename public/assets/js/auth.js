@@ -75,6 +75,7 @@
         showMessage('');
         render();
         (mode === 'otp' && step === 'code' ? otp : phone).focus();
+        
     }
     document.querySelectorAll('[data-mode]').forEach(button => button.addEventListener('click', () => switchMode(button.dataset.mode)));
     get('use-otp').addEventListener('click', () => switchMode('otp'));
