@@ -615,7 +615,8 @@ class SurveyController extends Controller
                     'survey_questions.question_text as question_title',
                     'survey_options.id as option_id',
                     'survey_options.option_text as option_title',
-                    DB::raw('SUM(COALESCE(stock.effective_stock, 0)) as weight_sum')
+                    DB::raw('SUM(COALESCE(stock.effective_stock, 0)) as weight_sum'),
+                    DB::raw('COUNT(survey_answers.id) as vote_count')
                 )
                 ->where('survey_responses.survey_id', $survey->id)
                 ->groupBy('survey_questions.id', 'survey_questions.question_text', 'survey_options.id', 'survey_options.option_text')

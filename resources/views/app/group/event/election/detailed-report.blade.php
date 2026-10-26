@@ -172,6 +172,10 @@
         <p class="muted">هنوز رای‌ای برای این انتخابات ثبت نشده است.</p>
     @endif
 
+    <div style="page-break-inside: avoid;">
+        @include('app.group.event.election.partials.pdf-signatures')
+    </div>
+
     <div class="footer">
         <div style="margin-bottom:4px;">
             تاریخ شروع انتخابات: {{ $fmtDate($election->starts_at) }}
