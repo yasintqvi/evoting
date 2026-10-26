@@ -59,6 +59,7 @@ class ElectionResource extends JsonResource
             'is_expired' => $this->isExpired(),
             'rounds' => $this->whenLoaded('rounds', fn () => $this->rounds),
             'has_votes' => $this->votes()->exists(),
+            'results_available' => $this->resultsAvailable(),
             'report_url' => route('elections.report', [$this->event->group->slug, $this->event->slug, $this->slug]),
             'can_delete' => ! $this->status->isImmutableStatuses(),
         ];

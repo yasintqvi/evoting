@@ -106,6 +106,8 @@ class EventController extends Controller
      */
     public function liveElectionStats(Event $event)
     {
+        abort_unless(user()->canAccessGroup($event->group), 403);
+
         $elections = $event->elections()
             ->whereIn('status', [
                 ElectionStatus::ONGOING->value,

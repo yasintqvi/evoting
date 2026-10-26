@@ -23,6 +23,12 @@ use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as Pdf;
 
 class SurveyController extends Controller
 {
+
+    protected function abortIfSurveyRunning(Survey $survey): void
+    {
+        abort_if($survey->isRunning(), 403, 'آمار و گزارش نظرسنجی پس از پایان آن در دسترس خواهد بود.');
+    }
+
     protected function rejectIfSurveyLocked(Survey $survey): ?RedirectResponse
     {
         if ($survey->isLockedForEditing()) {
@@ -444,6 +450,8 @@ class SurveyController extends Controller
 
     public function statistics(Request $request, Group $group, Event $event, Survey $survey)
     {
+        $this->abortIfSurveyRunning($survey);
+
         ['stats' => $stats, 'isWeighted' => $isWeighted] = $this->buildSurveyStatistics($group, $event, $survey);
 
         if ($request->boolean('download_pdf')) {
@@ -493,6 +501,8 @@ class SurveyController extends Controller
      */
     public function detailedReport(Group $group, Event $event, Survey $survey)
     {
+        $this->abortIfSurveyRunning($survey);
+
         if ($survey->is_anonymous) {
             abort(403, 'این نظرسنجی ناشناس است؛ امکان تهیه گزارش تفصیلی هویت پاسخ‌دهندگان وجود ندارد.');
         }
@@ -743,20 +753,16 @@ class SurveyController extends Controller
         return back()->with('success', 'نظرسنجی با موفقیت شروع شد.');
     }
 
-    // میخوام وقتی تاریخ پایان اتفاق افتاد دیگ نشه توی نظرسنجی شرکت کرد
-
     /**
      * Manually end a survey.
      */
     public function end(Group $group, Event $event, Survey $survey)
     {
-        if ((int) $survey->status !== 1) {
+        if (! $survey->isActive()) {
             return back()->with('error', 'این نظرسنجی در حال حاضر فعال نیست.');
         }
 
-        $survey->status = 0;
-        $survey->end_at = now();
-        $survey->save();
+        $survey->close();
 
         return back()->with('success', 'نظرسنجی با موفقیت پایان یافت.');
     }

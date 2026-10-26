@@ -28,4 +28,5 @@ Route::get('/events/{event}/attendance-stats', [EventController::class, 'attenda
     ->name('events.attendance.stats');
 
 Route::get('/events/{event}/live-election-stats', [EventController::class, 'liveElectionStats'])
-    ->name('events.live-election-stats');
+    ->name('events.live-election-stats')
+    ->can(Permission::VIEW_GROUP_EVENT);
