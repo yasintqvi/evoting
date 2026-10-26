@@ -149,10 +149,13 @@ class Election extends Model
      */
     public function presentNotVotedCount(): int
     {
+        $event = $this->event;
+
         return $this->participants()
+            ->visibleForAttendance($event->group)
+            ->whereNotIn('id', $event->attorneyOnlyParticipantIds())
             ->where('is_present', true)
             ->whereNull('attorney_id')
-            ->whereNotIn('user_id', $this->event->group->managerOnlyUserIds())
             ->when($this->starts_at, function (Builder $query) {
                 $query->where(function (Builder $q) {
                     $q->whereNull('present_at')->orWhere('present_at', '<=', $this->starts_at);

@@ -500,6 +500,8 @@ class ElectionController extends Controller
         $votedParticipantIds = $electionVotes->pluck('participant_id')->unique()->all();
         $totalParticipants = $event->participants()
             ->visibleForAttendance($group)
+            ->whereNotIn('id', $event->attorneyOnlyParticipantIds())
+            ->whereNull('attorney_id')
             ->get()
             ->filter(fn (Participant $participant) => $participant->wasPresentForElection(
                 $election,
