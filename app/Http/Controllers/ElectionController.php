@@ -497,18 +497,15 @@ class ElectionController extends Controller
 
         $totalVotes = $electionVotes->sum('vote_count');
 
-        $hiddenUserIds = $group->managerOnlyUserIds();
-        $presentParticipants = $event->participants()
-            ->where('is_present', true)
-            ->whereNotIn('user_id', $hiddenUserIds)
-            ->get();
-
-        $presentVoterIds = $presentParticipants->whereNull('attorney_id')->pluck('id');
-        $representedByPresentVoters = $presentParticipants
-            ->whereNotNull('attorney_id')
-            ->whereIn('attorney_id', $presentVoterIds)
+        $votedParticipantIds = $electionVotes->pluck('participant_id')->unique()->all();
+        $totalParticipants = $event->participants()
+            ->visibleForAttendance($group)
+            ->get()
+            ->filter(fn (Participant $participant) => $participant->wasPresentForElection(
+                $election,
+                in_array($participant->id, $votedParticipantIds, true)
+            ))
             ->count();
-        $totalParticipants = $presentVoterIds->count() + $representedByPresentVoters;
 
         $totalCandidates = $candidateVotes->count();
 
