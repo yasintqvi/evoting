@@ -564,35 +564,31 @@
                     return;
                 }
 
-                if (peopleSortEl.value === 'presence') {
-                    const present = attendeesCache.filter(a => a.is_present)
-                        .sort((a, b) => (a.present_at ?? 0) - (b.present_at ?? 0));
-                    const absent = attendeesCache.filter(a => !a.is_present).sort(byName);
+                const present = attendeesCache.filter(a => a.is_present)
+                    .sort(peopleSortEl.value === 'presence'
+                        ? (a, b) => (a.present_at ?? 0) - (b.present_at ?? 0)
+                        : byName);
+                const absent = attendeesCache.filter(a => !a.is_present).sort(byName);
 
-                    const nodes = [];
+                const nodes = [];
 
-                    if (present.length) {
-                        const heading = document.createElement('div');
-                        heading.className = 'proj-people-subhead';
-                        heading.style.gridColumn = '1/-1';
-                        heading.textContent = `حاضرین (${present.length})`;
-                        nodes.push(heading, ...present.map(makePersonEl));
-                    }
-
-                    if (absent.length) {
-                        const heading = document.createElement('div');
-                        heading.className = 'proj-people-subhead';
-                        heading.style.gridColumn = '1/-1';
-                        heading.textContent = `غایبین (${absent.length})`;
-                        nodes.push(heading, ...absent.map(makePersonEl));
-                    }
-
-                    peopleEl.replaceChildren(...nodes);
-                    return;
+                if (present.length) {
+                    const heading = document.createElement('div');
+                    heading.className = 'proj-people-subhead';
+                    heading.style.gridColumn = '1/-1';
+                    heading.textContent = `حاضرین (${present.length})`;
+                    nodes.push(heading, ...present.map(makePersonEl));
                 }
 
-                const attendees = [...attendeesCache].sort(byName);
-                peopleEl.replaceChildren(...attendees.map(makePersonEl));
+                if (absent.length) {
+                    const heading = document.createElement('div');
+                    heading.className = 'proj-people-subhead';
+                    heading.style.gridColumn = '1/-1';
+                    heading.textContent = `غایبین (${absent.length})`;
+                    nodes.push(heading, ...absent.map(makePersonEl));
+                }
+
+                peopleEl.replaceChildren(...nodes);
             }
 
             function renderElections() {

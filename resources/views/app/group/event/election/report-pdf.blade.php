@@ -92,16 +92,14 @@
         $elected = $candidateVotes->take($winnersLimit > 0 ? $winnersLimit : $candidateVotes->count());
     @endphp
 
-    <div class="header">
-        <h2>گزارش نتایج انتخابات</h2>
-        <p style="margin-top:6px;">{{ $election->title }}</p>
+    <div class="header" style="text-align:center;">
+        <p style="margin-top:18px;">{{ $group->title ?? '-' }}</p>
+        <p style="margin-top:6px; font-size:14px; color:#666;">{{ $event->name ?? '-' }}</p>
+        <h2 style="font-size:11px; color:#666;">گزارش نتایج انتخابات {{ $election->title }}</h2>
         <div class="meta">
-            گروه: {{ $group->title ?? '-' }}
-            |
-            رویداد: {{ $event->title ?? '-' }}
-            |
-            تاریخ:
-            {{ function_exists('verta') ? verta(now('Asia/Tehran'))->format('Y/m/d H:i') : now('Asia/Tehran')->format('Y-m-d H:i') }}
+            <span>تاریخ گزارش:
+                {{ function_exists('verta') ? verta(now('Asia/Tehran'))->format('Y/m/d H:i') : now('Asia/Tehran')->format('Y-m-d H:i') }}
+            </span>
         </div>
     </div>
 
@@ -126,9 +124,9 @@
         </tr>
     </table>
 
-    <h3 style="margin-bottom:8px;">افراد انتخاب‌شده</h3>
+    <h3 style="margin-bottom:8px;">نتایج کاندیداها</h3>
 
-    @if ($elected->count() > 0)
+    @if ($candidateVotes->count() > 0)
         <table class="results">
             <thead>
                 <tr>
@@ -139,10 +137,14 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($elected as $index => $candidate)
+                @foreach ($candidateVotes->values() as $index => $candidate)
                     @php
                         $voteCount = (int) ($candidate->votes_sum_vote_count ?? 0);
-                        $status = $index < $mainWinnersCount ? 'عضو اصلی' : 'علی‌البدل';
+                        $status = match (true) {
+                            $index < $mainWinnersCount => 'عضو اصلی',
+                            $index < $winnersLimit => 'علی‌البدل',
+                            default => '—',
+                        };
                     @endphp
                     <tr>
                         <td class="text-center">{{ $index + 1 }}</td>
@@ -154,13 +156,21 @@
             </tbody>
         </table>
     @else
-        <p class="muted">هنوز فردی انتخاب نشده است.</p>
+        <p class="muted">کاندیدایی برای این انتخابات ثبت نشده است.</p>
     @endif
 
     @include('app.group.event.election.partials.pdf-signatures')
 
 
     <div class="footer">
+        @php
+            $fmt = fn ($d) => $d ? (function_exists('verta') ? verta($d->copy()->setTimezone('Asia/Tehran'))->format('Y/m/d H:i') : $d->format('Y-m-d H:i')) : '—';
+        @endphp
+        <div style="margin-bottom:4px;">
+            تاریخ شروع انتخابات: {{ $fmt($election->starts_at) }}
+            |
+            تاریخ پایان انتخابات: {{ $fmt($election->ends_at) }}
+        </div>
         این گزارش به‌صورت خودکار توسط سامانه تولید شده است.
     </div>
 </body>

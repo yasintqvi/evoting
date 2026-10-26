@@ -50,6 +50,7 @@
                     $labels = $items->pluck('option_title')->map(fn($o) => $o ?? 'پاسخ متنی');
                     $values = $items->pluck('count');
                     $percents = $items->pluck('percent');
+                    $voteCounts = $items->map(fn($i) => (int) ($i->vote_count ?? $i->count));
                 @endphp
 
                 <div class="accordion-item mb-3 shadow-sm rounded-3 border-0">
@@ -79,8 +80,36 @@
                         const collapse = document.getElementById('collapse{{ $questionId }}');
                         collapse.addEventListener('shown.bs.collapse', function() {
                             if (!canvas.dataset.initialized) {
+                                const voteCounts = @json($voteCounts);
+                                const isWeighted = @json((bool) ($isWeighted ?? false));
+                                const fa = n => Number(n).toLocaleString('fa-IR', { maximumFractionDigits: 2 });
+                                const barLabels = {
+                                    id: 'barLabels',
+                                    afterDatasetsDraw(chart) {
+                                        const { ctx } = chart;
+                                        chart.getDatasetMeta(0).data.forEach((bar, i) => {
+                                            const lines = isWeighted
+                                                ? [fa(chart.data.datasets[0].data[i]) + ' سهم', fa(voteCounts[i]) + ' رأی']
+                                                : [fa(voteCounts[i]) + ' رأی'];
+                                            const height = bar.base - bar.y;
+                                            const inside = height > lines.length * 26 + 10;
+                                            ctx.save();
+                                            ctx.textAlign = 'center';
+                                            ctx.font = 'bold 18px Vazirmatn, Vazir, sans-serif';
+                                            ctx.fillStyle = inside ? '#fff' : '#212529';
+                                            lines.forEach((line, n) => {
+                                                const y = inside
+                                                    ? bar.y + 24 + n * 26
+                                                    : bar.y - 8 - (lines.length - 1 - n) * 26;
+                                                ctx.fillText(line, bar.x, y);
+                                            });
+                                            ctx.restore();
+                                        });
+                                    }
+                                };
                                 new Chart(canvas, {
                                     type: 'bar',
+                                    plugins: [barLabels],
                                     data: {
                                         labels: {!! json_encode($labels) !!},
                                         datasets: [{
@@ -95,6 +124,9 @@
                                     },
                                     options: {
                                         responsive: true,
+                                        layout: {
+                                            padding: { top: 60 }
+                                        },
                                         scales: {
                                             y: {
                                                 beginAtZero: true
