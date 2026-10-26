@@ -124,6 +124,36 @@ class Election extends Model
         return $status === ElectionStatus::COMPLETED || $status === ElectionStatus::CANCELED;
     }
 
+    public function resultsAvailable(): bool
+    {
+        return $this->isFinished() || ($this->status === ElectionStatus::ONGOING && $this->isExpired());
+    }
+
+    public function complete(): void
+    {
+        $this->status = ElectionStatus::COMPLETED;
+        $this->ends_at = $this->ends_at ?? now();
+        $this->save();
+    }
+
+    public function finalizeIfExpired(): bool
+    {
+        if ($this->status !== ElectionStatus::ONGOING || ! $this->isExpired()) {
+            return false;
+        }
+
+        $this->complete();
+
+        return true;
+    }
+
+    public function scopeExpiredOngoing(Builder $query): Builder
+    {
+        return $query->where('status', ElectionStatus::ONGOING->value)
+            ->whereNotNull('ends_at')
+            ->where('ends_at', '<', now());
+    }
+
     public function getRouteKeyName()
     {
         return 'slug';

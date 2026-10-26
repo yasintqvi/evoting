@@ -49,9 +49,43 @@ class Survey extends Model
         return $this->start_at !== null && now()->lt($this->start_at);
     }
 
-    /**
-     * پس از زدن «شروع نظرسنجی»، start_at ثبت می‌شود؛ تا قبل از آن ساختار قابل ویرایش/حذف است.
-     */
+    public function isActive(): bool
+    {
+        return (int) $this->status === 1;
+    }
+
+    public function isRunning(): bool
+    {
+        return $this->isActive() && ! $this->isExpired();
+    }
+
+    public function close(bool $keepScheduledEnd = false): void
+    {
+        $this->status = 0;
+        if (! $keepScheduledEnd || $this->end_at === null) {
+            $this->end_at = now();
+        }
+        $this->save();
+    }
+
+    public function finalizeIfExpired(): bool
+    {
+        if (! $this->isActive() || ! $this->isExpired()) {
+            return false;
+        }
+
+        $this->close(keepScheduledEnd: true);
+
+        return true;
+    }
+
+    public function scopeExpiredActive($query)
+    {
+        return $query->where('status', 1)
+            ->whereNotNull('end_at')
+            ->where('end_at', '<', now());
+    }
+
     public function isLockedForEditing(): bool
     {
         return $this->start_at !== null;

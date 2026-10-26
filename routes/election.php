@@ -37,13 +37,18 @@ Route::prefix('{group:slug}/events/{event:slug}')->group(function () {
 
     Route::get('elections/{election:slug}/report', [ElectionController::class, 'report'])
         ->name('elections.report')
-        ->can(Permission::SHOW_ELECTION);
+        ->can(Permission::SHOW_ELECTION)
+        ->middleware('results.available');
 
-    Route::get('/elections/{election:slug}/detailed-report', [ElectionController::class, 'detailedReport'])->name('elections.detailed-report');
+    Route::get('/elections/{election:slug}/detailed-report', [ElectionController::class, 'detailedReport'])
+        ->name('elections.detailed-report')
+        ->can(Permission::SHOW_ELECTION)
+        ->middleware('results.available');
 
     Route::get('elections/{election:slug}/attendance-report', [ElectionController::class, 'attendanceReport'])
         ->name('elections.attendance-report')
-        ->can(Permission::SHOW_ELECTION);
+        ->can(Permission::SHOW_ELECTION)
+        ->middleware('results.available');
 
     Route::get('/elections/create', [ElectionController::class, 'create'])
         ->name('elections.create')
@@ -79,7 +84,8 @@ Route::prefix('{group:slug}/events/{event:slug}')->group(function () {
         ->can(Permission::CREATE_ELECTION_ROUNDS);
 
     Route::post('/elections/{election:slug}/end', [ElectionController::class, 'end'])
-        ->name('elections.end');
+        ->name('elections.end')
+        ->can(Permission::CREATE_ELECTION_ROUNDS);
 
     Route::post('/elections/{election:slug}/start-runoff', [ElectionController::class, 'startRunoff'])
         ->name('elections.start-runoff')
@@ -142,7 +148,8 @@ Route::prefix('{group:slug}/events/{event:slug}')->group(function () {
         })->name('voting.store');
 
         Route::post('elections/voting/terminate', [ElectionVotingController::class, 'terminate'])
-            ->name('voting.terminate');
+            ->name('voting.terminate')
+            ->can(Permission::CREATE_ELECTION_ROUNDS);
     });
 });
 

@@ -407,9 +407,7 @@ class ElectionController extends Controller
                 return back()->with('error', 'وضعیت فعلی انتخابات قابل پایان نیست.');
             }
 
-            $election->status = ElectionStatus::COMPLETED;
-            $election->ends_at = $election->ends_at ?? now();
-            $election->save();
+            $election->complete();
 
             $tieAnalysis = $this->runoffService->analyzeTieBreak($election);
             if ($tieAnalysis['has_tie'] && ! $election->isRunoff()) {

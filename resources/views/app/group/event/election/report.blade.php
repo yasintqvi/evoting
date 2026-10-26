@@ -148,10 +148,12 @@
                         @if ($election->status !== App\Enums\ElectionStatus::COMPLETED)
                             <span class="badge bg-secondary">پس از پایان انتخابات می‌توانید دور {{ $nextRoundLabel }} را شروع کنید</span>
                         @elseif ($existingRunoff)
-                            <a href="{{ route('elections.report', [$group, $event, $existingRunoff]) }}"
-                                class="btn btn-outline-primary mb-2 d-block">
-                                مشاهده دور {{ $nextRoundLabel }}
-                            </a>
+                            @if ($existingRunoff->resultsAvailable())
+                                <a href="{{ route('elections.report', [$group, $event, $existingRunoff]) }}"
+                                    class="btn btn-outline-primary mb-2 d-block">
+                                    مشاهده دور {{ $nextRoundLabel }}
+                                </a>
+                            @endif
                             @if ($existingRunoff->status === App\Enums\ElectionStatus::WAITING_TO_START)
                                 <form action="{{ route('elections.start', [$group, $event, $existingRunoff]) }}" method="POST">
                                     @csrf

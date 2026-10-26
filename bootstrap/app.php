@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'voter.only' => \App\Http\Middleware\VoterOnlyAccess::class,
+            'results.available' => \App\Http\Middleware\EnsureResultsAvailable::class,
         ]);
 
         // Convert Persian/Arabic digits to English in all incoming requests.

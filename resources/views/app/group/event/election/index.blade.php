@@ -327,7 +327,7 @@
                                                     </li>
                                                 @endif
 
-                                                @if (isset($election['has_votes']) && $election['has_votes'])
+                                                @if (! empty($election['has_votes']) && ! empty($election['results_available']))
                                                     @can(\App\Enums\Permission::SHOW_ELECTION->value)
                                                         <li>
                                                             <a class="dropdown-item d-flex align-items-center gap-2"

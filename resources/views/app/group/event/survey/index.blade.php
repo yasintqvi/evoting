@@ -170,10 +170,12 @@
                                                 class="btn btn-success btn-sm" title="نمایش نظرسنجی">
                                                 <i class="ti ti-eye"></i>
                                             </a>
-                                            <a href="{{ route('surveys.statistics', [$group, $event, $survey]) }}"
-                                                class="btn btn-warning btn-sm" title="آمار نظرسنجی">
-                                                <i class="ti ti-align-box-bottom-center"></i>
-                                            </a>
+                                            @unless ($survey->isRunning())
+                                                <a href="{{ route('surveys.statistics', [$group, $event, $survey]) }}"
+                                                    class="btn btn-warning btn-sm" title="آمار نظرسنجی">
+                                                    <i class="ti ti-align-box-bottom-center"></i>
+                                                </a>
+                                            @endunless
 
                                         </div>
                                     </td>

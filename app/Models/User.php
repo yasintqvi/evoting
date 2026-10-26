@@ -107,6 +107,12 @@ class User extends Authenticatable
         return $this->belongsToMany(Group::class, 'group_user');
     }
 
+    public function canAccessGroup(Group $group): bool
+    {
+        return $this->hasRole(\App\Enums\Role::Manager->value)
+            || $this->groups()->whereKey($group->getKey())->exists();
+    }
+
     public function ownerCompanies(): HasMany
     {
         return $this->hasMany(Group::class, 'owner_id');
