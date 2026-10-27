@@ -7,14 +7,14 @@
     <meta name="theme-color" content="#465dff">
     <title>ورود به حساب | سامانه انتخابات</title>
     <link rel="stylesheet" href="{{ asset('assets/css/auth.css') }}?v={{ filemtime(public_path('assets/css/auth.css')) }}">
-    <script src="{{ asset('assets/js/auth.js') }}" defer></script>
+    <script src="{{ asset('assets/js/auth.js') }}?v={{ filemtime(public_path('assets/js/auth.js')) }}" defer></script>
 </head>
 <body>
     <main class="auth-shell">
         <section class="form-panel" aria-labelledby="form-title">
             <div class="form-wrap">
                 <img src="{{ asset('images/logo.png') }}" style="align-content: center" alt="لوگو" class="brand-mark ">
-                <div class="form-brand" style="font-size: 30px">
+                <div class="form-brand" style="font-size: 20px">
                     سامانه انتخابات بیمارستان فوق تخصصی میلاد لاهیجان
                 </div>
                 <span class="section-kicker">خوش آمدید</span>
@@ -38,7 +38,7 @@
                     @csrf
                     <input type="hidden" id="auth-type" name="auth_type" value="{{ App\Enums\AuthType::PASSWORD->value }}">
                     <div class="field" id="phone-field">
-                        <label for="identifier" id="identifier-label">کد ملی</label>
+                        <label for="identifier" id="identifier-label">کد ملی یا شماره موبایل</label>
                         <input type="tel" id="identifier" name="identifier" value="{{ old('identifier') }}" placeholder="09xxxxxxxxx" autocomplete="username" inputmode="tel" dir="ltr" required aria-describedby="phone-help">
                         <p class="field-help" id="phone-help">شماره موبایلی که با آن در سامانه ثبت شده‌اید.</p>
                     </div>
