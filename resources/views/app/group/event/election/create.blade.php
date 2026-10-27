@@ -305,7 +305,7 @@
                 return false;
             }
             if (!validateCandidateCounts()) {
-                showToast('error', 'تعداد اعضای اصلی باید بیشتر از تعداد اعضای علی‌البدل باشد.');
+                showToast('error', 'تعداد اعضای اصلی نباید کمتر از تعداد اعضای علی‌البدل باشد.');
                 e.preventDefault();
                 return false;
             }
@@ -417,9 +417,9 @@
 
             const totalSeats = mainMemberCount + substituteMemberCount;
 
-            if (mainMemberCount <= substituteMemberCount) {
+            if (mainMemberCount < substituteMemberCount) {
                 infoText.textContent =
-                    `تعداد اعضای اصلی (${mainMemberCount}) باید بیشتر از تعداد اعضای علی‌البدل (${substituteMemberCount}) باشد.`;
+                    `تعداد اعضای اصلی (${mainMemberCount}) نباید کمتر از تعداد اعضای علی‌البدل (${substituteMemberCount}) باشد.`;
                 infoDiv.className = 'alert alert-danger';
                 infoDiv.style.display = 'block';
                 return false;

@@ -245,9 +245,9 @@
             return true;
         }
 
-        if (mainMemberCount <= substituteMemberCount) {
+        if (mainMemberCount < substituteMemberCount) {
             infoText.textContent =
-                `تعداد اعضای اصلی (${mainMemberCount}) باید بیشتر از تعداد اعضای علی‌البدل (${substituteMemberCount}) باشد.`;
+                `تعداد اعضای اصلی (${mainMemberCount}) نباید کمتر از تعداد اعضای علی‌البدل (${substituteMemberCount}) باشد.`;
             infoDiv.className = 'alert alert-danger';
             infoDiv.style.display = 'block';
             return false;
