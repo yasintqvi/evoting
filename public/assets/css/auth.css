@@ -357,10 +357,10 @@ h2 {
 
 .brand-mark {
     display:block;
-    width:44px;
-    height:44px;
-    max-width:44px;
-    max-height:44px;
+    width:72px;
+    height:72px;
+    max-width:72px;
+    max-height:72px;
     border-radius:10px;
     object-fit:contain;
     object-position:center;
