@@ -1,13 +1,17 @@
 @font-face {
     font-family:Yekan;
-    src:url('../fonts/2-IranYekan/iranyekanwebregular.woff') format('woff');
+    src:url('../fonts/1-IranSansWeb/IRANSansWeb_Light.woff2') format('woff2'),
+        url('../fonts/1-IranSansWeb/IRANSansWeb_Light.woff') format('woff'),
+        url('../fonts/1-IranSansWeb/IRANSansWeb_Light.ttf') format('truetype');
     font-weight:400;
     font-display:swap;
 }
 @font-face {
     font-family:Yekan;
-    src:url('../fonts/2-IranYekan/iranyekanwebbold.woff2') format('woff2');
-    font-weight:700;
+    src:url('../fonts/1-IranSansWeb/IRANSansWeb_Bold.woff2') format('woff2'),
+        url('../fonts/1-IranSansWeb/IRANSansWeb_Bold.woff') format('woff'),
+        url('../fonts/1-IranSansWeb/IRANSansWeb_Bold.ttf') format('truetype');
+    font-weight:700 800;
     font-display:swap;
 }
 :root {

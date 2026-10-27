@@ -14,7 +14,7 @@
         <section class="form-panel" aria-labelledby="form-title">
             <div class="form-wrap">
                 <img src="{{ asset('images/logo.png') }}" style="align-content: center" alt="لوگو" class="brand-mark ">
-                <div class="form-brand">
+                <div class="form-brand" style="font-size: 30px">
                     سامانه انتخابات بیمارستان فوق تخصصی میلاد لاهیجان
                 </div>
                 <span class="section-kicker">خوش آمدید</span>
